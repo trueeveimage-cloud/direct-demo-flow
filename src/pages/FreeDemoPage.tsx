@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, Upload, ArrowRight, Loader2 } from 'lucide-react';
+import { CheckCircle2, Upload, ArrowRight, Loader2, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,40 +9,80 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { AnimatedSection } from '@/components/AnimatedSection';
 
+type FormStep = 1 | 2;
+
+const packages = [
+  { id: 'starter', name: 'Starter', pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' } },
+  { id: 'standard', name: 'Standard', pages: { sv: 'Upp till 5 sidor', en: 'Up to 5 pages' }, popular: true },
+  { id: 'pro', name: 'Pro', pages: { sv: 'Upp till 8 sidor', en: 'Up to 8 pages' } },
+];
+
+const styles = ['Minimal', 'Luxury', 'Bold', 'Playful', 'Corporate'];
+const languages = [
+  { id: 'sv', label: { sv: 'Svenska', en: 'Swedish' } },
+  { id: 'en', label: { sv: 'Engelska', en: 'English' } },
+  { id: 'both', label: { sv: 'Båda', en: 'Both' } },
+];
+
 export default function FreeDemoPage() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const [step, setStep] = useState<FormStep>(1);
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Step 1 state
+  const [demoLink, setDemoLink] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [contactPerson, setContactPerson] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
+  const [selectedPackage, setSelectedPackage] = useState('');
+  
+  // Step 2 state
   const [noLogo, setNoLogo] = useState(false);
   const [useStock, setUseStock] = useState(false);
-  const [confirmations, setConfirmations] = useState({
-    info: false,
-    fee: false,
-    refund: false,
-    deduct: false,
-  });
+  const [customPages, setCustomPages] = useState<string[]>(['']);
 
-  const allConfirmed = Object.values(confirmations).every(Boolean);
+  const addCustomPage = () => {
+    setCustomPages([...customPages, '']);
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const removeCustomPage = (index: number) => {
+    setCustomPages(customPages.filter((_, i) => i !== index));
+  };
+
+  const updateCustomPage = (index: number, value: string) => {
+    const updated = [...customPages];
+    updated[index] = value;
+    setCustomPages(updated);
+  };
+
+  const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!allConfirmed) {
+    if (!demoLink || !businessName || !contactPerson || !email || !phone || !selectedStyle || !selectedLanguage || !selectedPackage) {
       toast({
-        title: t('Bekräfta alla villkor', 'Confirm all terms'),
-        description: t('Du måste bekräfta alla villkor för att fortsätta.', 'You must confirm all terms to continue.'),
+        title: t('Fyll i alla fält', 'Fill in all fields'),
+        description: t('Alla fält i steg 1 är obligatoriska.', 'All fields in step 1 are required.'),
         variant: 'destructive',
       });
       return;
     }
-    
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
     setSubmitted(true);
   };
 
   if (submitted) {
+    const pkg = packages.find(p => p.id === selectedPackage);
     return (
       <div className="section-padding py-20">
         <div className="container-narrow text-center">
@@ -55,26 +95,25 @@ export default function FreeDemoPage() {
             </h1>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
               {t(
-                'Nu är det dags att betala 500 kr verifieringsavgift. Din demo påbörjas inom 72 timmar efter betalning.',
-                'Now it\'s time to pay the 500 kr verification fee. Your demo will begin within 72 hours after payment.'
+                'Vi har mottagit din förfrågan. Du kommer att få ett mail med nästa steg för att bekräfta din plats.',
+                'We\'ve received your request. You\'ll receive an email with next steps to confirm your slot.'
               )}
             </p>
 
             <div className="p-6 bg-secondary/50 rounded-lg border border-border max-w-sm mx-auto mb-8">
               <p className="font-heading font-semibold text-lg mb-2">
-                {t('Verifieringsavgift', 'Verification Fee')}
+                {t('Valt paket', 'Selected package')}: {pkg?.name}
               </p>
-              <p className="text-3xl font-bold mb-4">500 kr</p>
               <p className="text-sm text-muted-foreground mb-4">
-                {t('100% återbetalning om du inte gillar demon', '100% refund if you don\'t like the demo')}
+                {t(
+                  'Du kommer att kontaktas med betalningsinstruktioner.',
+                  'You\'ll be contacted with payment instructions.'
+                )}
               </p>
-              <Button className="w-full" size="lg">
-                {t('Betala 500 kr verifiering', 'Pay 500 kr verification')}
-              </Button>
             </div>
 
             <p className="text-sm text-muted-foreground">
-              {t('Efter betalning får du en bekräftelse via e-post.', 'After payment, you\'ll receive a confirmation via email.')}
+              {t('Vi återkommer inom 24 timmar.', 'We\'ll get back to you within 24 hours.')}
             </p>
           </AnimatedSection>
         </div>
@@ -87,185 +126,250 @@ export default function FreeDemoPage() {
       <div className="container-narrow">
         <AnimatedSection animation="fade-up" className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">
-            {t('Få din gratis webb-demo', 'Get your free website demo')}
+            {t('Gratis webb-koncept (72h)', 'Free website concept demo (72h)')}
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
             {t(
-              'Fyll i all info nedan. När du skickat in formuläret visas betalningssteget (500 kr verifiering). Demon påbörjas efter betalning.',
-              'Submit all info below. After submission, you\'ll see the payment step (500 kr verification). Demo starts after payment.'
+              'Berätta om ditt företag så skapar vi ett koncept inom 72 timmar.',
+              'Tell us about your business and we\'ll create a concept within 72 hours.'
             )}
           </p>
+          
+          {/* Step indicator */}
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <div className={`flex items-center gap-2 ${step >= 1 ? 'text-accent' : 'text-muted-foreground'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 1 ? 'bg-accent text-accent-foreground' : 'bg-muted'}`}>1</div>
+              <span className="text-sm font-medium hidden sm:inline">{t('Grundinfo', 'Basic info')}</span>
+            </div>
+            <div className="w-12 h-0.5 bg-border" />
+            <div className={`flex items-center gap-2 ${step >= 2 ? 'text-accent' : 'text-muted-foreground'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 2 ? 'bg-accent text-accent-foreground' : 'bg-muted'}`}>2</div>
+              <span className="text-sm font-medium hidden sm:inline">{t('Detaljer', 'Details')}</span>
+            </div>
+          </div>
         </AnimatedSection>
 
-        <form onSubmit={handleSubmit} className="space-y-10">
-          {/* A) Contact */}
-          <AnimatedSection animation="fade-up" delay={100}>
-            <section className="space-y-4">
-              <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
-                A. {t('Kontaktuppgifter', 'Contact Information')}
-              </h2>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="businessName">{t('Företagsnamn', 'Business Name')} *</Label>
-                  <Input id="businessName" required placeholder={t('Ditt Företag AB', 'Your Company Ltd')} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contactPerson">{t('Kontaktperson', 'Contact Person')} *</Label>
-                  <Input id="contactPerson" required placeholder="Anna Andersson" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">E-post *</Label>
-                  <Input id="email" type="email" required placeholder="anna@foretag.se" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">{t('Telefon', 'Phone')} *</Label>
-                  <Input id="phone" type="tel" required placeholder="+46 70 123 45 67" />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="location">{t('Ort / Land', 'City / Country')} *</Label>
-                  <Input id="location" required placeholder="Göteborg, Sverige" />
-                </div>
-              </div>
-            </section>
-          </AnimatedSection>
+        {step === 1 && (
+          <form onSubmit={handleStep1Submit} className="space-y-8">
+            {/* Demo Link - First field */}
+            <AnimatedSection animation="fade-up" delay={50}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Länk till er nuvarande webb/Instagram', 'Link to your current site/Instagram')} *
+                </h2>
+                <Input 
+                  value={demoLink}
+                  onChange={(e) => setDemoLink(e.target.value)}
+                  required 
+                  placeholder="https://instagram.com/mittforetag eller mittforetag.se"
+                  className="text-lg py-6"
+                />
+              </section>
+            </AnimatedSection>
 
-          {/* B) Business Details */}
-          <AnimatedSection animation="fade-up" delay={150}>
-            <section className="space-y-4">
-              <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
-                B. {t('Om verksamheten', 'Business Details')}
-              </h2>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="whatYouDo">{t('Vad gör ni? (kort beskrivning)', 'What do you do? (short description)')} *</Label>
-                  <Textarea id="whatYouDo" required placeholder={t('Vi driver en frisörsalong med fokus på...', 'We run a hair salon focusing on...')} />
-                </div>
+            {/* Contact Info */}
+            <AnimatedSection animation="fade-up" delay={100}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Kontaktuppgifter', 'Contact Information')}
+                </h2>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="openingHours">{t('Öppettider', 'Opening Hours')}</Label>
-                    <Input id="openingHours" placeholder={t('Mån-Fre 10-18, Lör 10-15', 'Mon-Fri 10-18, Sat 10-15')} />
+                    <Label>{t('Företagsnamn', 'Business Name')} *</Label>
+                    <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} required placeholder={t('Ditt Företag AB', 'Your Company Ltd')} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">{t('Adress', 'Address')}</Label>
-                    <Input id="address" placeholder="Storgatan 1, 411 01 Göteborg" />
+                    <Label>{t('Kontaktperson', 'Contact Person')} *</Label>
+                    <Input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} required placeholder="Anna Andersson" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>E-post *</Label>
+                    <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required placeholder="anna@foretag.se" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('Telefon', 'Phone')} *</Label>
+                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" required placeholder="+46 70 123 45 67" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="mapsLink">Google Maps {t('länk', 'link')}</Label>
-                  <Input id="mapsLink" placeholder="https://goo.gl/maps/..." />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="socials">{t('Sociala medier (Instagram, TikTok, Facebook)', 'Social Media (Instagram, TikTok, Facebook)')}</Label>
-                  <Input id="socials" placeholder="@mittforetag" />
-                </div>
-              </div>
-            </section>
-          </AnimatedSection>
+              </section>
+            </AnimatedSection>
 
-          {/* C) Brand Assets */}
-          <AnimatedSection animation="fade-up" delay={200}>
-            <section className="space-y-4">
-              <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
-                C. {t('Varumärke', 'Brand Assets')}
-              </h2>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>{t('Logotyp', 'Logo')} *</Label>
-                  {!noLogo && (
-                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-accent transition-colors cursor-pointer">
-                      <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        {t('Dra och släpp eller klicka för att ladda upp', 'Drag and drop or click to upload')}
+            {/* Style Selection */}
+            <AnimatedSection animation="fade-up" delay={150}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Välj stil', 'Choose style')} *
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {styles.map((style) => (
+                    <button
+                      key={style}
+                      type="button"
+                      onClick={() => setSelectedStyle(style)}
+                      className={`p-4 border rounded-lg transition-all duration-200 ${
+                        selectedStyle === style 
+                          ? 'border-accent bg-accent-soft ring-2 ring-accent' 
+                          : 'border-border hover:border-accent'
+                      }`}
+                    >
+                      <span className="text-sm font-medium">{style}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </AnimatedSection>
+
+            {/* Language Selection */}
+            <AnimatedSection animation="fade-up" delay={200}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Språk på webbplatsen', 'Website language')} *
+                </h2>
+                <div className="grid grid-cols-3 gap-3">
+                  {languages.map((language) => (
+                    <button
+                      key={language.id}
+                      type="button"
+                      onClick={() => setSelectedLanguage(language.id)}
+                      className={`p-4 border rounded-lg transition-all duration-200 ${
+                        selectedLanguage === language.id 
+                          ? 'border-accent bg-accent-soft ring-2 ring-accent' 
+                          : 'border-border hover:border-accent'
+                      }`}
+                    >
+                      <span className="text-sm font-medium">
+                        {lang === 'sv' ? language.label.sv : language.label.en}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                {selectedLanguage === 'both' && (
+                  <p className="text-sm text-muted-foreground">
+                    {t('Konceptet kommer stödja både svenska och engelska.', 'The concept will support both Swedish and English.')}
+                  </p>
+                )}
+              </section>
+            </AnimatedSection>
+
+            {/* Package Selection */}
+            <AnimatedSection animation="fade-up" delay={250}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Välj paket', 'Choose package')} *
+                </h2>
+                <div className="grid md:grid-cols-3 gap-4">
+                  {packages.map((pkg) => (
+                    <button
+                      key={pkg.id}
+                      type="button"
+                      onClick={() => setSelectedPackage(pkg.id)}
+                      className={`relative p-6 border rounded-lg text-left transition-all duration-200 ${
+                        selectedPackage === pkg.id 
+                          ? 'border-accent bg-accent-soft ring-2 ring-accent' 
+                          : 'border-border hover:border-accent'
+                      }`}
+                    >
+                      {pkg.popular && (
+                        <span className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">
+                          {t('Populärast', 'Most Popular')}
+                        </span>
+                      )}
+                      <h3 className="font-heading font-semibold text-lg">{pkg.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {lang === 'sv' ? pkg.pages.sv : pkg.pages.en}
                       </p>
-                      <input type="file" className="hidden" accept="image/*" />
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="noLogo"
-                      checked={noLogo}
-                      onCheckedChange={(checked) => setNoLogo(checked as boolean)}
-                    />
-                    <Label htmlFor="noLogo" className="font-normal text-sm">
-                      {t('Jag har ingen logotyp', 'I don\'t have a logo')}
-                    </Label>
-                  </div>
+                    </button>
+                  ))}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="colors">{t('Färger (valfritt)', 'Colors (optional)')}</Label>
-                  <Input id="colors" placeholder={t('Svart, vit, guld', 'Black, white, gold')} />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('Stil', 'Style')} *</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                    {['Minimal', 'Bold', 'Luxury', 'Playful', 'Corporate'].map((style) => (
-                      <label
-                        key={style}
-                        className="flex items-center justify-center p-3 border border-border rounded-lg cursor-pointer hover:border-accent transition-colors has-[:checked]:border-accent has-[:checked]:bg-accent-soft"
-                      >
-                        <input type="radio" name="style" value={style} className="sr-only" required />
-                        <span className="text-sm font-medium">{style}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-          </AnimatedSection>
+              </section>
+            </AnimatedSection>
 
-          {/* D) Content */}
-          <AnimatedSection animation="fade-up" delay={250}>
-            <section className="space-y-4">
-              <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
-                D. {t('Innehåll', 'Content')}
-              </h2>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="services">{t('Tjänster + priser', 'Services + prices')} *</Label>
-                  <Textarea
-                    id="services"
-                    required
-                    rows={4}
-                    placeholder={t('Klippning dam: 450 kr\nKlippning herr: 350 kr\nFärgning: från 800 kr', 'Women\'s haircut: 450 kr\nMen\'s haircut: 350 kr\nColoring: from 800 kr')}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="aboutText">{t('Om oss (text eller punkter)', 'About us (text or bullets)')} *</Label>
-                  <Textarea id="aboutText" required rows={4} placeholder={t('Berätta kort om ditt företag, er historia, vad ni står för...', 'Tell us briefly about your business, history, values...')} />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('Foton', 'Photos')}</Label>
-                  {!useStock && (
-                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-accent transition-colors cursor-pointer">
-                      <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        {t('Ladda upp bilder på verksamheten', 'Upload photos of your business')}
-                      </p>
-                      <input type="file" className="hidden" accept="image/*" multiple />
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <Checkbox id="useStock" checked={useStock} onCheckedChange={(checked) => setUseStock(checked as boolean)} />
-                    <Label htmlFor="useStock" className="font-normal text-sm">{t('Använd stockbilder', 'Use stock photos')}</Label>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reviews">{t('Recensioner / omdömen (valfritt)', 'Reviews / testimonials (optional)')}</Label>
-                  <Textarea id="reviews" rows={3} placeholder={t('"Bästa frisören i stan!" - Anna K.', '"Best salon in town!" - Anna K.')} />
-                </div>
-              </div>
-            </section>
-          </AnimatedSection>
+            <AnimatedSection animation="fade-up" delay={300}>
+              <Button type="submit" size="lg" className="w-full sm:w-auto">
+                {t('Fortsätt till steg 2', 'Continue to step 2')}
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </AnimatedSection>
+          </form>
+        )}
 
-          {/* E) Website Needs */}
-          <AnimatedSection animation="fade-up" delay={300}>
-            <section className="space-y-4">
-              <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
-                E. {t('Webbplatsbehov', 'Website Needs')}
-              </h2>
-              <div className="space-y-4">
+        {step === 2 && (
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <AnimatedSection animation="fade-up">
+              <Button type="button" variant="ghost" onClick={() => setStep(1)} className="mb-4">
+                ← {t('Tillbaka till steg 1', 'Back to step 1')}
+              </Button>
+            </AnimatedSection>
+
+            {/* Logo Upload */}
+            <AnimatedSection animation="fade-up" delay={50}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Logotyp', 'Logo')}
+                </h2>
+                {!noLogo && (
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-accent transition-colors cursor-pointer">
+                    <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {t('Dra och släpp eller klicka för att ladda upp', 'Drag and drop or click to upload')}
+                    </p>
+                    <input type="file" className="hidden" accept="image/*" />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Checkbox id="noLogo" checked={noLogo} onCheckedChange={(checked) => setNoLogo(checked as boolean)} />
+                  <Label htmlFor="noLogo" className="font-normal text-sm cursor-pointer">
+                    {t('Jag har ingen logotyp', 'I don\'t have a logo')}
+                  </Label>
+                </div>
+              </section>
+            </AnimatedSection>
+
+            {/* Services & Prices */}
+            <AnimatedSection animation="fade-up" delay={100}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Tjänster + priser', 'Services + prices')}
+                </h2>
+                <Textarea
+                  rows={4}
+                  placeholder={t('Klippning dam: 450 kr\nKlippning herr: 350 kr\nFärgning: från 800 kr', 'Women\'s haircut: 450 kr\nMen\'s haircut: 350 kr\nColoring: from 800 kr')}
+                />
+              </section>
+            </AnimatedSection>
+
+            {/* Photos */}
+            <AnimatedSection animation="fade-up" delay={150}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Foton', 'Photos')}
+                </h2>
+                {!useStock && (
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-accent transition-colors cursor-pointer">
+                    <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {t('Ladda upp bilder på verksamheten', 'Upload photos of your business')}
+                    </p>
+                    <input type="file" className="hidden" accept="image/*" multiple />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Checkbox id="useStock" checked={useStock} onCheckedChange={(checked) => setUseStock(checked as boolean)} />
+                  <Label htmlFor="useStock" className="font-normal text-sm cursor-pointer">
+                    {t('Använd stockbilder', 'Use stock photos')}
+                  </Label>
+                </div>
+              </section>
+            </AnimatedSection>
+
+            {/* Website Needs with Custom Pages */}
+            <AnimatedSection animation="fade-up" delay={200}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Webbplatsbehov', 'Website Needs')}
+                </h2>
                 <div className="space-y-2">
-                  <Label>{t('Vilka sidor vill du ha?', 'Which pages do you want?')} *</Label>
+                  <Label>{t('Vilka sidor vill du ha?', 'Which pages do you want?')}</Label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
                       { sv: 'Hem', en: 'Home' },
@@ -284,12 +388,37 @@ export default function FreeDemoPage() {
                     ))}
                   </div>
                 </div>
-                <div className="grid sm:grid-cols-2 gap-4">
+
+                {/* Custom Pages */}
+                <div className="space-y-3 pt-4">
+                  <Label>{t('Egen sida (valfri titel)', 'Custom page (title)')}</Label>
+                  {customPages.map((page, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        value={page}
+                        onChange={(e) => updateCustomPage(index, e.target.value)}
+                        placeholder={t('T.ex. Behandlingar, Prislista, Team...', 'E.g. Treatments, Price list, Team...')}
+                      />
+                      {customPages.length > 1 && (
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeCustomPage(index)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" onClick={addCustomPage}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    {t('Lägg till sida', 'Add page')}
+                  </Button>
+                </div>
+
+                {/* Booking */}
+                <div className="grid sm:grid-cols-2 gap-4 pt-4">
                   <div className="space-y-2">
-                    <Label>{t('Behövs bokning?', 'Need booking?')} *</Label>
+                    <Label>{t('Behövs bokning?', 'Need booking?')}</Label>
                     <div className="flex gap-4">
                       <label className="flex items-center gap-2">
-                        <input type="radio" name="booking" value="yes" required />
+                        <input type="radio" name="booking" value="yes" />
                         <span className="text-sm">{t('Ja', 'Yes')}</span>
                       </label>
                       <label className="flex items-center gap-2">
@@ -299,116 +428,49 @@ export default function FreeDemoPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="bookingPlatform">{t('Vilken plattform?', 'Which platform?')}</Label>
-                    <Input id="bookingPlatform" placeholder="Bokadirekt, Calendly, etc." />
+                    <Label>{t('Vilken plattform?', 'Which platform?')}</Label>
+                    <Input placeholder="Bokadirekt, Calendly, etc." />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>{t('Språk på webbplatsen', 'Website language')} *</Label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2">
-                      <input type="radio" name="language" value="sv" required />
-                      <span className="text-sm">{t('Svenska', 'Swedish')}</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input type="radio" name="language" value="en" />
-                      <span className="text-sm">{t('Engelska', 'English')}</span>
-                    </label>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="specialFeatures">{t('Speciella funktioner', 'Special features')}</Label>
-                  <Textarea id="specialFeatures" rows={2} placeholder={t('T.ex. Instagram-flöde, Google recensioner, nyhetsbrev...', 'E.g. Instagram feed, Google reviews, newsletter...')} />
-                </div>
-              </div>
-            </section>
-          </AnimatedSection>
+              </section>
+            </AnimatedSection>
 
-          {/* F) References */}
-          <AnimatedSection animation="fade-up" delay={350}>
-            <section className="space-y-4">
-              <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
-                F. {t('Referenser', 'References')}
-              </h2>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="likeSite1">{t('Webbplats du gillar #1', 'Website you like #1')} *</Label>
-                  <Input id="likeSite1" required placeholder="https://..." />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="likeSite2">{t('Webbplats du gillar #2', 'Website you like #2')} *</Label>
-                  <Input id="likeSite2" required placeholder="https://..." />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dislikeSite">{t('Webbplats du INTE gillar + varför', 'Website you dislike + why')} *</Label>
-                  <Input id="dislikeSite" required placeholder="https://... - för rörig, dålig typografi..." />
-                </div>
-              </div>
-            </section>
-          </AnimatedSection>
+            {/* Additional Info */}
+            <AnimatedSection animation="fade-up" delay={250}>
+              <section className="space-y-4">
+                <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
+                  {t('Övrig information', 'Additional information')}
+                </h2>
+                <Textarea
+                  rows={3}
+                  placeholder={t('Berätta mer om er verksamhet, speciella önskemål, etc.', 'Tell us more about your business, special requests, etc.')}
+                />
+              </section>
+            </AnimatedSection>
 
-          {/* G) Timeline */}
-          <AnimatedSection animation="fade-up" delay={400}>
-            <section className="space-y-4">
-              <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
-                G. {t('Tidslinje', 'Timeline')}
-              </h2>
-              <div className="space-y-2">
-                <Label htmlFor="launchDate">{t('Önskat lanseringsdatum', 'Desired launch date')}</Label>
-                <Input id="launchDate" type="date" />
+            {/* Submit */}
+            <AnimatedSection animation="fade-up" delay={300}>
+              <div className="pt-4">
+                <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t('Skickar...', 'Submitting...')}
+                    </>
+                  ) : (
+                    <>
+                      {t('Skicka förfrågan', 'Submit request')}
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </Button>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {t('Du kommer att kontaktas med nästa steg.', 'You\'ll be contacted with next steps.')}
+                </p>
               </div>
-            </section>
-          </AnimatedSection>
-
-          {/* H) Confirmations */}
-          <AnimatedSection animation="fade-up" delay={450}>
-            <section className="space-y-4">
-              <h2 className="font-heading font-semibold text-xl border-b border-border pb-2">
-                H. {t('Bekräftelser', 'Confirmations')}
-              </h2>
-              <div className="space-y-3 p-4 bg-secondary/50 rounded-lg">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <Checkbox checked={confirmations.info} onCheckedChange={(checked) => setConfirmations((prev) => ({ ...prev, info: checked as boolean }))} className="mt-0.5" />
-                  <span className="text-sm">{t('Jag förstår att demon påbörjas efter att jag skickat in ALL info.', 'I understand the demo starts after I submit ALL info.')}</span>
-                </label>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <Checkbox checked={confirmations.fee} onCheckedChange={(checked) => setConfirmations((prev) => ({ ...prev, fee: checked as boolean }))} className="mt-0.5" />
-                  <span className="text-sm">{t('Jag förstår att jag betalar 500 kr verifiering innan arbetet startar.', 'I understand I pay 500 kr verification before work starts.')}</span>
-                </label>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <Checkbox checked={confirmations.refund} onCheckedChange={(checked) => setConfirmations((prev) => ({ ...prev, refund: checked as boolean }))} className="mt-0.5" />
-                  <span className="text-sm">{t('Jag förstår att 500 kr återbetalas om jag avvisar demon.', 'I understand the 500 kr is refundable if I reject the demo.')}</span>
-                </label>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <Checkbox checked={confirmations.deduct} onCheckedChange={(checked) => setConfirmations((prev) => ({ ...prev, deduct: checked as boolean }))} className="mt-0.5" />
-                  <span className="text-sm">{t('Jag förstår att 500 kr dras av från slutpriset om jag går vidare.', 'I understand the 500 kr is deducted from final price if I proceed.')}</span>
-                </label>
-              </div>
-            </section>
-          </AnimatedSection>
-
-          {/* Submit */}
-          <AnimatedSection animation="fade-up" delay={500}>
-            <div className="pt-4">
-              <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={!allConfirmed || isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {t('Skickar...', 'Submitting...')}
-                  </>
-                ) : (
-                  <>
-                    {t('Skicka och fortsätt till betalning', 'Submit and continue to payment')}
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </Button>
-              <p className="mt-3 text-sm text-muted-foreground">
-                {t('Du kommer till betalningssteget efter att du skickat formuläret.', 'You\'ll proceed to payment after submitting the form.')}
-              </p>
-            </div>
-          </AnimatedSection>
-        </form>
+            </AnimatedSection>
+          </form>
+        )}
       </div>
     </div>
   );

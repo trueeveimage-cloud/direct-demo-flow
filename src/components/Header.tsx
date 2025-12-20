@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ThemeToggle } from './ThemeToggle';
@@ -9,10 +9,21 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { lang, setLang, t } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      navigate('/');
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+    }
+  };
 
   const navItems = [
     { path: '/', label: t('Hem', 'Home') },
-    { path: '/demo', label: t('Gratis demo', 'Free Demo') },
+    { path: '/demo', label: t('Gratis koncept', 'Free Concept') },
     { path: '/priser', label: t('Priser', 'Pricing') },
     { path: '/portfolio', label: 'Portfolio' },
     { path: '/faq', label: 'FAQ' },
@@ -26,9 +37,13 @@ export function Header() {
       <div className="section-padding">
         <div className="container-wide flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="font-heading font-bold text-xl tracking-tight">
+          <a 
+            href="/" 
+            onClick={handleLogoClick}
+            className="font-heading font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
+          >
             NordicSite<span className="text-accent">.</span>
-          </Link>
+          </a>
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-8">
@@ -58,9 +73,10 @@ export function Header() {
             </button>
 
             {/* CTA */}
-            <Button asChild>
+            <Button asChild className="group">
               <Link to="/demo">
-                {t('Få en gratis webb-demo', 'Get a free website demo')}
+                {t('Få ditt koncept', 'Get your concept')}
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </div>
@@ -102,9 +118,10 @@ export function Header() {
               </Link>
             ))}
             <div className="pt-4">
-              <Button asChild className="w-full">
+              <Button asChild className="w-full group">
                 <Link to="/demo" onClick={() => setIsOpen(false)}>
-                  {t('Få en gratis webb-demo', 'Get a free website demo')}
+                  {t('Få ditt koncept (72h)', 'Get your concept (72h)')}
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
             </div>

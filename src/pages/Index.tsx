@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { ArrowRight, FileText, CreditCard, Zap, CheckCircle2, Clock } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
@@ -8,12 +8,23 @@ import { TrustBadges } from '@/components/TrustBadges';
 
 export default function Index() {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div>
       {/* Hero Section */}
-      <section className="section-padding py-20 lg:py-32">
-        <div className="container-narrow text-center">
+      <section className="section-padding py-20 lg:py-32 relative overflow-hidden">
+        {/* Parallax background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
+        </div>
+        
+        <div className="container-narrow text-center relative z-10">
           <AnimatedSection animation="fade-up" delay={0}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-soft text-accent text-sm font-medium mb-6">
               <Clock className="w-4 h-4" />
@@ -23,7 +34,7 @@ export default function Index() {
 
           <AnimatedSection animation="fade-up" delay={100}>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-balance">
-              {t('Få en gratis webb-demo', 'Get a free website demo')}
+              {t('Gratis webb-koncept', 'Free website concept demo')}
               <br />
               <span className="text-muted-foreground">
                 {t('(inom 72 timmar)', '(within 72 hours)')}
@@ -34,8 +45,8 @@ export default function Index() {
           <AnimatedSection animation="fade-up" delay={200}>
             <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
               {t(
-                'Fyll i all info först. När allt är inskickat betalar du 500 kr verifiering. Gillar du inte demon → full återbetalning. Gillar du den → 500 kr dras av från slutpriset.',
-                'Submit all info first. Once complete, pay 500 kr verification. Don\'t like the demo → full refund. Like it → 500 kr deducted from final price.'
+                'Se hur din webbplats kan se ut innan du bestämmer dig. Gillar du inte konceptet? Full återbetalning, inga frågor.',
+                'See how your website could look before you decide. Don\'t like the concept? Full refund, no questions asked.'
               )}
             </p>
           </AnimatedSection>
@@ -44,13 +55,13 @@ export default function Index() {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="group">
                 <Link to="/demo">
-                  {t('Få en gratis webb-demo', 'Get a free website demo')}
+                  {t('Få ditt webb-koncept (72h)', 'Get your concept demo (72h)')}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/efter-demo">
-                  {t('Fått din demo?', 'Got your demo?')}
+                  {t('Jag gillar konceptet', 'I like the concept')}
                 </Link>
               </Button>
             </div>
@@ -62,7 +73,7 @@ export default function Index() {
       <TrustBadges />
 
       {/* 3-Step Process */}
-      <section className="section-padding py-20 bg-secondary/50">
+      <section className="section-padding py-20 bg-secondary/50 relative">
         <div className="container-wide">
           <AnimatedSection animation="fade-up">
             <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12">
@@ -75,28 +86,28 @@ export default function Index() {
               {
                 icon: FileText,
                 step: '01',
-                title: t('Fyll i all info', 'Submit full info'),
-                desc: t('Berätta om ditt företag, ladda upp logotyp och beskriv vad du behöver.', 'Tell us about your business, upload logo, and describe your needs.'),
+                title: t('Välj paket & stil', 'Choose package & style'),
+                desc: t('Berätta om ditt företag och välj den riktning du vill ha.', 'Tell us about your business and choose your preferred direction.'),
               },
               {
-                icon: CreditCard,
+                icon: Shield,
                 step: '02',
-                title: t('Betala 500 kr verifiering', 'Pay 500 kr verification'),
-                desc: t('Återbetalas om du inte gillar demon. Dras av om du fortsätter.', 'Refundable if you don\'t like the demo. Deducted if you proceed.'),
+                title: t('Bekräfta din plats', 'Confirm your slot'),
+                desc: t('Boka en prioritetsplats med en liten verifieringsavgift, helt återbetalningsbar.', 'Book a priority slot with a small verification fee, fully refundable.'),
               },
               {
                 icon: Zap,
                 step: '03',
-                title: t('Få din demo inom 72h', 'Receive demo in 72h'),
-                desc: t('Granska demon och bestäm om du vill gå vidare.', 'Review the demo and decide if you want to proceed.'),
+                title: t('Få ditt koncept inom 72h', 'Receive concept in 72h'),
+                desc: t('Granska konceptet och bestäm om du vill gå vidare.', 'Review the concept and decide if you want to proceed.'),
               },
             ].map((item, index) => (
               <AnimatedSection key={index} animation="fade-up" delay={index * 150}>
-                <div className="relative p-6 bg-background rounded-lg border border-border hover:border-accent hover:shadow-lg transition-all duration-300">
+                <div className="relative p-6 bg-background rounded-lg border border-border hover:border-accent hover:shadow-lg transition-all duration-300 group hover:-translate-y-1">
                   <span className="absolute -top-3 left-6 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">
                     {item.step}
                   </span>
-                  <item.icon className="w-8 h-8 text-accent mb-4" />
+                  <item.icon className="w-8 h-8 text-accent mb-4 transition-transform group-hover:scale-110" />
                   <h3 className="font-heading font-semibold text-lg mb-2">{item.title}</h3>
                   <p className="text-sm text-muted-foreground">{item.desc}</p>
                 </div>
@@ -111,7 +122,7 @@ export default function Index() {
         <div className="container-narrow">
           <AnimatedSection animation="fade-up">
             <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8">
-              {t('Vad ingår i demon?', 'What\'s included in the demo?')}
+              {t('Vad ingår i konceptet?', 'What\'s included in the concept?')}
             </h2>
           </AnimatedSection>
 
@@ -120,7 +131,7 @@ export default function Index() {
               t('Startsida + en undersida', 'Home page + one inner page'),
               t('Mobil-först design', 'Mobile-first layout'),
               t('Grundläggande varumärkesriktning', 'Basic branding/style direction'),
-              t('1 revision inkluderad', '1 demo revision included'),
+              t('1 revision inkluderad', '1 concept revision included'),
             ].map((item, index) => (
               <AnimatedSection key={index} animation="fade-left" delay={index * 100}>
                 <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent-soft transition-colors">
@@ -135,6 +146,24 @@ export default function Index() {
 
       {/* Testimonials */}
       <Testimonials />
+
+      {/* Mid-page CTA */}
+      <section className="section-padding py-16 bg-accent-soft">
+        <AnimatedSection animation="scale-in" className="container-narrow text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+            {t('Redo att se hur din sida kan se ut?', 'Ready to see how your site could look?')}
+          </h2>
+          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+            {t('Det tar bara några minuter att börja.', 'It only takes a few minutes to get started.')}
+          </p>
+          <Button asChild size="lg" className="group">
+            <Link to="/demo">
+              {t('Få ditt webb-koncept', 'Get your concept demo')}
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Button>
+        </AnimatedSection>
+      </section>
 
       {/* Who This Is For */}
       <section className="section-padding py-20">
@@ -210,13 +239,22 @@ export default function Index() {
       </section>
 
       {/* Monthly Care Plan Teaser */}
-      <section className="section-padding py-20 bg-primary text-primary-foreground">
-        <AnimatedSection animation="fade-up" className="container-narrow text-center">
+      <section className="section-padding py-20 bg-primary text-primary-foreground relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        </div>
+        <AnimatedSection animation="fade-up" className="container-narrow text-center relative z-10">
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">
             {t('Månatlig webbvård', 'Monthly Care Plan')}
           </h2>
-          <p className="text-primary-foreground/80 mb-6 max-w-xl mx-auto">
-            {t('Hosting, uppdateringar, säkerhet och support. Från 399 kr/mån.', 'Hosting, updates, security, and support. From 399 kr/month.')}
+          <p className="text-primary-foreground/80 mb-3 max-w-xl mx-auto">
+            {t(
+              'De flesta kunder väljer Standard-vårdplanen så att webbplatsen förblir snabb, uppdaterad och redigerbar.',
+              'Most clients choose the Standard Care Plan so the site stays fast, updated, and editable.'
+            )}
+          </p>
+          <p className="text-primary-foreground/60 text-sm mb-6">
+            {t('Avsluta när du vill.', 'Cancel anytime.')}
           </p>
           <Button asChild variant="secondary" className="group">
             <Link to="/priser">
@@ -245,12 +283,12 @@ export default function Index() {
           <div className="space-y-4">
             {[
               {
-                q: t('Är demon verkligen gratis?', 'Is the demo really free?'),
-                a: t('Ja. Du betalar 500 kr verifiering som återbetalas om du inte gillar demon.', 'Yes. You pay 500 kr verification which is refunded if you don\'t like the demo.'),
+                q: t('Är konceptet verkligen gratis?', 'Is the concept really free?'),
+                a: t('Ja! Du betalar en liten verifieringsavgift som är helt återbetalningsbar om du inte gillar konceptet.', 'Yes! You pay a small verification fee that\'s fully refundable if you don\'t like the concept.'),
               },
               {
-                q: t('Varför behövs 500 kr verifiering?', 'Why the 500 kr verification fee?'),
-                a: t('Det visar att du är seriös och filtrerar bort de som bara är nyfikna.', 'It shows you\'re serious and filters out tire-kickers.'),
+                q: t('Varför behövs verifieringsavgift?', 'Why the verification fee?'),
+                a: t('Det visar att du är seriös och bokar en prioritetsplats. Avgiften återbetalas om du inte vill gå vidare.', 'It shows you\'re serious and books a priority slot. The fee is refunded if you don\'t proceed.'),
               },
             ].map((faq, index) => (
               <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
@@ -271,11 +309,11 @@ export default function Index() {
             {t('Redo att komma igång?', 'Ready to get started?')}
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            {t('Fyll i formuläret och få din demo inom 72 timmar.', 'Fill out the form and get your demo within 72 hours.')}
+            {t('Få ditt koncept inom 72 timmar.', 'Get your concept within 72 hours.')}
           </p>
           <Button asChild size="lg" className="group">
             <Link to="/demo">
-              {t('Få en gratis webb-demo', 'Get a free website demo')}
+              {t('Få ditt gratis webb-koncept (72h)', 'Get your free concept demo (72h)')}
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
