@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Mail, Phone, MapPin, Send, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,6 +26,24 @@ export default function ContactPage() {
         <AnimatedSection animation="fade-up" className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">{t('Kontakta oss', 'Contact Us')}</h1>
           <p className="text-muted-foreground">{t('Har du frågor? Hör av dig så svarar vi inom 24 timmar.', 'Have questions? Reach out and we\'ll reply within 24 hours.')}</p>
+        </AnimatedSection>
+
+        {/* CTA Banner */}
+        <AnimatedSection animation="fade-up" delay={50} className="mb-12">
+          <div className="bg-accent-soft rounded-lg p-6 text-center">
+            <h3 className="font-heading font-semibold text-lg mb-2">
+              {t('Vill du se hur din sida kan se ut?', 'Want to see how your site could look?')}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t('Få ett gratis webb-koncept inom 72 timmar.', 'Get a free website concept within 72 hours.')}
+            </p>
+            <Button asChild className="group">
+              <Link to="/demo">
+                {t('Få ditt gratis koncept', 'Get your free concept')}
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </div>
         </AnimatedSection>
 
         <div className="grid md:grid-cols-2 gap-12">
