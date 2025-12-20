@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,7 +46,9 @@ export function Header() {
           </nav>
 
           {/* Right side */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-3">
+            <ThemeToggle />
+            
             {/* Language Toggle */}
             <button
               onClick={() => setLang(lang === 'sv' ? 'en' : 'sv')}
@@ -63,7 +66,8 @@ export function Header() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center gap-3 lg:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
+            <ThemeToggle />
             <button
               onClick={() => setLang(lang === 'sv' ? 'en' : 'sv')}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded border border-border"

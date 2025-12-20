@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Layout } from "@/components/Layout";
 import Index from "./pages/Index";
@@ -12,32 +13,40 @@ import PortfolioPage from "./pages/PortfolioPage";
 import FAQPage from "./pages/FAQPage";
 import TermsPage from "./pages/TermsPage";
 import ContactPage from "./pages/ContactPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import PostDemoPage from "./pages/PostDemoPage";
+import CaseStudyPage from "./pages/CaseStudyPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/demo" element={<FreeDemoPage />} />
-              <Route path="/priser" element={<PricingPage />} />
-              <Route path="/portfolio" element={<PortfolioPage />} />
-              <Route path="/faq" element={<FAQPage />} />
-              <Route path="/villkor" element={<TermsPage />} />
-              <Route path="/kontakt" element={<ContactPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </BrowserRouter>
-      </TooltipProvider>
-    </LanguageProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/demo" element={<FreeDemoPage />} />
+                <Route path="/priser" element={<PricingPage />} />
+                <Route path="/portfolio" element={<PortfolioPage />} />
+                <Route path="/portfolio/:slug" element={<CaseStudyPage />} />
+                <Route path="/faq" element={<FAQPage />} />
+                <Route path="/villkor" element={<TermsPage />} />
+                <Route path="/integritet" element={<PrivacyPage />} />
+                <Route path="/kontakt" element={<ContactPage />} />
+                <Route path="/efter-demo" element={<PostDemoPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          </BrowserRouter>
+        </TooltipProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

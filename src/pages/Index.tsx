@@ -3,6 +3,8 @@ import { ArrowRight, FileText, CreditCard, Zap, CheckCircle2, Clock } from 'luci
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
+import { Testimonials } from '@/components/Testimonials';
+import { TrustBadges } from '@/components/TrustBadges';
 
 export default function Index() {
   const { t } = useLanguage();
@@ -21,10 +23,7 @@ export default function Index() {
 
           <AnimatedSection animation="fade-up" delay={100}>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-balance">
-              {t(
-                'Få en gratis webb-demo',
-                'Get a free website demo'
-              )}
+              {t('Få en gratis webb-demo', 'Get a free website demo')}
               <br />
               <span className="text-muted-foreground">
                 {t('(inom 72 timmar)', '(within 72 hours)')}
@@ -50,14 +49,17 @@ export default function Index() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link to="/priser">
-                  {t('Se priser', 'See pricing')}
+                <Link to="/efter-demo">
+                  {t('Fått din demo?', 'Got your demo?')}
                 </Link>
               </Button>
             </div>
           </AnimatedSection>
         </div>
       </section>
+
+      {/* Trust Badges */}
+      <TrustBadges />
 
       {/* 3-Step Process */}
       <section className="section-padding py-20 bg-secondary/50">
@@ -74,28 +76,19 @@ export default function Index() {
                 icon: FileText,
                 step: '01',
                 title: t('Fyll i all info', 'Submit full info'),
-                desc: t(
-                  'Berätta om ditt företag, ladda upp logotyp och beskriv vad du behöver.',
-                  'Tell us about your business, upload logo, and describe your needs.'
-                ),
+                desc: t('Berätta om ditt företag, ladda upp logotyp och beskriv vad du behöver.', 'Tell us about your business, upload logo, and describe your needs.'),
               },
               {
                 icon: CreditCard,
                 step: '02',
                 title: t('Betala 500 kr verifiering', 'Pay 500 kr verification'),
-                desc: t(
-                  'Återbetalas om du inte gillar demon. Dras av om du fortsätter.',
-                  'Refundable if you don\'t like the demo. Deducted if you proceed.'
-                ),
+                desc: t('Återbetalas om du inte gillar demon. Dras av om du fortsätter.', 'Refundable if you don\'t like the demo. Deducted if you proceed.'),
               },
               {
                 icon: Zap,
                 step: '03',
                 title: t('Få din demo inom 72h', 'Receive demo in 72h'),
-                desc: t(
-                  'Granska demon och bestäm om du vill gå vidare.',
-                  'Review the demo and decide if you want to proceed.'
-                ),
+                desc: t('Granska demon och bestäm om du vill gå vidare.', 'Review the demo and decide if you want to proceed.'),
               },
             ].map((item, index) => (
               <AnimatedSection key={index} animation="fade-up" delay={index * 150}>
@@ -140,8 +133,11 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <Testimonials />
+
       {/* Who This Is For */}
-      <section className="section-padding py-20 bg-secondary/50">
+      <section className="section-padding py-20">
         <div className="container-narrow">
           <div className="grid md:grid-cols-2 gap-12">
             <AnimatedSection animation="fade-right">
@@ -176,7 +172,7 @@ export default function Index() {
       </section>
 
       {/* Portfolio Preview */}
-      <section className="section-padding py-20">
+      <section className="section-padding py-20 bg-secondary/50">
         <div className="container-wide">
           <AnimatedSection animation="fade-up">
             <div className="flex items-center justify-between mb-8">
@@ -192,12 +188,12 @@ export default function Index() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { name: t('Frisörsalong', 'Hair Salon'), type: t('Skönhet', 'Beauty') },
-              { name: 'Café Luna', type: t('Restaurang', 'Restaurant') },
-              { name: t('Rörmokare AB', 'Plumber Co'), type: t('Hantverk', 'Trade') },
+              { name: t('Frisörsalong', 'Hair Salon'), type: t('Skönhet', 'Beauty'), slug: 'salong-nova' },
+              { name: 'Café Luna', type: t('Restaurang', 'Restaurant'), slug: 'cafe-luna' },
+              { name: t('Rörmokare AB', 'Plumber Co'), type: t('Hantverk', 'Trade'), slug: 'rormokare-svensson' },
             ].map((project, index) => (
               <AnimatedSection key={index} animation="scale-in" delay={index * 100}>
-                <div className="group relative aspect-[4/3] bg-secondary rounded-lg overflow-hidden border border-border hover:border-accent transition-all duration-300">
+                <Link to={`/portfolio/${project.slug}`} className="group relative aspect-[4/3] bg-secondary rounded-lg overflow-hidden border border-border hover:border-accent transition-all duration-300 block">
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                     <p className="text-primary-foreground font-heading font-semibold">{project.name}</p>
@@ -206,7 +202,7 @@ export default function Index() {
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                     <span className="text-sm">{t('Projekt förhandsvisning', 'Project preview')}</span>
                   </div>
-                </div>
+                </Link>
               </AnimatedSection>
             ))}
           </div>
@@ -220,10 +216,7 @@ export default function Index() {
             {t('Månatlig webbvård', 'Monthly Care Plan')}
           </h2>
           <p className="text-primary-foreground/80 mb-6 max-w-xl mx-auto">
-            {t(
-              'Hosting, uppdateringar, säkerhet och support. Från 399 kr/mån.',
-              'Hosting, updates, security, and support. From 399 kr/month.'
-            )}
+            {t('Hosting, uppdateringar, säkerhet och support. Från 399 kr/mån.', 'Hosting, updates, security, and support. From 399 kr/month.')}
           </p>
           <Button asChild variant="secondary" className="group">
             <Link to="/priser">
@@ -239,9 +232,7 @@ export default function Index() {
         <div className="container-narrow">
           <AnimatedSection animation="fade-up">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold">
-                {t('Vanliga frågor', 'FAQ')}
-              </h2>
+              <h2 className="text-2xl sm:text-3xl font-bold">{t('Vanliga frågor', 'FAQ')}</h2>
               <Button asChild variant="ghost" className="group">
                 <Link to="/faq">
                   {t('Se alla', 'View all')}
@@ -255,17 +246,11 @@ export default function Index() {
             {[
               {
                 q: t('Är demon verkligen gratis?', 'Is the demo really free?'),
-                a: t(
-                  'Ja. Du betalar 500 kr verifiering som återbetalas om du inte gillar demon.',
-                  'Yes. You pay 500 kr verification which is refunded if you don\'t like the demo.'
-                ),
+                a: t('Ja. Du betalar 500 kr verifiering som återbetalas om du inte gillar demon.', 'Yes. You pay 500 kr verification which is refunded if you don\'t like the demo.'),
               },
               {
                 q: t('Varför behövs 500 kr verifiering?', 'Why the 500 kr verification fee?'),
-                a: t(
-                  'Det visar att du är seriös och filtrerar bort de som bara är nyfikna.',
-                  'It shows you\'re serious and filters out tire-kickers.'
-                ),
+                a: t('Det visar att du är seriös och filtrerar bort de som bara är nyfikna.', 'It shows you\'re serious and filters out tire-kickers.'),
               },
             ].map((faq, index) => (
               <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
@@ -286,10 +271,7 @@ export default function Index() {
             {t('Redo att komma igång?', 'Ready to get started?')}
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            {t(
-              'Fyll i formuläret och få din demo inom 72 timmar.',
-              'Fill out the form and get your demo within 72 hours.'
-            )}
+            {t('Fyll i formuläret och få din demo inom 72 timmar.', 'Fill out the form and get your demo within 72 hours.')}
           </p>
           <Button asChild size="lg" className="group">
             <Link to="/demo">
