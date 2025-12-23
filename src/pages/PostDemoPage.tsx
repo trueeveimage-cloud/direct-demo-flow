@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, XCircle, ChevronDown, ChevronUp, Check, Star, FileText, Users, Search, Scale, Globe, CreditCard, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle2, XCircle, ChevronDown, ChevronUp, Check, Star, FileText, Users, Search, Scale, Globe, CreditCard, Link as LinkIcon, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,6 +11,11 @@ import { AnimatedSection } from '@/components/AnimatedSection';
 import { toast } from '@/hooks/use-toast';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { Switch } from '@/components/ui/switch';
+
+// Edge function URLs - will be updated after deployment
+const EDGE_FUNCTION_BASE = import.meta.env.VITE_SUPABASE_URL 
+  ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
+  : '';
 
 const packages = [
   { id: 'starter', name: 'Starter', price: 4900, priceDisplay: '4 900 kr', pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, delivery: 14, features: { sv: ['Responsiv design', 'Mobil-först', 'Kontaktformulär', 'SEO-grundläggande', '1 revision'], en: ['Responsive design', 'Mobile-first', 'Contact form', 'Basic SEO', '1 revision'] } },
@@ -58,6 +63,7 @@ export default function PostDemoPage() {
   const [legalPages, setLegalPages] = useState<string[]>([]);
   const [selectedLanguageProceed, setSelectedLanguageProceed] = useState('sv');
   const [extraNotes, setExtraNotes] = useState('');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const pkg = packages.find(p => p.id === selectedPackage);
   const verificationFee = 500; // Flat 500 kr / ~$50 USD
@@ -148,7 +154,10 @@ export default function PostDemoPage() {
   };
 
   const handleProceedSubmit = async () => {
+    setIsProcessingPayment(true);
+    
     try {
+      // First, submit form data to getform for record keeping
       const formData = new FormData();
       formData.append('form_type', 'I Love My Concept - Order');
       formData.append('concept_link', conceptLink);
@@ -174,11 +183,53 @@ export default function PostDemoPage() {
         body: formData,
         headers: { 'Accept': 'application/json' },
       });
+
+      // Now create Stripe checkout session
+      if (!EDGE_FUNCTION_BASE) {
+        toast({ 
+          title: t('Betalning inte konfigurerad', 'Payment not configured'), 
+          description: t('Vänligen kontakta oss för att slutföra beställningen.', 'Please contact us to complete your order.'),
+          variant: 'destructive' 
+        });
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const response = await fetch(`${EDGE_FUNCTION_BASE}/create-package-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageId: selectedPackage,
+          conceptLink,
+          carePlanId: selectedCarePlan,
+          isYearly: isYearlyCarePlan,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.url) {
+        // Open Stripe checkout in new tab
+        window.open(data.url, '_blank');
+        toast({ 
+          title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
+          description: t('Slutför betalningen i det nya fönstret.', 'Complete payment in the new window.') 
+        });
+      }
     } catch (error) {
-      // Continue anyway
+      console.error('Payment error:', error);
+      toast({ 
+        title: t('Något gick fel', 'Something went wrong'), 
+        description: t('Försök igen eller kontakta oss.', 'Try again or contact us.'),
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsProcessingPayment(false);
     }
-    
-    setProceedStep(4);
   };
 
   // Refund Flow - Now with revision option first
@@ -639,10 +690,19 @@ export default function PostDemoPage() {
 
                 <AnimatedSection animation="fade-up" delay={450}>
                   <div className="flex gap-4">
-                    <Button variant="outline" onClick={() => setProceedStep(2)}>{t('Tillbaka', 'Back')}</Button>
-                    <Button size="lg" onClick={handleProceedSubmit} className="flex-1">
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      {t('Betala med Stripe', 'Pay with Stripe')} ({remainingAmount.toLocaleString()} kr)
+                    <Button variant="outline" onClick={() => setProceedStep(2)} disabled={isProcessingPayment}>{t('Tillbaka', 'Back')}</Button>
+                    <Button size="lg" onClick={handleProceedSubmit} className="flex-1" disabled={isProcessingPayment}>
+                      {isProcessingPayment ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          {t('Förbereder betalning...', 'Preparing payment...')}
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          {t('Betala med Stripe', 'Pay with Stripe')} ({remainingAmount.toLocaleString()} kr)
+                        </>
+                      )}
                     </Button>
                   </div>
                 </AnimatedSection>

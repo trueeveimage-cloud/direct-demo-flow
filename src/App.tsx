@@ -17,6 +17,8 @@ import PrivacyPage from "./pages/PrivacyPage";
 import PostDemoPage from "./pages/PostDemoPage";
 import CaseStudyPage from "./pages/CaseStudyPage";
 import DirectCheckoutPage from "./pages/DirectCheckoutPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import PaymentCancelledPage from "./pages/PaymentCancelledPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +44,8 @@ const App = () => (
                 <Route path="/kontakt" element={<ContactPage />} />
                 <Route path="/efter-demo" element={<PostDemoPage />} />
                 <Route path="/bestall" element={<DirectCheckoutPage />} />
+                <Route path="/betalning-klar" element={<PaymentSuccessPage />} />
+                <Route path="/betalning-avbruten" element={<PaymentCancelledPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>
