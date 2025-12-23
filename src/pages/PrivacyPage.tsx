@@ -21,8 +21,8 @@ export default function PrivacyPage() {
               </h2>
               <p className="text-muted-foreground">
                 {t(
-                  'NordicSite Studio ("vi", "oss", "vår") respekterar din integritet och är engagerade i att skydda dina personuppgifter. Denna integritetspolicy förklarar hur vi samlar in, använder och skyddar dina uppgifter.',
-                  'NordicSite Studio ("we", "us", "our") respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information.'
+                  'NordicSite Studio ("vi", "oss", "vår") respekterar din integritet och är engagerade i att skydda dina personuppgifter. Denna integritetspolicy förklarar hur vi samlar in, använder och skyddar dina uppgifter när du använder våra tjänster.',
+                  'NordicSite Studio ("we", "us", "our") respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information when you use our services.'
                 )}
               </p>
             </section>
@@ -40,15 +40,15 @@ export default function PrivacyPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-foreground">•</span>
-                  {t('Företagsuppgifter: företagsnamn, adress, öppettider', 'Business information: company name, address, opening hours')}
+                  {t('Företagsuppgifter: företagsnamn, adress, bransch', 'Business information: company name, address, industry')}
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-foreground">•</span>
-                  {t('Projektuppgifter: logotyp, färger, bilder, beskrivningar', 'Project information: logo, colors, images, descriptions')}
+                  {t('Projektmaterial: logotyp, bilder, texter, beskrivningar', 'Project materials: logo, images, texts, descriptions')}
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-foreground">•</span>
-                  {t('Betalningsinformation: hanteras av vår betalningsleverantör', 'Payment information: handled by our payment provider')}
+                  {t('Betalningsinformation: hanteras säkert av vår betalningsleverantör (Stripe)', 'Payment information: handled securely by our payment provider (Stripe)')}
                 </li>
               </ul>
             </section>
@@ -62,7 +62,7 @@ export default function PrivacyPage() {
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-foreground">•</span>
-                  {t('För att skapa din webb-demo och webbplats', 'To create your website demo and website')}
+                  {t('För att skapa ditt koncept och webbplats', 'To create your concept and website')}
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-foreground">•</span>
@@ -70,11 +70,15 @@ export default function PrivacyPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-foreground">•</span>
-                  {t('För att behandla betalningar', 'To process payments')}
+                  {t('För att behandla betalningar och fakturering', 'To process payments and invoicing')}
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-foreground">•</span>
                   {t('För att förbättra våra tjänster', 'To improve our services')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-semibold text-foreground">•</span>
+                  {t('För att skicka viktig information om vårdplaner', 'To send important information about care plans')}
                 </li>
               </ul>
             </section>
@@ -87,8 +91,8 @@ export default function PrivacyPage() {
               </h2>
               <p className="text-muted-foreground">
                 {t(
-                  'Vi lagrar dina uppgifter så länge det behövs för att utföra våra tjänster eller enligt lagkrav. Vi använder branschstandardiserade säkerhetsåtgärder för att skydda dina uppgifter.',
-                  'We store your data for as long as necessary to provide our services or as required by law. We use industry-standard security measures to protect your information.'
+                  'Vi lagrar dina uppgifter så länge det behövs för att utföra våra tjänster eller enligt lagkrav. Projektmaterial sparas i 6 månader efter projektets avslut. Vi använder kryptering och branschstandardiserade säkerhetsåtgärder.',
+                  'We store your data for as long as necessary to provide our services or as required by law. Project materials are kept for 6 months after project completion. We use encryption and industry-standard security measures.'
                 )}
               </p>
             </section>
@@ -127,6 +131,9 @@ export default function PrivacyPage() {
                   {t('Rätt till dataportabilitet', 'Right to data portability')}
                 </li>
               </ul>
+              <p className="text-muted-foreground mt-3">
+                {t('För att utöva dina rättigheter, kontakta oss på hej@nordicsite.se', 'To exercise your rights, contact us at hello@nordicsite.se')}
+              </p>
             </section>
           </AnimatedSection>
 
@@ -137,8 +144,8 @@ export default function PrivacyPage() {
               </h2>
               <p className="text-muted-foreground">
                 {t(
-                  'Vi använder endast nödvändiga cookies för att webbplatsen ska fungera. Vi använder inga spårningscookies eller marknadsföringscookies.',
-                  'We only use essential cookies for the website to function. We do not use tracking cookies or marketing cookies.'
+                  'Vår webbplats använder endast nödvändiga cookies för grundläggande funktionalitet. Vi använder inga spårningscookies eller marknadsföringscookies på denna webbplats. Om du väljer Pro-paketet med Google Analytics för din webbplats, kommer den att använda cookies för spårning och vi hjälper dig sätta upp en cookie-banner.',
+                  'Our website only uses essential cookies for basic functionality. We do not use tracking cookies or marketing cookies on this website. If you choose the Pro package with Google Analytics for your website, it will use cookies for tracking and we will help you set up a cookie banner.'
                 )}
               </p>
             </section>
@@ -149,11 +156,21 @@ export default function PrivacyPage() {
               <h2 className="text-xl font-heading font-semibold mb-3">
                 {t('Tredjepartstjänster', 'Third-party services')}
               </h2>
-              <p className="text-muted-foreground">
-                {t(
-                  'Vi kan använda tredjepartstjänster för betalningar och hosting. Dessa leverantörer har egna integritetspolicyer som vi rekommenderar att du läser.',
-                  'We may use third-party services for payments and hosting. These providers have their own privacy policies which we recommend you review.'
-                )}
+              <p className="text-muted-foreground mb-3">
+                {t('Vi använder följande tredjepartstjänster:', 'We use the following third-party services:')}
+              </p>
+              <ul className="space-y-2 text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="font-semibold text-foreground">•</span>
+                  <strong>Stripe</strong> - {t('betalningshantering', 'payment processing')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-semibold text-foreground">•</span>
+                  <strong>Vercel</strong> - {t('hosting och infrastruktur', 'hosting and infrastructure')}
+                </li>
+              </ul>
+              <p className="text-muted-foreground mt-3">
+                {t('Dessa leverantörer har egna integritetspolicyer som vi rekommenderar att du läser.', 'These providers have their own privacy policies which we recommend you review.')}
               </p>
             </section>
           </AnimatedSection>
@@ -167,7 +184,7 @@ export default function PrivacyPage() {
                 )}
               </p>
               <p className="text-sm text-muted-foreground mt-4">
-                {t('Senast uppdaterad:', 'Last updated:')} {new Date().toLocaleDateString()}
+                {t('Senast uppdaterad:', 'Last updated:')} 2024-12-23
               </p>
             </section>
           </AnimatedSection>

@@ -11,36 +11,40 @@ export default function FAQPage() {
 
   const faqs = [
     { 
-      q: t('Är konceptet verkligen gratis?', 'Is the concept really free?'), 
-      a: t('Ja, konceptet i sig är gratis. Du betalar en liten verifieringsavgift (10% av valt paket) för att boka din prioritetsplats. Om du inte gillar konceptet återbetalas avgiften helt.', 'Yes, the concept itself is free. You pay a small verification fee (10% of chosen package) to book your priority slot. If you don\'t like the concept, the fee is fully refunded.') 
+      q: t('Hur fungerar "gratis koncept"?', 'How does "free concept" work?'), 
+      a: t('Du får ett gratis designkoncept för din webbplats. Du betalar en verifieringsavgift (10% av paketet) för att boka din plats. Om du inte gillar konceptet återbetalas avgiften helt. Om du går vidare dras den från slutpriset.', 'You get a free design concept for your website. You pay a verification fee (10% of package) to book your spot. If you don\'t like the concept, the fee is fully refunded. If you proceed, it\'s deducted from the final price.') 
     },
     { 
-      q: t('Varför krävs verifieringsavgift?', 'Why is a verification fee required?'), 
-      a: t('Avgiften visar att du är seriös och bokar en prioritetsplats. Den återbetalas om du inte vill gå vidare, eller dras av från slutpriset om du fortsätter.', 'The fee shows you\'re serious and books a priority slot. It\'s refunded if you don\'t proceed, or deducted from the final price if you do.') 
+      q: t('Kan jag beställa direkt utan koncept?', 'Can I order directly without a concept?'), 
+      a: t('Ja! Du kan använda vår direktbeställning för att gå direkt till produktion. Du fyller i alla detaljer i formuläret och vi börjar bygga din webbplats omedelbart.', 'Yes! You can use our direct checkout to go straight to production. You fill in all details in the form and we start building your website immediately.') 
     },
     { 
-      q: t('När börjar 72-timmarsnedräkningen?', 'When does the 72-hour countdown start?'), 
-      a: t('Nedräkningen börjar först EFTER att: 1) du skickat in ALL obligatorisk info i formuläret, och 2) betalat verifieringsavgiften.', 'The countdown starts only AFTER: 1) you\'ve submitted ALL required info in the form, and 2) paid the verification fee.') 
+      q: t('Vilka paket erbjuder ni?', 'What packages do you offer?'), 
+      a: t('Vi har tre paket: Starter (4 900 kr, 3 sidor), Standard (7 900 kr, 5 sidor, flerspråk), och Pro (12 900 kr, 8 sidor, flerspråk, bokningssystem, Google Analytics).', 'We have three packages: Starter (4,900 SEK, 3 pages), Standard (7,900 SEK, 5 pages, multi-language), and Pro (12,900 SEK, 8 pages, multi-language, booking system, Google Analytics).') 
     },
     { 
-      q: t('Vad räknas som grund för återbetalning?', 'What counts as grounds for a refund?'), 
-      a: t('Du kan avvisa konceptet inom 5 dagar efter leverans och få full återbetalning av verifieringsavgiften. Om du begär extra arbete utöver koncept-scopet innan du bestämt dig, kan återbetalning påverkas.', 'You can reject the concept within 5 days of delivery for a full refund of the verification fee. If you request extra work beyond the concept scope before deciding, the refund may be affected.') 
+      q: t('Vad ingår i bokningssystemet?', 'What\'s included in the booking system?'), 
+      a: t('Vi skapar ditt helt egna bokningssystem integrerat med din webbplats. Det kan kopplas till plattformar som Bokadirekt, Calendly, Timely m.fl. Bokningssystem ingår endast i Pro-paketet.', 'We create your very own booking system integrated with your website. It can connect to platforms like Bokadirekt, Calendly, Timely, etc. Booking system is only included in the Pro package.') 
     },
     { 
-      q: t('Hur många revisioner ingår?', 'How many revisions are included?'), 
-      a: t('I konceptet ingår 1 revision. I de fullständiga paketen ingår 1-3 revisioner beroende på vilket paket du väljer.', 'The concept includes 1 revision. Full packages include 1-3 revisions depending on which package you choose.') 
+      q: t('Hur skickar jag bilder och logotyp?', 'How do I send images and logo?'), 
+      a: t('Efter din beställning får du en länk där du kan ladda upp allt material. Du kan också skicka dem via e-post till oss. Om du inte har bilder kan vi använda stockbilder, och om du inte har logotyp kan vi skapa en enkel åt dig.', 'After your order, you\'ll receive a link where you can upload all materials. You can also send them via email to us. If you don\'t have images, we can use stock photos, and if you don\'t have a logo, we can create a simple one for you.') 
     },
     { 
-      q: t('Erbjuder ni hosting, domän och e-post?', 'Do you provide hosting, domain, and email?'), 
-      a: t('Ja! Vi erbjuder månatliga vårdplaner som inkluderar hosting. Standard- och Pro-planerna inkluderar även domän och företagsmail.', 'Yes! We offer monthly care plans that include hosting. Standard and Pro plans also include domain and business email.') 
+      q: t('Erbjuder ni hosting och domän?', 'Do you provide hosting and domain?'), 
+      a: t('Ja! Vi erbjuder månatliga vårdplaner: Basic (249 kr/mån - hosting, uppdateringar), Standard (449 kr/mån - + domän, e-post, 1h ändringar/mån), och Pro (749 kr/mån - + 3h ändringar/mån, prioriterad support). Med årsbetalning sparar du 20%.', 'Yes! We offer monthly care plans: Basic (249 SEK/month - hosting, updates), Standard (449 SEK/month - + domain, email, 1h edits/month), and Pro (749 SEK/month - + 3h edits/month, priority support). Save 20% with yearly payment.') 
     },
     { 
-      q: t('Kan ni lägga till bokning eller e-handel?', 'Can you add booking or e-commerce?'), 
-      a: t('Bokning kan integreras med befintliga plattformar som Bokadirekt, Calendly, etc. För e-handel rekommenderar vi att diskutera dina specifika behov.', 'Booking can be integrated with existing platforms like Bokadirekt, Calendly, etc. For e-commerce, we recommend discussing your specific needs.') 
+      q: t('Hur lång är leveranstiden?', 'What\'s the delivery time?'), 
+      a: t('Leveranstiden beror på paketet: Starter 14 dagar, Standard 10 dagar, Pro 7 dagar. För konceptet levererar vi inom 72 timmar efter att du betalat verifieringsavgiften.', 'Delivery time depends on package: Starter 14 days, Standard 10 days, Pro 7 days. For concept, we deliver within 72 hours after you pay the verification fee.') 
     },
     { 
-      q: t('Vad händer om jag inte svarar på meddelanden?', 'What if I stop responding?'), 
-      a: t('Om vi inte hör av dig på 14 dagar pausas projektet. Vi kontaktar dig innan paus.', 'If we don\'t hear from you for 14 days, the project is paused. We\'ll contact you before pausing.') 
+      q: t('Vad händer om jag vill ha ändringar?', 'What if I want changes?'), 
+      a: t('I paketen ingår 1-3 revisioner beroende på paket. Med en vårdplan får du löpande ändringar varje månad (1h för Standard, 3h för Pro).', 'Packages include 1-3 revisions depending on package. With a care plan, you get ongoing changes every month (1h for Standard, 3h for Pro).') 
+    },
+    { 
+      q: t('Får jag flerspråkig webbplats?', 'Do I get a multi-language website?'), 
+      a: t('Ja, flerspråkig webbplats (svenska och engelska) ingår i Standard och Pro-paketen. För Starter kan det läggas till som tillägg.', 'Yes, multi-language website (Swedish and English) is included in Standard and Pro packages. For Starter, it can be added as an addon.') 
     },
   ];
 
