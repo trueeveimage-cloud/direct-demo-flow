@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Outfit", "system-ui", "-apple-system", "sans-serif"],
-        heading: ["Outfit", "system-ui", "sans-serif"],
+        sans: ["Metropolis", "system-ui", "-apple-system", "sans-serif"],
+        heading: ["Metropolis", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
