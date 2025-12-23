@@ -14,12 +14,15 @@ const packages = [
     price: '4 900 kr',
     pages: 3,
     delivery: 14,
+    revisions: 1,
     features: {
-      sv: ['Responsiv design', 'Mobil-först', 'Kontaktformulär', 'SEO-grundläggande', '1 revision'],
-      en: ['Responsive design', 'Mobile-first', 'Contact form', 'Basic SEO', '1 revision']
+      sv: ['Mobilanpassad design', 'Kontaktformulär', 'Google Maps', 'Grundläggande SEO', 'Lansering + genomgång'],
+      en: ['Mobile-responsive design', 'Contact form', 'Google Maps', 'Basic SEO', 'Launch + walkthrough']
     },
     booking: false,
-    multiLanguage: false
+    analytics: false,
+    newsletter: false,
+    prioritySupport: false
   },
   { 
     id: 'standard', 
@@ -27,13 +30,16 @@ const packages = [
     price: '7 900 kr',
     pages: 5,
     delivery: 10,
+    revisions: 2,
     popular: true,
     features: {
-      sv: ['Allt i Starter', '2 revisioner', 'Google Maps', 'Sociala medier', 'Bildgalleri'],
-      en: ['Everything in Starter', '2 revisions', 'Google Maps', 'Social media', 'Image gallery']
+      sv: ['Allt i Starter', 'Bildgalleri/sektioner', 'Sociala länkar', 'Klickbar telefon/mail', 'Snabb laddtid'],
+      en: ['Everything in Starter', 'Image gallery/sections', 'Social links', 'Clickable phone/email', 'Fast loading']
     },
     booking: false,
-    multiLanguage: true
+    analytics: false,
+    newsletter: false,
+    prioritySupport: false
   },
   { 
     id: 'pro', 
@@ -41,17 +47,20 @@ const packages = [
     price: '12 900 kr',
     pages: 8,
     delivery: 7,
+    revisions: 3,
     features: {
-      sv: ['Allt i Standard', '3 revisioner', 'Bokningsintegration', 'Nyhetsbrev', 'Google Analytics', 'Prioriterad support'],
-      en: ['Everything in Standard', '3 revisions', 'Booking integration', 'Newsletter', 'Google Analytics', 'Priority support']
+      sv: ['Allt i Standard', 'Bokningssystem', 'Google Analytics', 'Nyhetsbrev setup', 'Prioriterad support'],
+      en: ['Everything in Standard', 'Booking system', 'Google Analytics', 'Newsletter setup', 'Priority support']
     },
     booking: true,
-    multiLanguage: true
+    analytics: true,
+    newsletter: true,
+    prioritySupport: true
   },
 ];
 
 export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalProps) {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -96,6 +105,14 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 ))}
               </tr>
               <tr className="border-b border-border">
+                <td className="p-3 font-medium">{t('Revisionsrundor', 'Revision rounds')}</td>
+                {packages.map(pkg => (
+                  <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
+                    {pkg.revisions}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
                 <td className="p-3 font-medium">{t('Bokningssystem', 'Booking system')}</td>
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
@@ -108,10 +125,34 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 ))}
               </tr>
               <tr className="border-b border-border">
-                <td className="p-3 font-medium">{t('Flera språk', 'Multi-language')}</td>
+                <td className="p-3 font-medium">{t('Google Analytics', 'Google Analytics')}</td>
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
-                    {pkg.multiLanguage ? (
+                    {pkg.analytics ? (
+                      <Check className="w-5 h-5 text-accent mx-auto" />
+                    ) : (
+                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-3 font-medium">{t('Nyhetsbrev setup', 'Newsletter setup')}</td>
+                {packages.map(pkg => (
+                  <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
+                    {pkg.newsletter ? (
+                      <Check className="w-5 h-5 text-accent mx-auto" />
+                    ) : (
+                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-3 font-medium">{t('Prioriterad support', 'Priority support')}</td>
+                {packages.map(pkg => (
+                  <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
+                    {pkg.prioritySupport ? (
                       <Check className="w-5 h-5 text-accent mx-auto" />
                     ) : (
                       <X className="w-5 h-5 text-muted-foreground mx-auto" />
