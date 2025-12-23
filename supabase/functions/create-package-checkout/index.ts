@@ -1,10 +1,52 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// Allowed origins for CORS - restrict to your domains
+const ALLOWED_ORIGINS = [
+  "https://nomia.se",
+  "https://www.nomia.se",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+// Helper to validate origin
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return false;
+  // Allow Lovable preview domains
+  if (origin.includes("lovableproject.com") || origin.includes("lovable.dev")) {
+    return true;
+  }
+  return ALLOWED_ORIGINS.some(allowed => origin === allowed || origin.startsWith(allowed));
+}
+
+function getCorsHeaders(origin: string | null) {
+  const allowedOrigin = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin!,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
+}
+
+// Input validation helpers
+function isValidPackageId(id: unknown): id is string {
+  return typeof id === "string" && ["starter", "standard", "pro"].includes(id);
+}
+
+function isValidCarePlanId(id: unknown): id is string {
+  return typeof id === "string" && ["basic", "standard", "pro"].includes(id);
+}
+
+function isValidEmail(email: unknown): email is string {
+  if (typeof email !== "string") return false;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 255;
+}
+
+function sanitizeString(str: unknown, maxLength = 500): string {
+  if (typeof str !== "string") return "";
+  return str.slice(0, maxLength).replace(/[<>]/g, "");
+}
 
 // Package price IDs from Stripe (one-time payments)
 const PACKAGE_PRICES: Record<string, string> = {
@@ -38,11 +80,31 @@ interface CheckoutRequest {
 }
 
 serve(async (req) => {
-  console.log("[CREATE-PACKAGE-CHECKOUT] Function started");
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+  
+  console.log("[CREATE-PACKAGE-CHECKOUT] Function started", { origin });
 
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Only allow POST requests
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 405,
+    });
+  }
+
+  // Validate origin
+  if (!isAllowedOrigin(origin)) {
+    console.error("[CREATE-PACKAGE-CHECKOUT] Invalid origin", { origin });
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 403,
+    });
   }
 
   try {
@@ -52,14 +114,37 @@ serve(async (req) => {
       throw new Error("STRIPE_SECRET_KEY is not set");
     }
 
-    const { packageId, email, conceptLink, carePlanId, isYearly }: CheckoutRequest = await req.json();
-    console.log("[CREATE-PACKAGE-CHECKOUT] Request received", { packageId, email, carePlanId, isYearly });
+    // Parse and validate request body
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    const requestData = body as Record<string, unknown>;
+    
+    // Validate required fields
+    if (!isValidPackageId(requestData.packageId)) {
+      console.error("[CREATE-PACKAGE-CHECKOUT] Invalid package ID", { packageId: requestData.packageId });
+      return new Response(JSON.stringify({ error: "Invalid package ID" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    const packageId = requestData.packageId;
+    const email = requestData.email && isValidEmail(requestData.email) ? requestData.email : undefined;
+    const conceptLink = sanitizeString(requestData.conceptLink, 2000);
+    const carePlanId = isValidCarePlanId(requestData.carePlanId) ? requestData.carePlanId : undefined;
+    const isYearly = requestData.isYearly === true;
+
+    console.log("[CREATE-PACKAGE-CHECKOUT] Request validated", { packageId, email: email ? "provided" : "none", carePlanId, isYearly });
 
     const priceId = PACKAGE_PRICES[packageId];
-    if (!priceId) {
-      console.error("[CREATE-PACKAGE-CHECKOUT] Invalid package ID", { packageId });
-      throw new Error(`Invalid package ID: ${packageId}`);
-    }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -73,7 +158,7 @@ serve(async (req) => {
       }
     }
 
-    const origin = req.headers.get("origin") || "https://lovable.dev";
+    const safeOrigin = origin || "https://nomia.se";
     
     // Build line items - always include the package
     const lineItems: Array<{ price: string; quantity: number }> = [
@@ -99,7 +184,7 @@ serve(async (req) => {
     }
     
     // Build success URL with metadata
-    const successUrl = new URL(`${origin}/betalning-klar`);
+    const successUrl = new URL(`${safeOrigin}/betalning-klar`);
     successUrl.searchParams.set("session_id", "{CHECKOUT_SESSION_ID}");
     if (conceptLink) successUrl.searchParams.set("concept", encodeURIComponent(conceptLink));
 
@@ -109,12 +194,12 @@ serve(async (req) => {
       line_items: lineItems,
       mode,
       success_url: successUrl.toString(),
-      cancel_url: `${origin}/betalning-avbruten`,
+      cancel_url: `${safeOrigin}/betalning-avbruten`,
       metadata: {
         packageId,
         conceptLink: conceptLink || "",
         carePlanId: carePlanId || "",
-        isYearly: String(isYearly || false),
+        isYearly: String(isYearly),
       },
     });
 
