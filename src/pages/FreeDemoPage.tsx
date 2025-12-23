@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { AnimatedSection } from '@/components/AnimatedSection';
-import { STRIPE_LINKS, setVerificationPaid } from '@/config/stripe';
+import { setVerificationPaid } from '@/config/stripe';
 
 type FormStep = 1 | 2;
 
@@ -102,20 +102,43 @@ export default function FreeDemoPage() {
         headers: { 'Accept': 'application/json' },
       });
 
-      // Open Stripe payment link
-      const successUrl = encodeURIComponent(`${window.location.origin}/demo?success=true`);
-      const stripeUrl = `${STRIPE_LINKS.VERIFICATION_500}?prefilled_email=${encodeURIComponent(email)}&success_url=${successUrl}`;
-      
-      window.open(stripeUrl, '_blank');
-      
-      toast({ 
-        title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
-        description: t('Slutför betalningen i det nya fönstret.', 'Complete payment in the new window.') 
+      // Use edge function for Stripe checkout (same as working package checkout)
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      if (!SUPABASE_URL) {
+        throw new Error('Payment not configured');
+      }
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/create-verification-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          businessName,
+          contactPerson,
+          phone,
+          selectedStyle,
+        }),
       });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.url) {
+        window.open(data.url, '_blank');
+        toast({ 
+          title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
+          description: t('Slutför betalningen i det nya fönstret.', 'Complete payment in the new window.') 
+        });
+      }
       
     } catch (error) {
+      console.error('Payment error:', error);
       toast({ 
         title: t('Något gick fel', 'Something went wrong'), 
+        description: t('Försök igen eller kontakta oss.', 'Try again or contact us.'),
         variant: 'destructive' 
       });
     } finally {

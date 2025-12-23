@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.create-care-plan-checkout]
 verify_jwt = false
+
+[functions.create-verification-checkout]
+verify_jwt = false
