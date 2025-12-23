@@ -13,10 +13,30 @@ export default function ContactPage() {
   const { t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    toast({ title: t('Meddelande skickat!', 'Message sent!'), description: t('Vi återkommer inom 24 timmar.', 'We\'ll get back to you within 24 hours.') });
+    
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch('https://getform.io/f/agdvpmpb', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        setSubmitted(true);
+        toast({ title: t('Meddelande skickat!', 'Message sent!'), description: t('Vi återkommer inom 24 timmar.', 'We\'ll get back to you within 24 hours.') });
+      } else {
+        throw new Error('Form submission failed');
+      }
+    } catch (error) {
+      toast({ title: t('Något gick fel', 'Something went wrong'), description: t('Försök igen senare.', 'Please try again later.'), variant: 'destructive' });
+    }
   };
 
   return (
@@ -80,10 +100,10 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2"><Label htmlFor="name">{t('Namn', 'Name')} *</Label><Input id="name" required placeholder={t('Ditt namn', 'Your name')} /></div>
-                  <div className="space-y-2"><Label htmlFor="email">E-post *</Label><Input id="email" type="email" required placeholder="din@email.se" /></div>
-                  <div className="space-y-2"><Label htmlFor="subject">{t('Ämne', 'Subject')}</Label><Input id="subject" placeholder={t('Vad gäller det?', 'What is it about?')} /></div>
-                  <div className="space-y-2"><Label htmlFor="message">{t('Meddelande', 'Message')} *</Label><Textarea id="message" required rows={4} placeholder={t('Berätta mer...', 'Tell us more...')} /></div>
+                  <div className="space-y-2"><Label htmlFor="name">{t('Namn', 'Name')} *</Label><Input id="name" name="name" required placeholder={t('Ditt namn', 'Your name')} /></div>
+                  <div className="space-y-2"><Label htmlFor="email">E-post *</Label><Input id="email" name="email" type="email" required placeholder="din@email.se" /></div>
+                  <div className="space-y-2"><Label htmlFor="subject">{t('Ämne', 'Subject')}</Label><Input id="subject" name="subject" placeholder={t('Vad gäller det?', 'What is it about?')} /></div>
+                  <div className="space-y-2"><Label htmlFor="message">{t('Meddelande', 'Message')} *</Label><Textarea id="message" name="message" required rows={4} placeholder={t('Berätta mer...', 'Tell us more...')} /></div>
                   <Button type="submit" className="w-full">{t('Skicka meddelande', 'Send message')}<Send className="w-4 h-4" /></Button>
                 </form>
               )}
