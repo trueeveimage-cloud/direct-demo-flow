@@ -81,6 +81,7 @@ export default function DirectCheckoutPage() {
   const [competitors, setCompetitors] = useState('');
   const [seoKeywords, setSeoKeywords] = useState('');
   const [legalPages, setLegalPages] = useState<string[]>([]);
+  const [termsExplanation, setTermsExplanation] = useState('');
   const [extraNotes, setExtraNotes] = useState('');
 
   const [errors, setErrors] = useState<Record<string, boolean>>({});
@@ -258,17 +259,17 @@ export default function DirectCheckoutPage() {
         </AnimatedSection>
 
         {/* Step Indicator */}
-        <AnimatedSection animation="fade-up" delay={50} className="mb-12">
-          <div className="flex items-center justify-center gap-0 flex-wrap">
+        <AnimatedSection animation="fade-up" delay={50} className="mb-8 sm:mb-12">
+          <div className="flex items-center justify-center gap-1 sm:gap-0">
             {stepInfo.map((s, index) => (
-              <div key={s.num} className="flex items-center gap-2">
-                <div className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-colors ${step === s.num ? 'bg-accent text-accent-foreground' : step > s.num ? 'bg-accent/20 text-accent' : 'bg-secondary text-muted-foreground'}`}>
-                  <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">
-                    {step > s.num ? <Check className="w-4 h-4" /> : s.num}
+              <div key={s.num} className="flex items-center">
+                <div className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-4 sm:py-2 rounded-full sm:rounded-lg transition-colors ${step === s.num ? 'bg-accent text-accent-foreground' : step > s.num ? 'bg-accent/20 text-accent' : 'bg-secondary text-muted-foreground'}`}>
+                  <span className="w-6 h-6 rounded-full sm:bg-background/20 flex items-center justify-center text-xs sm:text-sm font-bold">
+                    {step > s.num ? <Check className="w-3 h-3 sm:w-4 sm:h-4" /> : s.num}
                   </span>
-                  <span className="text-sm font-medium hidden sm:inline">{s.label}</span>
+                  <span className="text-sm font-medium hidden sm:inline sm:ml-2">{s.label}</span>
                 </div>
-                {index < stepInfo.length - 1 && <div className="w-4 sm:w-8 h-0.5 bg-border hidden sm:block" />}
+                {index < stepInfo.length - 1 && <div className="w-2 sm:w-8 h-0.5 bg-border mx-0.5 sm:mx-0" />}
               </div>
             ))}
           </div>
@@ -397,18 +398,40 @@ export default function DirectCheckoutPage() {
               </div>
 
               {/* Booking */}
-              {selectedPackage === 'pro' && (
-                <div className="mb-8 p-6 bg-secondary/50 rounded-xl">
-                  <h2 className="font-semibold text-lg mb-4">{t('Behöver du bokningssystem?', 'Do you need a booking system?')}</h2>
-                  <div className="flex gap-4 mb-4">
-                    <button onClick={() => setWantsBooking(true)} className={`px-6 py-3 rounded-lg border-2 transition-all ${wantsBooking === true ? 'border-accent bg-accent/10' : 'border-border'}`}>{t('Ja', 'Yes')}</button>
-                    <button onClick={() => setWantsBooking(false)} className={`px-6 py-3 rounded-lg border-2 transition-all ${wantsBooking === false ? 'border-accent bg-accent/10' : 'border-border'}`}>{t('Nej', 'No')}</button>
-                  </div>
-                  {wantsBooking && (
-                    <Input value={bookingPlatform} onChange={(e) => setBookingPlatform(e.target.value)} placeholder={t('Vilken bokningsplattform? (t.ex. Bokadirekt, Timely)', 'Which booking platform? (e.g. Calendly, Acuity)')} className="h-12" />
-                  )}
+              <div className="mb-8 p-6 bg-secondary/50 rounded-xl">
+                <div className="flex items-center gap-2 mb-4">
+                  <h2 className="font-semibold text-lg">{t('Vill du ha ett bokningssystem?', 'Do you want a booking system?')}</h2>
+                  <InfoTooltip content={t('Vi skapar ditt helt egna bokningssystem integrerat med din webbplats. Integration med Bokadirekt, Calendly eller liknande.', 'We create your very own booking system integrated with your website. Integration with Bokadirekt, Calendly or similar.')} />
                 </div>
-              )}
+                <p className="text-sm text-muted-foreground mb-4">{t('Vi skapar ditt helt egna bokningssystem.', 'We create your very own booking system.')}</p>
+                <div className="flex gap-4 mb-4">
+                  <button 
+                    onClick={() => {
+                      if (selectedPackage !== 'pro') {
+                        toast({
+                          title: t('Pro-paket krävs', 'Pro package required'),
+                          description: t('Bokningssystem ingår endast i Pro-paketet. Vill du uppgradera?', 'Booking system is only included in the Pro package. Would you like to upgrade?'),
+                        });
+                        setSelectedPackage('pro');
+                      }
+                      setWantsBooking(true);
+                    }} 
+                    className={`px-6 py-3 rounded-lg border-2 transition-all ${wantsBooking === true ? 'border-accent bg-accent/10' : 'border-border'}`}
+                  >
+                    {t('Ja', 'Yes')}
+                    {selectedPackage !== 'pro' && <span className="ml-2 text-xs text-accent">{t('(kräver Pro)', '(requires Pro)')}</span>}
+                  </button>
+                  <button onClick={() => setWantsBooking(false)} className={`px-6 py-3 rounded-lg border-2 transition-all ${wantsBooking === false ? 'border-accent bg-accent/10' : 'border-border'}`}>{t('Nej', 'No')}</button>
+                </div>
+                {wantsBooking && selectedPackage === 'pro' && (
+                  <Input value={bookingPlatform} onChange={(e) => setBookingPlatform(e.target.value)} placeholder={t('Vilken bokningsplattform? (t.ex. Bokadirekt, Timely)', 'Which booking platform? (e.g. Calendly, Acuity)')} className="h-12" />
+                )}
+                {wantsBooking && selectedPackage !== 'pro' && (
+                  <div className="p-3 bg-accent/10 rounded-lg border border-accent/30">
+                    <p className="text-sm text-accent font-medium">{t('Du har uppgraderats till Pro för att inkludera bokningssystem.', 'You have been upgraded to Pro to include booking system.')}</p>
+                  </div>
+                )}
+              </div>
 
               <div className="flex justify-between mt-6">
                 <Button variant="outline" onClick={handlePrevStep}><ArrowLeft className="w-4 h-4" /> {t('Tillbaka', 'Back')}</Button>
@@ -470,6 +493,13 @@ export default function DirectCheckoutPage() {
               </div>
 
               <div className="p-6 bg-secondary/50 rounded-xl mb-6 space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="font-semibold">{t('Bilder & Logotyp', 'Images & Logo')}</h3>
+                  <InfoTooltip content={t('Efter beställningen får du en länk där du kan ladda upp bilder och logotyp. Du kan också skicka dem via e-post till oss.', 'After ordering, you will receive a link where you can upload images and logo. You can also send them via email to us.')} />
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  {t('Efter beställning skickar vi en länk där du kan ladda upp material.', 'After ordering, we\'ll send a link where you can upload materials.')}
+                </p>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <Checkbox checked={noLogo} onCheckedChange={(c) => setNoLogo(c === true)} />
                   <span className="text-sm">{t('Jag har ingen logotyp (ni kan skapa en enkel)', 'I don\'t have a logo (you can create a simple one)')}</span>
@@ -542,9 +572,6 @@ export default function DirectCheckoutPage() {
                 })}
               </div>
 
-              <p className="text-center text-sm text-muted-foreground mb-6">
-                {t('Du kan hoppa över vårdplanen och lägga till den senare.', 'You can skip the care plan and add it later.')}
-              </p>
 
               <div className="flex justify-between mt-6 max-w-4xl mx-auto">
                 <Button variant="outline" onClick={handlePrevStep}><ArrowLeft className="w-4 h-4" /> {t('Tillbaka', 'Back')}</Button>
@@ -590,15 +617,73 @@ export default function DirectCheckoutPage() {
                   <div className="flex items-center gap-2 mb-2">
                     <Scale className="w-5 h-5 text-accent" />
                     <h3 className="font-semibold">{t('Juridiska sidor', 'Legal pages')}</h3>
+                    <InfoTooltip content={t('Juridiska sidor som integritetspolicy och villkor är viktiga för att skydda ditt företag och uppfylla lagar som GDPR.', 'Legal pages like privacy policy and terms are important to protect your business and comply with laws like GDPR.')} />
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    {['GDPR', 'Cookies', t('Villkor', 'Terms')].map(page => (
-                      <label key={page} className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-accent/5">
-                        <Checkbox checked={legalPages.includes(page)} onCheckedChange={(checked) => { if (checked) setLegalPages([...legalPages, page]); else setLegalPages(legalPages.filter(p => p !== page)); }} />
-                        <span className="text-sm">{page}</span>
+                    <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-accent/5">
+                      <Checkbox 
+                        checked={legalPages.includes('GDPR')} 
+                        onCheckedChange={(checked) => { 
+                          if (checked) setLegalPages([...legalPages, 'GDPR']); 
+                          else setLegalPages(legalPages.filter(p => p !== 'GDPR')); 
+                        }} 
+                      />
+                      <span className="text-sm">GDPR</span>
+                    </label>
+                    
+                    {/* Cookies - auto-selected and locked for Pro */}
+                    <div className="relative">
+                      <label 
+                        className={`flex items-center gap-2 p-3 border rounded-lg ${selectedPackage === 'pro' ? 'bg-accent/10 border-accent/30 cursor-not-allowed' : 'cursor-pointer hover:bg-accent/5'}`}
+                        title={selectedPackage === 'pro' ? t('Krävs för Pro-paketet pga Google Analytics', 'Required for Pro package due to Google Analytics') : ''}
+                      >
+                        <Checkbox 
+                          checked={legalPages.includes('Cookies') || selectedPackage === 'pro'} 
+                          disabled={selectedPackage === 'pro'}
+                          onCheckedChange={(checked) => { 
+                            if (selectedPackage !== 'pro') {
+                              if (checked) setLegalPages([...legalPages, 'Cookies']); 
+                              else setLegalPages(legalPages.filter(p => p !== 'Cookies')); 
+                            }
+                          }} 
+                        />
+                        <span className="text-sm">Cookies</span>
+                        {selectedPackage === 'pro' && (
+                          <InfoTooltip content={t('Cookies-sida krävs för Pro-paketet eftersom Google Analytics använder cookies för spårning.', 'Cookies page is required for Pro package because Google Analytics uses cookies for tracking.')} />
+                        )}
                       </label>
-                    ))}
+                    </div>
+                    
+                    <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-accent/5">
+                      <Checkbox 
+                        checked={legalPages.includes(t('Villkor', 'Terms'))} 
+                        onCheckedChange={(checked) => { 
+                          if (checked) setLegalPages([...legalPages, t('Villkor', 'Terms')]); 
+                          else {
+                            setLegalPages(legalPages.filter(p => p !== t('Villkor', 'Terms'))); 
+                            setTermsExplanation('');
+                          }
+                        }} 
+                      />
+                      <span className="text-sm">{t('Villkor', 'Terms')}</span>
+                    </label>
                   </div>
+                  
+                  {legalPages.includes(t('Villkor', 'Terms')) && (
+                    <div className="mt-4">
+                      <Label className="flex items-center gap-2">
+                        {t('Beskriv dina villkor', 'Describe your terms')} *
+                        <InfoTooltip content={t('Förklara vilka villkor som gäller för dina tjänster, t.ex. avbokningsregler, betalningsvillkor, garantier.', 'Explain what terms apply to your services, e.g. cancellation rules, payment terms, guarantees.')} />
+                      </Label>
+                      <Textarea 
+                        value={termsExplanation} 
+                        onChange={(e) => setTermsExplanation(e.target.value)} 
+                        placeholder={t('T.ex. avbokningsregler, betalningsvillkor, garantier...', 'E.g. cancellation rules, payment terms, guarantees...')} 
+                        rows={3} 
+                        className="mt-1" 
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-6 bg-secondary/50 rounded-xl">

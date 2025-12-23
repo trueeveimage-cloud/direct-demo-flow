@@ -14,77 +14,81 @@ export default function TermsPage() {
         <div className="prose prose-sm max-w-none space-y-8">
           <AnimatedSection animation="fade-up" delay={100}>
             <section>
-              <h2 className="text-xl font-heading font-semibold mb-3">{t('Vad betyder "gratis koncept"?', 'What does "free concept" mean?')}</h2>
-              <p className="text-muted-foreground">{t('"Gratis koncept" innebär att själva konceptet är kostnadsfritt. Dock krävs en verifieringsavgift (10% av valt paket) innan arbetet påbörjas. Om du inte gillar konceptet återbetalas avgiften. Om du går vidare dras avgiften av från slutpriset.', '"Free concept" means the concept itself is free. However, a verification fee (10% of chosen package) is required before work begins. If you don\'t like the concept, the fee is refunded. If you proceed, the fee is deducted from the final price.')}</p>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Våra tjänster', 'Our Services')}</h2>
+              <p className="text-muted-foreground">{t('NordicSite Studio erbjuder webbdesign och utvecklingstjänster för företag. Vi erbjuder två sätt att beställa: gratis koncept eller direktbeställning.', 'NordicSite Studio offers web design and development services for businesses. We offer two ways to order: free concept or direct checkout.')}</p>
             </section>
           </AnimatedSection>
 
           <AnimatedSection animation="fade-up" delay={150}>
             <section>
-              <h2 className="text-xl font-heading font-semibold mb-3">{t('Verifieringsavgift', 'Verification Fee')}</h2>
-              <p className="text-muted-foreground mb-2">{t('Verifieringsavgiften är 10% av det valda paketet:', 'The verification fee is 10% of the chosen package:')}</p>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Gratis koncept', 'Free Concept')}</h2>
+              <p className="text-muted-foreground mb-2">{t('Vid gratis koncept betalar du en verifieringsavgift (10% av paketet):', 'For free concept, you pay a verification fee (10% of package):')}</p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1">
                 <li>Starter (4 900 kr): 490 kr {t('verifiering', 'verification')}</li>
                 <li>Standard (7 900 kr): 790 kr {t('verifiering', 'verification')}</li>
                 <li>Pro (12 900 kr): 1 290 kr {t('verifiering', 'verification')}</li>
               </ul>
-              <p className="text-muted-foreground mt-3">{t('Denna avgift bokar din prioritetsplats och återbetalas helt om du avvisar konceptet.', 'This fee books your priority slot and is fully refunded if you reject the concept.')}</p>
+              <p className="text-muted-foreground mt-3">{t('Avgiften återbetalas helt om du avvisar konceptet inom 5 dagar. Om du går vidare dras den från slutpriset.', 'The fee is fully refunded if you reject the concept within 5 days. If you proceed, it\'s deducted from the final price.')}</p>
             </section>
           </AnimatedSection>
 
           <AnimatedSection animation="fade-up" delay={200}>
             <section>
-              <h2 className="text-xl font-heading font-semibold mb-3">{t('När startar 72-timmarsfristen?', 'When does the 72-hour deadline start?')}</h2>
-              <p className="text-muted-foreground mb-2">{t('Nedräkningen på 72 timmar börjar EFTER att båda dessa villkor är uppfyllda:', 'The 72-hour countdown starts AFTER both of these conditions are met:')}</p>
-              <ol className="list-decimal list-inside text-muted-foreground space-y-1">
-                <li>{t('All obligatorisk info har skickats in via formuläret.', 'All required info has been submitted via the form.')}</li>
-                <li>{t('Verifieringsavgiften har betalats.', 'The verification fee has been paid.')}</li>
-              </ol>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Direktbeställning', 'Direct Checkout')}</h2>
+              <p className="text-muted-foreground">{t('Vid direktbeställning betalar du hela paketet direkt och vi börjar bygga din webbplats omedelbart. Denna betalning är inte återbetalningsbar när arbetet har påbörjats.', 'With direct checkout, you pay the full package upfront and we start building your website immediately. This payment is non-refundable once work has begun.')}</p>
             </section>
           </AnimatedSection>
 
           <AnimatedSection animation="fade-up" delay={250}>
             <section>
-              <h2 className="text-xl font-heading font-semibold mb-3">{t('Återbetalningsregler', 'Refund Rules')}</h2>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Webbpaket', 'Website Packages')}</h2>
               <ul className="space-y-3 text-muted-foreground">
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Du kan avvisa konceptet inom 5 dagar efter leverans för full återbetalning av verifieringsavgiften.', 'You can reject the concept within 5 days of delivery for a full refund of the verification fee.')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Om du begär extra arbete utöver koncept-scopet innan du bestämt dig, kan återbetalning påverkas.', 'If you request extra work beyond the concept scope before deciding, the refund may be affected.')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Återbetalning sker till samma betalningsmetod inom 7 arbetsdagar.', 'Refunds are processed to the same payment method within 7 business days.')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Starter:</strong> 4 900 kr - {t('Upp till 3 sidor, 14 dagars leverans, 1 revision', 'Up to 3 pages, 14-day delivery, 1 revision')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Standard:</strong> 7 900 kr - {t('Upp till 5 sidor, 10 dagars leverans, 2 revisioner, flerspråk', 'Up to 5 pages, 10-day delivery, 2 revisions, multi-language')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> 12 900 kr - {t('Upp till 8 sidor, 7 dagars leverans, 3 revisioner, flerspråk, bokningssystem, Google Analytics', 'Up to 8 pages, 7-day delivery, 3 revisions, multi-language, booking system, Google Analytics')}</li>
               </ul>
             </section>
           </AnimatedSection>
 
           <AnimatedSection animation="fade-up" delay={300}>
             <section>
-              <h2 className="text-xl font-heading font-semibold mb-3">{t('Webbpaket (engångskostnad)', 'Website Packages (one-time)')}</h2>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Månatlig webbvård', 'Monthly Care Plans')}</h2>
               <ul className="space-y-3 text-muted-foreground">
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Starter:</strong> 4 900 kr - {t('Upp till 3 sidor', 'Up to 3 pages')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Standard:</strong> 7 900 kr - {t('Upp till 5 sidor', 'Up to 5 pages')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> 12 900 kr - {t('Upp till 8 sidor', 'Up to 8 pages')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Basic:</strong> 249 kr/mån (199 kr vid årsbetalning) - {t('Hosting, uppdateringar, säkerhetskopiering', 'Hosting, updates, backups')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Standard:</strong> 449 kr/mån (359 kr vid årsbetalning) - {t('Allt i Basic + domän, e-post, 1h ändringar/mån', 'Everything in Basic + domain, email, 1h edits/month')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> 749 kr/mån (599 kr vid årsbetalning) - {t('Allt i Standard + 3h ändringar/mån, prioriterad support', 'Everything in Standard + 3h edits/month, priority support')}</li>
               </ul>
+              <p className="text-muted-foreground mt-3">{t('Vårdplaner kan avslutas när som helst med 30 dagars uppsägning.', 'Care plans can be cancelled anytime with 30 days notice.')}</p>
             </section>
           </AnimatedSection>
 
           <AnimatedSection animation="fade-up" delay={350}>
             <section>
-              <h2 className="text-xl font-heading font-semibold mb-3">{t('Månatlig webbvård', 'Monthly Care Plans')}</h2>
-              <ul className="space-y-3 text-muted-foreground">
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Basic:</strong> 399 kr/mån - {t('Hosting, uppdateringar, säkerhetskopiering', 'Hosting, updates, backups')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Standard:</strong> 699 kr/mån - {t('Allt i Basic + domän, e-post, 1h ändringar/mån', 'Everything in Basic + domain, email, 1h edits/month')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> 1 199 kr/mån - {t('Allt i Standard + 3h ändringar/mån, prioriterad support', 'Everything in Standard + 3h edits/month, priority support')}</li>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Leveranstider', 'Delivery Times')}</h2>
+              <ul className="space-y-2 text-muted-foreground">
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Gratis koncept: 72 timmar efter betald verifieringsavgift', 'Free concept: 72 hours after paid verification fee')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Starter: 14 arbetsdagar', 'Starter: 14 business days')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Standard: 10 arbetsdagar', 'Standard: 10 business days')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Pro: 7 arbetsdagar', 'Pro: 7 business days')}</li>
               </ul>
-              <p className="text-muted-foreground mt-3">{t('Avsluta när du vill.', 'Cancel anytime.')}</p>
             </section>
           </AnimatedSection>
 
           <AnimatedSection animation="fade-up" delay={400}>
+            <section>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Material och innehåll', 'Materials and Content')}</h2>
+              <p className="text-muted-foreground">{t('Efter beställning får du en länk för att ladda upp bilder, logotyp och annat material. Du ansvarar för att du har rätt att använda allt material du tillhandahåller.', 'After ordering, you\'ll receive a link to upload images, logo and other materials. You are responsible for ensuring you have the rights to use all materials you provide.')}</p>
+            </section>
+          </AnimatedSection>
+
+          <AnimatedSection animation="fade-up" delay={450}>
             <section>
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Inaktivitet', 'Inactivity')}</h2>
               <p className="text-muted-foreground">{t('Om vi inte hör från dig på 14 dagar pausas projektet. Vi kontaktar dig innan paus. Pausade projekt kan återupptas genom att kontakta oss.', 'If we don\'t hear from you for 14 days, the project is paused. We\'ll contact you before pausing. Paused projects can be resumed by contacting us.')}</p>
             </section>
           </AnimatedSection>
 
-          <AnimatedSection animation="fade-up" delay={450}>
+          <AnimatedSection animation="fade-up" delay={500}>
             <section>
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Allmänna villkor', 'General Terms')}</h2>
               <ul className="space-y-3 text-muted-foreground">
@@ -95,10 +99,10 @@ export default function TermsPage() {
             </section>
           </AnimatedSection>
 
-          <AnimatedSection animation="fade-up" delay={500}>
+          <AnimatedSection animation="fade-up" delay={550}>
             <section className="pt-8 border-t border-border">
               <p className="text-muted-foreground">{t('Har du frågor om våra villkor? Kontakta oss på hej@nordicsite.se', 'Questions about our terms? Contact us at hello@nordicsite.se')}</p>
-              <p className="text-sm text-muted-foreground mt-4">{t('Senast uppdaterad:', 'Last updated:')} {new Date().toLocaleDateString()}</p>
+              <p className="text-sm text-muted-foreground mt-4">{t('Senast uppdaterad:', 'Last updated:')} 2024-12-23</p>
             </section>
           </AnimatedSection>
         </div>
