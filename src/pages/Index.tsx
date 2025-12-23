@@ -200,7 +200,6 @@ export default function Index() {
           <div className="grid sm:grid-cols-2 gap-6 max-w-xl mx-auto">
             {[
               t('Startsida + undersida', 'Home + inner page'),
-              t('Mobil-först design', 'Mobile-first layout'),
               t('Varumärkesriktning', 'Brand direction'),
               t('1 revision', '1 revision'),
             ].map((item, index) => (

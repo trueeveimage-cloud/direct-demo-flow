@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { PackageCompareModal } from '@/components/PackageCompareModal';
 import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
 import { Switch } from '@/components/ui/switch';
+import { getTooltip } from '@/components/PricingTooltips';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function PricingPage() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [compareOpen, setCompareOpen] = useState(false);
   const [carePlansCompareOpen, setCarePlansCompareOpen] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
@@ -22,12 +24,12 @@ export default function PricingPage() {
       description: t('För små företag som bara behöver något snyggt och tydligt.', 'For small businesses that just need something nice and clear.'),
       pages: t('Upp till 3 sidor', 'Up to 3 pages'), 
       features: [
-        t('Mobilanpassad design', 'Mobile-responsive design'), 
-        t('Kontaktformulär', 'Contact form'), 
-        t('Google Maps (om relevant)', 'Google Maps (if relevant)'), 
-        t('Grundläggande SEO', 'Basic SEO'), 
-        t('1 revisionsrunda', '1 revision round'),
-        t('Lansering + genomgång', 'Launch + walkthrough')
+        { text: t('Mobilanpassad design', 'Mobile-responsive design'), key: 'Mobilanpassad design' },
+        { text: t('Kontaktformulär', 'Contact form'), key: 'Kontaktformulär' },
+        { text: t('Google Maps (om relevant)', 'Google Maps (if relevant)'), key: 'Google Maps' },
+        { text: t('Grundläggande SEO', 'Basic SEO'), key: 'Grundläggande SEO' },
+        { text: t('1 revisionsrunda', '1 revision round'), key: '1 revisionsrunda' },
+        { text: t('Lansering + genomgång', 'Launch + walkthrough'), key: 'Lansering' }
       ] 
     },
     { 
@@ -38,11 +40,11 @@ export default function PricingPage() {
       pages: t('Upp till 5 sidor', 'Up to 5 pages'), 
       popular: true, 
       features: [
-        t('Allt i Starter', 'Everything in Starter'), 
-        t('2 revisionsrundor', '2 revision rounds'), 
-        t('Bildgalleri/sektioner', 'Image gallery/sections'),
-        t('Sociala länkar + klickbar telefon/mail', 'Social links + clickable phone/email'), 
-        t('Snabb laddtid + tydlig navigation', 'Fast loading + clear navigation')
+        { text: t('Allt i Starter', 'Everything in Starter'), key: 'Allt i Starter' },
+        { text: t('2 revisionsrundor', '2 revision rounds'), key: '2 revisionsrundor' },
+        { text: t('Bildgalleri/sektioner', 'Image gallery/sections'), key: 'Bildgalleri/sektioner' },
+        { text: t('Sociala länkar + klickbar telefon/mail', 'Social links + clickable phone/email'), key: 'Sociala' },
+        { text: t('Flerspråkig', 'Multi-language'), key: 'Flerspråkig' }
       ] 
     },
     { 
@@ -52,12 +54,12 @@ export default function PricingPage() {
       description: t('För företag som vill ha bokning + mer tillväxt.', 'For businesses wanting booking + more growth.'),
       pages: t('Upp till 8 sidor', 'Up to 8 pages'), 
       features: [
-        t('Allt i Standard', 'Everything in Standard'), 
-        t('3 revisionsrundor', '3 revision rounds'), 
-        t('Bokningssystem', 'Booking system'),
-        t('Google Analytics / tracking', 'Google Analytics / tracking'), 
-        t('Nyhetsbrev setup', 'Newsletter setup'),
-        t('Prioriterad support', 'Priority support')
+        { text: t('Allt i Standard', 'Everything in Standard'), key: 'Allt i Standard' },
+        { text: t('3 revisionsrundor', '3 revision rounds'), key: '3 revisionsrundor' },
+        { text: t('Bokningssystem', 'Booking system'), key: 'Bokningssystem' },
+        { text: t('Google Analytics / tracking', 'Google Analytics / tracking'), key: 'Google Analytics' },
+        { text: t('Nyhetsbrev setup', 'Newsletter setup'), key: 'Nyhetsbrev setup' },
+        { text: t('Flerspråkig', 'Multi-language'), key: 'Flerspråkig' }
       ] 
     },
   ];
@@ -143,12 +145,31 @@ export default function PricingPage() {
                   <p className="text-[9px] sm:text-xs text-muted-foreground mb-2 sm:mb-4 line-clamp-2">{pkg.description}</p>
                   <p className="text-[10px] sm:text-sm font-medium text-foreground mb-2 sm:mb-4">{pkg.pages}</p>
                   <ul className="space-y-1.5 sm:space-y-3 mb-4 sm:mb-8 flex-grow">
-                    {pkg.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[9px] sm:text-sm">
-                        <Check className="w-3 h-3 sm:w-4 sm:h-4 text-accent flex-shrink-0 mt-0.5" />
-                        <span className="leading-tight">{feature}</span>
-                      </li>
-                    ))}
+                    {pkg.features.map((feature, i) => {
+                      const tooltip = getTooltip(feature.key, lang);
+                      return (
+                        <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[9px] sm:text-sm">
+                          <Check className="w-3 h-3 sm:w-4 sm:h-4 text-accent flex-shrink-0 mt-0.5" />
+                          <span className="leading-tight flex items-center gap-1">
+                            {feature.text}
+                            {tooltip && (
+                              <TooltipProvider delayDuration={0}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="inline-flex items-center justify-center w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors">
+                                      <Info className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-muted-foreground" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs p-2">
+                                    <p className="text-xs">{tooltip}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                   <Button asChild variant={pkg.popular ? 'default' : 'outline'} className="w-full text-[10px] sm:text-sm h-8 sm:h-10">
                     <Link to="/demo">{t('Få koncept', 'Get concept')}</Link>
