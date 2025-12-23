@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Plus Jakarta Sans Variable", "system-ui", "-apple-system", "sans-serif"],
-        heading: ["Plus Jakarta Sans Variable", "system-ui", "sans-serif"],
+        sans: ["Outfit", "system-ui", "-apple-system", "sans-serif"],
+        heading: ["Outfit", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

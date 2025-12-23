@@ -35,8 +35,10 @@ export default function PostDemoPage() {
   const [conceptLink, setConceptLink] = useState('');
   const [conceptLinkError, setConceptLinkError] = useState(false);
   
-  // Refund flow state
+  // Refund flow state - now includes revision option
   const [refundStep, setRefundStep] = useState(1);
+  const [wantsRevision, setWantsRevision] = useState<boolean | null>(null);
+  const [revisionFeedback, setRevisionFeedback] = useState('');
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackReasons, setFeedbackReasons] = useState<string[]>([]);
   const [feedbackStyleCorrect, setFeedbackStyleCorrect] = useState<boolean | null>(null);
@@ -99,9 +101,10 @@ export default function PostDemoPage() {
     setRefundStep(2);
   };
 
-  // Refund Flow
+  // Refund Flow - Now with revision option first
   if (selectedOption === 'refund') {
-    if (refundStep === 2) {
+    // Step 3: Refund confirmed
+    if (refundStep === 3) {
       return (
         <div className="section-padding py-20">
           <div className="container-narrow text-center">
@@ -118,75 +121,212 @@ export default function PostDemoPage() {
       );
     }
 
+    // Step 2.5: Revision request submitted
+    if (refundStep === 2 && wantsRevision) {
+      return (
+        <div className="section-padding py-20">
+          <div className="container-narrow text-center">
+            <AnimatedSection animation="scale-in">
+              <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-8 h-8 text-accent" />
+              </div>
+              <h1 className="text-3xl font-bold mb-4">{t('Revisionsbegäran mottagen!', 'Revision request received!')}</h1>
+              <p className="text-muted-foreground mb-4">{t('Vi har tagit emot dina ändringsförslag.', 'We\'ve received your change requests.')}</p>
+              <p className="text-muted-foreground mb-8">{t('Vi återkommer inom 48 timmar med ett uppdaterat koncept.', 'We\'ll get back to you within 48 hours with an updated concept.')}</p>
+              <Button asChild><Link to="/">{t('Tillbaka till start', 'Back to home')}</Link></Button>
+            </AnimatedSection>
+          </div>
+        </div>
+      );
+    }
+
+    // Step 2: Refund feedback (if they chose not to revise)
+    if (refundStep === 2 && !wantsRevision) {
+      return (
+        <div className="section-padding py-12">
+          <div className="container-narrow">
+            <AnimatedSection animation="fade-up" className="text-center mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('Återbetalning', 'Refund')}</h1>
+              <p className="text-muted-foreground">{t('Hjälp oss förbättra genom att svara på några frågor.', 'Help us improve by answering a few questions.')}</p>
+            </AnimatedSection>
+
+            <div className="space-y-6 max-w-lg mx-auto">
+              <AnimatedSection animation="fade-up" delay={100}>
+                <div className="space-y-6 p-6 bg-secondary/50 rounded-xl">
+                  <div className="space-y-2">
+                    <Label>{t('Betygsätt konceptet 1-5', 'Rate the concept 1-5')} *</Label>
+                    <div className="flex gap-2">
+                      {[1,2,3,4,5].map(n => (
+                        <button key={n} type="button" onClick={() => setFeedbackRating(n)} className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center transition-all ${feedbackRating >= n ? 'bg-accent text-accent-foreground border-accent' : 'border-border hover:border-accent/50'}`}>
+                          <Star className={`w-5 h-5 ${feedbackRating >= n ? 'fill-current' : ''}`} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t('Vad gillade du inte?', 'What didn\'t you like?')} *</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { sv: 'Design/stil', en: 'Design/style' },
+                        { sv: 'Funktioner saknas', en: 'Missing features' },
+                        { sv: 'Inte vad jag förväntade', en: 'Not what I expected' },
+                        { sv: 'Annat', en: 'Other' },
+                      ].map(reason => (
+                        <button key={reason.en} type="button" onClick={() => toggleFeedbackReason(reason.en)} className={`p-3 text-sm rounded-lg border-2 transition-all ${feedbackReasons.includes(reason.en) ? 'border-accent bg-accent/10' : 'border-border hover:border-accent/50'}`}>
+                          {t(reason.sv, reason.en)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t('Var stilriktningen korrekt?', 'Was the style direction correct?')} *</Label>
+                    <div className="flex gap-4">
+                      <button type="button" onClick={() => setFeedbackStyleCorrect(true)} className={`px-6 py-3 rounded-lg border-2 transition-all ${feedbackStyleCorrect === true ? 'border-accent bg-accent/10' : 'border-border'}`}>{t('Ja', 'Yes')}</button>
+                      <button type="button" onClick={() => setFeedbackStyleCorrect(false)} className={`px-6 py-3 rounded-lg border-2 transition-all ${feedbackStyleCorrect === false ? 'border-accent bg-accent/10' : 'border-border'}`}>{t('Nej', 'No')}</button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t('Saknade funktioner?', 'Missing features?')}</Label>
+                    <Input value={feedbackMissing} onChange={(e) => setFeedbackMissing(e.target.value)} placeholder={t('Valfritt...', 'Optional...')} className="h-12" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t('Vad skulle göra det acceptabelt?', 'What would make it acceptable?')}</Label>
+                    <Textarea value={feedbackImprove} onChange={(e) => setFeedbackImprove(e.target.value)} placeholder={t('Valfritt...', 'Optional...')} rows={3} />
+                  </div>
+                </div>
+              </AnimatedSection>
+
+              <AnimatedSection animation="fade-up" delay={200}>
+                <div className="flex gap-4">
+                  <Button variant="outline" onClick={() => setRefundStep(1)}>{t('Tillbaka', 'Back')}</Button>
+                  <Button onClick={() => {
+                    if (feedbackRating === 0 || feedbackReasons.length === 0 || feedbackStyleCorrect === null) {
+                      toast({ title: t('Besvara alla frågor', 'Answer all questions'), variant: 'destructive' });
+                      return;
+                    }
+                    setRefundStep(3);
+                  }} className="flex-1">{t('Skicka begäran', 'Submit request')}</Button>
+                </div>
+              </AnimatedSection>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Step 1: Ask if they want revision or refund
     return (
       <div className="section-padding py-12">
         <div className="container-narrow">
           <AnimatedSection animation="fade-up" className="text-center mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('Återbetalning', 'Refund')}</h1>
-            <p className="text-muted-foreground">{t('Hjälp oss förbättra genom att svara på några frågor.', 'Help us improve by answering a few questions.')}</p>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('Inte helt nöjd?', 'Not fully satisfied?')}</h1>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              {t('Vi vill att du ska bli nöjd! Låt oss göra ändringar innan du bestämmer dig.', 'We want you to be happy! Let us make changes before you decide.')}
+            </p>
           </AnimatedSection>
 
-          <div className="space-y-6 max-w-lg mx-auto">
-            {/* Feedback questions */}
-            <AnimatedSection animation="fade-up" delay={100}>
-              <div className="space-y-6 p-6 bg-secondary/50 rounded-xl">
-                {/* Rating */}
-                <div className="space-y-2">
-                  <Label>{t('Betygsätt konceptet 1-5', 'Rate the concept 1-5')} *</Label>
-                  <div className="flex gap-2">
-                    {[1,2,3,4,5].map(n => (
-                      <button key={n} type="button" onClick={() => setFeedbackRating(n)} className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center transition-all ${feedbackRating >= n ? 'bg-accent text-accent-foreground border-accent' : 'border-border hover:border-accent/50'}`}>
-                        <Star className={`w-5 h-5 ${feedbackRating >= n ? 'fill-current' : ''}`} />
-                      </button>
-                    ))}
-                  </div>
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
+            {/* Revision Option - Highlighted */}
+            <AnimatedSection animation="fade-right" delay={100}>
+              <button 
+                onClick={() => setWantsRevision(true)} 
+                className={`w-full p-8 rounded-xl border-2 text-left transition-all relative ${wantsRevision === true ? 'border-accent bg-accent/10 shadow-lg' : 'border-accent/50 bg-accent/5 hover:border-accent hover:shadow-lg'}`}
+              >
+                <span className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">
+                  {t('Rekommenderas', 'Recommended')}
+                </span>
+                <div className="w-14 h-14 bg-accent/20 rounded-full flex items-center justify-center mb-4">
+                  <FileText className="w-7 h-7 text-accent" />
                 </div>
-
-                {/* Reasons */}
-                <div className="space-y-2">
-                  <Label>{t('Vad gillade du inte?', 'What didn\'t you like?')} *</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { sv: 'Design/stil', en: 'Design/style' },
-                      { sv: 'Funktioner saknas', en: 'Missing features' },
-                      { sv: 'Inte vad jag förväntade', en: 'Not what I expected' },
-                      { sv: 'Annat', en: 'Other' },
-                    ].map(reason => (
-                      <button key={reason.en} type="button" onClick={() => toggleFeedbackReason(reason.en)} className={`p-3 text-sm rounded-lg border-2 transition-all ${feedbackReasons.includes(reason.en) ? 'border-accent bg-accent/10' : 'border-border hover:border-accent/50'}`}>
-                        {t(reason.sv, reason.en)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Style correct */}
-                <div className="space-y-2">
-                  <Label>{t('Var stilriktningen korrekt?', 'Was the style direction correct?')} *</Label>
-                  <div className="flex gap-4">
-                    <button type="button" onClick={() => setFeedbackStyleCorrect(true)} className={`px-6 py-3 rounded-lg border-2 transition-all ${feedbackStyleCorrect === true ? 'border-accent bg-accent/10' : 'border-border'}`}>{t('Ja', 'Yes')}</button>
-                    <button type="button" onClick={() => setFeedbackStyleCorrect(false)} className={`px-6 py-3 rounded-lg border-2 transition-all ${feedbackStyleCorrect === false ? 'border-accent bg-accent/10' : 'border-border'}`}>{t('Nej', 'No')}</button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>{t('Saknade funktioner?', 'Missing features?')}</Label>
-                  <Input value={feedbackMissing} onChange={(e) => setFeedbackMissing(e.target.value)} placeholder={t('Valfritt...', 'Optional...')} className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>{t('Vad skulle göra det acceptabelt?', 'What would make it acceptable?')}</Label>
-                  <Textarea value={feedbackImprove} onChange={(e) => setFeedbackImprove(e.target.value)} placeholder={t('Valfritt...', 'Optional...')} rows={3} />
-                </div>
-              </div>
+                <h2 className="font-heading font-semibold text-xl mb-2">{t('Gör ändringar', 'Request changes')}</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t('Berätta vad du vill ändra så uppdaterar vi konceptet utan extra kostnad.', 'Tell us what to change and we\'ll update the concept at no extra cost.')}
+                </p>
+                <span className="inline-flex items-center gap-2 text-accent font-medium text-sm">
+                  {t('Välj detta', 'Choose this')} <ArrowRight className="w-4 h-4" />
+                </span>
+              </button>
             </AnimatedSection>
 
-            <AnimatedSection animation="fade-up" delay={200}>
-              <div className="flex gap-4">
-                <Button variant="outline" onClick={() => setSelectedOption(null)}>{t('Avbryt', 'Cancel')}</Button>
-                <Button onClick={handleRefundSubmit} className="flex-1">{t('Skicka begäran', 'Submit request')}</Button>
-              </div>
+            {/* Refund Option */}
+            <AnimatedSection animation="fade-left" delay={200}>
+              <button 
+                onClick={() => setWantsRevision(false)} 
+                className={`w-full p-8 rounded-xl border-2 text-left transition-all ${wantsRevision === false ? 'border-muted-foreground bg-secondary shadow-lg' : 'border-border bg-secondary/50 hover:border-muted-foreground'}`}
+              >
+                <div className="w-14 h-14 bg-secondary rounded-full flex items-center justify-center mb-4">
+                  <XCircle className="w-7 h-7 text-muted-foreground" />
+                </div>
+                <h2 className="font-heading font-semibold text-xl mb-2">{t('Begär återbetalning', 'Request refund')}</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t('Återbetalning av 500 kr inom 7 arbetsdagar.', 'Refund of 500 kr within 7 business days.')}
+                </p>
+                <span className="inline-flex items-center gap-2 text-muted-foreground font-medium text-sm">
+                  {t('Välj detta', 'Choose this')} <ArrowRight className="w-4 h-4" />
+                </span>
+              </button>
             </AnimatedSection>
           </div>
+
+          {/* Revision form - show when revision selected */}
+          {wantsRevision === true && (
+            <AnimatedSection animation="fade-up" delay={300}>
+              <div className="max-w-lg mx-auto space-y-6">
+                <div className="p-6 bg-secondary/50 rounded-xl space-y-4">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-accent" />
+                    <Label className="font-medium">{t('Beskriv ändringarna du vill ha', 'Describe the changes you want')} *</Label>
+                  </div>
+                  <Textarea 
+                    value={revisionFeedback} 
+                    onChange={(e) => setRevisionFeedback(e.target.value)} 
+                    placeholder={t('Exempelvis: Jag vill ha andra färger, en annan layout på startsidan, fler bilder...', 'For example: I want different colors, a different homepage layout, more images...')} 
+                    rows={5}
+                    className="resize-none"
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <Button variant="outline" onClick={() => { setWantsRevision(null); setRevisionFeedback(''); }}>{t('Avbryt', 'Cancel')}</Button>
+                  <Button 
+                    onClick={() => {
+                      if (!revisionFeedback.trim()) {
+                        toast({ title: t('Beskriv ändringarna', 'Describe the changes'), variant: 'destructive' });
+                        return;
+                      }
+                      setRefundStep(2);
+                    }} 
+                    className="flex-1"
+                  >
+                    {t('Skicka ändringsförslag', 'Submit change request')} <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </AnimatedSection>
+          )}
+
+          {/* Proceed to refund - show when refund selected */}
+          {wantsRevision === false && (
+            <AnimatedSection animation="fade-up" delay={300}>
+              <div className="max-w-lg mx-auto">
+                <div className="flex gap-4">
+                  <Button variant="outline" onClick={() => setWantsRevision(null)}>{t('Avbryt', 'Cancel')}</Button>
+                  <Button onClick={() => setRefundStep(2)} className="flex-1" variant="secondary">
+                    {t('Fortsätt till återbetalning', 'Continue to refund')} <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </AnimatedSection>
+          )}
+
+          <AnimatedSection animation="fade-up" delay={400} className="mt-8 text-center">
+            <Button variant="ghost" onClick={() => setSelectedOption(null)}>
+              {t('← Tillbaka', '← Back')}
+            </Button>
+          </AnimatedSection>
         </div>
       </div>
     );

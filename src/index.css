@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import '@fontsource-variable/plus-jakarta-sans';
+@import '@fontsource/outfit';
 
 @layer base {
   :root {
