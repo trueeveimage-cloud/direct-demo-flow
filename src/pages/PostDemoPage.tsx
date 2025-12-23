@@ -80,47 +80,7 @@ export default function PostDemoPage() {
   const verificationFee = 500; // Flat 500 kr
   const remainingAmount = pkg ? pkg.price - verificationFee : 0;
 
-  // PAYMENT GATE: If not paid, show locked screen
-  if (!isPaid) {
-    return (
-      <div className="min-h-screen section-padding py-20">
-        <div className="container-narrow text-center">
-          <AnimatedSection animation="scale-in">
-            <div className="w-20 h-20 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-8">
-              <Lock className="w-10 h-10 text-destructive" />
-            </div>
-            <h1 className="text-3xl font-bold mb-4">
-              {t('Betalning krävs', 'Payment required')}
-            </h1>
-            <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto">
-              {t(
-                'Du måste betala verifieringsavgiften (500 kr) innan du kan fortsätta.',
-                'You must pay the verification fee (500 kr) before you can continue.'
-              )}
-            </p>
-            <div className="space-y-4">
-              <Button asChild size="lg">
-                <Link to="/demo">
-                  <CreditCard className="w-5 h-5 mr-2" />
-                  {t('Betala verifieringsavgift', 'Pay verification fee')}
-                </Link>
-              </Button>
-              <p className="text-sm text-muted-foreground">
-                {t('Har du redan betalat? Klicka', 'Already paid? Click')}{' '}
-                <button 
-                  onClick={() => setIsPaid(true)} 
-                  className="text-accent hover:underline"
-                >
-                  {t('här', 'here')}
-                </button>
-                {' '}{t('om du inte omdirigerades korrekt.', 'if you were not redirected correctly.')}
-              </p>
-            </div>
-          </AnimatedSection>
-        </div>
-      </div>
-    );
-  }
+  // No payment gate - allow all users to access this page
 
   const validateConceptLink = (link: string): boolean => {
     try {
