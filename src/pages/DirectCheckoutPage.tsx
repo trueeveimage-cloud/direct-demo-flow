@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, ArrowLeft, Check, Package, Palette, Globe, FileText, Users, Search, Scale, CreditCard, Clock, Zap } from 'lucide-react';
+import { CheckCircle2, ArrowRight, ArrowLeft, Check, Package, Palette, Globe, FileText, Users, Search, Scale, CreditCard, Clock, Zap, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import { AnimatedSection } from '@/components/AnimatedSection';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { PackageCompareModal } from '@/components/PackageCompareModal';
 import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
+import { getPackageStripeLink } from '@/config/stripe';
 
 type FormStep = 1 | 2 | 3 | 4 | 5;
 
@@ -192,6 +193,7 @@ export default function DirectCheckoutPage() {
     setIsLoading(true);
     
     try {
+      // Submit form data for record keeping
       const formData = new FormData();
       formData.append('form_type', 'Direct Checkout Order');
       formData.append('business_name', businessName);
@@ -220,13 +222,20 @@ export default function DirectCheckoutPage() {
       formData.append('terms_explanation', termsExplanation);
       formData.append('extra_notes', extraNotes);
 
-      const response = await fetch('https://getform.io/f/agdvpmpb', {
+      await fetch('https://getform.io/f/agdvpmpb', {
         method: 'POST',
         body: formData,
         headers: { 'Accept': 'application/json' },
       });
 
-      if (!response.ok) throw new Error('Form submission failed');
+      // Open Stripe payment link
+      const stripeUrl = `${getPackageStripeLink(selectedPackage)}?prefilled_email=${encodeURIComponent(email)}`;
+      window.open(stripeUrl, '_blank');
+      
+      toast({ 
+        title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
+        description: t('Slutför betalningen i det nya fönstret.', 'Complete payment in the new window.') 
+      });
       
       setSubmitted(true);
     } catch (error) {

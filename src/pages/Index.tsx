@@ -31,16 +31,17 @@ export default function Index() {
 
   return (
     <div className="overflow-hidden">
-      {/* Big Nomia Logo at Top */}
+      {/* Big Nomia Logo at Top - Premium shimmer effect */}
       <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="pt-12 pb-4 text-center"
+        initial={{ opacity: 0, y: -20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+        className="pt-16 pb-8 text-center"
       >
-        <span className="font-heading font-extrabold text-6xl sm:text-7xl lg:text-8xl tracking-tight">
-          Nomia<span className="text-accent">.</span>
+        <span className="font-heading font-extrabold text-7xl sm:text-8xl lg:text-9xl tracking-tight logo-shimmer">
+          Nomia
         </span>
+        <span className="font-heading font-extrabold text-7xl sm:text-8xl lg:text-9xl tracking-tight logo-shimmer-accent">.</span>
       </motion.div>
 
       {/* Hero Section - Full height, immersive with parallax */}
