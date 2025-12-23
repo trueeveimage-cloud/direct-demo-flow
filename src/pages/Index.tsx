@@ -23,28 +23,28 @@ export default function Index() {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   
-  // Subtle parallax transforms for hero logo
-  const logoY = useTransform(scrollYProgress, [0, 0.15], [0, -40]);
-  const logoOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0.5]);
-  const logoBlur = useTransform(scrollYProgress, [0, 0.15], [0, 1]);
+  // Strong parallax transforms for hero logo - much greater effect, faster fade
+  const logoY = useTransform(scrollYProgress, [0, 0.08], [0, -120]);
+  const logoOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
+  const logoScale = useTransform(scrollYProgress, [0, 0.08], [1, 0.8]);
   
-  // Background parallax
-  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0.3]);
-  const bgCircle1Y = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  const bgCircle2Y = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  // Background parallax - stronger effect
+  const heroY = useTransform(scrollYProgress, [0, 0.2], [0, -200]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+  const bgCircle1Y = useTransform(scrollYProgress, [0, 1], [0, 500]);
+  const bgCircle2Y = useTransform(scrollYProgress, [0, 1], [0, -350]);
 
   return (
     <div className="overflow-hidden">
-      {/* Hero Logo - Premium size with scroll parallax fade */}
+      {/* Hero Logo - BIGGER with strong scroll parallax fade */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        style={{ y: logoY, opacity: logoOpacity, filter: `blur(${logoBlur}px)` }}
-        className="pt-12 pb-6 text-center"
+        style={{ y: logoY, opacity: logoOpacity, scale: logoScale }}
+        className="pt-16 pb-8 text-center"
       >
-        <span className="font-heading font-semibold text-5xl sm:text-6xl lg:text-7xl tracking-tight">
+        <span className="font-heading font-bold text-7xl sm:text-8xl lg:text-9xl tracking-tighter">
           Nomia<span className="text-accent">.</span>
         </span>
       </motion.div>
