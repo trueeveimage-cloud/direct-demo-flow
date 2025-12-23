@@ -276,11 +276,47 @@ export default function FreeDemoPage() {
 
   const handlePayment = async () => {
     setIsLoading(true);
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsLoading(false);
-    setSubmitted(true);
-    clearData();
+    
+    try {
+      const formData = new FormData();
+      formData.append('form_type', 'Free Demo Request');
+      formData.append('business_name', businessName);
+      formData.append('contact_person', contactPerson);
+      formData.append('email', email);
+      formData.append('phone', phone);
+      formData.append('demo_link', demoLink);
+      formData.append('selected_style', selectedStyle);
+      formData.append('selected_language', selectedLanguage);
+      formData.append('selected_package', selectedPackage);
+      formData.append('wants_booking', String(wantsBooking));
+      formData.append('booking_platform', bookingPlatform);
+      formData.append('no_logo', String(noLogo));
+      formData.append('use_stock', String(useStock));
+      formData.append('selected_pages', selectedPages.join(', '));
+      formData.append('custom_pages', customPages.filter(p => p.trim()).join(', '));
+      formData.append('services', services);
+      formData.append('extra_notes', extraNotes);
+      formData.append('verification_fee', '500 kr');
+
+      const response = await fetch('https://getform.io/f/agdvpmpb', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' },
+      });
+
+      if (!response.ok) throw new Error('Form submission failed');
+      
+      setSubmitted(true);
+      clearData();
+    } catch (error) {
+      toast({ 
+        title: t('Något gick fel', 'Something went wrong'), 
+        description: t('Försök igen senare.', 'Please try again later.'), 
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const upgradePackage = (newPackage: string) => {
@@ -293,7 +329,7 @@ export default function FreeDemoPage() {
   };
 
   const pkg = packages.find(p => p.id === selectedPackage);
-  const verificationFee = pkg ? Math.round(pkg.price * 0.1) : 0;
+  const verificationFee = 500; // Flat 500 kr / ~$50 USD
 
   // Resume prompt
   if (showResumePrompt) {

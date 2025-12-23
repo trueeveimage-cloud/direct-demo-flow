@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send, ArrowRight } from 'lucide-react';
+import { Mail, MapPin, Send, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -72,11 +72,7 @@ export default function ContactPage() {
             <div className="space-y-6">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-accent-soft rounded-lg flex items-center justify-center flex-shrink-0"><Mail className="w-5 h-5 text-accent" /></div>
-                <div><h3 className="font-heading font-semibold mb-1">E-post</h3><a href="mailto:hej@nordicsite.se" className="text-muted-foreground hover:text-foreground transition-colors">hej@nordicsite.se</a></div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-accent-soft rounded-lg flex items-center justify-center flex-shrink-0"><Phone className="w-5 h-5 text-accent" /></div>
-                <div><h3 className="font-heading font-semibold mb-1">{t('Telefon', 'Phone')}</h3><a href="tel:+46701234567" className="text-muted-foreground hover:text-foreground transition-colors">+46 70 123 45 67</a></div>
+                <div><h3 className="font-heading font-semibold mb-1">E-post</h3><a href="mailto:nordicsite.help@gmail.com" className="text-muted-foreground hover:text-foreground transition-colors">nordicsite.help@gmail.com</a></div>
               </div>
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-accent-soft rounded-lg flex items-center justify-center flex-shrink-0"><MapPin className="w-5 h-5 text-accent" /></div>
