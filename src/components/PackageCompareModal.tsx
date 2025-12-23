@@ -1,11 +1,35 @@
-import { Check, X } from 'lucide-react';
+import { Check, X, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PackageCompareModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+const tooltips: Record<string, { sv: string; en: string }> = {
+  booking: {
+    sv: 'Integration med Bokadirekt, Calendly eller liknande.',
+    en: 'Integration with Bokadirekt, Calendly or similar.'
+  },
+  analytics: {
+    sv: 'Spåra besökare och konverteringar.',
+    en: 'Track visitors and conversions.'
+  },
+  newsletter: {
+    sv: 'Mailchimp eller liknande setup.',
+    en: 'Mailchimp or similar setup.'
+  },
+  multiLanguage: {
+    sv: 'Webbplatsen finns på både svenska och engelska.',
+    en: 'The website is available in both Swedish and English.'
+  },
+  prioritySupport: {
+    sv: 'Snabbare svarstider under projektet.',
+    en: 'Faster response times during the project.'
+  }
+};
 
 const packages = [
   { 
@@ -22,7 +46,8 @@ const packages = [
     booking: false,
     analytics: false,
     newsletter: false,
-    prioritySupport: false
+    prioritySupport: false,
+    multiLanguage: false
   },
   { 
     id: 'standard', 
@@ -39,7 +64,8 @@ const packages = [
     booking: false,
     analytics: false,
     newsletter: false,
-    prioritySupport: false
+    prioritySupport: false,
+    multiLanguage: true
   },
   { 
     id: 'pro', 
@@ -55,13 +81,28 @@ const packages = [
     booking: true,
     analytics: true,
     newsletter: true,
-    prioritySupport: true
+    prioritySupport: true,
+    multiLanguage: true
   },
 ];
 
 export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
+  const InfoIcon = ({ tooltipKey }: { tooltipKey: keyof typeof tooltips }) => (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button type="button" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors ml-1">
+            <Info className="w-3 h-3 text-muted-foreground" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs p-2">
+          <p className="text-xs">{tooltips[tooltipKey][lang]}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -113,7 +154,25 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 ))}
               </tr>
               <tr className="border-b border-border">
-                <td className="p-3 font-medium">{t('Bokningssystem', 'Booking system')}</td>
+                <td className="p-3 font-medium flex items-center">
+                  {t('Flerspråkig', 'Multi-language')}
+                  <InfoIcon tooltipKey="multiLanguage" />
+                </td>
+                {packages.map(pkg => (
+                  <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
+                    {pkg.multiLanguage ? (
+                      <Check className="w-5 h-5 text-accent mx-auto" />
+                    ) : (
+                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-3 font-medium flex items-center">
+                  {t('Bokningssystem', 'Booking system')}
+                  <InfoIcon tooltipKey="booking" />
+                </td>
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
                     {pkg.booking ? (
@@ -125,7 +184,10 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 ))}
               </tr>
               <tr className="border-b border-border">
-                <td className="p-3 font-medium">{t('Google Analytics', 'Google Analytics')}</td>
+                <td className="p-3 font-medium flex items-center">
+                  {t('Google Analytics', 'Google Analytics')}
+                  <InfoIcon tooltipKey="analytics" />
+                </td>
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
                     {pkg.analytics ? (
@@ -137,7 +199,10 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 ))}
               </tr>
               <tr className="border-b border-border">
-                <td className="p-3 font-medium">{t('Nyhetsbrev setup', 'Newsletter setup')}</td>
+                <td className="p-3 font-medium flex items-center">
+                  {t('Nyhetsbrev setup', 'Newsletter setup')}
+                  <InfoIcon tooltipKey="newsletter" />
+                </td>
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
                     {pkg.newsletter ? (
@@ -149,7 +214,10 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 ))}
               </tr>
               <tr className="border-b border-border">
-                <td className="p-3 font-medium">{t('Prioriterad support', 'Priority support')}</td>
+                <td className="p-3 font-medium flex items-center">
+                  {t('Prioriterad support', 'Priority support')}
+                  <InfoIcon tooltipKey="prioritySupport" />
+                </td>
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
                     {pkg.prioritySupport ? (

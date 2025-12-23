@@ -163,7 +163,7 @@ export function CarePlansCompareModal({ open, onOpenChange, isYearly }: CarePlan
                     {plan.editHours === 0 ? (
                       <X className="w-5 h-5 text-muted-foreground mx-auto" />
                     ) : (
-                      `${plan.editHours} ${t('timme', 'hour')}${plan.editHours > 1 ? t('ar', 's') : ''}`
+                      `${plan.editHours} ${t('timmar', 'hours')}`
                     )}
                   </td>
                 ))}

@@ -10,6 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { toast } from '@/hooks/use-toast';
 import { InfoTooltip } from '@/components/InfoTooltip';
+import { Switch } from '@/components/ui/switch';
 
 const packages = [
   { id: 'starter', name: 'Starter', price: 4900, priceDisplay: '4 900 kr', pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, delivery: 14, features: { sv: ['Responsiv design', 'Mobil-först', 'Kontaktformulär', 'SEO-grundläggande', '1 revision'], en: ['Responsive design', 'Mobile-first', 'Contact form', 'Basic SEO', '1 revision'] } },
@@ -18,9 +19,9 @@ const packages = [
 ];
 
 const carePlans = [
-  { id: 'basic', name: 'Basic', price: '249 kr/mån', features: { sv: ['Hosting', 'Uppdateringar', 'Säkerhetskopiering'], en: ['Hosting', 'Updates', 'Backups'] } },
-  { id: 'standard', name: 'Standard', price: '449 kr/mån', popular: true, features: { sv: ['Allt i Basic', 'Domän ingår', 'Företagsmail', '1h ändringar/mån'], en: ['Everything in Basic', 'Domain included', 'Business email', '1h edits/month'] } },
-  { id: 'pro', name: 'Pro', price: '749 kr/mån', features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Prioriterad support'], en: ['Everything in Standard', '3h edits/month', 'Priority support'] } },
+  { id: 'basic', name: 'Basic', monthlyPrice: 249, yearlyPrice: 199, features: { sv: ['Hosting', 'Uppdateringar', 'Säkerhetskopiering'], en: ['Hosting', 'Updates', 'Backups'] } },
+  { id: 'standard', name: 'Standard', monthlyPrice: 449, yearlyPrice: 359, popular: true, features: { sv: ['Allt i Basic', 'Domän ingår', 'Företagsmail', '1h ändringar/mån'], en: ['Everything in Basic', 'Domain included', 'Business email', '1h edits/month'] } },
+  { id: 'pro', name: 'Pro', monthlyPrice: 749, yearlyPrice: 599, features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Prioriterad support'], en: ['Everything in Standard', '3h edits/month', 'Priority support'] } },
 ];
 
 export default function PostDemoPage() {
@@ -29,6 +30,7 @@ export default function PostDemoPage() {
   const [proceedStep, setProceedStep] = useState(1);
   const [selectedPackage, setSelectedPackage] = useState<string>('standard');
   const [selectedCarePlan, setSelectedCarePlan] = useState<string | null>('standard');
+  const [isYearlyCarePlan, setIsYearlyCarePlan] = useState(false);
   const [expandedPackage, setExpandedPackage] = useState<string | null>(null);
   
   // Concept link - required for both flows
@@ -414,24 +416,53 @@ export default function PostDemoPage() {
           {/* Step 2: Care Plan */}
           {proceedStep === 2 && (
             <div>
-              <AnimatedSection animation="fade-up" className="text-center mb-8">
+              <AnimatedSection animation="fade-up" className="text-center mb-4">
                 <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('Lägg till månatlig webbvård?', 'Add monthly care?')}</h1>
               </AnimatedSection>
+              
+              {/* Yearly Toggle */}
+              <div className="flex items-center justify-center gap-3 mb-8">
+                <span className={`text-sm ${!isYearlyCarePlan ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                  {t('Månadsvis', 'Monthly')}
+                </span>
+                <Switch 
+                  checked={isYearlyCarePlan} 
+                  onCheckedChange={setIsYearlyCarePlan}
+                  className="data-[state=checked]:bg-accent"
+                />
+                <span className={`text-sm ${isYearlyCarePlan ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                  {t('Årsvis', 'Yearly')}
+                  <span className="ml-1 text-xs text-accent font-semibold">
+                    {t('Spara 20%', 'Save 20%')}
+                  </span>
+                </span>
+              </div>
+              
               <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
-                {carePlans.map((c, index) => (
-                  <AnimatedSection key={c.id} animation="fade-up" delay={index * 100}>
-                    <button onClick={() => setSelectedCarePlan(selectedCarePlan === c.id ? null : c.id)} className={`w-full p-6 rounded-xl border-2 text-left transition-all relative ${selectedCarePlan === c.id ? 'border-accent bg-accent/5 shadow-lg' : 'border-border hover:border-accent/50'}`}>
-                      {c.popular && <span className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">{t('Rekommenderas', 'Recommended')}</span>}
-                      <h3 className="font-semibold text-xl mb-1">{c.name}</h3>
-                      <p className="text-xl font-bold text-accent mb-4">{c.price}</p>
-                      <ul className="space-y-2">
-                        {(lang === 'sv' ? c.features.sv : c.features.en).map((f, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />{f}</li>
-                        ))}
-                      </ul>
-                    </button>
-                  </AnimatedSection>
-                ))}
+                {carePlans.map((c, index) => {
+                  const price = isYearlyCarePlan ? c.yearlyPrice : c.monthlyPrice;
+                  return (
+                    <AnimatedSection key={c.id} animation="fade-up" delay={index * 100}>
+                      <button onClick={() => setSelectedCarePlan(selectedCarePlan === c.id ? null : c.id)} className={`w-full p-6 rounded-xl border-2 text-left transition-all relative ${selectedCarePlan === c.id ? 'border-accent bg-accent/5 shadow-lg' : 'border-border hover:border-accent/50'}`}>
+                        {c.popular && <span className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">{t('Rekommenderas', 'Recommended')}</span>}
+                        <h3 className="font-semibold text-xl mb-1">{c.name}</h3>
+                        <div className="mb-4">
+                          <span className="text-xl font-bold text-accent">{price} kr/mån</span>
+                          {isYearlyCarePlan && (
+                            <span className="ml-2 text-xs text-muted-foreground line-through">
+                              {c.monthlyPrice} kr/mån
+                            </span>
+                          )}
+                        </div>
+                        <ul className="space-y-2">
+                          {(lang === 'sv' ? c.features.sv : c.features.en).map((f, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm"><Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />{f}</li>
+                          ))}
+                        </ul>
+                      </button>
+                    </AnimatedSection>
+                  );
+                })}
               </div>
               <div className="flex justify-center gap-4">
                 <Button variant="outline" onClick={() => setProceedStep(1)}>{t('Tillbaka', 'Back')}</Button>
