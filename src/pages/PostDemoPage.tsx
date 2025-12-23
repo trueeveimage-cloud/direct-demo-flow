@@ -263,7 +263,7 @@ export default function PostDemoPage() {
                 </div>
                 <h2 className="font-heading font-semibold text-xl mb-2">{t('Begär återbetalning', 'Request refund')}</h2>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {t('Återbetalning av 500 kr inom 7 arbetsdagar.', 'Refund of 500 kr within 7 business days.')}
+                  {t('Full återbetalning inom 7 arbetsdagar.', 'Full refund within 7 business days.')}
                 </p>
                 <span className="inline-flex items-center gap-2 text-muted-foreground font-medium text-sm">
                   {t('Välj detta', 'Choose this')} <ArrowRight className="w-4 h-4" />

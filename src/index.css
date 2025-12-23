@@ -2,7 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
-@import '@fontsource/outfit';
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis-ExtraBold.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
 
 @layer base {
   :root {
