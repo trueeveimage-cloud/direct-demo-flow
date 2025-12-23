@@ -31,8 +31,20 @@ export default function Index() {
 
   return (
     <div className="overflow-hidden">
+      {/* Big Nomia Logo at Top */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="pt-12 pb-4 text-center"
+      >
+        <span className="font-heading font-extrabold text-6xl sm:text-7xl lg:text-8xl tracking-tight">
+          Nomia<span className="text-accent">.</span>
+        </span>
+      </motion.div>
+
       {/* Hero Section - Full height, immersive with parallax */}
-      <section ref={heroRef} className="min-h-[90vh] flex items-center relative overflow-hidden">
+      <section ref={heroRef} className="min-h-[70vh] flex items-center relative overflow-hidden">
         {/* Animated parallax background */}
         <div className="absolute inset-0 pointer-events-none">
           <motion.div 

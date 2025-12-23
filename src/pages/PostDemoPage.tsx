@@ -681,8 +681,26 @@ export default function PostDemoPage() {
                     <h3 className="font-semibold mb-4 flex items-center gap-2"><CreditCard className="w-5 h-5 text-accent" />{t('Slutbetalning', 'Final payment')}</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between"><span>{t('Paketpris', 'Package price')}</span><span>{pkg?.priceDisplay}</span></div>
-                      <div className="flex justify-between text-muted-foreground"><span>{t('Redan betald verifieringsavgift', 'Already paid verification fee')}</span><span>-{verificationFee.toLocaleString()} kr</span></div>
-                      <div className="flex justify-between font-bold text-lg pt-2 border-t border-border"><span>{t('Att betala', 'Remaining')}</span><span className="text-accent">{remainingAmount.toLocaleString()} kr</span></div>
+                      <div className="flex justify-between text-muted-foreground"><span>{t('Redan betald handpenning', 'Already paid deposit')}</span><span>-{verificationFee.toLocaleString()} kr</span></div>
+                      {selectedCarePlan && (() => {
+                        const carePlan = carePlans.find(c => c.id === selectedCarePlan);
+                        const carePlanPrice = carePlan ? (isYearlyCarePlan ? carePlan.yearlyPrice : carePlan.monthlyPrice) : 0;
+                        return (
+                          <div className="flex justify-between">
+                            <span>{t('Vårdplan', 'Care plan')} ({carePlan?.name}) - {isYearlyCarePlan ? t('årsvis', 'yearly') : t('månadsvis', 'monthly')}</span>
+                            <span>{carePlanPrice} kr/{t('mån', 'mo')}</span>
+                          </div>
+                        );
+                      })()}
+                      <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
+                        <span>{t('Att betala idag', 'To pay today')}</span>
+                        <span className="text-accent">{remainingAmount.toLocaleString()} kr</span>
+                      </div>
+                      {selectedCarePlan && (
+                        <p className="text-xs text-muted-foreground pt-1">
+                          {t('+ vårdplan debiteras månatligen efter webbplatsen är klar', '+ care plan billed monthly after website is complete')}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </AnimatedSection>
