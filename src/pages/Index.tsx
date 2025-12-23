@@ -347,7 +347,7 @@ export default function Index() {
       </section>
 
       {/* Monthly Care Teaser - Accent section with parallax */}
-      <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
+      <section className="py-24 bg-background relative overflow-hidden">
         <motion.div 
           className="absolute inset-0 pointer-events-none"
           style={{ y: useTransform(scrollYProgress, [0.5, 1], [0, -50]) }}
@@ -366,13 +366,13 @@ export default function Index() {
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">
             {t('Månatlig webbvård', 'Monthly Care')}
           </h2>
-          <p className="text-primary-foreground/80 mb-4 max-w-md mx-auto">
+          <p className="text-muted-foreground mb-4 max-w-md mx-auto">
             {t(
               'Håll din webbplats snabb, uppdaterad och redigerbar.',
               'Keep your site fast, updated, and editable.'
             )}
           </p>
-          <p className="text-primary-foreground/60 text-sm mb-8">
+          <p className="text-muted-foreground/70 text-sm mb-8">
             {t('Avsluta när du vill.', 'Cancel anytime.')}
           </p>
           <Button asChild variant="secondary" className="group hover:scale-105 transition-transform">
