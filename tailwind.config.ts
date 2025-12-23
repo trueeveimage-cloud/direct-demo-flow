@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter Variable", "system-ui", "-apple-system", "sans-serif"],
-        heading: ["Inter Variable", "system-ui", "sans-serif"],
+        sans: ["Plus Jakarta Sans Variable", "system-ui", "-apple-system", "sans-serif"],
+        heading: ["Plus Jakarta Sans Variable", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
