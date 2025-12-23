@@ -93,7 +93,20 @@ export default function Index() {
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button asChild variant="ghost" size="lg" className="h-14 px-8 text-base hover:bg-accent/10 transition-colors">
+            <Button asChild variant="secondary" size="lg" className="group h-14 px-8 text-base hover:scale-105 transition-transform">
+              <Link to="/bestall">
+                {t('Beställ direkt', 'Order directly')}
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mt-4"
+          >
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               <Link to="/efter-demo">
                 {t('Har du fått ditt koncept?', 'Have you received your concept?')}
               </Link>
