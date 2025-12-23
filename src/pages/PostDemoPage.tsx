@@ -12,10 +12,9 @@ import { toast } from '@/hooks/use-toast';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { Switch } from '@/components/ui/switch';
 
-// Edge function URLs - will be updated after deployment
-const EDGE_FUNCTION_BASE = import.meta.env.VITE_SUPABASE_URL 
-  ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`
-  : '';
+// Edge function URL - uses Cloud functions
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const EDGE_FUNCTION_BASE = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1` : '';
 
 const packages = [
   { id: 'starter', name: 'Starter', price: 4900, priceDisplay: '4 900 kr', pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, delivery: 14, features: { sv: ['Responsiv design', 'Mobil-först', 'Kontaktformulär', 'SEO-grundläggande', '1 revision'], en: ['Responsive design', 'Mobile-first', 'Contact form', 'Basic SEO', '1 revision'] } },
