@@ -15,7 +15,7 @@ export default function TermsPage() {
           <AnimatedSection animation="fade-up" delay={100}>
             <section>
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Våra tjänster', 'Our Services')}</h2>
-              <p className="text-muted-foreground">{t('NordicSite Studio erbjuder webbdesign och utvecklingstjänster för företag. Vi erbjuder två sätt att beställa: gratis koncept eller direktbeställning.', 'NordicSite Studio offers web design and development services for businesses. We offer two ways to order: free concept or direct checkout.')}</p>
+              <p className="text-muted-foreground">{t('Nomia erbjuder webbdesign och utvecklingstjänster för företag. Vi erbjuder två sätt att beställa: gratis koncept eller direktbeställning.', 'Nomia offers web design and development services for businesses. We offer two ways to order: free concept or direct checkout.')}</p>
             </section>
           </AnimatedSection>
 
@@ -101,7 +101,7 @@ export default function TermsPage() {
 
           <AnimatedSection animation="fade-up" delay={550}>
             <section className="pt-8 border-t border-border">
-              <p className="text-muted-foreground">{t('Har du frågor om våra villkor? Kontakta oss på hej@nordicsite.se', 'Questions about our terms? Contact us at hello@nordicsite.se')}</p>
+              <p className="text-muted-foreground">{t('Har du frågor om våra villkor? Kontakta oss på hello@nomia.se', 'Questions about our terms? Contact us at hello@nomia.se')}</p>
               <p className="text-sm text-muted-foreground mt-4">{t('Senast uppdaterad:', 'Last updated:')} 2024-12-23</p>
             </section>
           </AnimatedSection>

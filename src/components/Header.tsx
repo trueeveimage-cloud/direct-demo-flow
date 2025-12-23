@@ -42,7 +42,7 @@ export function Header() {
             onClick={handleLogoClick}
             className="font-heading font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
           >
-            NordicSite<span className="text-accent">.</span>
+            Nomia<span className="text-accent">.</span>
           </a>
 
           {/* Desktop Nav */}

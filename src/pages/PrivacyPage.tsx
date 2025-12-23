@@ -21,8 +21,8 @@ export default function PrivacyPage() {
               </h2>
               <p className="text-muted-foreground">
                 {t(
-                  'NordicSite Studio ("vi", "oss", "vår") respekterar din integritet och är engagerade i att skydda dina personuppgifter. Denna integritetspolicy förklarar hur vi samlar in, använder och skyddar dina uppgifter när du använder våra tjänster.',
-                  'NordicSite Studio ("we", "us", "our") respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information when you use our services.'
+                  'Nomia ("vi", "oss", "vår") respekterar din integritet och är engagerade i att skydda dina personuppgifter. Denna integritetspolicy förklarar hur vi samlar in, använder och skyddar dina uppgifter när du använder våra tjänster.',
+                  'Nomia ("we", "us", "our") respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information when you use our services.'
                 )}
               </p>
             </section>
@@ -132,7 +132,7 @@ export default function PrivacyPage() {
                 </li>
               </ul>
               <p className="text-muted-foreground mt-3">
-                {t('För att utöva dina rättigheter, kontakta oss på hej@nordicsite.se', 'To exercise your rights, contact us at hello@nordicsite.se')}
+                {t('För att utöva dina rättigheter, kontakta oss på hello@nomia.se', 'To exercise your rights, contact us at hello@nomia.se')}
               </p>
             </section>
           </AnimatedSection>
@@ -179,8 +179,8 @@ export default function PrivacyPage() {
             <section className="pt-8 border-t border-border">
               <p className="text-muted-foreground">
                 {t(
-                  'Har du frågor om vår integritetspolicy? Kontakta oss på hej@nordicsite.se',
-                  'Questions about our privacy policy? Contact us at hello@nordicsite.se'
+                  'Har du frågor om vår integritetspolicy? Kontakta oss på hello@nomia.se',
+                  'Questions about our privacy policy? Contact us at hello@nomia.se'
                 )}
               </p>
               <p className="text-sm text-muted-foreground mt-4">
