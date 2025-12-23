@@ -435,21 +435,9 @@ export default function FreeDemoPage() {
           </p>
         </AnimatedSection>
 
-        {/* Step Indicator with Progress Percentage */}
+        {/* Step Indicator */}
         <AnimatedSection animation="fade-up" delay={50} className="mb-8">
-          <div className="flex flex-col items-center gap-4">
-            {/* Progress Percentage */}
-            <div className="text-center">
-              <span className="text-3xl font-bold text-accent">
-                {step === 1 ? '33%' : step === 2 ? '66%' : '100%'}
-              </span>
-              <p className="text-sm text-muted-foreground">
-                {t('Formulär slutfört', 'Form completed')}
-              </p>
-            </div>
-            
-            {/* Step Pills */}
-            <div className="flex items-center justify-center gap-0">
+          <div className="flex items-center justify-center gap-0">
               {[
                 { num: 1, label: t('Grundinfo', 'Basic info') },
                 { num: 2, label: t('Detaljer', 'Details') },
@@ -488,7 +476,6 @@ export default function FreeDemoPage() {
                   )}
                 </div>
               ))}
-            </div>
           </div>
         </AnimatedSection>
 
