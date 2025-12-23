@@ -132,7 +132,7 @@ export default function PrivacyPage() {
                 </li>
               </ul>
               <p className="text-muted-foreground mt-3">
-                {t('För att utöva dina rättigheter, kontakta oss på hello@nomia.se', 'To exercise your rights, contact us at hello@nomia.se')}
+                {t('För att utöva dina rättigheter, kontakta oss på nordicsite.help@gmail.com', 'To exercise your rights, contact us at nordicsite.help@gmail.com')}
               </p>
             </section>
           </AnimatedSection>
@@ -179,8 +179,8 @@ export default function PrivacyPage() {
             <section className="pt-8 border-t border-border">
               <p className="text-muted-foreground">
                 {t(
-                  'Har du frågor om vår integritetspolicy? Kontakta oss på hello@nomia.se',
-                  'Questions about our privacy policy? Contact us at hello@nomia.se'
+                  'Har du frågor om vår integritetspolicy? Kontakta oss på nordicsite.help@gmail.com',
+                  'Questions about our privacy policy? Contact us at nordicsite.help@gmail.com'
                 )}
               </p>
               <p className="text-sm text-muted-foreground mt-4">

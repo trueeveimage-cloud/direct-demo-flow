@@ -13,7 +13,7 @@ export function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}
             <div className="md:col-span-2">
-              <Link to="/" className="font-heading font-bold text-xl tracking-tight">
+              <Link to="/" className="font-heading font-extrabold text-2xl tracking-tight">
                 Nomia<span className="text-accent">.</span>
               </Link>
               <p className="mt-3 text-sm text-muted-foreground max-w-sm">

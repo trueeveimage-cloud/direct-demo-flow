@@ -40,7 +40,7 @@ export function Header() {
           <a 
             href="/" 
             onClick={handleLogoClick}
-            className="font-heading font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
+            className="font-heading font-extrabold text-2xl tracking-tight hover:opacity-80 transition-opacity"
           >
             Nomia<span className="text-accent">.</span>
           </a>
