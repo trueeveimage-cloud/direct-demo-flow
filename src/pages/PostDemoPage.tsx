@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, XCircle, ChevronDown, ChevronUp, Check, Star, FileText, Users, Search, Scale, Globe, CreditCard, Link as LinkIcon, AlertCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowRight, CheckCircle2, XCircle, ChevronDown, ChevronUp, Check, Star, FileText, Users, Search, Scale, Globe, CreditCard, Link as LinkIcon, AlertCircle, Loader2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,6 +11,7 @@ import { AnimatedSection } from '@/components/AnimatedSection';
 import { toast } from '@/hooks/use-toast';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { Switch } from '@/components/ui/switch';
+import { STRIPE_LINKS, hasVerificationPaid, setVerificationPaid, getPackageStripeLink } from '@/config/stripe';
 
 // Edge function URL - uses Cloud functions
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -30,6 +31,8 @@ const carePlans = [
 
 export default function PostDemoPage() {
   const { t, lang } = useLanguage();
+  const [searchParams] = useSearchParams();
+  const [isPaid, setIsPaid] = useState(false);
   const [selectedOption, setSelectedOption] = useState<'proceed' | 'refund' | null>(null);
   const [proceedStep, setProceedStep] = useState(1);
   const [selectedPackage, setSelectedPackage] = useState<string>('standard');
@@ -40,6 +43,15 @@ export default function PostDemoPage() {
   // Concept link - required for both flows
   const [conceptLink, setConceptLink] = useState('');
   const [conceptLinkError, setConceptLinkError] = useState(false);
+  
+  // Check for payment success on mount and URL params
+  useEffect(() => {
+    const success = searchParams.get('success');
+    if (success === 'true') {
+      setVerificationPaid();
+    }
+    setIsPaid(hasVerificationPaid());
+  }, [searchParams]);
   
   // Refund flow state - now includes revision option
   const [refundStep, setRefundStep] = useState(1);
@@ -65,8 +77,50 @@ export default function PostDemoPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const pkg = packages.find(p => p.id === selectedPackage);
-  const verificationFee = 500; // Flat 500 kr / ~$50 USD
+  const verificationFee = 500; // Flat 500 kr
   const remainingAmount = pkg ? pkg.price - verificationFee : 0;
+
+  // PAYMENT GATE: If not paid, show locked screen
+  if (!isPaid) {
+    return (
+      <div className="min-h-screen section-padding py-20">
+        <div className="container-narrow text-center">
+          <AnimatedSection animation="scale-in">
+            <div className="w-20 h-20 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-8">
+              <Lock className="w-10 h-10 text-destructive" />
+            </div>
+            <h1 className="text-3xl font-bold mb-4">
+              {t('Betalning krävs', 'Payment required')}
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto">
+              {t(
+                'Du måste betala verifieringsavgiften (500 kr) innan du kan fortsätta.',
+                'You must pay the verification fee (500 kr) before you can continue.'
+              )}
+            </p>
+            <div className="space-y-4">
+              <Button asChild size="lg">
+                <Link to="/demo">
+                  <CreditCard className="w-5 h-5 mr-2" />
+                  {t('Betala verifieringsavgift', 'Pay verification fee')}
+                </Link>
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                {t('Har du redan betalat? Klicka', 'Already paid? Click')}{' '}
+                <button 
+                  onClick={() => setIsPaid(true)} 
+                  className="text-accent hover:underline"
+                >
+                  {t('här', 'here')}
+                </button>
+                {' '}{t('om du inte omdirigerades korrekt.', 'if you were not redirected correctly.')}
+              </p>
+            </div>
+          </AnimatedSection>
+        </div>
+      </div>
+    );
+  }
 
   const validateConceptLink = (link: string): boolean => {
     try {
