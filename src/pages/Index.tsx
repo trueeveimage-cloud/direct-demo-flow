@@ -23,7 +23,12 @@ export default function Index() {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   
-  // Parallax transforms
+  // Subtle parallax transforms for hero logo
+  const logoY = useTransform(scrollYProgress, [0, 0.15], [0, -40]);
+  const logoOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0.5]);
+  const logoBlur = useTransform(scrollYProgress, [0, 0.15], [0, 1]);
+  
+  // Background parallax
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0.3]);
   const bgCircle1Y = useTransform(scrollYProgress, [0, 1], [0, 300]);
@@ -31,21 +36,21 @@ export default function Index() {
 
   return (
     <div className="overflow-hidden">
-      {/* Big Nomia Logo at Top - Premium shimmer effect */}
+      {/* Hero Logo - Premium size with scroll parallax fade */}
       <motion.div 
-        initial={{ opacity: 0, y: -20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-        className="pt-16 pb-8 text-center"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        style={{ y: logoY, opacity: logoOpacity, filter: `blur(${logoBlur}px)` }}
+        className="pt-12 pb-6 text-center"
       >
-        <span className="font-heading font-extrabold text-7xl sm:text-8xl lg:text-9xl tracking-tight logo-shimmer">
-          Nomia
+        <span className="font-heading font-semibold text-5xl sm:text-6xl lg:text-7xl tracking-tight">
+          Nomia<span className="text-accent">.</span>
         </span>
-        <span className="font-heading font-extrabold text-7xl sm:text-8xl lg:text-9xl tracking-tight logo-shimmer-accent">.</span>
       </motion.div>
 
       {/* Hero Section - Full height, immersive with parallax */}
-      <section ref={heroRef} className="min-h-[70vh] flex items-center relative overflow-hidden">
+      <section ref={heroRef} className="min-h-[65vh] flex items-center relative overflow-hidden">
         {/* Animated parallax background */}
         <div className="absolute inset-0 pointer-events-none">
           <motion.div 
@@ -74,10 +79,10 @@ export default function Index() {
           </motion.div>
 
           <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.1] tracking-tight"
           >
             {t('Webb-koncept', 'Website concept')}
             <br />

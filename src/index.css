@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Using Google Fonts: Syne (headings) + Inter (body) - loaded via index.html */
+/* Using Google Fonts: Inter - loaded via index.html */
 
 @layer base {
   :root {
@@ -122,46 +122,6 @@
 
   .animate-slide-in {
     animation: slideIn 0.4s ease-out forwards;
-  }
-
-  /* Premium shimmer effect for logo */
-  .logo-shimmer {
-    background: linear-gradient(
-      90deg,
-      hsl(var(--foreground)) 0%,
-      hsl(var(--accent)) 25%,
-      hsl(var(--foreground)) 50%,
-      hsl(var(--accent)) 75%,
-      hsl(var(--foreground)) 100%
-    );
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 4s ease-in-out infinite;
-  }
-
-  .logo-shimmer-accent {
-    background: linear-gradient(
-      90deg,
-      hsl(var(--accent)) 0%,
-      hsl(38 100% 60%) 50%,
-      hsl(var(--accent)) 100%
-    );
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 4s ease-in-out infinite;
-  }
-}
-
-@keyframes shimmer {
-  0%, 100% {
-    background-position: 200% 0;
-  }
-  50% {
-    background-position: -200% 0;
   }
 }
 
