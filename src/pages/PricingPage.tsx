@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
+import { PackageCompareModal } from '@/components/PackageCompareModal';
 
 export default function PricingPage() {
   const { t } = useLanguage();
+  const [compareOpen, setCompareOpen] = useState(false);
 
   const packages = [
     { 
@@ -91,56 +94,43 @@ export default function PricingPage() {
         </AnimatedSection>
 
         {/* Website Packages with prices */}
-        <div className="mb-24">
+        <div className="mb-16">
           <AnimatedSection animation="fade-up">
-            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10">{t('Webbpaket', 'Website Packages')}</h2>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+              <h2 className="text-2xl sm:text-3xl font-bold text-center">{t('Webbpaket', 'Website Packages')}</h2>
+              <Button variant="outline" size="sm" onClick={() => setCompareOpen(true)}>
+                {t('Jämför paket', 'Compare packages')}
+              </Button>
+            </div>
           </AnimatedSection>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-6">
             {packages.map((pkg, index) => (
               <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-                <div className={`relative p-8 rounded-xl border-2 hover:shadow-xl transition-all duration-300 h-full flex flex-col ${pkg.popular ? 'border-accent bg-accent/5' : 'border-border bg-background hover:border-accent/50'}`}>
+                <div className={`relative p-3 sm:p-8 rounded-xl border-2 hover:shadow-xl transition-all duration-300 h-full flex flex-col ${pkg.popular ? 'border-accent bg-accent/5' : 'border-border bg-background hover:border-accent/50'}`}>
                   {pkg.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-bold px-4 py-1 rounded-full">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-[10px] sm:text-xs font-bold px-2 sm:px-4 py-1 rounded-full whitespace-nowrap">
                       {t('Populärast', 'Most Popular')}
                     </span>
                   )}
-                  <h3 className="font-heading font-semibold text-2xl mb-2">{pkg.name}</h3>
-                  <p className="text-3xl font-bold text-accent mb-2">{pkg.price}</p>
-                  <p className="text-sm text-muted-foreground mb-6">{pkg.pages}</p>
-                  <ul className="space-y-3 mb-8 flex-grow">
+                  <h3 className="font-heading font-semibold text-base sm:text-2xl mb-1 sm:mb-2">{pkg.name}</h3>
+                  <p className="text-lg sm:text-3xl font-bold text-accent mb-1 sm:mb-2">{pkg.price}</p>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground mb-3 sm:mb-6">{pkg.pages}</p>
+                  <ul className="space-y-1.5 sm:space-y-3 mb-4 sm:mb-8 flex-grow">
                     {pkg.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm">
-                        <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-                        <span>{feature}</span>
+                      <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[10px] sm:text-sm">
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4 text-accent flex-shrink-0 mt-0.5" />
+                        <span className="leading-tight">{feature}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button asChild variant={pkg.popular ? 'default' : 'outline'} className="w-full">
-                    <Link to="/demo">{t('Få ditt koncept', 'Get your concept')}</Link>
+                  <Button asChild variant={pkg.popular ? 'default' : 'outline'} className="w-full text-[10px] sm:text-sm h-8 sm:h-10">
+                    <Link to="/demo">{t('Få koncept', 'Get concept')}</Link>
                   </Button>
                 </div>
               </AnimatedSection>
             ))}
           </div>
         </div>
-
-        {/* CTA Banner */}
-        <AnimatedSection animation="fade-up" className="mb-24">
-          <div className="bg-accent/10 rounded-2xl p-8 sm:p-12 text-center border border-accent/20">
-            <h3 className="font-heading font-semibold text-2xl mb-3">
-              {t('Vill du se hur din sida kan se ut först?', 'Want to see how your site could look first?')}
-            </h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              {t('Få ett koncept inom 72 timmar, helt riskfritt.', 'Get a concept within 72 hours, completely risk-free.')}
-            </p>
-            <Button asChild size="lg" className="group">
-              <Link to="/demo">
-                {t('Få ditt koncept', 'Get your concept')}
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </div>
-        </AnimatedSection>
 
         {/* Monthly Care Plans with prices */}
         <div>
@@ -153,22 +143,22 @@ export default function PricingPage() {
               {t('Avsluta när du vill.', 'Cancel anytime.')}
             </p>
           </AnimatedSection>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-6">
             {carePlans.map((plan, index) => (
               <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-                <div className={`p-8 rounded-xl border-2 hover:shadow-xl transition-all duration-300 h-full relative flex flex-col ${plan.popular ? 'border-accent bg-accent/5' : 'border-border bg-background hover:border-accent/50'}`}>
+                <div className={`p-3 sm:p-8 rounded-xl border-2 hover:shadow-xl transition-all duration-300 h-full relative flex flex-col ${plan.popular ? 'border-accent bg-accent/5' : 'border-border bg-background hover:border-accent/50'}`}>
                   {plan.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-bold px-4 py-1 rounded-full">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-[10px] sm:text-xs font-bold px-2 sm:px-4 py-1 rounded-full whitespace-nowrap">
                       {t('Rekommenderas', 'Recommended')}
                     </span>
                   )}
-                  <h3 className="font-heading font-semibold text-2xl mb-2">{plan.name}</h3>
-                  <p className="text-2xl font-bold text-accent mb-6">{plan.price}</p>
-                  <ul className="space-y-3 flex-grow">
+                  <h3 className="font-heading font-semibold text-base sm:text-2xl mb-1 sm:mb-2">{plan.name}</h3>
+                  <p className="text-lg sm:text-2xl font-bold text-accent mb-3 sm:mb-6">{plan.price}</p>
+                  <ul className="space-y-1.5 sm:space-y-3 flex-grow">
                     {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm">
-                        <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-                        <span>{feature}</span>
+                      <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[10px] sm:text-sm">
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4 text-accent flex-shrink-0 mt-0.5" />
+                        <span className="leading-tight">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -187,6 +177,8 @@ export default function PricingPage() {
           </Button>
         </AnimatedSection>
       </div>
+
+      <PackageCompareModal open={compareOpen} onOpenChange={setCompareOpen} />
     </div>
   );
 }
