@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useState } from 'react';
 
-const STORAGE_KEY = 'nordicsite_demo_intake';
-const SESSION_KEY = 'nordicsite_session_active';
+const STORAGE_KEY = 'nomia_demo_intake';
+const SESSION_KEY = 'nomia_session_active';
 
 interface IntakeData {
   step: number;

@@ -14,7 +14,7 @@ export function Footer() {
             {/* Brand */}
             <div className="md:col-span-2">
               <Link to="/" className="font-heading font-bold text-xl tracking-tight">
-                NordicSite<span className="text-accent">.</span>
+                Nomia<span className="text-accent">.</span>
               </Link>
               <p className="mt-3 text-sm text-muted-foreground max-w-sm">
                 {t('Snabba, snygga webbplatser för småföretag.', 'Fast, beautiful websites for small businesses.')}
@@ -53,7 +53,7 @@ export function Footer() {
           </div>
 
           <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} NordicSite</p>
+            <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Nomia</p>
             <p className="text-sm text-muted-foreground">Göteborg</p>
           </div>
         </div>
