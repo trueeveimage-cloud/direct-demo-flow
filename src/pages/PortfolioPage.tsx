@@ -10,6 +10,7 @@ import ohMyCoffeeImg from '@/assets/portfolio-ohmycoffee.png';
 import bambaImg from '@/assets/portfolio-bamba.png';
 import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
 import trueEveImg from '@/assets/portfolio-trueeve.png';
+import swedenCarImg from '@/assets/after-swedencar.png';
 
 export default function PortfolioPage() {
   const { t } = useLanguage();
@@ -59,6 +60,15 @@ export default function PortfolioPage() {
       tags: [t('Lyxig', 'Luxury'), t('Landingpage', 'Landing page'), t('Coaching', 'Coaching')],
       externalUrl: 'https://trueeve.se/',
       image: trueEveImg,
+    },
+    {
+      slug: 'sweden-car',
+      name: 'Sweden Car AB',
+      type: t('Bilförsäljning & Service', 'Car Sales & Service'),
+      description: t('Premium bilhandlare med försäljning, service och finansiering.', 'Premium car dealer with sales, service and financing.'),
+      tags: [t('Bilar', 'Cars'), t('Service', 'Service'), t('Finansiering', 'Financing')],
+      externalUrl: 'https://premium-car-boutique.lovable.app/',
+      image: swedenCarImg,
     },
   ];
 

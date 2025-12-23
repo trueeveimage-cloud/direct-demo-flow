@@ -13,6 +13,10 @@ import ohMyCoffeeImg from '@/assets/portfolio-ohmycoffee.png';
 import bambaImg from '@/assets/portfolio-bamba.png';
 import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
 
+// Before/After images
+import beforeSwedenCarImg from '@/assets/before-swedencar.png';
+import afterSwedenCarImg from '@/assets/after-swedencar.png';
+
 export default function Index() {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -295,6 +299,92 @@ export default function Index() {
               </ul>
             </motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* Before/After Transformation Section */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none" />
+        
+        <div className="container-wide section-padding relative">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              {t('Före & Efter', 'Before & After')}
+            </h2>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              {t('Se hur vi förvandlar webbplatser.', 'See how we transform websites.')}
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+            {/* Before */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="relative"
+            >
+              <div className="absolute -top-3 left-4 z-10">
+                <span className="bg-muted-foreground/80 text-background px-4 py-1.5 rounded-full text-sm font-semibold">
+                  {t('Före', 'Before')}
+                </span>
+              </div>
+              <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-border/50">
+                <img 
+                  src={beforeSwedenCarImg} 
+                  alt={t('Före transformation', 'Before transformation')}
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+            </motion.div>
+
+            {/* After */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="relative"
+            >
+              <div className="absolute -top-3 left-4 z-10">
+                <span className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-sm font-semibold">
+                  {t('Efter', 'After')}
+                </span>
+              </div>
+              <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-accent/50 shadow-lg shadow-accent/10">
+                <img 
+                  src={afterSwedenCarImg} 
+                  alt={t('Efter transformation', 'After transformation')}
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+            </motion.div>
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-center mt-8"
+          >
+            <p className="text-muted-foreground mb-4">
+              <span className="font-semibold text-foreground">Sweden Car AB</span> — {t('Från gammaldags till modernt och professionellt', 'From outdated to modern and professional')}
+            </p>
+            <Button asChild variant="outline" className="group">
+              <a href="https://premium-car-boutique.lovable.app/" target="_blank" rel="noopener noreferrer">
+                {t('Se live-sidan', 'View live site')}
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </a>
+            </Button>
+          </motion.div>
         </div>
       </section>
 
