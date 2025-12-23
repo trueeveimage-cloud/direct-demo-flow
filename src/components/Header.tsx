@@ -36,16 +36,13 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="section-padding">
         <div className="container-wide flex items-center justify-between h-16">
-          {/* Logo - Bigger with shimmer */}
+          {/* Logo - Clean and minimal */}
           <a 
             href="/" 
             onClick={handleLogoClick}
-            className="group transition-transform hover:scale-105"
+            className="font-heading font-semibold text-2xl tracking-tight hover:opacity-80 transition-opacity"
           >
-            <span className="font-heading font-extrabold text-4xl sm:text-5xl tracking-tight logo-shimmer">
-              Nomia
-            </span>
-            <span className="font-heading font-extrabold text-4xl sm:text-5xl tracking-tight logo-shimmer-accent">.</span>
+            Nomia<span className="text-accent">.</span>
           </a>
 
           {/* Desktop Nav */}
