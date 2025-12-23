@@ -9,6 +9,7 @@ import gailsHairImg from '@/assets/portfolio-gailshair.png';
 import ohMyCoffeeImg from '@/assets/portfolio-ohmycoffee.png';
 import bambaImg from '@/assets/portfolio-bamba.png';
 import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
+import trueEveImg from '@/assets/portfolio-trueeve.png';
 
 export default function PortfolioPage() {
   const { t } = useLanguage();
@@ -49,6 +50,15 @@ export default function PortfolioPage() {
       tags: [t('Mobil-först', 'Mobile-first'), t('Meny', 'Menu'), t('Lokal', 'Local')],
       externalUrl: 'https://en-deli-cozy-vibes.lovable.app/',
       image: enDeliHagaImg,
+    },
+    {
+      slug: 'trueeve',
+      name: 'TrueEve',
+      type: t('Coaching & Livsstil', 'Coaching & Lifestyle'),
+      description: t('Lyxigt landingpage för personlig utveckling och coaching.', 'Luxury landing page for personal development and coaching.'),
+      tags: [t('Lyxig', 'Luxury'), t('Landingpage', 'Landing page'), t('Coaching', 'Coaching')],
+      externalUrl: 'https://trueeve.se/',
+      image: trueEveImg,
     },
   ];
 

@@ -338,7 +338,13 @@ export default function DirectCheckoutPage() {
                   {packages.map((p) => (
                     <button
                       key={p.id}
-                      onClick={() => setSelectedPackage(p.id)}
+                      onClick={() => {
+                        setSelectedPackage(p.id);
+                        // Reset booking if switching away from pro
+                        if (p.id !== 'pro' && wantsBooking === true) {
+                          setWantsBooking(null);
+                        }
+                      }}
                       className={`p-6 rounded-xl border-2 text-left transition-all relative ${selectedPackage === p.id ? 'border-accent bg-accent/5 shadow-lg' : errors.package ? 'border-destructive' : 'border-border hover:border-accent/50'}`}
                     >
                       {p.popular && <span className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">{t('Populärast', 'Popular')}</span>}
@@ -495,11 +501,33 @@ export default function DirectCheckoutPage() {
               <div className="p-6 bg-secondary/50 rounded-xl mb-6 space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                   <h3 className="font-semibold">{t('Bilder & Logotyp', 'Images & Logo')}</h3>
-                  <InfoTooltip content={t('Efter beställningen får du en länk där du kan ladda upp bilder och logotyp. Du kan också skicka dem via e-post till oss.', 'After ordering, you will receive a link where you can upload images and logo. You can also send them via email to us.')} />
+                  <InfoTooltip content={t('Ladda upp dina bilder och logotyp direkt nedan, eller kryssa i om du saknar material.', 'Upload your images and logo directly below, or check if you don\'t have materials.')} />
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {t('Efter beställning skickar vi en länk där du kan ladda upp material.', 'After ordering, we\'ll send a link where you can upload materials.')}
-                </p>
+                
+                <div className="space-y-3">
+                  <Label>{t('Ladda upp logotyp', 'Upload logo')}</Label>
+                  <Input 
+                    type="file" 
+                    accept="image/*" 
+                    className="h-12"
+                    disabled={noLogo}
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <Label>{t('Ladda upp bilder', 'Upload images')}</Label>
+                  <Input 
+                    type="file" 
+                    accept="image/*" 
+                    multiple 
+                    className="h-12"
+                    disabled={useStock}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t('Du kan välja flera bilder samtidigt.', 'You can select multiple images at once.')}
+                  </p>
+                </div>
+                
                 <label className="flex items-center gap-3 cursor-pointer">
                   <Checkbox checked={noLogo} onCheckedChange={(c) => setNoLogo(c === true)} />
                   <span className="text-sm">{t('Jag har ingen logotyp (ni kan skapa en enkel)', 'I don\'t have a logo (you can create a simple one)')}</span>
