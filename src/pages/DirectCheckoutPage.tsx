@@ -190,10 +190,54 @@ export default function DirectCheckoutPage() {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsLoading(false);
-    setSubmitted(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('form_type', 'Direct Checkout Order');
+      formData.append('business_name', businessName);
+      formData.append('contact_person', contactPerson);
+      formData.append('email', email);
+      formData.append('phone', phone);
+      formData.append('selected_package', selectedPackage);
+      formData.append('package_price', pkg?.priceDisplay || '');
+      formData.append('selected_style', selectedStyle);
+      formData.append('selected_language', selectedLanguage);
+      formData.append('wants_booking', String(wantsBooking));
+      formData.append('booking_platform', bookingPlatform);
+      formData.append('selected_pages', selectedPages.join(', '));
+      formData.append('custom_pages', customPages.filter(p => p.trim()).join(', '));
+      formData.append('services', services);
+      formData.append('no_logo', String(noLogo));
+      formData.append('use_stock', String(useStock));
+      formData.append('selected_care_plan', selectedCarePlan || 'none');
+      formData.append('care_plan_billing', isYearlyCarePlan ? 'yearly' : 'monthly');
+      formData.append('care_plan_price', carePlanPrice + ' kr/month');
+      formData.append('page_notes', pageNotes);
+      formData.append('brand_preferences', brandPreferences);
+      formData.append('competitors', competitors);
+      formData.append('seo_keywords', seoKeywords);
+      formData.append('legal_pages', legalPages.join(', '));
+      formData.append('terms_explanation', termsExplanation);
+      formData.append('extra_notes', extraNotes);
+
+      const response = await fetch('https://getform.io/f/agdvpmpb', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' },
+      });
+
+      if (!response.ok) throw new Error('Form submission failed');
+      
+      setSubmitted(true);
+    } catch (error) {
+      toast({ 
+        title: t('Något gick fel', 'Something went wrong'), 
+        description: t('Försök igen senare.', 'Please try again later.'), 
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const stepInfo = [

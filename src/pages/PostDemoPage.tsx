@@ -60,7 +60,7 @@ export default function PostDemoPage() {
   const [extraNotes, setExtraNotes] = useState('');
 
   const pkg = packages.find(p => p.id === selectedPackage);
-  const verificationFee = pkg ? Math.round(pkg.price * 0.1) : 0;
+  const verificationFee = 500; // Flat 500 kr / ~$50 USD
   const remainingAmount = pkg ? pkg.price - verificationFee : 0;
 
   const validateConceptLink = (link: string): boolean => {
@@ -95,12 +95,90 @@ export default function PostDemoPage() {
     }
   };
 
-  const handleRefundSubmit = () => {
+  const handleRefundSubmit = async () => {
     if (feedbackRating === 0 || feedbackReasons.length === 0 || feedbackStyleCorrect === null) {
       toast({ title: t('Besvara alla frågor', 'Answer all questions'), variant: 'destructive' });
       return;
     }
+    
+    try {
+      const formData = new FormData();
+      formData.append('form_type', 'Refund Request');
+      formData.append('concept_link', conceptLink);
+      formData.append('feedback_rating', String(feedbackRating));
+      formData.append('feedback_reasons', feedbackReasons.join(', '));
+      formData.append('style_correct', String(feedbackStyleCorrect));
+      formData.append('missing_features', feedbackMissing);
+      formData.append('improvement_suggestions', feedbackImprove);
+
+      await fetch('https://getform.io/f/agdvpmpb', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' },
+      });
+    } catch (error) {
+      // Continue anyway
+    }
+    
     setRefundStep(2);
+  };
+
+  const handleRevisionSubmit = async () => {
+    if (!revisionFeedback.trim()) {
+      toast({ title: t('Beskriv ändringarna', 'Describe the changes'), variant: 'destructive' });
+      return;
+    }
+    
+    try {
+      const formData = new FormData();
+      formData.append('form_type', 'Revision Request');
+      formData.append('concept_link', conceptLink);
+      formData.append('revision_feedback', revisionFeedback);
+
+      await fetch('https://getform.io/f/agdvpmpb', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' },
+      });
+    } catch (error) {
+      // Continue anyway
+    }
+    
+    setRefundStep(2);
+  };
+
+  const handleProceedSubmit = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('form_type', 'I Love My Concept - Order');
+      formData.append('concept_link', conceptLink);
+      formData.append('selected_package', selectedPackage);
+      formData.append('package_price', pkg?.priceDisplay || '');
+      formData.append('selected_care_plan', selectedCarePlan || 'none');
+      formData.append('care_plan_billing', isYearlyCarePlan ? 'yearly' : 'monthly');
+      formData.append('page_notes', pageNotes);
+      formData.append('brand_preferences', brandPreferences);
+      formData.append('competitors', competitors);
+      formData.append('copywriting_needs', copywritingNeeds);
+      formData.append('seo_keywords', seoKeywords);
+      formData.append('booking_details', bookingDetails);
+      formData.append('image_references', imageReferences);
+      formData.append('legal_pages', legalPages.join(', '));
+      formData.append('selected_language', selectedLanguageProceed);
+      formData.append('extra_notes', extraNotes);
+      formData.append('verification_fee_paid', '500 kr');
+      formData.append('remaining_amount', remainingAmount.toLocaleString() + ' kr');
+
+      await fetch('https://getform.io/f/agdvpmpb', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' },
+      });
+    } catch (error) {
+      // Continue anyway
+    }
+    
+    setProceedStep(4);
   };
 
   // Refund Flow - Now with revision option first
@@ -205,10 +283,28 @@ export default function PostDemoPage() {
               <AnimatedSection animation="fade-up" delay={200}>
                 <div className="flex gap-4">
                   <Button variant="outline" onClick={() => setRefundStep(1)}>{t('Tillbaka', 'Back')}</Button>
-                  <Button onClick={() => {
+                  <Button onClick={async () => {
                     if (feedbackRating === 0 || feedbackReasons.length === 0 || feedbackStyleCorrect === null) {
                       toast({ title: t('Besvara alla frågor', 'Answer all questions'), variant: 'destructive' });
                       return;
+                    }
+                    try {
+                      const formData = new FormData();
+                      formData.append('form_type', 'Refund Request');
+                      formData.append('concept_link', conceptLink);
+                      formData.append('feedback_rating', String(feedbackRating));
+                      formData.append('feedback_reasons', feedbackReasons.join(', '));
+                      formData.append('style_correct', String(feedbackStyleCorrect));
+                      formData.append('missing_features', feedbackMissing);
+                      formData.append('improvement_suggestions', feedbackImprove);
+
+                      await fetch('https://getform.io/f/agdvpmpb', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Accept': 'application/json' },
+                      });
+                    } catch (error) {
+                      // Continue anyway
                     }
                     setRefundStep(3);
                   }} className="flex-1">{t('Skicka begäran', 'Submit request')}</Button>
@@ -294,13 +390,7 @@ export default function PostDemoPage() {
                 <div className="flex gap-4">
                   <Button variant="outline" onClick={() => { setWantsRevision(null); setRevisionFeedback(''); }}>{t('Avbryt', 'Cancel')}</Button>
                   <Button 
-                    onClick={() => {
-                      if (!revisionFeedback.trim()) {
-                        toast({ title: t('Beskriv ändringarna', 'Describe the changes'), variant: 'destructive' });
-                        return;
-                      }
-                      setRefundStep(2);
-                    }} 
+                    onClick={handleRevisionSubmit} 
                     className="flex-1"
                   >
                     {t('Skicka ändringsförslag', 'Submit change request')} <ArrowRight className="w-4 h-4" />
@@ -550,7 +640,7 @@ export default function PostDemoPage() {
                 <AnimatedSection animation="fade-up" delay={450}>
                   <div className="flex gap-4">
                     <Button variant="outline" onClick={() => setProceedStep(2)}>{t('Tillbaka', 'Back')}</Button>
-                    <Button size="lg" onClick={() => setProceedStep(4)} className="flex-1">
+                    <Button size="lg" onClick={handleProceedSubmit} className="flex-1">
                       <CreditCard className="w-4 h-4 mr-2" />
                       {t('Betala med Stripe', 'Pay with Stripe')} ({remainingAmount.toLocaleString()} kr)
                     </Button>
