@@ -5,47 +5,58 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { PackageCompareModal } from '@/components/PackageCompareModal';
+import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
+import { Switch } from '@/components/ui/switch';
 
 export default function PricingPage() {
   const { t } = useLanguage();
   const [compareOpen, setCompareOpen] = useState(false);
+  const [carePlansCompareOpen, setCarePlansCompareOpen] = useState(false);
+  const [isYearly, setIsYearly] = useState(false);
 
   const packages = [
     { 
       name: 'Starter', 
       price: '4 900 kr',
+      delivery: t('14 dagar', '14 days'),
+      description: t('För små företag som bara behöver något snyggt och tydligt.', 'For small businesses that just need something nice and clear.'),
       pages: t('Upp till 3 sidor', 'Up to 3 pages'), 
       features: [
-        t('Responsiv design', 'Responsive design'), 
-        t('Mobil-först', 'Mobile-first'), 
+        t('Mobilanpassad design', 'Mobile-responsive design'), 
         t('Kontaktformulär', 'Contact form'), 
-        t('SEO-grundläggande', 'Basic SEO'), 
-        t('1 revision', '1 revision')
+        t('Google Maps (om relevant)', 'Google Maps (if relevant)'), 
+        t('Grundläggande SEO', 'Basic SEO'), 
+        t('1 revisionsrunda', '1 revision round'),
+        t('Lansering + genomgång', 'Launch + walkthrough')
       ] 
     },
     { 
       name: 'Standard', 
       price: '7 900 kr',
+      delivery: t('10 dagar', '10 days'),
+      description: t('Bästa värdet för de flesta företag.', 'Best value for most businesses.'),
       pages: t('Upp till 5 sidor', 'Up to 5 pages'), 
       popular: true, 
       features: [
         t('Allt i Starter', 'Everything in Starter'), 
-        t('2 revisioner', '2 revisions'), 
-        t('Google Maps integration', 'Google Maps integration'), 
-        t('Sociala medier-länkar', 'Social media links'), 
-        t('Bildgalleri', 'Image gallery')
+        t('2 revisionsrundor', '2 revision rounds'), 
+        t('Bildgalleri/sektioner', 'Image gallery/sections'),
+        t('Sociala länkar + klickbar telefon/mail', 'Social links + clickable phone/email'), 
+        t('Snabb laddtid + tydlig navigation', 'Fast loading + clear navigation')
       ] 
     },
     { 
       name: 'Pro', 
       price: '12 900 kr',
+      delivery: t('7 dagar', '7 days'),
+      description: t('För företag som vill ha bokning + mer tillväxt.', 'For businesses wanting booking + more growth.'),
       pages: t('Upp till 8 sidor', 'Up to 8 pages'), 
       features: [
         t('Allt i Standard', 'Everything in Standard'), 
-        t('3 revisioner', '3 revisions'), 
-        t('Bokningsintegration', 'Booking integration'), 
-        t('Nyhetsbrev-setup', 'Newsletter setup'), 
-        t('Google Analytics', 'Google Analytics'), 
+        t('3 revisionsrundor', '3 revision rounds'), 
+        t('Bokningssystem', 'Booking system'),
+        t('Google Analytics / tracking', 'Google Analytics / tracking'), 
+        t('Nyhetsbrev setup', 'Newsletter setup'),
         t('Prioriterad support', 'Priority support')
       ] 
     },
@@ -54,36 +65,50 @@ export default function PricingPage() {
   const carePlans = [
     { 
       name: 'Basic',
-      price: '249 kr/mån',
+      monthlyPrice: 249,
+      yearlyPrice: 199,
+      description: t('Du behöver inte tänka på teknik.', 'You don\'t need to think about tech.'),
       features: [
-        t('Hosting', 'Hosting'), 
-        t('Uppdateringar', 'Updates'), 
-        t('Säkerhetskopiering', 'Backups'), 
-        t('Uptime-övervakning', 'Uptime monitoring')
+        t('Hosting (snabb + SSL)', 'Hosting (fast + SSL)'), 
+        t('Säkerhetsuppdateringar', 'Security updates'), 
+        t('Dagliga/veckovisa backups', 'Daily/weekly backups'), 
+        t('Uptime monitoring + alert', 'Uptime monitoring + alerts'),
+        t('Prestanda/säkerhetscheck 1x/mån', 'Performance/security check 1x/month')
       ] 
     },
     { 
       name: 'Standard', 
-      price: '449 kr/mån',
+      monthlyPrice: 449,
+      yearlyPrice: 359,
+      description: t('Allt i Basic + sidan kan alltid ändras utan krångel.', 'Everything in Basic + the site can always be changed without hassle.'),
       popular: true, 
       features: [
         t('Allt i Basic', 'Everything in Basic'), 
-        t('Domän ingår', 'Domain included'), 
-        t('Företagsmail', 'Business email'), 
-        t('1 timme ändringar/mån', '1 hour edits/month')
+        t('Domän inkluderad', 'Domain included'), 
+        t('Företagsmail (1–3 adresser)', 'Business email (1-3 addresses)'), 
+        t('1 timme ändringar/mån', '1 hour edits/month'),
+        t('Support inom 24–48h', 'Support within 24-48h')
       ] 
     },
     { 
       name: 'Pro',
-      price: '749 kr/mån',
+      monthlyPrice: 749,
+      yearlyPrice: 599,
+      description: t('För företag som växer och vill ha mer fart + prioritet.', 'For growing businesses wanting more speed + priority.'),
       features: [
         t('Allt i Standard', 'Everything in Standard'), 
         t('3 timmar ändringar/mån', '3 hours edits/month'), 
         t('Prioriterad support', 'Priority support'), 
-        t('Prestanda-optimering', 'Performance optimization')
+        t('Prestandaoptimering 1x/mån', 'Performance optimization 1x/month'),
+        t('Basic SEO-check 1x/mån', 'Basic SEO check 1x/month')
       ] 
     },
   ];
+
+  const getCarePlanPrice = (plan: typeof carePlans[0]) => {
+    const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+    return `${price} kr/mån`;
+  };
 
   return (
     <div className="section-padding py-20">
@@ -113,11 +138,13 @@ export default function PricingPage() {
                     </span>
                   )}
                   <h3 className="font-heading font-semibold text-base sm:text-2xl mb-1 sm:mb-2">{pkg.name}</h3>
-                  <p className="text-lg sm:text-3xl font-bold text-accent mb-1 sm:mb-2">{pkg.price}</p>
-                  <p className="text-[10px] sm:text-sm text-muted-foreground mb-3 sm:mb-6">{pkg.pages}</p>
+                  <p className="text-lg sm:text-3xl font-bold text-accent mb-0.5 sm:mb-1">{pkg.price}</p>
+                  <p className="text-[9px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{pkg.delivery}</p>
+                  <p className="text-[9px] sm:text-xs text-muted-foreground mb-2 sm:mb-4 line-clamp-2">{pkg.description}</p>
+                  <p className="text-[10px] sm:text-sm font-medium text-foreground mb-2 sm:mb-4">{pkg.pages}</p>
                   <ul className="space-y-1.5 sm:space-y-3 mb-4 sm:mb-8 flex-grow">
                     {pkg.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[10px] sm:text-sm">
+                      <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[9px] sm:text-sm">
                         <Check className="w-3 h-3 sm:w-4 sm:h-4 text-accent flex-shrink-0 mt-0.5" />
                         <span className="leading-tight">{feature}</span>
                       </li>
@@ -135,10 +162,34 @@ export default function PricingPage() {
         {/* Monthly Care Plans with prices */}
         <div>
           <AnimatedSection animation="fade-up">
-            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4">{t('Månatlig webbvård', 'Monthly Care Plans')}</h2>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-center">{t('Månatlig webbvård', 'Monthly Care Plans')}</h2>
+              <Button variant="outline" size="sm" onClick={() => setCarePlansCompareOpen(true)}>
+                {t('Jämför planer', 'Compare plans')}
+              </Button>
+            </div>
             <p className="text-center text-muted-foreground mb-2 max-w-xl mx-auto">
               {t('Håll din webbplats snabb, uppdaterad och redigerbar.', 'Keep your site fast, updated, and editable.')}
             </p>
+            
+            {/* Yearly Toggle */}
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <span className={`text-sm ${!isYearly ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                {t('Månadsvis', 'Monthly')}
+              </span>
+              <Switch 
+                checked={isYearly} 
+                onCheckedChange={setIsYearly}
+                className="data-[state=checked]:bg-accent"
+              />
+              <span className={`text-sm ${isYearly ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                {t('Årsvis', 'Yearly')}
+                <span className="ml-1 text-xs text-accent font-semibold">
+                  {t('Spara 20%', 'Save 20%')}
+                </span>
+              </span>
+            </div>
+            
             <p className="text-center text-sm text-muted-foreground mb-10">
               {t('Avsluta när du vill.', 'Cancel anytime.')}
             </p>
@@ -153,10 +204,18 @@ export default function PricingPage() {
                     </span>
                   )}
                   <h3 className="font-heading font-semibold text-base sm:text-2xl mb-1 sm:mb-2">{plan.name}</h3>
-                  <p className="text-lg sm:text-2xl font-bold text-accent mb-3 sm:mb-6">{plan.price}</p>
+                  <div className="mb-1 sm:mb-2">
+                    <span className="text-lg sm:text-2xl font-bold text-accent">{getCarePlanPrice(plan)}</span>
+                    {isYearly && (
+                      <span className="ml-2 text-xs text-muted-foreground line-through">
+                        {plan.monthlyPrice} kr/mån
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[9px] sm:text-xs text-muted-foreground mb-3 sm:mb-4 line-clamp-2">{plan.description}</p>
                   <ul className="space-y-1.5 sm:space-y-3 flex-grow">
                     {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[10px] sm:text-sm">
+                      <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[9px] sm:text-sm">
                         <Check className="w-3 h-3 sm:w-4 sm:h-4 text-accent flex-shrink-0 mt-0.5" />
                         <span className="leading-tight">{feature}</span>
                       </li>
@@ -179,6 +238,7 @@ export default function PricingPage() {
       </div>
 
       <PackageCompareModal open={compareOpen} onOpenChange={setCompareOpen} />
+      <CarePlansCompareModal open={carePlansCompareOpen} onOpenChange={setCarePlansCompareOpen} isYearly={isYearly} />
     </div>
   );
 }
