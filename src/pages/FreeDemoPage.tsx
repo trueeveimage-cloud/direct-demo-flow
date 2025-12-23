@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { CheckCircle2, Upload, ArrowRight, Loader2, Plus, X, Link as LinkIcon, User, Palette, Globe, Package, FileImage, FileText, MapPin, Check, AlertCircle, CreditCard, Trash2, Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -198,7 +199,7 @@ export default function FreeDemoPage() {
   };
 
   const checkBothLanguages = () => {
-    if (selectedLanguage === 'both' && selectedPackage !== 'pro') {
+    if (selectedLanguage === 'both' && selectedPackage !== 'pro' && selectedPackage !== 'standard') {
       setUpgradeReason('language');
       setShowUpgradeModal(true);
       return false;
@@ -434,34 +435,60 @@ export default function FreeDemoPage() {
           </p>
         </AnimatedSection>
 
-        {/* Step Indicator */}
+        {/* Step Indicator with Progress Percentage */}
         <AnimatedSection animation="fade-up" delay={50} className="mb-8">
-          <div className="flex items-center justify-center gap-0">
-            {[
-              { num: 1, label: t('Grundinfo', 'Basic info') },
-              { num: 2, label: t('Detaljer', 'Details') },
-              { num: 3, label: t('Bekräfta', 'Confirm') },
-            ].map((s, index) => (
-              <div key={s.num} className="flex items-center">
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
-                  step >= s.num ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground'
-                }`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    step > s.num ? 'bg-accent-foreground/20' : 'bg-accent-foreground/10'
-                  }`}>
-                    {step > s.num ? <Check className="w-3 h-3" /> : s.num}
-                  </div>
-                  <span className="font-medium text-sm hidden sm:inline">{s.label}</span>
-                </div>
-                {index < 2 && (
-                  <div className="w-8 sm:w-16 h-1 mx-1">
-                    <div className="h-full bg-muted rounded-full overflow-hidden">
-                      <div className={`h-full bg-accent transition-all duration-500 ${step > s.num ? 'w-full' : 'w-0'}`} />
+          <div className="flex flex-col items-center gap-4">
+            {/* Progress Percentage */}
+            <div className="text-center">
+              <span className="text-3xl font-bold text-accent">
+                {step === 1 ? '33%' : step === 2 ? '66%' : '100%'}
+              </span>
+              <p className="text-sm text-muted-foreground">
+                {t('Formulär slutfört', 'Form completed')}
+              </p>
+            </div>
+            
+            {/* Step Pills */}
+            <div className="flex items-center justify-center gap-0">
+              {[
+                { num: 1, label: t('Grundinfo', 'Basic info') },
+                { num: 2, label: t('Detaljer', 'Details') },
+                { num: 3, label: t('Bekräfta', 'Confirm') },
+              ].map((s, index) => (
+                <div key={s.num} className="flex items-center">
+                  <motion.div 
+                    initial={false}
+                    animate={{
+                      scale: step === s.num ? 1.05 : 1,
+                      backgroundColor: step >= s.num ? 'hsl(var(--accent))' : 'hsl(var(--muted))',
+                    }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+                      step >= s.num ? 'text-accent-foreground' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      step > s.num ? 'bg-accent-foreground/20' : 'bg-accent-foreground/10'
+                    }`}>
+                      {step > s.num ? <Check className="w-3 h-3" /> : s.num}
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                    <span className="font-medium text-sm hidden sm:inline">{s.label}</span>
+                  </motion.div>
+                  {index < 2 && (
+                    <div className="w-8 sm:w-16 h-1 mx-1">
+                      <div className="h-full bg-muted rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: step > s.num ? '100%' : '0%' }}
+                          transition={{ duration: 0.4, ease: 'easeOut' }}
+                          className="h-full bg-accent"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </AnimatedSection>
 
@@ -493,8 +520,17 @@ export default function FreeDemoPage() {
           </AnimatedSection>
         )}
 
-        {step === 1 && (
-          <form onSubmit={handleStep1Submit} className="space-y-8">
+        <AnimatePresence mode="wait">
+          {step === 1 && (
+          <motion.form 
+            key="step1"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            onSubmit={handleStep1Submit} 
+            className="space-y-8"
+          >
             {/* Demo Link - Optional */}
             <AnimatedSection animation="fade-up" delay={100}>
               <Card className="overflow-hidden border-2 border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
@@ -695,7 +731,7 @@ export default function FreeDemoPage() {
                           <span className="text-sm font-medium">
                             {lang === 'sv' ? language.label.sv : language.label.en}
                           </span>
-                          {language.id === 'both' && (
+                          {language.id === 'both' && selectedPackage === 'starter' && (
                             <p className="text-xs text-muted-foreground mt-1">Pro</p>
                           )}
                         </button>
@@ -829,11 +865,19 @@ export default function FreeDemoPage() {
                 </Button>
               </div>
             </AnimatedSection>
-          </form>
+          </motion.form>
         )}
 
         {step === 2 && (
-          <form onSubmit={handleStep2Submit} className="space-y-8">
+          <motion.form 
+            key="step2"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            onSubmit={handleStep2Submit} 
+            className="space-y-8"
+          >
             <AnimatedSection animation="fade-up">
               <Button type="button" variant="ghost" onClick={() => setStep(1)} className="mb-2 -ml-2">
                 ← {t('Tillbaka', 'Back')}
@@ -1066,11 +1110,18 @@ export default function FreeDemoPage() {
                 </Button>
               </div>
             </AnimatedSection>
-          </form>
+          </motion.form>
         )}
 
         {step === 3 && (
-          <div className="space-y-8">
+          <motion.div 
+            key="step3"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="space-y-8"
+          >
             <AnimatedSection animation="fade-up">
               <Button type="button" variant="ghost" onClick={() => setStep(2)} className="mb-2 -ml-2">
                 ← {t('Tillbaka', 'Back')}
@@ -1142,8 +1193,9 @@ export default function FreeDemoPage() {
                 </CardContent>
               </Card>
             </AnimatedSection>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </div>
   );

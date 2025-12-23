@@ -19,8 +19,7 @@ const packages = [
       en: ['Responsive design', 'Mobile-first', 'Contact form', 'Basic SEO', '1 revision']
     },
     booking: false,
-    multiLanguage: false,
-    bestFor: { sv: 'Nya företag', en: 'New businesses' }
+    multiLanguage: false
   },
   { 
     id: 'standard', 
@@ -34,8 +33,7 @@ const packages = [
       en: ['Everything in Starter', '2 revisions', 'Google Maps', 'Social media', 'Image gallery']
     },
     booking: false,
-    multiLanguage: false,
-    bestFor: { sv: 'Växande företag', en: 'Growing businesses' }
+    multiLanguage: true
   },
   { 
     id: 'pro', 
@@ -48,8 +46,7 @@ const packages = [
       en: ['Everything in Standard', '3 revisions', 'Booking integration', 'Newsletter', 'Google Analytics', 'Priority support']
     },
     booking: true,
-    multiLanguage: true,
-    bestFor: { sv: 'Etablerade företag', en: 'Established businesses' }
+    multiLanguage: true
   },
 ];
 
@@ -119,14 +116,6 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                     ) : (
                       <X className="w-5 h-5 text-muted-foreground mx-auto" />
                     )}
-                  </td>
-                ))}
-              </tr>
-              <tr className="border-b border-border">
-                <td className="p-3 font-medium">{t('Passar för', 'Best for')}</td>
-                {packages.map(pkg => (
-                  <td key={pkg.id} className={`text-center p-3 text-muted-foreground ${pkg.popular ? 'bg-accent/5' : ''}`}>
-                    {lang === 'sv' ? pkg.bestFor.sv : pkg.bestFor.en}
                   </td>
                 ))}
               </tr>
