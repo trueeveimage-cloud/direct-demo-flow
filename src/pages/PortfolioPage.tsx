@@ -9,6 +9,38 @@ export default function PortfolioPage() {
 
   const projects = [
     {
+      slug: 'gails-hair',
+      name: "Gail's Hair",
+      type: t('Frisörsalong', 'Hair Salon'),
+      description: t('Premium frisörsalong med online-bokning och Google-recensioner.', 'Premium hair salon with online booking and Google reviews.'),
+      tags: [t('Bokning', 'Booking'), t('Responsiv', 'Responsive'), 'SEO'],
+      externalUrl: 'https://gailshairgallery.lovable.app/book',
+    },
+    {
+      slug: 'oh-my-coffee',
+      name: 'Oh My Coffee',
+      type: t('Café & Restaurang', 'Café & Restaurant'),
+      description: t('Kafé i Göteborg med meny, beställning och hitta oss.', 'Coffee shop in Gothenburg with menu, ordering, and find us.'),
+      tags: [t('Meny', 'Menu'), t('Beställning', 'Order'), t('Karta', 'Map')],
+      externalUrl: 'https://ohmycoffee-gbg-web.lovable.app/',
+    },
+    {
+      slug: 'bamba',
+      name: 'Bamba',
+      type: t('Restaurang', 'Restaurant'),
+      description: t('Klassisk svensk restaurang med bordbokning och meny.', 'Classic Swedish restaurant with table booking and menu.'),
+      tags: [t('Bokning', 'Booking'), t('Meny', 'Menu'), t('Atmosfär', 'Atmosphere')],
+      externalUrl: 'https://bamba.lovable.app/',
+    },
+    {
+      slug: 'en-deli-haga',
+      name: 'En Deli Haga',
+      type: t('Delikatess & Café', 'Deli & Café'),
+      description: t('Mobil-först webbplats för café i Haga med meny och adress.', 'Mobile-first website for café in Haga with menu and location.'),
+      tags: [t('Mobil-först', 'Mobile-first'), t('Meny', 'Menu'), t('Lokal', 'Local')],
+      externalUrl: 'https://en-deli-cozy-vibes.lovable.app/',
+    },
+    {
       slug: 'salong-nova',
       name: t('Salong Nova', 'Salon Nova'),
       type: t('Frisörsalong', 'Hair Salon'),
@@ -63,38 +95,71 @@ export default function PortfolioPage() {
           </p>
         </AnimatedSection>
 
-        {/* Projects Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        {/* Projects Grid - Show 4 items on mobile (2x2) */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-16">
           {projects.map((project, index) => (
-            <AnimatedSection key={index} animation="fade-up" delay={index * 75}>
-              <Link
-                to={`/portfolio/${project.slug}`}
-                className="group relative bg-background border border-border rounded-lg overflow-hidden hover:border-accent transition-colors block"
-              >
-                {/* Placeholder Image */}
-                <div className="aspect-[4/3] bg-secondary flex items-center justify-center">
-                  <span className="text-muted-foreground text-sm">{t('Förhandsvisning', 'Preview')}</span>
-                </div>
+            <AnimatedSection key={index} animation="fade-up" delay={index * 50}>
+              {project.externalUrl ? (
+                <a
+                  href={project.externalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative bg-background border border-border rounded-lg overflow-hidden hover:border-accent transition-colors block h-full"
+                >
+                  {/* Placeholder Image */}
+                  <div className="aspect-[4/3] bg-secondary flex items-center justify-center">
+                    <span className="text-muted-foreground text-xs sm:text-sm">{t('Förhandsvisning', 'Preview')}</span>
+                  </div>
 
-                {/* Content */}
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div>
-                      <h3 className="font-heading font-semibold">{project.name}</h3>
-                      <p className="text-sm text-muted-foreground">{project.type}</p>
+                  {/* Content */}
+                  <div className="p-3 sm:p-5">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div>
+                        <h3 className="font-heading font-semibold text-sm sm:text-base">{project.name}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{project.type}</p>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                     </div>
-                    <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-3 line-clamp-2">{project.description}</p>
+
+                    <div className="flex flex-wrap gap-1">
+                      {project.tags.map((tag, i) => (
+                        <span key={i} className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-secondary rounded">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </a>
+              ) : (
+                <Link
+                  to={`/portfolio/${project.slug}`}
+                  className="group relative bg-background border border-border rounded-lg overflow-hidden hover:border-accent transition-colors block h-full"
+                >
+                  {/* Placeholder Image */}
+                  <div className="aspect-[4/3] bg-secondary flex items-center justify-center">
+                    <span className="text-muted-foreground text-xs sm:text-sm">{t('Förhandsvisning', 'Preview')}</span>
                   </div>
 
-                  <p className="text-sm text-muted-foreground mb-3">{project.description}</p>
+                  {/* Content */}
+                  <div className="p-3 sm:p-5">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div>
+                        <h3 className="font-heading font-semibold text-sm sm:text-base">{project.name}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{project.type}</p>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                    </div>
 
-                  <div className="flex flex-wrap gap-1.5">
-                    {project.tags.map((tag, i) => (
-                      <span key={i} className="text-xs px-2 py-0.5 bg-secondary rounded">{tag}</span>
-                    ))}
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-3 line-clamp-2">{project.description}</p>
+
+                    <div className="flex flex-wrap gap-1">
+                      {project.tags.map((tag, i) => (
+                        <span key={i} className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-secondary rounded">{tag}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              )}
             </AnimatedSection>
           ))}
         </div>

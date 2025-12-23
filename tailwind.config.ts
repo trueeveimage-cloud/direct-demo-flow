@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["DM Sans", "system-ui", "-apple-system", "sans-serif"],
-        heading: ["DM Sans", "system-ui", "sans-serif"],
+        sans: ["Inter Variable", "system-ui", "-apple-system", "sans-serif"],
+        heading: ["Inter Variable", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
