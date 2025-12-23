@@ -171,9 +171,14 @@ export default function PricingPage() {
                       );
                     })}
                   </ul>
-                  <Button asChild variant={pkg.popular ? 'default' : 'outline'} className="w-full text-[10px] sm:text-sm h-8 sm:h-10">
-                    <Link to="/demo">{t('Få koncept', 'Get concept')}</Link>
-                  </Button>
+                  <div className="space-y-2">
+                    <Button asChild variant={pkg.popular ? 'default' : 'outline'} className="w-full text-[10px] sm:text-sm h-8 sm:h-10">
+                      <Link to="/demo">{t('Få koncept', 'Get concept')}</Link>
+                    </Button>
+                    <Button asChild variant="ghost" className="w-full text-[10px] sm:text-sm h-8 sm:h-10">
+                      <Link to="/bestall">{t('Beställ direkt', 'Order directly')}</Link>
+                    </Button>
+                  </div>
                 </div>
               </AnimatedSection>
             ))}
