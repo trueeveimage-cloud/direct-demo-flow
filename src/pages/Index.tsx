@@ -7,6 +7,12 @@ import { TrustBadges } from '@/components/TrustBadges';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 
+// Import portfolio images
+import gailsHairImg from '@/assets/portfolio-gailshair.png';
+import ohMyCoffeeImg from '@/assets/portfolio-ohmycoffee.png';
+import bambaImg from '@/assets/portfolio-bamba.png';
+import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
+
 export default function Index() {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -302,13 +308,13 @@ export default function Index() {
             </Button>
           </motion.div>
 
-          {/* Mobile: 2x2 grid = 4 items, Desktop: 4 columns */}
+          {/* Real portfolio items with images */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
-              { name: t('Frisörsalong', 'Hair Salon'), type: t('Skönhet', 'Beauty'), slug: 'salong-nova' },
-              { name: 'Café Luna', type: t('Restaurang', 'Restaurant'), slug: 'cafe-luna' },
-              { name: t('Rörmokare AB', 'Plumber Co'), type: t('Hantverk', 'Trade'), slug: 'rormokare-svensson' },
-              { name: t('Yoga Studio', 'Yoga Studio'), type: t('Hälsa', 'Health'), slug: 'yoga-studio' },
+              { name: "Gail's Hair", type: t('Frisörsalong', 'Hair Salon'), url: 'https://gailshairgallery.lovable.app/book', image: gailsHairImg },
+              { name: 'Oh My Coffee', type: t('Café', 'Café'), url: 'https://ohmycoffee-gbg-web.lovable.app/', image: ohMyCoffeeImg },
+              { name: 'Bamba', type: t('Restaurang', 'Restaurant'), url: 'https://bamba.lovable.app/', image: bambaImg },
+              { name: 'En Deli Haga', type: t('Delikatess', 'Deli'), url: 'https://en-deli-cozy-vibes.lovable.app/', image: enDeliHagaImg },
             ].map((project, index) => (
               <motion.div
                 key={index}
@@ -317,22 +323,23 @@ export default function Index() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link 
-                  to={`/portfolio/${project.slug}`} 
-                  className="group relative aspect-[4/3] bg-gradient-to-br from-secondary to-secondary/50 rounded-xl overflow-hidden border border-border/50 hover:border-accent/50 transition-all duration-500 block"
+                <a 
+                  href={project.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative aspect-[4/3] rounded-xl overflow-hidden border border-border/50 hover:border-accent/50 transition-all duration-500 block"
                 >
-                  <motion.div 
-                    className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    whileHover={{ opacity: 1 }}
+                  <img 
+                    src={project.image} 
+                    alt={project.name}
+                    className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
                     <p className="text-primary-foreground font-heading font-semibold text-sm sm:text-lg">{project.name}</p>
                     <p className="text-primary-foreground/70 text-xs sm:text-sm">{project.type}</p>
                   </div>
-                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground group-hover:opacity-0 transition-opacity">
-                    <span className="text-xs sm:text-sm">{t('Förhandsvisning', 'Preview')}</span>
-                  </div>
-                </Link>
+                </a>
               </motion.div>
             ))}
           </div>
