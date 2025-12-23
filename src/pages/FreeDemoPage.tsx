@@ -478,18 +478,20 @@ export default function FreeDemoPage() {
           </div>
         </AnimatedSection>
 
-        {/* Verification Fee Notice - ONLY on this page */}
-        <AnimatedSection animation="fade-up" delay={75} className="mb-8">
-          <div className="p-4 bg-accent/10 rounded-xl border border-accent/20">
-            <p className="text-sm text-center">
-              <strong>{t('Verifieringsavgift (10%)', 'Verification fee (10%)')}</strong>: {' '}
-              {t(
-                'En liten avgift som bekräftar att du är en seriös köpare. Helt återbetalningsbar om du avvisar konceptet. Dras av från slutpriset om du fortsätter.',
-                'A small fee that confirms you\'re a serious buyer. Fully refundable if you reject the concept. Deducted from final price if you proceed.'
-              )}
-            </p>
-          </div>
-        </AnimatedSection>
+        {/* Verification Fee Notice - ONLY on step 3 (Bekräfta) */}
+        {step === 3 && (
+          <AnimatedSection animation="fade-up" delay={75} className="mb-8">
+            <div className="p-4 bg-accent/10 rounded-xl border border-accent/20">
+              <p className="text-sm text-center">
+                <strong>{t('Verifieringsavgift (10%)', 'Verification fee (10%)')}</strong>: {' '}
+                {t(
+                  'En liten avgift som bekräftar att du är en seriös köpare. Helt återbetalningsbar om du avvisar konceptet. Dras av från slutpriset om du fortsätter.',
+                  'A small fee that confirms you\'re a serious buyer. Fully refundable if you reject the concept. Deducted from final price if you proceed.'
+                )}
+              </p>
+            </div>
+          </AnimatedSection>
+        )}
 
         {step === 1 && (
           <form onSubmit={handleStep1Submit} className="space-y-8">
@@ -758,13 +760,10 @@ export default function FreeDemoPage() {
                           <p className="text-sm text-muted-foreground mb-2">
                             {lang === 'sv' ? p.pages.sv : p.pages.en}
                           </p>
-                          <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border/50">
+                          <div className="text-xs text-muted-foreground pt-2 border-t border-border/50">
                             <p className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {t('Leverans', 'Delivery')}: {p.delivery} {t('dagar', 'days')}
-                            </p>
-                            <p className="text-muted-foreground/70">
-                              {lang === 'sv' ? p.bestFor.sv : p.bestFor.en}
                             </p>
                           </div>
                         </button>
