@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, RefreshCcw, XCircle, ChevronDown, ChevronUp, Check, Star, Mail, Globe, FileText, Users, Search, Scale } from 'lucide-react';
+import { ArrowRight, CheckCircle2, XCircle, ChevronDown, ChevronUp, Check, Star, FileText, Users, Search, Scale, Globe, CreditCard, Link as LinkIcon, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,11 +9,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { toast } from '@/hooks/use-toast';
+import { InfoTooltip } from '@/components/InfoTooltip';
 
 const packages = [
-  { id: 'starter', name: 'Starter', price: '4 900 kr', pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, features: { sv: ['Responsiv design', 'Mobil-först', 'Kontaktformulär', 'SEO-grundläggande', '1 revision'], en: ['Responsive design', 'Mobile-first', 'Contact form', 'Basic SEO', '1 revision'] } },
-  { id: 'standard', name: 'Standard', price: '7 900 kr', pages: { sv: 'Upp till 5 sidor', en: 'Up to 5 pages' }, popular: true, features: { sv: ['Allt i Starter', '2 revisioner', 'Google Maps', 'Sociala medier', 'Bildgalleri'], en: ['Everything in Starter', '2 revisions', 'Google Maps', 'Social media', 'Image gallery'] } },
-  { id: 'pro', name: 'Pro', price: '12 900 kr', pages: { sv: 'Upp till 8 sidor', en: 'Up to 8 pages' }, features: { sv: ['Allt i Standard', '3 revisioner', 'Bokningsintegration', 'Nyhetsbrev', 'Google Analytics', 'Prioriterad support'], en: ['Everything in Standard', '3 revisions', 'Booking integration', 'Newsletter', 'Google Analytics', 'Priority support'] } },
+  { id: 'starter', name: 'Starter', price: 4900, priceDisplay: '4 900 kr', pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, delivery: 14, features: { sv: ['Responsiv design', 'Mobil-först', 'Kontaktformulär', 'SEO-grundläggande', '1 revision'], en: ['Responsive design', 'Mobile-first', 'Contact form', 'Basic SEO', '1 revision'] } },
+  { id: 'standard', name: 'Standard', price: 7900, priceDisplay: '7 900 kr', pages: { sv: 'Upp till 5 sidor', en: 'Up to 5 pages' }, delivery: 10, popular: true, features: { sv: ['Allt i Starter', '2 revisioner', 'Google Maps', 'Sociala medier', 'Bildgalleri'], en: ['Everything in Starter', '2 revisions', 'Google Maps', 'Social media', 'Image gallery'] } },
+  { id: 'pro', name: 'Pro', price: 12900, priceDisplay: '12 900 kr', pages: { sv: 'Upp till 8 sidor', en: 'Up to 8 pages' }, delivery: 7, features: { sv: ['Allt i Standard', '3 revisioner', 'Bokningsintegration', 'Nyhetsbrev', 'Google Analytics', 'Prioriterad support'], en: ['Everything in Standard', '3 revisions', 'Booking integration', 'Newsletter', 'Google Analytics', 'Priority support'] } },
 ];
 
 const carePlans = [
@@ -25,16 +26,17 @@ const carePlans = [
 export default function PostDemoPage() {
   const { t, lang } = useLanguage();
   const [selectedOption, setSelectedOption] = useState<'proceed' | 'refund' | null>(null);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [proceedStep, setProceedStep] = useState(1);
   const [selectedPackage, setSelectedPackage] = useState<string>('standard');
   const [selectedCarePlan, setSelectedCarePlan] = useState<string | null>('standard');
   const [expandedPackage, setExpandedPackage] = useState<string | null>(null);
-  const [expandedCarePlan, setExpandedCarePlan] = useState<string | null>(null);
+  
+  // Concept link - required for both flows
+  const [conceptLink, setConceptLink] = useState('');
+  const [conceptLinkError, setConceptLinkError] = useState(false);
   
   // Refund flow state
   const [refundStep, setRefundStep] = useState(1);
-  const [refundEmail, setRefundEmail] = useState('');
-  const [refundWebsite, setRefundWebsite] = useState('');
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackReasons, setFeedbackReasons] = useState<string[]>([]);
   const [feedbackStyleCorrect, setFeedbackStyleCorrect] = useState<boolean | null>(null);
@@ -42,7 +44,6 @@ export default function PostDemoPage() {
   const [feedbackImprove, setFeedbackImprove] = useState('');
 
   // Proceed flow state
-  const [proceedStep, setProceedStep] = useState(1);
   const [pageNotes, setPageNotes] = useState('');
   const [brandPreferences, setBrandPreferences] = useState('');
   const [competitors, setCompetitors] = useState('');
@@ -52,9 +53,35 @@ export default function PostDemoPage() {
   const [imageReferences, setImageReferences] = useState('');
   const [legalPages, setLegalPages] = useState<string[]>([]);
   const [selectedLanguageProceed, setSelectedLanguageProceed] = useState('sv');
+  const [extraNotes, setExtraNotes] = useState('');
 
   const pkg = packages.find(p => p.id === selectedPackage);
-  const care = carePlans.find(c => c.id === selectedCarePlan);
+  const verificationFee = pkg ? Math.round(pkg.price * 0.1) : 0;
+  const remainingAmount = pkg ? pkg.price - verificationFee : 0;
+
+  const validateConceptLink = (link: string): boolean => {
+    try {
+      new URL(link);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleOptionSelect = (option: 'proceed' | 'refund') => {
+    if (!conceptLink.trim()) {
+      setConceptLinkError(true);
+      toast({ title: t('Ange konceptlänken', 'Enter the concept link'), variant: 'destructive' });
+      return;
+    }
+    if (!validateConceptLink(conceptLink)) {
+      setConceptLinkError(true);
+      toast({ title: t('Ogiltig URL', 'Invalid URL'), variant: 'destructive' });
+      return;
+    }
+    setConceptLinkError(false);
+    setSelectedOption(option);
+  };
 
   const toggleFeedbackReason = (reason: string) => {
     if (feedbackReasons.includes(reason)) {
@@ -65,20 +92,16 @@ export default function PostDemoPage() {
   };
 
   const handleRefundSubmit = () => {
-    if (!refundEmail || !refundWebsite) {
-      toast({ title: t('Fyll i alla fält', 'Fill in all fields'), variant: 'destructive' });
-      return;
-    }
     if (feedbackRating === 0 || feedbackReasons.length === 0 || feedbackStyleCorrect === null) {
       toast({ title: t('Besvara alla frågor', 'Answer all questions'), variant: 'destructive' });
       return;
     }
-    setRefundStep(3);
+    setRefundStep(2);
   };
 
   // Refund Flow
   if (selectedOption === 'refund') {
-    if (refundStep === 3) {
+    if (refundStep === 2) {
       return (
         <div className="section-padding py-20">
           <div className="container-narrow text-center">
@@ -104,22 +127,8 @@ export default function PostDemoPage() {
           </AnimatedSection>
 
           <div className="space-y-6 max-w-lg mx-auto">
-            {/* Required info */}
-            <AnimatedSection animation="fade-up" delay={100}>
-              <div className="space-y-4 p-6 bg-secondary/50 rounded-xl">
-                <div className="space-y-2">
-                  <Label>{t('Gmail-adress', 'Gmail address')} *</Label>
-                  <Input value={refundEmail} onChange={(e) => setRefundEmail(e.target.value)} type="email" placeholder="namn@gmail.com" className="h-12" />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('Webbplats/sociala medier', 'Website/social media')} *</Label>
-                  <Input value={refundWebsite} onChange={(e) => setRefundWebsite(e.target.value)} placeholder="instagram.com/..." className="h-12" />
-                </div>
-              </div>
-            </AnimatedSection>
-
             {/* Feedback questions */}
-            <AnimatedSection animation="fade-up" delay={200}>
+            <AnimatedSection animation="fade-up" delay={100}>
               <div className="space-y-6 p-6 bg-secondary/50 rounded-xl">
                 {/* Rating */}
                 <div className="space-y-2">
@@ -159,13 +168,11 @@ export default function PostDemoPage() {
                   </div>
                 </div>
 
-                {/* Missing */}
                 <div className="space-y-2">
                   <Label>{t('Saknade funktioner?', 'Missing features?')}</Label>
                   <Input value={feedbackMissing} onChange={(e) => setFeedbackMissing(e.target.value)} placeholder={t('Valfritt...', 'Optional...')} className="h-12" />
                 </div>
 
-                {/* Improve */}
                 <div className="space-y-2">
                   <Label>{t('Vad skulle göra det acceptabelt?', 'What would make it acceptable?')}</Label>
                   <Textarea value={feedbackImprove} onChange={(e) => setFeedbackImprove(e.target.value)} placeholder={t('Valfritt...', 'Optional...')} rows={3} />
@@ -173,7 +180,7 @@ export default function PostDemoPage() {
               </div>
             </AnimatedSection>
 
-            <AnimatedSection animation="fade-up" delay={300}>
+            <AnimatedSection animation="fade-up" delay={200}>
               <div className="flex gap-4">
                 <Button variant="outline" onClick={() => setSelectedOption(null)}>{t('Avbryt', 'Cancel')}</Button>
                 <Button onClick={handleRefundSubmit} className="flex-1">{t('Skicka begäran', 'Submit request')}</Button>
@@ -185,7 +192,7 @@ export default function PostDemoPage() {
     );
   }
 
-  // Proceed Flow - Deeper form
+  // Proceed Flow
   if (selectedOption === 'proceed') {
     if (proceedStep === 4) {
       return (
@@ -197,8 +204,12 @@ export default function PostDemoPage() {
               </div>
               <h1 className="text-3xl font-bold mb-4">{t('Tack!', 'Thank you!')}</h1>
               <p className="text-muted-foreground mb-4">{t('Vi har mottagit din beställning.', 'We\'ve received your order.')}</p>
-              <p className="text-lg font-medium text-accent mb-8">{t('Vi levererar webbplatser inom 7 dagar beroende på paket.', 'We deliver websites within 7 days depending on package.')}</p>
-              <Button asChild><Link to="/">{t('Tillbaka till start', 'Back to home')}</Link></Button>
+              <div className="p-4 bg-accent/10 rounded-xl inline-block mb-8">
+                <p className="text-lg font-medium">{t(`Leverans inom ${pkg?.delivery} dagar.`, `Delivery within ${pkg?.delivery} days.`)}</p>
+              </div>
+              <div className="flex justify-center">
+                <Button asChild><Link to="/">{t('Tillbaka till start', 'Back to home')}</Link></Button>
+              </div>
             </AnimatedSection>
           </div>
         </div>
@@ -217,10 +228,10 @@ export default function PostDemoPage() {
                 { num: 3, label: t('Detaljer', 'Details') },
               ].map((step, index) => (
                 <div key={step.num} className="flex items-center gap-2">
-                  <button onClick={() => setProceedStep(step.num)} className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${proceedStep === step.num ? 'bg-accent text-accent-foreground' : proceedStep > step.num ? 'bg-accent/20 text-accent' : 'bg-secondary text-muted-foreground'}`}>
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${proceedStep === step.num ? 'bg-accent text-accent-foreground' : proceedStep > step.num ? 'bg-accent/20 text-accent' : 'bg-secondary text-muted-foreground'}`}>
                     <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">{proceedStep > step.num ? <Check className="w-4 h-4" /> : step.num}</span>
                     <span className="text-sm font-medium hidden sm:inline">{step.label}</span>
-                  </button>
+                  </div>
                   {index < 2 && <div className="w-8 h-0.5 bg-border hidden sm:block" />}
                 </div>
               ))}
@@ -231,7 +242,7 @@ export default function PostDemoPage() {
           {proceedStep === 1 && (
             <div>
               <AnimatedSection animation="fade-up" className="text-center mb-8">
-                <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('Välj paket', 'Choose package')}</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('Bekräfta paket', 'Confirm package')}</h1>
               </AnimatedSection>
               <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                 {packages.map((p, index) => (
@@ -239,9 +250,10 @@ export default function PostDemoPage() {
                     <button onClick={() => setSelectedPackage(p.id)} className={`w-full p-6 rounded-xl border-2 text-left transition-all relative ${selectedPackage === p.id ? 'border-accent bg-accent/5 shadow-lg' : 'border-border hover:border-accent/50'}`}>
                       {p.popular && <span className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">{t('Populärast', 'Popular')}</span>}
                       <h3 className="font-semibold text-xl mb-1">{p.name}</h3>
-                      <p className="text-2xl font-bold text-accent mb-1">{p.price}</p>
-                      <p className="text-sm text-muted-foreground mb-4">{lang === 'sv' ? p.pages.sv : p.pages.en}</p>
-                      <button type="button" onClick={(e) => { e.stopPropagation(); setExpandedPackage(expandedPackage === p.id ? null : p.id); }} className="text-sm text-accent hover:underline flex items-center gap-1">
+                      <p className="text-2xl font-bold text-accent mb-1">{p.priceDisplay}</p>
+                      <p className="text-sm text-muted-foreground mb-2">{lang === 'sv' ? p.pages.sv : p.pages.en}</p>
+                      <p className="text-xs text-muted-foreground">{t('Leverans', 'Delivery')}: {p.delivery} {t('dagar', 'days')}</p>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setExpandedPackage(expandedPackage === p.id ? null : p.id); }} className="text-sm text-accent hover:underline flex items-center gap-1 mt-2">
                         {t('Detaljer', 'Details')} {expandedPackage === p.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </button>
                       {expandedPackage === p.id && (
@@ -264,7 +276,6 @@ export default function PostDemoPage() {
             <div>
               <AnimatedSection animation="fade-up" className="text-center mb-8">
                 <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t('Lägg till månatlig webbvård?', 'Add monthly care?')}</h1>
-                <p className="text-muted-foreground">{t('Avsluta när du vill.', 'Cancel anytime.')}</p>
               </AnimatedSection>
               <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
                 {carePlans.map((c, index) => (
@@ -289,7 +300,7 @@ export default function PostDemoPage() {
             </div>
           )}
 
-          {/* Step 3: Detailed form - deeper than concept */}
+          {/* Step 3: Detailed form + Payment */}
           {proceedStep === 3 && (
             <div className="max-w-2xl mx-auto">
               <AnimatedSection animation="fade-up" className="text-center mb-8">
@@ -299,33 +310,27 @@ export default function PostDemoPage() {
               <div className="space-y-6">
                 <AnimatedSection animation="fade-up" delay={100}>
                   <div className="p-6 bg-secondary/50 rounded-xl space-y-4">
-                    <div className="flex items-center gap-2 mb-4"><FileText className="w-5 h-5 text-accent" /><h3 className="font-semibold">{t('Sidstruktur & anteckningar', 'Page structure & notes')}</h3></div>
-                    <Textarea value={pageNotes} onChange={(e) => setPageNotes(e.target.value)} placeholder={t('Beskriv varje sida och vad den ska innehålla...', 'Describe each page and what it should contain...')} rows={4} />
+                    <div className="flex items-center gap-2 mb-4"><FileText className="w-5 h-5 text-accent" /><h3 className="font-semibold">{t('Sidstruktur & anteckningar', 'Page structure & notes')}</h3><InfoTooltip content={t('Beskriv varje sida och vad den ska innehålla.', 'Describe each page and what it should contain.')} /></div>
+                    <Textarea value={pageNotes} onChange={(e) => setPageNotes(e.target.value)} placeholder={t('Beskriv varje sida...', 'Describe each page...')} rows={4} />
                   </div>
                 </AnimatedSection>
 
                 <AnimatedSection animation="fade-up" delay={150}>
                   <div className="p-6 bg-secondary/50 rounded-xl space-y-4">
-                    <div className="flex items-center gap-2 mb-4"><Palette className="w-5 h-5 text-accent" /><h3 className="font-semibold">{t('Varumärkespreferenser', 'Brand preferences')}</h3></div>
+                    <div className="flex items-center gap-2 mb-4"><Users className="w-5 h-5 text-accent" /><h3 className="font-semibold">{t('Varumärke & konkurrenter', 'Brand & competitors')}</h3></div>
                     <Textarea value={brandPreferences} onChange={(e) => setBrandPreferences(e.target.value)} placeholder={t('Färger, typsnitt, ton...', 'Colors, fonts, tone...')} rows={3} />
+                    <Input value={competitors} onChange={(e) => setCompetitors(e.target.value)} placeholder={t('Webbplatser du gillar...', 'Websites you like...')} />
                   </div>
                 </AnimatedSection>
 
                 <AnimatedSection animation="fade-up" delay={200}>
-                  <div className="p-6 bg-secondary/50 rounded-xl space-y-4">
-                    <div className="flex items-center gap-2 mb-4"><Users className="w-5 h-5 text-accent" /><h3 className="font-semibold">{t('Konkurrenter', 'Competitors')}</h3></div>
-                    <Input value={competitors} onChange={(e) => setCompetitors(e.target.value)} placeholder={t('Webbplatser du gillar eller konkurrenter...', 'Websites you like or competitors...')} />
-                  </div>
-                </AnimatedSection>
-
-                <AnimatedSection animation="fade-up" delay={250}>
                   <div className="p-6 bg-secondary/50 rounded-xl space-y-4">
                     <div className="flex items-center gap-2 mb-4"><Search className="w-5 h-5 text-accent" /><h3 className="font-semibold">{t('SEO & sökord', 'SEO & keywords')}</h3></div>
                     <Input value={seoKeywords} onChange={(e) => setSeoKeywords(e.target.value)} placeholder={t('Sökord, lokalområde...', 'Keywords, local area...')} />
                   </div>
                 </AnimatedSection>
 
-                <AnimatedSection animation="fade-up" delay={300}>
+                <AnimatedSection animation="fade-up" delay={250}>
                   <div className="p-6 bg-secondary/50 rounded-xl space-y-4">
                     <div className="flex items-center gap-2 mb-4"><Globe className="w-5 h-5 text-accent" /><h3 className="font-semibold">{t('Språk', 'Language')}</h3></div>
                     <div className="flex gap-4">
@@ -338,7 +343,7 @@ export default function PostDemoPage() {
                   </div>
                 </AnimatedSection>
 
-                <AnimatedSection animation="fade-up" delay={350}>
+                <AnimatedSection animation="fade-up" delay={300}>
                   <div className="p-6 bg-secondary/50 rounded-xl space-y-4">
                     <div className="flex items-center gap-2 mb-4"><Scale className="w-5 h-5 text-accent" /><h3 className="font-semibold">{t('Juridiska sidor', 'Legal pages')}</h3></div>
                     <div className="flex flex-wrap gap-3">
@@ -352,10 +357,32 @@ export default function PostDemoPage() {
                   </div>
                 </AnimatedSection>
 
+                <AnimatedSection animation="fade-up" delay={350}>
+                  <div className="p-6 bg-secondary/50 rounded-xl space-y-4">
+                    <div className="flex items-center gap-2 mb-4"><FileText className="w-5 h-5 text-accent" /><h3 className="font-semibold">{t('Extra önskemål', 'Extra notes')}</h3></div>
+                    <Textarea value={extraNotes} onChange={(e) => setExtraNotes(e.target.value)} placeholder={t('Speciella önskemål...', 'Special requests...')} rows={3} />
+                  </div>
+                </AnimatedSection>
+
+                {/* Payment Summary */}
                 <AnimatedSection animation="fade-up" delay={400}>
+                  <div className="p-6 bg-accent/10 rounded-xl border border-accent/30">
+                    <h3 className="font-semibold mb-4 flex items-center gap-2"><CreditCard className="w-5 h-5 text-accent" />{t('Slutbetalning', 'Final payment')}</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between"><span>{t('Paketpris', 'Package price')}</span><span>{pkg?.priceDisplay}</span></div>
+                      <div className="flex justify-between text-muted-foreground"><span>{t('Redan betald verifieringsavgift', 'Already paid verification fee')}</span><span>-{verificationFee.toLocaleString()} kr</span></div>
+                      <div className="flex justify-between font-bold text-lg pt-2 border-t border-border"><span>{t('Att betala', 'Remaining')}</span><span className="text-accent">{remainingAmount.toLocaleString()} kr</span></div>
+                    </div>
+                  </div>
+                </AnimatedSection>
+
+                <AnimatedSection animation="fade-up" delay={450}>
                   <div className="flex gap-4">
                     <Button variant="outline" onClick={() => setProceedStep(2)}>{t('Tillbaka', 'Back')}</Button>
-                    <Button size="lg" onClick={() => setProceedStep(4)} className="flex-1">{t('Skicka beställning', 'Submit order')} <ArrowRight className="w-4 h-4" /></Button>
+                    <Button size="lg" onClick={() => setProceedStep(4)} className="flex-1">
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      {t('Betala med Stripe', 'Pay with Stripe')} ({remainingAmount.toLocaleString()} kr)
+                    </Button>
                   </div>
                 </AnimatedSection>
               </div>
@@ -366,11 +393,11 @@ export default function PostDemoPage() {
     );
   }
 
-  // Initial choice screen
+  // Initial choice screen with concept link requirement
   return (
     <div className="section-padding py-20">
       <div className="container-narrow">
-        <AnimatedSection animation="fade-up" className="text-center mb-12">
+        <AnimatedSection animation="fade-up" className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">
             {t('Har du fått ditt koncept?', 'Have you received your concept?')}
           </h1>
@@ -379,9 +406,32 @@ export default function PostDemoPage() {
           </p>
         </AnimatedSection>
 
+        {/* Concept Link - Required */}
+        <AnimatedSection animation="fade-up" delay={50} className="max-w-md mx-auto mb-8">
+          <div className={`p-6 bg-secondary/50 rounded-xl border-2 ${conceptLinkError ? 'border-destructive' : 'border-border'}`}>
+            <div className="flex items-center gap-2 mb-3">
+              <LinkIcon className="w-5 h-5 text-accent" />
+              <Label className="font-medium">{t('Klistra in länken till konceptet', 'Paste the concept link')} *</Label>
+              <InfoTooltip content={t('Länken du fick i mailet med ditt koncept.', 'The link you received in the email with your concept.')} />
+            </div>
+            <Input 
+              value={conceptLink}
+              onChange={(e) => { setConceptLink(e.target.value); setConceptLinkError(false); }}
+              placeholder="https://..."
+              className={`h-12 ${conceptLinkError ? 'border-destructive' : ''}`}
+            />
+            {conceptLinkError && (
+              <p className="text-sm text-destructive mt-2 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {t('Ange en giltig URL', 'Enter a valid URL')}
+              </p>
+            )}
+          </div>
+        </AnimatedSection>
+
         <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           <AnimatedSection animation="fade-right" delay={100}>
-            <button onClick={() => setSelectedOption('proceed')} className="w-full p-8 bg-accent/5 border-2 border-accent/30 rounded-xl text-left hover:shadow-lg hover:border-accent transition-all group">
+            <button onClick={() => handleOptionSelect('proceed')} className="w-full p-8 bg-accent/5 border-2 border-accent/30 rounded-xl text-left hover:shadow-lg hover:border-accent transition-all group">
               <div className="w-14 h-14 bg-accent/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <CheckCircle2 className="w-7 h-7 text-accent" />
               </div>
@@ -392,12 +442,12 @@ export default function PostDemoPage() {
           </AnimatedSection>
 
           <AnimatedSection animation="fade-left" delay={200}>
-            <button onClick={() => setSelectedOption('refund')} className="w-full p-8 bg-secondary/50 border border-border rounded-xl text-left hover:border-muted-foreground transition-all group">
+            <button onClick={() => handleOptionSelect('refund')} className="w-full p-8 bg-secondary/50 border border-border rounded-xl text-left hover:border-muted-foreground transition-all group">
               <div className="w-14 h-14 bg-secondary rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <XCircle className="w-7 h-7 text-muted-foreground" />
               </div>
               <h2 className="font-heading font-semibold text-xl mb-2">{t('Det var inte för mig', 'It wasn\'t for me')}</h2>
-              <p className="text-sm text-muted-foreground mb-4">{t('Begär återbetalning inom 7 dagar.', 'Request refund within 7 days.')}</p>
+              <p className="text-sm text-muted-foreground mb-4">{t('Begär återbetalning.', 'Request refund.')}</p>
               <span className="inline-flex items-center gap-2 text-muted-foreground font-medium text-sm">{t('Begär återbetalning', 'Request refund')} <ArrowRight className="w-4 h-4" /></span>
             </button>
           </AnimatedSection>
@@ -406,7 +456,3 @@ export default function PostDemoPage() {
     </div>
   );
 }
-
-const Palette = ({ className }: { className?: string }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"/></svg>
-);

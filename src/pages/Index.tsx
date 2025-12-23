@@ -2,96 +2,132 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { AnimatedSection } from '@/components/AnimatedSection';
 import { Testimonials } from '@/components/Testimonials';
 import { TrustBadges } from '@/components/TrustBadges';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 
 export default function Index() {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll();
+  
+  // Parallax transforms
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0.3]);
+  const bgCircle1Y = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const bgCircle2Y = useTransform(scrollYProgress, [0, 1], [0, -200]);
 
   return (
     <div className="overflow-hidden">
-      {/* Hero Section - Full height, immersive */}
-      <section className="min-h-[90vh] flex items-center relative overflow-hidden">
+      {/* Hero Section - Full height, immersive with parallax */}
+      <section ref={heroRef} className="min-h-[90vh] flex items-center relative overflow-hidden">
         {/* Animated parallax background */}
         <div className="absolute inset-0 pointer-events-none">
-          <div 
+          <motion.div 
             className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-gradient-to-br from-accent/10 via-accent/5 to-transparent rounded-full blur-3xl"
-            style={{ transform: 'translateY(calc(var(--scroll-y, 0) * 0.3))' }}
+            style={{ y: bgCircle1Y }}
           />
-          <div 
+          <motion.div 
             className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-gradient-to-tr from-accent/8 via-transparent to-transparent rounded-full blur-3xl"
-            style={{ transform: 'translateY(calc(var(--scroll-y, 0) * -0.2))' }}
+            style={{ y: bgCircle2Y }}
           />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] bg-gradient-radial from-accent/3 to-transparent rounded-full" />
         </div>
         
-        <div className="container-narrow text-center relative z-10 section-padding py-20">
-          <AnimatedSection animation="fade-up" delay={0}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20">
-              <Clock className="w-4 h-4" />
-              {t('Begränsade platser', 'Limited spots')}
-            </div>
-          </AnimatedSection>
+        <motion.div 
+          className="container-narrow text-center relative z-10 section-padding py-20"
+          style={{ y: heroY, opacity: heroOpacity }}
+        >
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20"
+          >
+            <Clock className="w-4 h-4" />
+            {t('Begränsade platser', 'Limited spots')}
+          </motion.div>
 
-          <AnimatedSection animation="fade-up" delay={100}>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
-              {t('Webb-koncept', 'Website concept')}
-              <br />
-              <span className="text-accent">
-                {t('på 72 timmar', 'in 72 hours')}
-              </span>
-            </h1>
-          </AnimatedSection>
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight"
+          >
+            {t('Webb-koncept', 'Website concept')}
+            <br />
+            <span className="text-accent">
+              {t('på 72 timmar', 'in 72 hours')}
+            </span>
+          </motion.h1>
 
-          <AnimatedSection animation="fade-up" delay={200}>
-            <p className="mt-8 text-lg sm:text-xl text-muted-foreground max-w-lg mx-auto">
-              {t(
-                'Se din framtida webbplats innan du bestämmer dig.',
-                'See your future website before you commit.'
-              )}
-            </p>
-          </AnimatedSection>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mt-8 text-lg sm:text-xl text-muted-foreground max-w-lg mx-auto"
+          >
+            {t(
+              'Se din framtida webbplats innan du bestämmer dig.',
+              'See your future website before you commit.'
+            )}
+          </motion.p>
 
-          <AnimatedSection animation="fade-up" delay={300}>
-            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="group h-14 px-8 text-base">
-                <Link to="/demo">
-                  {t('Få ditt koncept', 'Get your concept')}
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="lg" className="h-14 px-8 text-base">
-                <Link to="/efter-demo">
-                  {t('Har du fått ditt koncept?', 'Have you received your concept?')}
-                </Link>
-              </Button>
-            </div>
-          </AnimatedSection>
-        </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <Button asChild size="lg" className="group h-14 px-8 text-base hover:scale-105 transition-transform">
+              <Link to="/demo">
+                {t('Få ditt koncept', 'Get your concept')}
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="lg" className="h-14 px-8 text-base hover:bg-accent/10 transition-colors">
+              <Link to="/efter-demo">
+                {t('Har du fått ditt koncept?', 'Have you received your concept?')}
+              </Link>
+            </Button>
+          </motion.div>
+        </motion.div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <motion.div 
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
           <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center pt-2">
-            <div className="w-1 h-2 bg-muted-foreground/50 rounded-full" />
+            <motion.div 
+              className="w-1 h-2 bg-muted-foreground/50 rounded-full"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Trust Badges */}
       <TrustBadges />
 
-      {/* 3-Step Process - Staggered layout */}
+      {/* 3-Step Process - Staggered layout with scroll animations */}
       <section className="py-32 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent pointer-events-none" />
         
         <div className="container-wide section-padding relative">
-          <AnimatedSection animation="fade-up">
-            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-20">
-              {t('Så här fungerar det', 'How it works')}
-            </h2>
-          </AnimatedSection>
+          <motion.h2 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl sm:text-4xl font-bold text-center mb-20"
+          >
+            {t('Så här fungerar det', 'How it works')}
+          </motion.h2>
 
           <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
             {[
@@ -114,22 +150,29 @@ export default function Index() {
                 desc: t('Granska och bestäm om du vill fortsätta.', 'Review and decide if you want to proceed.'),
               },
             ].map((item, index) => (
-              <AnimatedSection key={index} animation="fade-up" delay={index * 150}>
-                <div 
-                  className="relative group"
-                  style={{ marginTop: index === 1 ? '2rem' : index === 2 ? '4rem' : '0' }}
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: index * 0.15 }}
+                className="relative group"
+                style={{ marginTop: index === 1 ? '2rem' : index === 2 ? '4rem' : '0' }}
+              >
+                <div className="absolute -inset-4 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <motion.div 
+                  className="relative p-8 bg-background/50 backdrop-blur-sm rounded-xl border border-border/50 hover:border-accent/30 transition-all duration-500"
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <div className="absolute -inset-4 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative p-8 bg-background/50 backdrop-blur-sm rounded-xl border border-border/50 hover:border-accent/30 transition-all duration-500">
-                    <span className="text-6xl font-bold text-accent/10 absolute top-4 right-4">
-                      {item.step}
-                    </span>
-                    <item.icon className="w-10 h-10 text-accent mb-6" />
-                    <h3 className="font-heading font-semibold text-xl mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground">{item.desc}</p>
-                  </div>
-                </div>
-              </AnimatedSection>
+                  <span className="text-6xl font-bold text-accent/10 absolute top-4 right-4">
+                    {item.step}
+                  </span>
+                  <item.icon className="w-10 h-10 text-accent mb-6" />
+                  <h3 className="font-heading font-semibold text-xl mb-3">{item.title}</h3>
+                  <p className="text-muted-foreground">{item.desc}</p>
+                </motion.div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -138,11 +181,15 @@ export default function Index() {
       {/* What You Get - Minimal list */}
       <section className="py-24">
         <div className="container-narrow section-padding">
-          <AnimatedSection animation="fade-up">
-            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
-              {t('Vad ingår', 'What\'s included')}
-            </h2>
-          </AnimatedSection>
+          <motion.h2 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl sm:text-4xl font-bold text-center mb-16"
+          >
+            {t('Vad ingår', 'What\'s included')}
+          </motion.h2>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-xl mx-auto">
             {[
@@ -151,12 +198,18 @@ export default function Index() {
               t('Varumärkesriktning', 'Brand direction'),
               t('1 revision', '1 revision'),
             ].map((item, index) => (
-              <AnimatedSection key={index} animation="fade-left" delay={index * 100}>
-                <div className="flex items-center gap-4 p-4 rounded-lg border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300">
-                  <CheckCircle2 className="w-5 h-5 text-accent flex-shrink-0" />
-                  <span className="font-medium">{item}</span>
-                </div>
-              </AnimatedSection>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.03, x: 5 }}
+                className="flex items-center gap-4 p-4 rounded-lg border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 cursor-default"
+              >
+                <CheckCircle2 className="w-5 h-5 text-accent flex-shrink-0" />
+                <span className="font-medium">{item}</span>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -171,43 +224,58 @@ export default function Index() {
         
         <div className="container-narrow section-padding relative">
           <div className="grid md:grid-cols-2 gap-16">
-            <AnimatedSection animation="fade-right">
-              <div>
-                <h3 className="font-heading font-semibold text-lg mb-6 flex items-center gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-accent" />
-                  {t('Detta passar dig om...', 'This is for you if...')}
-                </h3>
-                <ul className="space-y-4">
-                  {[
-                    t('Du driver ett litet företag', 'You run a small business'),
-                    t('Du behöver en professionell webb snabbt', 'You need a professional site fast'),
-                    t('Du vill se innan du köper', 'You want to see before buying'),
-                  ].map((item, i) => (
-                    <li key={i} className="text-muted-foreground hover:text-foreground transition-colors pl-4 border-l-2 border-accent/30 hover:border-accent">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </AnimatedSection>
-            <AnimatedSection animation="fade-left">
-              <div>
-                <h3 className="font-heading font-semibold text-lg mb-6 flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full border-2 border-muted-foreground flex items-center justify-center text-xs">✕</span>
-                  {t('Inte för dig om...', 'Not for you if...')}
-                </h3>
-                <ul className="space-y-4">
-                  {[
-                    t('Du behöver komplex e-handel', 'You need complex e-commerce'),
-                    t('Du söker gratis arbete', 'You\'re looking for free work'),
-                  ].map((item, i) => (
-                    <li key={i} className="text-muted-foreground hover:text-foreground transition-colors pl-4 border-l-2 border-border hover:border-muted-foreground">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </AnimatedSection>
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6 }}
+            >
+              <h3 className="font-heading font-semibold text-lg mb-6 flex items-center gap-3">
+                <CheckCircle2 className="w-6 h-6 text-accent" />
+                {t('Detta passar dig om...', 'This is for you if...')}
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  t('Du driver ett litet företag', 'You run a small business'),
+                  t('Du behöver en professionell webb snabbt', 'You need a professional site fast'),
+                  t('Du vill se innan du köper', 'You want to see before buying'),
+                ].map((item, i) => (
+                  <motion.li 
+                    key={i} 
+                    className="text-muted-foreground hover:text-foreground transition-colors pl-4 border-l-2 border-accent/30 hover:border-accent"
+                    whileHover={{ x: 5 }}
+                  >
+                    {item}
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <h3 className="font-heading font-semibold text-lg mb-6 flex items-center gap-3">
+                <span className="w-6 h-6 rounded-full border-2 border-muted-foreground flex items-center justify-center text-xs">✕</span>
+                {t('Inte för dig om...', 'Not for you if...')}
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  t('Du behöver komplex e-handel', 'You need complex e-commerce'),
+                  t('Du söker gratis arbete', 'You\'re looking for free work'),
+                ].map((item, i) => (
+                  <motion.li 
+                    key={i} 
+                    className="text-muted-foreground hover:text-foreground transition-colors pl-4 border-l-2 border-border hover:border-muted-foreground"
+                    whileHover={{ x: 5 }}
+                  >
+                    {item}
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -218,52 +286,76 @@ export default function Index() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
         <div className="container-wide section-padding">
-          <AnimatedSection animation="fade-up">
-            <div className="flex items-center justify-between mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold">Portfolio</h2>
-              <Button asChild variant="ghost" className="group">
-                <Link to="/portfolio">
-                  {t('Se alla', 'View all')}
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </div>
-          </AnimatedSection>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex items-center justify-between mb-12"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold">Portfolio</h2>
+            <Button asChild variant="ghost" className="group">
+              <Link to="/portfolio">
+                {t('Se alla', 'View all')}
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Mobile: 2x2 grid = 4 items, Desktop: 4 columns */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { name: t('Frisörsalong', 'Hair Salon'), type: t('Skönhet', 'Beauty'), slug: 'salong-nova' },
               { name: 'Café Luna', type: t('Restaurang', 'Restaurant'), slug: 'cafe-luna' },
               { name: t('Rörmokare AB', 'Plumber Co'), type: t('Hantverk', 'Trade'), slug: 'rormokare-svensson' },
+              { name: t('Yoga Studio', 'Yoga Studio'), type: t('Hälsa', 'Health'), slug: 'yoga-studio' },
             ].map((project, index) => (
-              <AnimatedSection key={index} animation="scale-in" delay={index * 100}>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
                 <Link 
                   to={`/portfolio/${project.slug}`} 
                   className="group relative aspect-[4/3] bg-gradient-to-br from-secondary to-secondary/50 rounded-xl overflow-hidden border border-border/50 hover:border-accent/50 transition-all duration-500 block"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <p className="text-primary-foreground font-heading font-semibold text-lg">{project.name}</p>
-                    <p className="text-primary-foreground/70 text-sm">{project.type}</p>
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    whileHover={{ opacity: 1 }}
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                    <p className="text-primary-foreground font-heading font-semibold text-sm sm:text-lg">{project.name}</p>
+                    <p className="text-primary-foreground/70 text-xs sm:text-sm">{project.type}</p>
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground group-hover:opacity-0 transition-opacity">
-                    <span className="text-sm">{t('Förhandsvisning', 'Preview')}</span>
+                    <span className="text-xs sm:text-sm">{t('Förhandsvisning', 'Preview')}</span>
                   </div>
                 </Link>
-              </AnimatedSection>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Monthly Care Teaser - Accent section */}
+      {/* Monthly Care Teaser - Accent section with parallax */}
       <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
+        <motion.div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ y: useTransform(scrollYProgress, [0.5, 1], [0, -50]) }}
+        >
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl" />
-        </div>
+        </motion.div>
         
-        <AnimatedSection animation="fade-up" className="container-narrow section-padding text-center relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="container-narrow section-padding text-center relative z-10"
+        >
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">
             {t('Månatlig webbvård', 'Monthly Care')}
           </h2>
@@ -276,29 +368,33 @@ export default function Index() {
           <p className="text-primary-foreground/60 text-sm mb-8">
             {t('Avsluta när du vill.', 'Cancel anytime.')}
           </p>
-          <Button asChild variant="secondary" className="group">
+          <Button asChild variant="secondary" className="group hover:scale-105 transition-transform">
             <Link to="/priser">
               {t('Se vårdplaner', 'See care plans')}
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
-        </AnimatedSection>
+        </motion.div>
       </section>
 
       {/* FAQ Preview */}
       <section className="py-24">
         <div className="container-narrow section-padding">
-          <AnimatedSection animation="fade-up">
-            <div className="flex items-center justify-between mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold">FAQ</h2>
-              <Button asChild variant="ghost" className="group">
-                <Link to="/faq">
-                  {t('Se alla', 'View all')}
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </div>
-          </AnimatedSection>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex items-center justify-between mb-12"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold">FAQ</h2>
+            <Button asChild variant="ghost" className="group">
+              <Link to="/faq">
+                {t('Se alla', 'View all')}
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </motion.div>
 
           <div className="space-y-4">
             {[
@@ -311,12 +407,18 @@ export default function Index() {
                 a: t('Det visar att du är seriös och bokar din plats.', 'It shows you\'re serious and books your slot.'),
               },
             ].map((faq, index) => (
-              <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-                <div className="p-6 rounded-xl border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300">
-                  <h4 className="font-heading font-semibold text-lg mb-2">{faq.q}</h4>
-                  <p className="text-muted-foreground">{faq.a}</p>
-                </div>
-              </AnimatedSection>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.01 }}
+                className="p-6 rounded-xl border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300"
+              >
+                <h4 className="font-heading font-semibold text-lg mb-2">{faq.q}</h4>
+                <p className="text-muted-foreground">{faq.a}</p>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -326,20 +428,26 @@ export default function Index() {
       <section className="py-32 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none" />
         
-        <AnimatedSection animation="scale-in" className="container-narrow section-padding text-center relative">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="container-narrow section-padding text-center relative"
+        >
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">
             {t('Få ditt koncept', 'Get your concept')}
           </h2>
           <p className="text-muted-foreground mb-10">
             {t('Inom 72 timmar.', 'Within 72 hours.')}
           </p>
-          <Button asChild size="lg" className="group h-14 px-10 text-base">
+          <Button asChild size="lg" className="group h-14 px-10 text-base hover:scale-105 transition-transform">
             <Link to="/demo">
               {t('Börja här', 'Start here')}
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
-        </AnimatedSection>
+        </motion.div>
       </section>
     </div>
   );
