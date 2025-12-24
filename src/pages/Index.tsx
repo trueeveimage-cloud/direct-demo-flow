@@ -258,65 +258,42 @@ export default function Index() {
       {/* Testimonials */}
       <Testimonials />
 
-      {/* Who This Is For - Clean two-column */}
+      {/* Value Proposition - Premium section */}
       <section className="py-24 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent pointer-events-none" />
         
         <div className="container-narrow section-padding relative">
-          <div className="grid md:grid-cols-2 gap-16">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6 }}
-            >
-              <h3 className="font-heading font-semibold text-lg mb-6 flex items-center gap-3">
-                <CheckCircle2 className="w-6 h-6 text-accent" />
-                {t('Detta passar dig om...', 'This is for you if...')}
-              </h3>
-              <ul className="space-y-4">
-                {[
-                  t('Du driver ett litet företag', 'You run a small business'),
-                  t('Du behöver en professionell webb snabbt', 'You need a professional site fast'),
-                  t('Du vill se innan du köper', 'You want to see before buying'),
-                ].map((item, i) => (
-                  <motion.li 
-                    key={i} 
-                    className="text-muted-foreground hover:text-foreground transition-colors pl-4 border-l-2 border-accent/30 hover:border-accent"
-                    whileHover={{ x: 5 }}
-                  >
-                    {item}
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              <h3 className="font-heading font-semibold text-lg mb-6 flex items-center gap-3">
-                <span className="w-6 h-6 rounded-full border-2 border-muted-foreground flex items-center justify-center text-xs">✕</span>
-                {t('Inte för dig om...', 'Not for you if...')}
-              </h3>
-              <ul className="space-y-4">
-                {[
-                  t('Du behöver komplex e-handel', 'You need complex e-commerce'),
-                  t('Du söker gratis arbete', 'You\'re looking for free work'),
-                ].map((item, i) => (
-                  <motion.li 
-                    key={i} 
-                    className="text-muted-foreground hover:text-foreground transition-colors pl-4 border-l-2 border-border hover:border-muted-foreground"
-                    whileHover={{ x: 5 }}
-                  >
-                    {item}
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold mb-8">
+              {t('För dig som vill ha en hemsida som faktiskt säljer', 'For those who want a website that actually sells')}
+            </h2>
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-8">
+              {[
+                t('Tydlig design', 'Clear design'),
+                t('Snabb leverans', 'Fast delivery'),
+                t('Fast pris', 'Fixed price'),
+                t('Fokuserad på bokningar eller leads', 'Focused on bookings or leads'),
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                  className="flex items-center gap-2"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-accent flex-shrink-0" />
+                  <span className="font-medium">{item}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 

@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, ArrowLeft, Check, Package, Palette, Globe, FileText, Users, Search, Scale, CreditCard, Clock, Zap, Loader2 } from 'lucide-react';
+import { CheckCircle2, ArrowRight, ArrowLeft, Check, Package, Palette, Globe, FileText, Users, Search, Scale, CreditCard, Clock, Zap, Loader2, Briefcase, Target, Calendar, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,15 +8,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { PackageCompareModal } from '@/components/PackageCompareModal';
 import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
-// Edge function is used for Stripe checkout instead of static links
 
 type FormStep = 1 | 2 | 3 | 4 | 5;
+
+const BOOKING_ADDON_PRICE = 2000;
 
 const packages = [
   { id: 'starter', name: 'Starter', price: 4900, priceDisplay: '4 900 kr', pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, maxPages: 3, delivery: 14, booking: false, features: { sv: ['Responsiv design', 'Kontaktformulär', 'SEO-grundläggande', '1 revision'], en: ['Responsive design', 'Contact form', 'Basic SEO', '1 revision'] }, bestFor: { sv: 'Nya företag', en: 'New businesses' } },
@@ -25,11 +27,11 @@ const packages = [
 ];
 
 const styles = [
-  { id: 'minimal', name: 'Minimal' },
-  { id: 'luxury', name: 'Luxury' },
-  { id: 'bold', name: 'Bold' },
-  { id: 'playful', name: 'Playful' },
-  { id: 'corporate', name: 'Corporate' },
+  { id: 'minimal', name: 'Minimal', tooltip: { sv: 'Ren, mycket whitespace, modernt.', en: 'Clean, lots of whitespace, modern.' } },
+  { id: 'luxury', name: 'Luxury', tooltip: { sv: 'Premiumkänsla, elegant typografi, hög kontrast.', en: 'Premium feel, elegant typography, high contrast.' } },
+  { id: 'bold', name: 'Bold', tooltip: { sv: 'Starka rubriker, energifyllda sektioner.', en: 'Strong headlines, high energy sections.' } },
+  { id: 'playful', name: 'Playful', tooltip: { sv: 'Vänligt, färgglatt, mjukare ton.', en: 'Friendly, colorful, softer tone.' } },
+  { id: 'corporate', name: 'Corporate', tooltip: { sv: 'Professionellt, strukturerat, förtroendeingivande.', en: 'Professional, structured, trust-focused.' } },
 ];
 
 const languages = [
@@ -44,6 +46,34 @@ const carePlans = [
   { id: 'pro', name: 'Pro', monthlyPrice: 749, yearlyPrice: 599, features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Prioriterad support'], en: ['Everything in Standard', '3h edits/month', 'Priority support'] } },
 ];
 
+const businessTypes = [
+  { id: 'barber', label: { sv: 'Frisör / Barberare', en: 'Barber / Hair salon' } },
+  { id: 'nail', label: { sv: 'Nagelsalong', en: 'Nail salon' } },
+  { id: 'restaurant', label: { sv: 'Restaurang / Café', en: 'Restaurant / Café' } },
+  { id: 'gym', label: { sv: 'Gym / PT', en: 'Gym / PT' } },
+  { id: 'clinic', label: { sv: 'Klinik', en: 'Clinic' } },
+  { id: 'car', label: { sv: 'Bilverkstad', en: 'Car workshop' } },
+  { id: 'cleaning', label: { sv: 'Städtjänst', en: 'Cleaning service' } },
+  { id: 'realestate', label: { sv: 'Fastigheter', en: 'Real estate' } },
+  { id: 'retail', label: { sv: 'Butik', en: 'Retail store' } },
+  { id: 'other', label: { sv: 'Annat', en: 'Other' } },
+];
+
+const websiteGoals = [
+  { id: 'bookings', label: { sv: 'Få bokningar', en: 'Get bookings' } },
+  { id: 'calls', label: { sv: 'Få samtal', en: 'Get calls' } },
+  { id: 'leads', label: { sv: 'Få leads / offertförfrågningar', en: 'Get leads / quote requests' } },
+  { id: 'sell', label: { sv: 'Sälja online', en: 'Sell online' } },
+];
+
+const appointmentDurations = ['15', '30', '45', '60', '90', 'custom'];
+
+interface BookingService {
+  name: string;
+  duration: string;
+  price: string;
+}
+
 export default function DirectCheckoutPage() {
   const { t, lang } = useLanguage();
   const [step, setStep] = useState<FormStep>(1);
@@ -52,11 +82,14 @@ export default function DirectCheckoutPage() {
   const [showPackageCompare, setShowPackageCompare] = useState(false);
   const [showCarePlanCompare, setShowCarePlanCompare] = useState(false);
 
-  // Step 1: Contact info
+  // Step 1: Contact info + Business type
   const [businessName, setBusinessName] = useState('');
   const [contactPerson, setContactPerson] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [businessType, setBusinessType] = useState('');
+  const [businessTypeOther, setBusinessTypeOther] = useState('');
+  const [websiteGoal, setWebsiteGoal] = useState('');
 
   // Step 2: Package & Style
   const [selectedPackage, setSelectedPackage] = useState('standard');
@@ -64,6 +97,11 @@ export default function DirectCheckoutPage() {
   const [selectedLanguage, setSelectedLanguage] = useState('sv');
   const [wantsBooking, setWantsBooking] = useState<boolean | null>(null);
   const [bookingPlatform, setBookingPlatform] = useState('');
+  
+  // Color preferences
+  const [primaryColor, setPrimaryColor] = useState('');
+  const [accentColor, setAccentColor] = useState('');
+  const [noColorPreference, setNoColorPreference] = useState(false);
 
   // Step 3: Pages & Content
   const [selectedPages, setSelectedPages] = useState<string[]>([]);
@@ -71,6 +109,15 @@ export default function DirectCheckoutPage() {
   const [services, setServices] = useState('');
   const [noLogo, setNoLogo] = useState(false);
   const [useStock, setUseStock] = useState(false);
+
+  // Booking requirements (shown if wantsBooking === true)
+  const [openingHours, setOpeningHours] = useState('');
+  const [appointmentLengths, setAppointmentLengths] = useState<string[]>([]);
+  const [customAppointmentLength, setCustomAppointmentLength] = useState('');
+  const [bookingServices, setBookingServices] = useState<BookingService[]>([{ name: '', duration: '', price: '' }]);
+  const [bufferTime, setBufferTime] = useState('');
+  const [maxBookingsPerDay, setMaxBookingsPerDay] = useState('');
+  const [advanceBookingDays, setAdvanceBookingDays] = useState('');
 
   // Step 4: Care Plan
   const [selectedCarePlan, setSelectedCarePlan] = useState<string | null>('standard');
@@ -90,6 +137,10 @@ export default function DirectCheckoutPage() {
   const pkg = packages.find(p => p.id === selectedPackage);
   const carePlan = carePlans.find(c => c.id === selectedCarePlan);
   const carePlanPrice = carePlan ? (isYearlyCarePlan ? carePlan.yearlyPrice : carePlan.monthlyPrice) : 0;
+  
+  // Calculate booking add-on cost
+  const bookingAddonCost = wantsBooking && selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
+  const totalPackagePrice = (pkg?.price || 0) + bookingAddonCost;
 
   const pageOptions = [
     { id: 'home', label: { sv: 'Startsida', en: 'Home' } },
@@ -153,12 +204,40 @@ export default function DirectCheckoutPage() {
     setCustomPages(updated);
   };
 
+  // Booking services management
+  const addBookingService = () => {
+    setBookingServices([...bookingServices, { name: '', duration: '', price: '' }]);
+  };
+
+  const removeBookingService = (index: number) => {
+    if (bookingServices.length > 1) {
+      setBookingServices(bookingServices.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateBookingService = (index: number, field: keyof BookingService, value: string) => {
+    const updated = [...bookingServices];
+    updated[index] = { ...updated[index], [field]: value };
+    setBookingServices(updated);
+  };
+
+  const toggleAppointmentLength = (duration: string) => {
+    if (appointmentLengths.includes(duration)) {
+      setAppointmentLengths(appointmentLengths.filter(d => d !== duration));
+    } else {
+      setAppointmentLengths([...appointmentLengths, duration]);
+    }
+  };
+
   const validateStep1 = (): boolean => {
     const newErrors: Record<string, boolean> = {};
     if (!businessName.trim()) newErrors.businessName = true;
     if (!contactPerson.trim()) newErrors.contactPerson = true;
     if (!email.trim()) newErrors.email = true;
     if (!phone.trim()) newErrors.phone = true;
+    if (!businessType) newErrors.businessType = true;
+    if (businessType === 'other' && !businessTypeOther.trim()) newErrors.businessTypeOther = true;
+    if (!websiteGoal) newErrors.websiteGoal = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -167,6 +246,13 @@ export default function DirectCheckoutPage() {
     const newErrors: Record<string, boolean> = {};
     if (!selectedPackage) newErrors.package = true;
     if (!selectedStyle) newErrors.style = true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep3 = (): boolean => {
+    const newErrors: Record<string, boolean> = {};
+    if (!services.trim()) newErrors.services = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -180,6 +266,10 @@ export default function DirectCheckoutPage() {
       toast({ title: t('Välj paket och stil', 'Select package and style'), variant: 'destructive' });
       return;
     }
+    if (step === 3 && !validateStep3()) {
+      toast({ title: t('Fyll i dina tjänster och priser', 'Fill in your services and prices'), variant: 'destructive' });
+      return;
+    }
     setStep((s) => Math.min(s + 1, 5) as FormStep);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -187,6 +277,10 @@ export default function DirectCheckoutPage() {
   const handlePrevStep = () => {
     setStep((s) => Math.max(s - 1, 1) as FormStep);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const formatPrice = (price: number) => {
+    return price.toLocaleString('sv-SE').replace(/\s/g, ' ') + ' kr';
   };
 
   const handleSubmit = async () => {
@@ -200,20 +294,38 @@ export default function DirectCheckoutPage() {
       formData.append('contact_person', contactPerson);
       formData.append('email', email);
       formData.append('phone', phone);
+      formData.append('business_type', businessType === 'other' ? businessTypeOther : businessType);
+      formData.append('website_goal', websiteGoal);
       formData.append('selected_package', selectedPackage);
-      formData.append('package_price', pkg?.priceDisplay || '');
+      formData.append('package_price', formatPrice(totalPackagePrice));
       formData.append('selected_style', selectedStyle);
+      formData.append('primary_color', noColorPreference ? 'No preference' : primaryColor);
+      formData.append('accent_color', noColorPreference ? 'No preference' : accentColor);
       formData.append('selected_language', selectedLanguage);
       formData.append('wants_booking', String(wantsBooking));
+      formData.append('booking_addon_cost', wantsBooking && selectedPackage !== 'pro' ? formatPrice(BOOKING_ADDON_PRICE) : 'Included');
       formData.append('booking_platform', bookingPlatform);
       formData.append('selected_pages', selectedPages.join(', '));
       formData.append('custom_pages', customPages.filter(p => p.trim()).join(', '));
       formData.append('services', services);
       formData.append('no_logo', String(noLogo));
       formData.append('use_stock', String(useStock));
+      
+      // Booking requirements
+      if (wantsBooking) {
+        formData.append('opening_hours', openingHours);
+        formData.append('appointment_lengths', appointmentLengths.join(', ') + (customAppointmentLength ? `, ${customAppointmentLength}` : ''));
+        formData.append('booking_services', JSON.stringify(bookingServices.filter(s => s.name.trim())));
+        formData.append('buffer_time', bufferTime);
+        formData.append('max_bookings_per_day', maxBookingsPerDay);
+        formData.append('advance_booking_days', advanceBookingDays);
+      }
+      
       formData.append('selected_care_plan', selectedCarePlan || 'none');
       formData.append('care_plan_billing', isYearlyCarePlan ? 'yearly' : 'monthly');
-      formData.append('care_plan_price', carePlanPrice + ' kr/month');
+      formData.append('care_plan_price', isYearlyCarePlan 
+        ? `${carePlanPrice * 12} kr/år` 
+        : `${carePlanPrice} kr/mån`);
       formData.append('page_notes', pageNotes);
       formData.append('brand_preferences', brandPreferences);
       formData.append('competitors', competitors);
@@ -228,7 +340,7 @@ export default function DirectCheckoutPage() {
         headers: { 'Accept': 'application/json' },
       });
 
-      // Use edge function for Stripe checkout (same as working verification checkout)
+      // Use edge function for Stripe checkout
       const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
       if (!SUPABASE_URL) {
         throw new Error('Payment not configured');
@@ -247,6 +359,8 @@ export default function DirectCheckoutPage() {
           selectedLanguage,
           carePlanId: selectedCarePlan,
           isYearly: isYearlyCarePlan,
+          wantsBooking,
+          bookingAddonCost,
         }),
       });
 
@@ -296,11 +410,13 @@ export default function DirectCheckoutPage() {
               {t('Vi har mottagit din beställning och börjar arbeta direkt.', 'We have received your order and will start working immediately.')}
             </p>
             <div className="p-6 bg-accent/10 rounded-xl inline-block mb-8">
-              <p className="text-xl font-bold">{pkg?.name} — {pkg?.priceDisplay}</p>
+              <p className="text-xl font-bold">{pkg?.name} — {formatPrice(totalPackagePrice)}</p>
               <p className="text-muted-foreground">{t('Leverans inom', 'Delivery within')} {pkg?.delivery} {t('dagar', 'days')}</p>
               {carePlan && (
                 <p className="text-sm text-accent mt-2">
-                  + {carePlan.name} {t('vårdplan', 'care plan')}: {carePlanPrice} kr/mån
+                  + {carePlan.name} {t('vårdplan', 'care plan')}: {isYearlyCarePlan 
+                    ? `${carePlanPrice * 12} kr/${t('år', 'year')}`
+                    : `${carePlanPrice} kr/${t('mån', 'month')}`}
                 </p>
               )}
             </div>
@@ -354,7 +470,7 @@ export default function DirectCheckoutPage() {
           </div>
         </AnimatedSection>
 
-        {/* Step 1: Contact Info */}
+        {/* Step 1: Contact Info + Business Type + Goal */}
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div
@@ -388,6 +504,57 @@ export default function DirectCheckoutPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Business Type */}
+              <div className="p-6 bg-secondary/50 rounded-xl space-y-4 mt-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Briefcase className="w-5 h-5 text-accent" />
+                  <h2 className="font-semibold text-lg">{t('Företagstyp', 'Business type')} *</h2>
+                  <InfoTooltip content={t('Hjälper oss anpassa designen för din bransch.', 'Helps us tailor the design for your industry.')} />
+                </div>
+                <Select value={businessType} onValueChange={setBusinessType}>
+                  <SelectTrigger className={`h-12 ${errors.businessType ? 'border-destructive' : ''}`}>
+                    <SelectValue placeholder={t('Välj företagstyp', 'Select business type')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {businessTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.id}>
+                        {lang === 'sv' ? type.label.sv : type.label.en}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {businessType === 'other' && (
+                  <Input 
+                    value={businessTypeOther} 
+                    onChange={(e) => setBusinessTypeOther(e.target.value)} 
+                    placeholder={t('Beskriv din bransch...', 'Describe your industry...')} 
+                    className={`h-12 mt-2 ${errors.businessTypeOther ? 'border-destructive' : ''}`}
+                  />
+                )}
+              </div>
+
+              {/* Website Goal */}
+              <div className="p-6 bg-secondary/50 rounded-xl space-y-4 mt-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="w-5 h-5 text-accent" />
+                  <h2 className="font-semibold text-lg">{t('Vad ska din webbplats uppnå?', 'What should your website achieve?')} *</h2>
+                  <InfoTooltip content={t('Vi anpassar layout och CTA baserat på ditt mål.', 'We tailor layout and CTA based on your goal.')} />
+                </div>
+                <Select value={websiteGoal} onValueChange={setWebsiteGoal}>
+                  <SelectTrigger className={`h-12 ${errors.websiteGoal ? 'border-destructive' : ''}`}>
+                    <SelectValue placeholder={t('Välj huvudmål', 'Select main goal')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {websiteGoals.map((goal) => (
+                      <SelectItem key={goal.id} value={goal.id}>
+                        {lang === 'sv' ? goal.label.sv : goal.label.en}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="flex justify-end mt-6">
                 <Button size="lg" onClick={handleNextStep}>{t('Fortsätt', 'Continue')} <ArrowRight className="w-4 h-4" /></Button>
               </div>
@@ -421,7 +588,7 @@ export default function DirectCheckoutPage() {
                         setSelectedPackage(p.id);
                         // Reset booking if switching away from pro
                         if (p.id !== 'pro' && wantsBooking === true) {
-                          setWantsBooking(null);
+                          // Keep booking selection but show add-on pricing
                         }
                       }}
                       className={`p-6 rounded-xl border-2 text-left transition-all relative ${selectedPackage === p.id ? 'border-accent bg-accent/5 shadow-lg' : errors.package ? 'border-destructive' : 'border-border hover:border-accent/50'}`}
@@ -441,7 +608,7 @@ export default function DirectCheckoutPage() {
                 </div>
               </div>
 
-              {/* Style Selection */}
+              {/* Style Selection with tooltips */}
               <div className="mb-8">
                 <h2 className="font-semibold text-lg flex items-center gap-2 mb-4">
                   <Palette className="w-5 h-5 text-accent" />
@@ -452,11 +619,48 @@ export default function DirectCheckoutPage() {
                     <button
                       key={style.id}
                       onClick={() => setSelectedStyle(style.id)}
-                      className={`px-6 py-3 rounded-lg border-2 transition-all ${selectedStyle === style.id ? 'border-accent bg-accent/10' : errors.style ? 'border-destructive' : 'border-border hover:border-accent/50'}`}
+                      className={`px-6 py-3 rounded-lg border-2 transition-all flex items-center gap-2 ${selectedStyle === style.id ? 'border-accent bg-accent/10' : errors.style ? 'border-destructive' : 'border-border hover:border-accent/50'}`}
                     >
                       {style.name}
+                      <InfoTooltip content={lang === 'sv' ? style.tooltip.sv : style.tooltip.en} />
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Color Preferences */}
+              <div className="mb-8 p-6 bg-secondary/50 rounded-xl">
+                <div className="flex items-center gap-2 mb-4">
+                  <h2 className="font-semibold text-lg">{t('Färgpreferenser', 'Color preferences')}</h2>
+                  <InfoTooltip content={t('Färger används för knappar, highlights och varumärkeskänsla.', 'Colors are used for buttons, highlights, and brand feel.')} />
+                </div>
+                <div className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label>{t('Primärfärg', 'Primary color')}</Label>
+                      <Input 
+                        value={primaryColor} 
+                        onChange={(e) => setPrimaryColor(e.target.value)} 
+                        placeholder={t('t.ex. Mörkblå, #1a2b3c', 'e.g. Dark blue, #1a2b3c')} 
+                        className="h-12 mt-1"
+                        disabled={noColorPreference}
+                      />
+                    </div>
+                    <div>
+                      <Label>{t('Accentfärg', 'Accent color')}</Label>
+                      <Input 
+                        value={accentColor} 
+                        onChange={(e) => setAccentColor(e.target.value)} 
+                        placeholder={t('t.ex. Guld, #ffd700', 'e.g. Gold, #ffd700')} 
+                        className="h-12 mt-1"
+                        disabled={noColorPreference}
+                      />
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <Checkbox checked={noColorPreference} onCheckedChange={(c) => setNoColorPreference(c === true)} />
+                    <span className="text-sm">{t('Ingen preferens – Nomia väljer', 'No preference – Nomia chooses')}</span>
+                  </label>
                 </div>
               </div>
 
@@ -485,35 +689,39 @@ export default function DirectCheckoutPage() {
               {/* Booking */}
               <div className="mb-8 p-6 bg-secondary/50 rounded-xl">
                 <div className="flex items-center gap-2 mb-4">
+                  <Calendar className="w-5 h-5 text-accent" />
                   <h2 className="font-semibold text-lg">{t('Vill du ha ett bokningssystem?', 'Do you want a booking system?')}</h2>
-                  <InfoTooltip content={t('Vi skapar ditt helt egna bokningssystem integrerat med din webbplats. Integration med Bokadirekt, Calendly eller liknande.', 'We create your very own booking system integrated with your website. Integration with Bokadirekt, Calendly or similar.')} />
+                  <InfoTooltip content={t('Vi skapar ditt helt egna bokningssystem integrerat med din webbplats.', 'We create your very own booking system integrated with your website.')} />
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">{t('Vi skapar ditt helt egna bokningssystem.', 'We create your very own booking system.')}</p>
+                <p className="text-sm text-muted-foreground mb-2">
+                  {t('Bokningssystem tillägg:', 'Booking system add-on:')} <span className="font-semibold">{formatPrice(BOOKING_ADDON_PRICE)}</span> 
+                  {selectedPackage === 'pro' && <span className="text-accent ml-1">({t('ingår i Pro', 'included with Pro')})</span>}
+                </p>
                 <div className="flex gap-4 mb-4">
                   <button 
-                    onClick={() => {
-                      if (selectedPackage !== 'pro') {
-                        toast({
-                          title: t('Pro-paket krävs', 'Pro package required'),
-                          description: t('Bokningssystem ingår endast i Pro-paketet. Vill du uppgradera?', 'Booking system is only included in the Pro package. Would you like to upgrade?'),
-                        });
-                        setSelectedPackage('pro');
-                      }
-                      setWantsBooking(true);
-                    }} 
+                    onClick={() => setWantsBooking(true)} 
                     className={`px-6 py-3 rounded-lg border-2 transition-all ${wantsBooking === true ? 'border-accent bg-accent/10' : 'border-border'}`}
                   >
                     {t('Ja', 'Yes')}
-                    {selectedPackage !== 'pro' && <span className="ml-2 text-xs text-accent">{t('(kräver Pro)', '(requires Pro)')}</span>}
+                    {selectedPackage !== 'pro' && <span className="ml-2 text-xs text-muted-foreground">(+{formatPrice(BOOKING_ADDON_PRICE)})</span>}
+                    {selectedPackage === 'pro' && <span className="ml-2 text-xs text-accent">({t('ingår', 'included')})</span>}
                   </button>
                   <button onClick={() => setWantsBooking(false)} className={`px-6 py-3 rounded-lg border-2 transition-all ${wantsBooking === false ? 'border-accent bg-accent/10' : 'border-border'}`}>{t('Nej', 'No')}</button>
                 </div>
-                {wantsBooking && selectedPackage === 'pro' && (
+                {wantsBooking && (
                   <Input value={bookingPlatform} onChange={(e) => setBookingPlatform(e.target.value)} placeholder={t('Vilken bokningsplattform? (t.ex. Bokadirekt, Timely)', 'Which booking platform? (e.g. Calendly, Acuity)')} className="h-12" />
                 )}
                 {wantsBooking && selectedPackage !== 'pro' && (
-                  <div className="p-3 bg-accent/10 rounded-lg border border-accent/30">
-                    <p className="text-sm text-accent font-medium">{t('Du har uppgraderats till Pro för att inkludera bokningssystem.', 'You have been upgraded to Pro to include booking system.')}</p>
+                  <div className="p-3 bg-accent/10 rounded-lg border border-accent/30 mt-3">
+                    <p className="text-sm text-accent font-medium">
+                      {t('Bokningssystem läggs till för', 'Booking system added for')} {formatPrice(BOOKING_ADDON_PRICE)}. 
+                      <button 
+                        onClick={() => setSelectedPackage('pro')} 
+                        className="underline ml-1 hover:no-underline"
+                      >
+                        {t('Uppgradera till Pro för att inkludera det', 'Upgrade to Pro to include it')}
+                      </button>
+                    </p>
                   </div>
                 )}
               </div>
@@ -572,9 +780,22 @@ export default function DirectCheckoutPage() {
                 </div>
               </div>
 
+              {/* Services & Prices - REQUIRED */}
               <div className="p-6 bg-secondary/50 rounded-xl mb-6">
-                <Label>{t('Beskriv dina tjänster', 'Describe your services')}</Label>
-                <Textarea value={services} onChange={(e) => setServices(e.target.value)} placeholder={t('Vad erbjuder ditt företag?', 'What does your business offer?')} rows={3} className="mt-2" />
+                <div className="flex items-center gap-2 mb-2">
+                  <Label className={errors.services ? 'text-destructive' : ''}>{t('Tjänster & priser', 'Services & prices')} *</Label>
+                  <InfoTooltip content={t('Detta innehåll kommer användas på din webbplats. Lista dina tjänster med priser.', 'This content will be used on your website. List your services with prices.')} />
+                </div>
+                <Textarea 
+                  value={services} 
+                  onChange={(e) => setServices(e.target.value)} 
+                  placeholder={`${t('Exempel:', 'Example:')}
+Klippning – 350 kr
+Skägg – 200 kr
+Klippning + Skägg – 500 kr`}
+                  rows={5} 
+                  className={`mt-2 ${errors.services ? 'border-destructive' : ''}`}
+                />
               </div>
 
               <div className="p-6 bg-secondary/50 rounded-xl mb-6 space-y-4">
@@ -616,6 +837,133 @@ export default function DirectCheckoutPage() {
                   <span className="text-sm">{t('Använd stockbilder (jag har inga egna bilder)', 'Use stock images (I don\'t have my own images)')}</span>
                 </label>
               </div>
+
+              {/* Booking Requirements - Progressive disclosure */}
+              {wantsBooking && (
+                <div className="p-6 bg-accent/5 border border-accent/20 rounded-xl mb-6 space-y-6">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-accent" />
+                    <h3 className="font-semibold text-lg">{t('Bokningskrav', 'Booking requirements')}</h3>
+                    <InfoTooltip content={t('Information som behövs för att konfigurera ditt bokningssystem.', 'Information needed to configure your booking system.')} />
+                  </div>
+
+                  <div>
+                    <Label>{t('Öppettider', 'Opening hours')} *</Label>
+                    <Textarea 
+                      value={openingHours} 
+                      onChange={(e) => setOpeningHours(e.target.value)} 
+                      placeholder={`${t('Exempel:', 'Example:')}
+Mån-Fre: 09:00-18:00
+Lör: 10:00-15:00
+Sön: Stängt`}
+                      rows={4} 
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Label>{t('Tidsalternativ för bokningar', 'Appointment length options')}</Label>
+                      <InfoTooltip content={t('Välj vilka tidslängder kunder kan boka.', 'Choose which time lengths customers can book.')} />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {appointmentDurations.filter(d => d !== 'custom').map((duration) => (
+                        <button
+                          key={duration}
+                          onClick={() => toggleAppointmentLength(duration)}
+                          className={`px-4 py-2 rounded-lg border-2 text-sm transition-all ${appointmentLengths.includes(duration) ? 'border-accent bg-accent/10' : 'border-border hover:border-accent/50'}`}
+                        >
+                          {duration} min
+                        </button>
+                      ))}
+                    </div>
+                    <Input 
+                      value={customAppointmentLength} 
+                      onChange={(e) => setCustomAppointmentLength(e.target.value)} 
+                      placeholder={t('Annan längd (t.ex. 120 min)', 'Other length (e.g. 120 min)')} 
+                      className="h-10 mt-2"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Label>{t('Tjänster att boka', 'Services to book')}</Label>
+                      <InfoTooltip content={t('Lista tjänster som kan bokas med längd och pris.', 'List services that can be booked with duration and price.')} />
+                    </div>
+                    <div className="space-y-2">
+                      {bookingServices.map((service, index) => (
+                        <div key={index} className="flex gap-2 items-center">
+                          <Input 
+                            value={service.name} 
+                            onChange={(e) => updateBookingService(index, 'name', e.target.value)} 
+                            placeholder={t('Tjänstnamn', 'Service name')} 
+                            className="h-10 flex-1"
+                          />
+                          <Input 
+                            value={service.duration} 
+                            onChange={(e) => updateBookingService(index, 'duration', e.target.value)} 
+                            placeholder={t('Längd', 'Duration')} 
+                            className="h-10 w-24"
+                          />
+                          <Input 
+                            value={service.price} 
+                            onChange={(e) => updateBookingService(index, 'price', e.target.value)} 
+                            placeholder={t('Pris', 'Price')} 
+                            className="h-10 w-24"
+                          />
+                          {bookingServices.length > 1 && (
+                            <Button variant="ghost" size="icon" onClick={() => removeBookingService(index)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                      <Button variant="outline" size="sm" onClick={addBookingService}>
+                        <Plus className="w-4 h-4 mr-1" /> {t('Lägg till tjänst', 'Add service')}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div>
+                      <div className="flex items-center gap-1 mb-1">
+                        <Label className="text-sm">{t('Bufferttid', 'Buffer time')}</Label>
+                        <InfoTooltip content={t('Tid mellan bokningar.', 'Time between appointments.')} />
+                      </div>
+                      <Input 
+                        value={bufferTime} 
+                        onChange={(e) => setBufferTime(e.target.value)} 
+                        placeholder={t('t.ex. 15 min', 'e.g. 15 min')} 
+                        className="h-10"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1 mb-1">
+                        <Label className="text-sm">{t('Max/dag', 'Max/day')}</Label>
+                        <InfoTooltip content={t('Max antal bokningar per dag.', 'Max bookings per day.')} />
+                      </div>
+                      <Input 
+                        value={maxBookingsPerDay} 
+                        onChange={(e) => setMaxBookingsPerDay(e.target.value)} 
+                        placeholder={t('t.ex. 10', 'e.g. 10')} 
+                        className="h-10"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1 mb-1">
+                        <Label className="text-sm">{t('Förbokning', 'Advance booking')}</Label>
+                        <InfoTooltip content={t('Hur långt i förväg kan man boka?', 'How far in advance can one book?')} />
+                      </div>
+                      <Input 
+                        value={advanceBookingDays} 
+                        onChange={(e) => setAdvanceBookingDays(e.target.value)} 
+                        placeholder={t('t.ex. 30 dagar', 'e.g. 30 days')} 
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-between mt-6">
                 <Button variant="outline" onClick={handlePrevStep}><ArrowLeft className="w-4 h-4" /> {t('Tillbaka', 'Back')}</Button>
@@ -664,7 +1012,7 @@ export default function DirectCheckoutPage() {
                       {c.popular && <span className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">{t('Rekommenderas', 'Recommended')}</span>}
                       <h3 className="font-semibold text-xl mb-1">{c.name}</h3>
                       <div className="mb-4">
-                        <span className="text-xl font-bold text-accent">{price} kr/mån</span>
+                        <span className="text-xl font-bold text-accent">{price} kr/{isYearlyCarePlan ? t('mån', 'mo') : t('mån', 'mo')}</span>
                         {isYearlyCarePlan && (
                           <span className="ml-2 text-xs text-muted-foreground line-through">{c.monthlyPrice} kr/mån</span>
                         )}
@@ -809,19 +1157,50 @@ export default function DirectCheckoutPage() {
                       <span>{pkg?.name} {t('webbpaket', 'web package')}</span>
                       <span>{pkg?.priceDisplay}</span>
                     </div>
+                    {wantsBooking && selectedPackage !== 'pro' && (
+                      <div className="flex justify-between">
+                        <span>{t('Bokningssystem tillägg', 'Booking system add-on')}</span>
+                        <span>{formatPrice(BOOKING_ADDON_PRICE)}</span>
+                      </div>
+                    )}
+                    {wantsBooking && selectedPackage === 'pro' && (
+                      <div className="flex justify-between text-accent">
+                        <span>{t('Bokningssystem', 'Booking system')}</span>
+                        <span>{t('Ingår', 'Included')}</span>
+                      </div>
+                    )}
+                    {websiteGoal && (
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>{t('Huvudmål', 'Main goal')}</span>
+                        <span>{websiteGoals.find(g => g.id === websiteGoal)?.[lang === 'sv' ? 'label' : 'label'][lang] || websiteGoal}</span>
+                      </div>
+                    )}
                     {carePlan && (
                       <div className="flex justify-between">
-                        <span>{carePlan.name} {t('vårdplan', 'care plan')} ({isYearlyCarePlan ? t('årsvis', 'yearly') : t('månadsvis', 'monthly')})</span>
-                        <span>{carePlanPrice} kr/mån</span>
+                        <span>{carePlan.name} {t('vårdplan', 'care plan')}</span>
+                        <span>
+                          {isYearlyCarePlan 
+                            ? `${carePlanPrice * 12} kr/${t('år', 'year')}` 
+                            : `${carePlanPrice} kr/${t('mån', 'month')}`}
+                        </span>
                       </div>
+                    )}
+                    {carePlan && (
+                      <p className="text-xs text-muted-foreground italic">
+                        {isYearlyCarePlan 
+                          ? t('Faktureras årligen (spara 20%).', 'Billed yearly (save 20%).') 
+                          : t('Faktureras månadsvis.', 'Billed monthly.')}
+                      </p>
                     )}
                     <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
                       <span>{t('Totalt idag', 'Total today')}</span>
-                      <span className="text-accent">{pkg?.priceDisplay}</span>
+                      <span className="text-accent">{formatPrice(totalPackagePrice)}</span>
                     </div>
                     {carePlan && (
                       <p className="text-xs text-muted-foreground">
-                        + {carePlanPrice} kr/mån {t('börjar efter leverans', 'starts after delivery')}
+                        + {isYearlyCarePlan 
+                          ? `${carePlanPrice * 12} kr/${t('år', 'year')}` 
+                          : `${carePlanPrice} kr/${t('mån', 'month')}`} {t('börjar efter leverans', 'starts after delivery')}
                       </p>
                     )}
                   </div>
@@ -831,9 +1210,9 @@ export default function DirectCheckoutPage() {
                   <Button variant="outline" onClick={handlePrevStep}><ArrowLeft className="w-4 h-4" /> {t('Tillbaka', 'Back')}</Button>
                   <Button size="lg" onClick={handleSubmit} disabled={isLoading} className="flex-1">
                     {isLoading ? (
-                      <span className="flex items-center gap-2"><span className="animate-spin">⏳</span> {t('Bearbetar...', 'Processing...')}</span>
+                      <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> {t('Bearbetar...', 'Processing...')}</span>
                     ) : (
-                      <><CreditCard className="w-4 h-4" /> {t('Betala med Stripe', 'Pay with Stripe')} ({pkg?.priceDisplay})</>
+                      <><CreditCard className="w-4 h-4" /> {t('Betala med Stripe', 'Pay with Stripe')} ({formatPrice(totalPackagePrice)})</>
                     )}
                   </Button>
                 </div>
