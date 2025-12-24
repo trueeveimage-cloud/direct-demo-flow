@@ -14,7 +14,7 @@ import { AnimatedSection } from '@/components/AnimatedSection';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { PackageCompareModal } from '@/components/PackageCompareModal';
 import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
-import { getPackageStripeLink } from '@/config/stripe';
+// Edge function is used for Stripe checkout instead of static links
 
 type FormStep = 1 | 2 | 3 | 4 | 5;
 
@@ -228,16 +228,42 @@ export default function DirectCheckoutPage() {
         headers: { 'Accept': 'application/json' },
       });
 
-      // Open Stripe payment link
-      const stripeUrl = `${getPackageStripeLink(selectedPackage)}?prefilled_email=${encodeURIComponent(email)}`;
-      window.open(stripeUrl, '_blank');
-      
-      toast({ 
-        title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
-        description: t('Slutför betalningen i det nya fönstret.', 'Complete payment in the new window.') 
+      // Use edge function for Stripe checkout (same as working verification checkout)
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      if (!SUPABASE_URL) {
+        throw new Error('Payment not configured');
+      }
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/create-package-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageId: selectedPackage,
+          email,
+          businessName,
+          contactPerson,
+          phone,
+          selectedStyle,
+          selectedLanguage,
+          carePlanId: selectedCarePlan,
+          isYearly: isYearlyCarePlan,
+        }),
       });
-      
-      setSubmitted(true);
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.url) {
+        window.open(data.url, '_blank');
+        toast({ 
+          title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
+          description: t('Slutför betalningen i det nya fönstret.', 'Complete payment in the new window.') 
+        });
+        setSubmitted(true);
+      }
     } catch (error) {
       toast({ 
         title: t('Något gick fel', 'Something went wrong'), 
