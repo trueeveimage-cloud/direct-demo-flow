@@ -37,8 +37,8 @@ function sanitizeString(str: unknown, maxLength = 500): string {
   return str.slice(0, maxLength).replace(/[<>]/g, "");
 }
 
-// Verification fee price ID (500 kr one-time payment)
-const VERIFICATION_PRICE_ID = "price_1ShYw674JfaAfHsdlqzXE0fA"; // 500 kr
+// Verification fee price ID (500 kr one-time payment - "Downpayment" product)
+const VERIFICATION_PRICE_ID = "price_1Shc5O74JfaAfHsdSbkb0NTQ"; // 500 kr
 
 interface CheckoutRequest {
   email?: string;
