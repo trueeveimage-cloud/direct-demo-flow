@@ -124,6 +124,7 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
+      allow_promotion_codes: true,
       success_url: `${safeOrigin}/demo?success=true`,
       cancel_url: `${safeOrigin}/demo`,
       metadata: {
