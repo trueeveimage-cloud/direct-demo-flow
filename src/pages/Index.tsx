@@ -21,37 +21,41 @@ export default function Index() {
   } = useLanguage();
   const navigate = useNavigate();
   return <div className="overflow-hidden">
-      {/* Animated Gold Blur Background */}
+      {/* Gold Blur Background - Static on mobile, animated on desktop for performance */}
       <div className="fixed top-0 left-0 right-0 h-[600px] pointer-events-none z-0 overflow-hidden">
-        <motion.div className="absolute top-[-100px] left-[10%] w-[400px] h-[400px] bg-accent/20 rounded-full blur-[120px]" animate={{
-        x: [0, 100, -50, 0],
-        y: [0, 50, -30, 0],
-        scale: [1, 1.2, 0.9, 1]
-      }} transition={{
-        duration: 15,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }} />
-        <motion.div className="absolute top-[-50px] right-[15%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[100px]" animate={{
-        x: [0, -80, 60, 0],
-        y: [0, 80, -40, 0],
-        scale: [1, 0.8, 1.1, 1]
-      }} transition={{
-        duration: 12,
-        repeat: Infinity,
-        ease: "easeInOut",
-        delay: 2
-      }} />
-        <motion.div className="absolute top-[100px] left-[40%] w-[250px] h-[250px] bg-accent/10 rounded-full blur-[80px]" animate={{
-        x: [0, 60, -80, 0],
-        y: [0, -60, 40, 0],
-        scale: [1, 1.1, 0.95, 1]
-      }} transition={{
-        duration: 18,
-        repeat: Infinity,
-        ease: "easeInOut",
-        delay: 4
-      }} />
+        {/* Static blurs for mobile, animated for desktop */}
+        <div className="hidden md:block">
+          <motion.div 
+            className="absolute top-[-100px] left-[10%] w-[400px] h-[400px] bg-accent/20 rounded-full blur-[120px] will-change-transform" 
+            animate={{
+              x: [0, 100, -50, 0],
+              y: [0, 50, -30, 0],
+            }} 
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear"
+            }} 
+          />
+          <motion.div 
+            className="absolute top-[-50px] right-[15%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[100px] will-change-transform" 
+            animate={{
+              x: [0, -80, 60, 0],
+              y: [0, 80, -40, 0],
+            }} 
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "linear",
+              delay: 2
+            }} 
+          />
+        </div>
+        {/* Static blurs for mobile - no animation, better performance */}
+        <div className="md:hidden">
+          <div className="absolute top-[-100px] left-[10%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[80px]" />
+          <div className="absolute top-[-50px] right-[10%] w-[200px] h-[200px] bg-accent/10 rounded-full blur-[60px]" />
+        </div>
       </div>
 
       {/* Hero Logo - Clean, static */}
@@ -127,6 +131,14 @@ export default function Index() {
               </Link>
             </Button>
           </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mt-4 text-sm text-muted-foreground"
+          >
+            {t('Delbetala med Klarna', 'Pay in installments with Klarna')}
+          </motion.p>
           <motion.div initial={{
           opacity: 0
         }} animate={{
