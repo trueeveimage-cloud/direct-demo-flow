@@ -25,8 +25,9 @@ export function OrderSummary({
   const carePlan = carePlans.find(c => c.id === formData.selectedCarePlan);
   const carePlanPrice = carePlan ? (formData.isYearlyCarePlan ? carePlan.yearlyPrice : carePlan.monthlyPrice) : 0;
   
-  // Booking is now FREE for all packages
-  const packageTotal = pkg?.price || 0;
+  // Booking costs 2000kr except for Pro package where it's included
+  const bookingCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
+  const packageTotal = (pkg?.price || 0) + bookingCost;
   const totalToday = isPostDemoFlow ? packageTotal - VERIFICATION_FEE : packageTotal;
 
   const formatPrice = (price: number) => {
@@ -89,7 +90,7 @@ export function OrderSummary({
           </motion.div>
         )}
 
-        {/* Booking - now FREE */}
+        {/* Booking add-on - costs 2000kr or FREE for Pro */}
         <AnimatePresence>
           {formData.wantsBooking && (
             <motion.div
@@ -103,7 +104,10 @@ export function OrderSummary({
                 <span>{t('Bokningssystem', 'Booking system')}</span>
               </div>
               <span className="text-sm font-medium text-accent">
-                {t('GRATIS', 'FREE')}
+                {formData.selectedPackage === 'pro' 
+                  ? t('INGÅR', 'INCLUDED')
+                  : `+${formatPrice(BOOKING_ADDON_PRICE)}`
+                }
               </span>
             </motion.div>
           )}

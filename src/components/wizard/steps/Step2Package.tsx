@@ -232,8 +232,9 @@ export function Step2Package({ formData, setFormData, errors, onComparePackages 
           <InfoTooltip content={t('Vi skapar ditt helt egna bokningssystem integrerat med din webbplats.', 'We create your very own booking system integrated with your website.')} />
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          <span className="font-semibold text-accent">{t('GRATIS', 'FREE')}</span>
-          <span className="ml-2">– {t('Grundläggande bokningsfunktion ingår i alla paket', 'Basic booking functionality included in all packages')}</span>
+          <span className="font-semibold text-accent">+2 000 kr</span>
+          <span className="ml-2">– {t('Tillval för bokningsfunktion', 'Add-on for booking functionality')}</span>
+          <span className="block text-xs mt-1">{t('(Ingår GRATIS i Pro-paketet)', '(Included FREE in Pro package)')}</span>
         </p>
         <div className="flex gap-4">
           <motion.button 

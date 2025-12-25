@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Users, Briefcase, Target } from 'lucide-react';
+import { Users, Briefcase, Target, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,6 +11,7 @@ interface Step1ContactProps {
   formData: WizardFormData;
   setFormData: (data: WizardFormData) => void;
   errors: Record<string, boolean>;
+  showConceptOption?: boolean;
 }
 
 const sectionVariants = {
@@ -22,7 +23,7 @@ const sectionVariants = {
   })
 };
 
-export function Step1Contact({ formData, setFormData, errors }: Step1ContactProps) {
+export function Step1Contact({ formData, setFormData, errors, showConceptOption = false }: Step1ContactProps) {
   const { t, lang } = useLanguage();
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
@@ -31,9 +32,35 @@ export function Step1Contact({ formData, setFormData, errors }: Step1ContactProp
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
+      {/* Concept Link Option - only show in direct checkout */}
+      {showConceptOption && (
+        <motion.div
+          custom={0}
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
+          className="p-6 bg-accent/10 border border-accent/30 rounded-xl space-y-4"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <ExternalLink className="w-5 h-5 text-accent" />
+            <h2 className="font-semibold text-lg">{t('Har du fått ett concept?', 'Did you receive a concept?')}</h2>
+            <InfoTooltip content={t('Om du har fått en demo-länk från oss, klistra in den här.', 'If you received a demo link from us, paste it here.')} />
+          </div>
+          <Input 
+            value={formData.conceptLink || ''} 
+            onChange={(e) => updateField('conceptLink', e.target.value)} 
+            placeholder={t('Klistra in din concept-länk här...', 'Paste your concept link here...')} 
+            className="h-12 transition-all focus:ring-2 focus:ring-accent/20"
+          />
+          <p className="text-xs text-muted-foreground">
+            {t('Lämna tomt om du vill beställa utan att ha sett ett concept.', 'Leave empty if you want to order without having seen a concept.')}
+          </p>
+        </motion.div>
+      )}
+
       {/* Contact Info */}
       <motion.div
-        custom={0}
+        custom={showConceptOption ? 1 : 0}
         initial="hidden"
         animate="visible"
         variants={sectionVariants}
@@ -77,7 +104,7 @@ export function Step1Contact({ formData, setFormData, errors }: Step1ContactProp
               type="email" 
               value={formData.email} 
               onChange={(e) => updateField('email', e.target.value)} 
-              placeholder="namn@exempel.se" 
+              placeholder="name@example.com" 
               className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.email ? 'border-destructive animate-shake' : ''}`}
             />
           </div>
@@ -90,7 +117,7 @@ export function Step1Contact({ formData, setFormData, errors }: Step1ContactProp
               type="tel" 
               value={formData.phone} 
               onChange={(e) => updateField('phone', e.target.value)} 
-              placeholder="070 123 45 67" 
+              placeholder="+46 70 123 45 67" 
               className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.phone ? 'border-destructive animate-shake' : ''}`}
             />
           </div>
@@ -99,7 +126,7 @@ export function Step1Contact({ formData, setFormData, errors }: Step1ContactProp
 
       {/* Business Type */}
       <motion.div
-        custom={1}
+        custom={showConceptOption ? 2 : 1}
         initial="hidden"
         animate="visible"
         variants={sectionVariants}
@@ -140,7 +167,7 @@ export function Step1Contact({ formData, setFormData, errors }: Step1ContactProp
 
       {/* Website Goal */}
       <motion.div
-        custom={2}
+        custom={showConceptOption ? 3 : 2}
         initial="hidden"
         animate="visible"
         variants={sectionVariants}
@@ -163,6 +190,20 @@ export function Step1Contact({ formData, setFormData, errors }: Step1ContactProp
             ))}
           </SelectContent>
         </Select>
+        {formData.websiteGoal === 'other' && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            transition={{ duration: 0.2 }}
+          >
+            <Input 
+              value={formData.websiteGoalOther || ''} 
+              onChange={(e) => updateField('websiteGoalOther', e.target.value)} 
+              placeholder={t('Beskriv ditt mål...', 'Describe your goal...')} 
+              className="h-12 mt-2"
+            />
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );
