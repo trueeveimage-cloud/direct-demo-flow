@@ -151,6 +151,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
+      allow_promotion_codes: true,
       success_url: `${safeOrigin}/betalning-klar?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${safeOrigin}/betalning-avbruten`,
       metadata: {

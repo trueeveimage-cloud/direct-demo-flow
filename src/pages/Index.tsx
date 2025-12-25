@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Testimonials } from '@/components/Testimonials';
 import { TrustBadges } from '@/components/TrustBadges';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { motion } from 'framer-motion';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -20,54 +19,30 @@ import afterSwedenCarImg from '@/assets/after-swedencar.png';
 export default function Index() {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll();
-  
-  // Strong parallax transforms for hero logo - much greater effect, faster fade
-  const logoY = useTransform(scrollYProgress, [0, 0.08], [0, -120]);
-  const logoOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
-  const logoScale = useTransform(scrollYProgress, [0, 0.08], [1, 0.8]);
-  
-  // Background parallax - stronger effect
-  const heroY = useTransform(scrollYProgress, [0, 0.2], [0, -200]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
-  const bgCircle1Y = useTransform(scrollYProgress, [0, 1], [0, 500]);
-  const bgCircle2Y = useTransform(scrollYProgress, [0, 1], [0, -350]);
-
   return (
     <div className="overflow-hidden">
-      {/* Hero Logo - BIGGER with strong scroll parallax fade */}
+      {/* Hero Logo - Clean, static */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        style={{ y: logoY, opacity: logoOpacity, scale: logoScale }}
-        className="pt-16 pb-8 text-center"
+        className="pt-8 pb-4 text-center"
       >
-        <span className="font-heading font-bold text-7xl sm:text-8xl lg:text-9xl tracking-tighter">
+        <span className="font-heading font-bold text-5xl sm:text-6xl lg:text-7xl tracking-tighter">
           Nomia<span className="text-accent">.</span>
         </span>
       </motion.div>
 
-      {/* Hero Section - Full height, immersive with parallax */}
-      <section ref={heroRef} className="min-h-[65vh] flex items-center relative overflow-hidden">
-        {/* Animated parallax background */}
+      {/* Hero Section - Clean, no parallax */}
+      <section className="min-h-[55vh] flex items-center relative overflow-hidden">
+        {/* Static background */}
         <div className="absolute inset-0 pointer-events-none">
-          <motion.div 
-            className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-gradient-to-br from-accent/10 via-accent/5 to-transparent rounded-full blur-3xl"
-            style={{ y: bgCircle1Y }}
-          />
-          <motion.div 
-            className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-gradient-to-tr from-accent/8 via-transparent to-transparent rounded-full blur-3xl"
-            style={{ y: bgCircle2Y }}
-          />
+          <div className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-gradient-to-br from-accent/10 via-accent/5 to-transparent rounded-full blur-3xl" />
+          <div className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-gradient-to-tr from-accent/8 via-transparent to-transparent rounded-full blur-3xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] bg-gradient-radial from-accent/3 to-transparent rounded-full" />
         </div>
         
-        <motion.div 
-          className="container-narrow text-center relative z-10 section-padding py-20"
-          style={{ y: heroY, opacity: heroOpacity }}
-        >
+        <div className="container-narrow text-center relative z-10 section-padding py-16">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -82,26 +57,14 @@ export default function Index() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.1] tracking-tight"
+            className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.15] tracking-tight max-w-2xl mx-auto"
           >
-            {t('Webb-koncept', 'Website concept')}
+            {t('Skapa din hemsida.', 'Create your website.')}
             <br />
-            <span className="text-accent">
-              {t('på 72 timmar', 'in 72 hours')}
+            <span className="text-muted-foreground">
+              {t('Se hur din framtida webbsida kan se ut innan du betalar.', 'See how your future website can look before you pay.')}
             </span>
           </motion.h1>
-
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-8 text-lg sm:text-xl text-muted-foreground max-w-lg mx-auto"
-          >
-            {t(
-              'Se din framtida webbplats innan du bestämmer dig.',
-              'See your future website before you commit.'
-            )}
-          </motion.p>
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -134,7 +97,7 @@ export default function Index() {
               </Link>
             </Button>
           </motion.div>
-        </motion.div>
+        </div>
 
         {/* Scroll indicator */}
         <motion.div 
@@ -443,15 +406,12 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Monthly Care Teaser - Accent section with parallax */}
+      {/* Monthly Care Teaser - Accent section */}
       <section className="py-24 bg-background relative overflow-hidden">
-        <motion.div 
-          className="absolute inset-0 pointer-events-none"
-          style={{ y: useTransform(scrollYProgress, [0.5, 1], [0, -50]) }}
-        >
+        <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl" />
-        </motion.div>
+        </div>
         
         <motion.div 
           initial={{ opacity: 0, y: 40 }}

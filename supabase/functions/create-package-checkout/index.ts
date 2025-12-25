@@ -238,6 +238,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : email,
       line_items: lineItems,
       mode,
+      allow_promotion_codes: true,
       success_url: successUrl.toString(),
       cancel_url: `${safeOrigin}/betalning-avbruten`,
       metadata: {
