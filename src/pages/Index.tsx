@@ -154,28 +154,19 @@ export default function Index() {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
-        <motion.button onClick={() => {
-        const nextSection = document.querySelector('section:nth-of-type(2)');
-        if (nextSection) {
-          nextSection.scrollIntoView({
-            behavior: 'smooth'
-          });
-        } else {
-          window.scrollTo({
-            top: window.innerHeight * 0.6,
-            behavior: 'smooth'
-          });
-        }
-      }} className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer group" animate={{
-        y: [0, 10, 0]
-      }} transition={{
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }} aria-label="Scroll down">
-          
-        </motion.button>
+        {/* Scroll indicator - hidden on mobile for performance */}
+        <button 
+          onClick={() => {
+            const nextSection = document.querySelector('section:nth-of-type(2)');
+            if (nextSection) {
+              nextSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+              window.scrollTo({ top: window.innerHeight * 0.6, behavior: 'smooth' });
+            }
+          }} 
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer group hidden md:block" 
+          aria-label="Scroll down"
+        />
       </section>
 
       {/* Trust Badges */}

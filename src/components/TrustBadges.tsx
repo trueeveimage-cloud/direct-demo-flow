@@ -39,25 +39,15 @@ export function TrustBadges() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="flex items-center gap-3 group"
             >
-              <motion.div 
-                className="flex items-center gap-3 group"
-                animate={{ y: [0, -4, 0] }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: index * 0.5
-                }}
-              >
-                <div className="w-10 h-10 bg-accent-soft rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                  <badge.icon className="w-5 h-5 text-accent" />
-                </div>
-                <div>
-                  <p className="font-heading font-semibold text-sm">{badge.title}</p>
-                  <p className="text-xs text-muted-foreground">{badge.desc}</p>
-                </div>
-              </motion.div>
+              <div className="w-10 h-10 bg-accent-soft rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                <badge.icon className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <p className="font-heading font-semibold text-sm">{badge.title}</p>
+                <p className="text-xs text-muted-foreground">{badge.desc}</p>
+              </div>
             </motion.div>
           ))}
         </div>
