@@ -55,6 +55,9 @@ const PACKAGE_PRICES: Record<string, string> = {
   pro: "price_1ShYz774JfaAfHsdpobK6ORT",      // 12,900 kr
 };
 
+// Booking add-on price ID from Stripe (2,000 kr one-time)
+const BOOKING_ADDON_PRICE_ID = "price_1Shc5O74JfaAfHsdSbkb0NTQ"; // 2,000 kr booking add-on
+
 // Care plan price IDs from Stripe (subscriptions)
 const CARE_PLAN_PRICES: Record<string, { monthly: string; yearly: string }> = {
   basic: {
@@ -74,9 +77,21 @@ const CARE_PLAN_PRICES: Record<string, { monthly: string; yearly: string }> = {
 interface CheckoutRequest {
   packageId: string;
   email?: string;
+  businessName?: string;
+  contactPerson?: string;
+  phone?: string;
+  selectedStyle?: string;
+  selectedLanguage?: string;
   conceptLink?: string;
   carePlanId?: string;
   isYearly?: boolean;
+  wantsBooking?: boolean;
+  bookingAddonCost?: number;
+  businessType?: string;
+  websiteGoal?: string;
+  primaryColor?: string;
+  accentColor?: string;
+  services?: string;
 }
 
 serve(async (req) => {
@@ -141,8 +156,29 @@ serve(async (req) => {
     const conceptLink = sanitizeString(requestData.conceptLink, 2000);
     const carePlanId = isValidCarePlanId(requestData.carePlanId) ? requestData.carePlanId : undefined;
     const isYearly = requestData.isYearly === true;
+    const wantsBooking = requestData.wantsBooking === true;
+    const bookingAddonCost = typeof requestData.bookingAddonCost === "number" ? requestData.bookingAddonCost : 0;
+    
+    // Additional metadata fields
+    const businessName = sanitizeString(requestData.businessName, 200);
+    const contactPerson = sanitizeString(requestData.contactPerson, 200);
+    const phone = sanitizeString(requestData.phone, 50);
+    const selectedStyle = sanitizeString(requestData.selectedStyle, 50);
+    const selectedLanguage = sanitizeString(requestData.selectedLanguage, 20);
+    const businessType = sanitizeString(requestData.businessType, 100);
+    const websiteGoal = sanitizeString(requestData.websiteGoal, 100);
+    const primaryColor = sanitizeString(requestData.primaryColor, 50);
+    const accentColor = sanitizeString(requestData.accentColor, 50);
+    const services = sanitizeString(requestData.services, 2000);
 
-    console.log("[CREATE-PACKAGE-CHECKOUT] Request validated", { packageId, email: email ? "provided" : "none", carePlanId, isYearly });
+    console.log("[CREATE-PACKAGE-CHECKOUT] Request validated", { 
+      packageId, 
+      email: email ? "provided" : "none", 
+      carePlanId, 
+      isYearly,
+      wantsBooking,
+      bookingAddonCost
+    });
 
     const priceId = PACKAGE_PRICES[packageId];
 
@@ -167,6 +203,15 @@ serve(async (req) => {
         quantity: 1,
       },
     ];
+
+    // Add booking add-on if selected and not Pro package (Pro includes booking)
+    if (wantsBooking && packageId !== "pro" && bookingAddonCost > 0) {
+      lineItems.push({
+        price: BOOKING_ADDON_PRICE_ID,
+        quantity: 1,
+      });
+      console.log("[CREATE-PACKAGE-CHECKOUT] Added booking add-on to checkout", { bookingAddonCost });
+    }
 
     // Determine checkout mode - if care plan is selected, we need subscription mode
     let mode: "payment" | "subscription" = "payment";
@@ -200,6 +245,18 @@ serve(async (req) => {
         conceptLink: conceptLink || "",
         carePlanId: carePlanId || "",
         isYearly: String(isYearly),
+        wantsBooking: String(wantsBooking),
+        bookingAddonIncluded: packageId === "pro" ? "included" : (wantsBooking ? "addon" : "none"),
+        businessName,
+        contactPerson,
+        phone,
+        selectedStyle,
+        selectedLanguage,
+        businessType,
+        websiteGoal,
+        primaryColor,
+        accentColor,
+        services: services.slice(0, 500), // Stripe metadata limit
       },
     });
 
