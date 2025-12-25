@@ -11,23 +11,20 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 function detectLanguage(): Language {
-  // Check browser language
+  // Default to Swedish for this Swedish business
+  // Check if explicitly set to English via browser settings
   const browserLang = navigator.language || (navigator as any).userLanguage || '';
-  // If Swedish, return Swedish
-  if (browserLang.toLowerCase().startsWith('sv')) {
-    return 'sv';
+  if (browserLang.toLowerCase().startsWith('en')) {
+    // Only switch to English if explicitly English
+    return 'en';
   }
-  // Check timezone - Sweden is Europe/Stockholm
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  if (timezone === 'Europe/Stockholm') {
-    return 'sv';
-  }
-  // Default to English for non-Swedish users
-  return 'en';
+  // Default to Swedish
+  return 'sv';
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Language>(() => detectLanguage());
+  // Default to Swedish - this is a Swedish business
+  const [lang, setLang] = useState<Language>('sv');
 
   const t = (sv: string, en: string) => (lang === 'sv' ? sv : en);
 

@@ -137,9 +137,7 @@ export default function Index() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground"
           >
-            <svg className="w-12 h-5" viewBox="0 0 67 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6.34 0H0v16h6.34V0zM13.7 0c0 2.75-1.1 5.39-3.06 7.33l4.64 8.67H8.13l-4.65-8.67C5.43 5.39 6.52 2.75 6.52 0h7.18zM14.35 0v16h6.34V0h-6.34zM40.32 3.8c-.86-.86-2.03-1.33-3.28-1.33a4.65 4.65 0 00-4.65 4.65c0 2.57 2.08 4.65 4.65 4.65 1.25 0 2.42-.48 3.28-1.33v1.08h5.55V2.72h-5.55v1.08zm-2.15 4.07c-.82 0-1.49-.67-1.49-1.49s.67-1.49 1.49-1.49 1.49.67 1.49 1.49-.67 1.49-1.49 1.49zM53.72 2.47c-1.3 0-2.43.47-3.24 1.33V2.72h-5.55v8.8h5.76V7.7c0-.82.67-1.49 1.49-1.49s1.49.67 1.49 1.49v3.82h5.76V6.38c0-2.16-1.75-3.91-3.91-3.91h-1.8zM67 11.52V2.72h-5.55v8.8H67zM67 0h-5.55v1.85H67V0zM28.74 11.52V0h-5.55v11.52h5.55zM24.34 12.35a2.78 2.78 0 002.78 2.78 2.78 2.78 0 002.78-2.78h-5.56z" fill="currentColor"/>
-            </svg>
+            <span className="font-bold">Klarna</span>
             <span>{t('Delbetala enkelt', 'Easy installments')}</span>
           </motion.div>
           <motion.div initial={{
