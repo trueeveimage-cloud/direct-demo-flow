@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
-import { WizardFormData, packages, styles, languages, BOOKING_ADDON_PRICE } from '../wizardConfig';
+import { WizardFormData, packages, styles, languages } from '../wizardConfig';
 
 interface Step2PackageProps {
   formData: WizardFormData;
@@ -33,9 +33,6 @@ export function Step2Package({ formData, setFormData, errors, onComparePackages 
     setFormData({ ...formData, [field]: value });
   };
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString('sv-SE').replace(/\s/g, ' ') + ' kr';
-  };
 
   return (
     <div className="space-y-8">
@@ -235,8 +232,8 @@ export function Step2Package({ formData, setFormData, errors, onComparePackages 
           <InfoTooltip content={t('Vi skapar ditt helt egna bokningssystem integrerat med din webbplats.', 'We create your very own booking system integrated with your website.')} />
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          {t('Bokningssystem tillägg:', 'Booking system add-on:')} <span className="font-semibold">{formatPrice(BOOKING_ADDON_PRICE)}</span> 
-          {formData.selectedPackage === 'pro' && <span className="text-accent ml-1">({t('ingår i Pro', 'included with Pro')})</span>}
+          <span className="font-semibold text-accent">{t('GRATIS', 'FREE')}</span>
+          <span className="ml-2">– {t('Grundläggande bokningsfunktion ingår i alla paket', 'Basic booking functionality included in all packages')}</span>
         </p>
         <div className="flex gap-4">
           <motion.button 

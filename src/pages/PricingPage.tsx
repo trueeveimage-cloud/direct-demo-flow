@@ -130,34 +130,34 @@ export default function PricingPage() {
               </Button>
             </div>
           </AnimatedSection>
-          <div className="grid grid-cols-3 gap-2 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {packages.map((pkg, index) => (
               <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-                <div className={`relative p-3 sm:p-8 rounded-xl border-2 hover:shadow-xl transition-all duration-300 h-full flex flex-col ${pkg.popular ? 'border-accent bg-accent/5' : 'border-border bg-background hover:border-accent/50'}`}>
+                <div className={`relative p-4 sm:p-8 rounded-xl border-2 hover:shadow-xl transition-all duration-300 h-full flex flex-col ${pkg.popular ? 'border-accent bg-accent/5' : 'border-border bg-background hover:border-accent/50'}`}>
                   {pkg.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-[10px] sm:text-xs font-bold px-2 sm:px-4 py-1 rounded-full whitespace-nowrap">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
                       {t('Populärast', 'Most Popular')}
                     </span>
                   )}
-                  <h3 className="font-heading font-semibold text-base sm:text-2xl mb-1 sm:mb-2">{pkg.name}</h3>
-                  <p className="text-lg sm:text-3xl font-bold text-accent mb-0.5 sm:mb-1">{pkg.price}</p>
-                  <p className="text-[9px] sm:text-xs text-muted-foreground mb-1 sm:mb-2">{pkg.delivery}</p>
-                  <p className="text-[9px] sm:text-xs text-muted-foreground mb-2 sm:mb-4 line-clamp-2">{pkg.description}</p>
-                  <p className="text-[10px] sm:text-sm font-medium text-foreground mb-2 sm:mb-4">{pkg.pages}</p>
-                  <ul className="space-y-1.5 sm:space-y-3 mb-4 sm:mb-8 flex-grow">
+                  <h3 className="font-heading font-semibold text-xl sm:text-2xl mb-2">{pkg.name}</h3>
+                  <p className="text-2xl sm:text-3xl font-bold text-accent mb-1">{pkg.price}</p>
+                  <p className="text-xs text-muted-foreground mb-2">{pkg.delivery}</p>
+                  <p className="text-sm text-muted-foreground mb-3 sm:mb-4">{pkg.description}</p>
+                  <p className="text-sm font-medium text-foreground mb-3 sm:mb-4">{pkg.pages}</p>
+                  <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8 flex-grow">
                     {pkg.features.map((feature, i) => {
                       const tooltip = getTooltip(feature.key, lang);
                       return (
-                        <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[9px] sm:text-sm">
-                          <Check className="w-3 h-3 sm:w-4 sm:h-4 text-accent flex-shrink-0 mt-0.5" />
-                          <span className="leading-tight flex items-center gap-1">
+                        <li key={i} className="flex items-start gap-2 sm:gap-3 text-sm">
+                          <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                          <span className="leading-tight flex items-center gap-1 flex-wrap">
                             {feature.text}
                             {tooltip && (
                               <TooltipProvider delayDuration={0}>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <button type="button" className="inline-flex items-center justify-center w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors">
-                                      <Info className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-muted-foreground" />
+                                    <button type="button" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors">
+                                      <Info className="w-3 h-3 text-muted-foreground" />
                                     </button>
                                   </TooltipTrigger>
                                   <TooltipContent side="top" className="max-w-xs p-2">
@@ -172,10 +172,10 @@ export default function PricingPage() {
                     })}
                   </ul>
                   <div className="space-y-2">
-                    <Button asChild variant={pkg.popular ? 'default' : 'outline'} className="w-full text-[10px] sm:text-sm h-8 sm:h-10">
+                    <Button asChild variant={pkg.popular ? 'default' : 'outline'} className="w-full text-sm h-10">
                       <Link to="/demo">{t('Få koncept', 'Get concept')}</Link>
                     </Button>
-                    <Button asChild variant="ghost" className="w-full text-[10px] sm:text-sm h-8 sm:h-10">
+                    <Button asChild variant="ghost" className="w-full text-sm h-10">
                       <Link to="/bestall">{t('Beställ direkt', 'Order directly')}</Link>
                     </Button>
                   </div>
@@ -228,29 +228,29 @@ export default function PricingPage() {
               {t('Avsluta när du vill.', 'Cancel anytime.')}
             </p>
           </AnimatedSection>
-          <div className="grid grid-cols-3 gap-2 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {carePlans.map((plan, index) => (
               <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-                <div className={`p-3 sm:p-8 rounded-xl border-2 hover:shadow-xl transition-all duration-300 h-full relative flex flex-col ${plan.popular ? 'border-accent bg-accent/5' : 'border-border bg-background hover:border-accent/50'}`}>
+                <div className={`p-4 sm:p-8 rounded-xl border-2 hover:shadow-xl transition-all duration-300 h-full relative flex flex-col ${plan.popular ? 'border-accent bg-accent/5' : 'border-border bg-background hover:border-accent/50'}`}>
                   {plan.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-[10px] sm:text-xs font-bold px-2 sm:px-4 py-1 rounded-full whitespace-nowrap">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
                       {t('Rekommenderas', 'Recommended')}
                     </span>
                   )}
-                  <h3 className="font-heading font-semibold text-base sm:text-2xl mb-1 sm:mb-2">{plan.name}</h3>
-                  <div className="mb-1 sm:mb-2">
-                    <span className="text-lg sm:text-2xl font-bold text-accent">{getCarePlanPrice(plan)}</span>
+                  <h3 className="font-heading font-semibold text-xl sm:text-2xl mb-2">{plan.name}</h3>
+                  <div className="mb-2">
+                    <span className="text-xl sm:text-2xl font-bold text-accent">{getCarePlanPrice(plan)}</span>
                     {isYearly && (
                       <span className="ml-2 text-xs text-muted-foreground line-through">
                         {plan.monthlyPrice} kr/mån
                       </span>
                     )}
                   </div>
-                  <p className="text-[9px] sm:text-xs text-muted-foreground mb-3 sm:mb-4 line-clamp-2">{plan.description}</p>
-                  <ul className="space-y-1.5 sm:space-y-3 flex-grow">
+                  <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
+                  <ul className="space-y-2 sm:space-y-3 flex-grow">
                     {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-1.5 sm:gap-3 text-[9px] sm:text-sm">
-                        <Check className="w-3 h-3 sm:w-4 sm:h-4 text-accent flex-shrink-0 mt-0.5" />
+                      <li key={i} className="flex items-start gap-2 sm:gap-3 text-sm">
+                        <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                         <span className="leading-tight">{feature}</span>
                       </li>
                     ))}
