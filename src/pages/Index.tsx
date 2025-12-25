@@ -21,12 +21,43 @@ export default function Index() {
   const navigate = useNavigate();
   return (
     <div className="overflow-hidden">
+      {/* Animated Gold Blur Background */}
+      <div className="fixed top-0 left-0 right-0 h-[600px] pointer-events-none z-0 overflow-hidden">
+        <motion.div 
+          className="absolute top-[-100px] left-[10%] w-[400px] h-[400px] bg-accent/20 rounded-full blur-[120px]"
+          animate={{ 
+            x: [0, 100, -50, 0],
+            y: [0, 50, -30, 0],
+            scale: [1, 1.2, 0.9, 1]
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute top-[-50px] right-[15%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[100px]"
+          animate={{ 
+            x: [0, -80, 60, 0],
+            y: [0, 80, -40, 0],
+            scale: [1, 0.8, 1.1, 1]
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
+        <motion.div 
+          className="absolute top-[100px] left-[40%] w-[250px] h-[250px] bg-accent/10 rounded-full blur-[80px]"
+          animate={{ 
+            x: [0, 60, -80, 0],
+            y: [0, -60, 40, 0],
+            scale: [1, 1.1, 0.95, 1]
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+        />
+      </div>
+
       {/* Hero Logo - Clean, static */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="pt-8 pb-4 text-center"
+        className="pt-8 pb-4 text-center relative z-10"
       >
         <span className="font-heading font-bold text-5xl sm:text-6xl lg:text-7xl tracking-tighter">
           Nomia<span className="text-accent">.</span>
@@ -35,13 +66,6 @@ export default function Index() {
 
       {/* Hero Section - Clean, no parallax */}
       <section className="min-h-[55vh] flex items-center relative overflow-hidden">
-        {/* Static background */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-gradient-to-br from-accent/10 via-accent/5 to-transparent rounded-full blur-3xl" />
-          <div className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-gradient-to-tr from-accent/8 via-transparent to-transparent rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] bg-gradient-radial from-accent/3 to-transparent rounded-full" />
-        </div>
-        
         <div className="container-narrow text-center relative z-10 section-padding py-16">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -91,11 +115,9 @@ export default function Index() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="mt-4"
           >
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              <Link to="/efter-demo">
-                {t('Har du fått ditt koncept?', 'Have you received your concept?')}
-              </Link>
-            </Button>
+            <Link to="/efter-demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              {t('Har du fått ditt koncept?', 'Have you received your concept?')}
+            </Link>
           </motion.div>
         </div>
 
@@ -117,148 +139,6 @@ export default function Index() {
 
       {/* Trust Badges */}
       <TrustBadges />
-
-      {/* 3-Step Process - Staggered layout with scroll animations */}
-      <section className="py-32 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent pointer-events-none" />
-        
-        <div className="container-wide section-padding relative">
-          <motion.h2 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="text-3xl sm:text-4xl font-bold text-center mb-20"
-          >
-            {t('Så här fungerar det', 'How it works')}
-          </motion.h2>
-
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-            {[
-              {
-                icon: FileText,
-                step: '01',
-                title: t('Välj paket & stil', 'Choose package & style'),
-                desc: t('Berätta om ditt företag och välj riktning.', 'Tell us about your business and choose direction.'),
-              },
-              {
-                icon: Shield,
-                step: '02',
-                title: t('Bekräfta din plats', 'Confirm your slot'),
-                desc: t('Boka en prioritetsplats, helt återbetalningsbar.', 'Book a priority slot, fully refundable.'),
-              },
-              {
-                icon: Zap,
-                step: '03',
-                title: t('Få koncept inom 72h', 'Get concept in 72h'),
-                desc: t('Granska och bestäm om du vill fortsätta.', 'Review and decide if you want to proceed.'),
-              },
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.6, delay: index * 0.15 }}
-                className="relative group"
-                style={{ marginTop: index === 1 ? '2rem' : index === 2 ? '4rem' : '0' }}
-              >
-                <div className="absolute -inset-4 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <motion.div 
-                  className="relative p-8 bg-background/50 backdrop-blur-sm rounded-xl border border-border/50 hover:border-accent/30 transition-all duration-500"
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <span className="text-6xl font-bold text-accent/10 absolute top-4 right-4">
-                    {item.step}
-                  </span>
-                  <item.icon className="w-10 h-10 text-accent mb-6" />
-                  <h3 className="font-heading font-semibold text-xl mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.desc}</p>
-                </motion.div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What You Get - Minimal list */}
-      <section className="py-24">
-        <div className="container-narrow section-padding">
-          <motion.h2 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="text-3xl sm:text-4xl font-bold text-center mb-16"
-          >
-            {t('Vad ingår', 'What\'s included')}
-          </motion.h2>
-
-          <div className="grid sm:grid-cols-2 gap-6 max-w-xl mx-auto">
-            {[
-              t('Startsida + undersida', 'Home + inner page'),
-              t('Varumärkesriktning', 'Brand direction'),
-              t('1 revision', '1 revision'),
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.03, x: 5 }}
-                className="flex items-center gap-4 p-4 rounded-lg border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 cursor-default"
-              >
-                <CheckCircle2 className="w-5 h-5 text-accent flex-shrink-0" />
-                <span className="font-medium">{item}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <Testimonials />
-
-      {/* Value Proposition - Premium section */}
-      <section className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent pointer-events-none" />
-        
-        <div className="container-narrow section-padding relative">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-8">
-              {t('För dig som vill ha en hemsida som faktiskt säljer', 'For those who want a website that actually sells')}
-            </h2>
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-8">
-              {[
-                t('Tydlig design', 'Clear design'),
-                t('Snabb leverans', 'Fast delivery'),
-                t('Fast pris', 'Fixed price'),
-                t('Fokuserad på bokningar eller leads', 'Focused on bookings or leads'),
-              ].map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.1 }}
-                  className="flex items-center gap-2"
-                >
-                  <CheckCircle2 className="w-5 h-5 text-accent flex-shrink-0" />
-                  <span className="font-medium">{item}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
       {/* Before/After Transformation Section */}
       <section className="py-24 relative overflow-hidden">
@@ -337,14 +217,126 @@ export default function Index() {
               <span className="font-semibold text-foreground">Sweden Car AB</span> — {t('Från gammaldags till modernt och professionellt', 'From outdated to modern and professional')}
             </p>
             <Button asChild variant="outline" className="group">
-              <a href="https://premium-car-boutique.lovable.app/" target="_blank" rel="noopener noreferrer">
-                {t('Se live-sidan', 'View live site')}
+              <Link to="/portfolio">
+                {t('Se fler exempel', 'See more examples')}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </a>
+              </Link>
             </Button>
           </motion.div>
         </div>
       </section>
+
+      {/* 3-Step Process - Staggered layout with scroll animations */}
+      <section className="py-32 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent pointer-events-none" />
+        
+        <div className="container-wide section-padding relative">
+          <motion.h2 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl sm:text-4xl font-bold text-center mb-20"
+          >
+            {t('Så här fungerar det', 'How it works')}
+          </motion.h2>
+
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            {[
+              {
+                icon: FileText,
+                step: '01',
+                title: t('Välj paket & stil', 'Choose package & style'),
+                desc: t('Berätta om ditt företag och välj riktning.', 'Tell us about your business and choose direction.'),
+              },
+              {
+                icon: Shield,
+                step: '02',
+                title: t('Bekräfta din plats', 'Confirm your slot'),
+                desc: t('Boka en prioritetsplats, helt återbetalningsbar.', 'Book a priority slot, fully refundable.'),
+              },
+              {
+                icon: Zap,
+                step: '03',
+                title: t('Få koncept inom 72h', 'Get concept in 72h'),
+                desc: t('Granska och bestäm om du vill fortsätta.', 'Review and decide if you want to proceed.'),
+              },
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: index * 0.15 }}
+                className="relative group"
+                style={{ marginTop: index === 1 ? '2rem' : index === 2 ? '4rem' : '0' }}
+              >
+                <div className="absolute -inset-4 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <motion.div 
+                  className="relative p-8 bg-background/50 backdrop-blur-sm rounded-xl border border-border/50 hover:border-accent/30 transition-all duration-500"
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <span className="text-6xl font-bold text-accent/10 absolute top-4 right-4">
+                    {item.step}
+                  </span>
+                  <item.icon className="w-10 h-10 text-accent mb-6" />
+                  <h3 className="font-heading font-semibold text-xl mb-3">{item.title}</h3>
+                  <p className="text-muted-foreground">{item.desc}</p>
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Vad du får - Benefits section */}
+      <section className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent pointer-events-none" />
+        
+        <div className="container-narrow section-padding relative">
+          <motion.h2 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl sm:text-4xl font-bold text-center mb-12"
+          >
+            {t('Vad du får', 'What you get')}
+          </motion.h2>
+
+          <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            {[
+              { title: t('Tydlig design', 'Clear design'), desc: t('Modern, professionell och fokuserad på konvertering.', 'Modern, professional and focused on conversion.') },
+              { title: t('Snabb leverans', 'Fast delivery'), desc: t('Första koncept inom 72 timmar, garanterat.', 'First concept within 72 hours, guaranteed.') },
+              { title: t('Fler bokningar', 'More bookings'), desc: t('Optimerad för att få kunder att boka eller kontakta dig.', 'Optimized to get customers to book or contact you.') },
+              { title: t('Fast pris', 'Fixed price'), desc: t('Inga dolda avgifter eller överraskningar.', 'No hidden fees or surprises.') },
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="p-6 rounded-xl border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <CheckCircle2 className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
+                    <p className="text-muted-foreground text-sm">{item.desc}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <Testimonials />
+
+
 
       {/* Portfolio Preview - Full width, layered */}
       <section className="py-24 bg-secondary/30 relative overflow-hidden">
