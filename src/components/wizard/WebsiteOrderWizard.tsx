@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowLeft, CheckCircle2, Loader2, Zap, RotateCcw } from 'lucide-react';
@@ -36,7 +36,7 @@ interface WebsiteOrderWizardProps {
 
 const stepVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 100 : -100,
+    x: direction > 0 ? 50 : -50,
     opacity: 0,
   }),
   center: {
@@ -44,12 +44,12 @@ const stepVariants = {
     opacity: 1,
   },
   exit: (direction: number) => ({
-    x: direction < 0 ? 100 : -100,
+    x: direction < 0 ? 50 : -50,
     opacity: 0,
   }),
 };
 
-export function WebsiteOrderWizard({ 
+function WebsiteOrderWizardComponent({ 
   isPostDemoFlow = false, 
   conceptLink = '',
   onComplete 
@@ -86,18 +86,18 @@ export function WebsiteOrderWizard({
     sessionStorage.setItem(SESSION_KEY, 'true');
   }, []);
 
-  // Auto-save on form data change
+  // Debounced auto-save
   const saveData = useCallback(() => {
     const toSave = { ...formData, step, lastSaved: Date.now() };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   }, [formData, step]);
 
   useEffect(() => {
-    const timer = setTimeout(saveData, 500);
+    const timer = setTimeout(saveData, 1000); // Increased debounce
     return () => clearTimeout(timer);
   }, [formData, step, saveData]);
 
-  const loadSavedData = () => {
+  const loadSavedData = useCallback(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
@@ -105,14 +105,14 @@ export function WebsiteOrderWizard({
       setStep(parsed.step || 1);
     }
     setShowResumeBanner(false);
-  };
+  }, [conceptLink]);
 
-  const clearSavedData = () => {
+  const clearSavedData = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setFormData({ ...initialFormData, conceptLink });
     setStep(1);
     setShowResumeBanner(false);
-  };
+  }, [conceptLink]);
 
   const validateStep1 = (): boolean => {
     const newErrors: Record<string, boolean> = {};
@@ -131,6 +131,7 @@ export function WebsiteOrderWizard({
     const newErrors: Record<string, boolean> = {};
     if (!formData.selectedPackage) newErrors.package = true;
     if (!formData.selectedStyle) newErrors.style = true;
+    if (formData.selectedLanguage === 'custom' && !formData.customLanguages.trim()) newErrors.customLanguages = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -142,7 +143,7 @@ export function WebsiteOrderWizard({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = useCallback(() => {
     if (step === 1 && !validateStep1()) {
       toast({ title: t('Fyll i alla obligatoriska fält', 'Fill in all required fields'), variant: 'destructive' });
       return;
@@ -158,13 +159,13 @@ export function WebsiteOrderWizard({
     setDirection(1);
     setStep((s) => Math.min(s + 1, 5) as FormStep);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [step, formData, t]);
 
-  const handlePrevStep = () => {
+  const handlePrevStep = useCallback(() => {
     setDirection(-1);
     setStep((s) => Math.max(s - 1, 1) as FormStep);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
   const formatPrice = (price: number) => {
     return price.toLocaleString('sv-SE').replace(/\s/g, ' ') + ' kr';
@@ -175,7 +176,6 @@ export function WebsiteOrderWizard({
     
     try {
       const pkg = packages.find(p => p.id === formData.selectedPackage);
-      // Booking costs 2000kr except for Pro package
       const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
       const totalPackagePrice = (pkg?.price || 0) + bookingAddonCost;
 
@@ -193,7 +193,7 @@ export function WebsiteOrderWizard({
       formDataPayload.append('selected_style', formData.selectedStyle);
       formDataPayload.append('primary_color', formData.noColorPreference ? 'No preference' : formData.primaryColor);
       formDataPayload.append('accent_color', formData.noColorPreference ? 'No preference' : formData.accentColor);
-      formDataPayload.append('selected_language', formData.selectedLanguage);
+      formDataPayload.append('selected_language', formData.selectedLanguage === 'custom' ? formData.customLanguages : formData.selectedLanguage);
       formDataPayload.append('wants_booking', String(formData.wantsBooking));
       formDataPayload.append('booking_addon_cost', bookingAddonCost > 0 ? `+${bookingAddonCost} kr` : 'Included');
       formDataPayload.append('selected_pages', formData.selectedPages.join(', '));
@@ -201,6 +201,13 @@ export function WebsiteOrderWizard({
       formDataPayload.append('services', formData.services);
       formDataPayload.append('no_logo', String(formData.noLogo));
       formDataPayload.append('use_stock', String(formData.useStock));
+      formDataPayload.append('business_followups', JSON.stringify(formData.businessFollowUps));
+      formDataPayload.append('wants_google_maps', String(formData.wantsGoogleMaps));
+      formDataPayload.append('google_maps_address', formData.googleMapsAddress);
+      formDataPayload.append('wants_google_reviews', String(formData.wantsGoogleReviews));
+      formDataPayload.append('google_business_link', formData.googleBusinessLink);
+      formDataPayload.append('wants_before_after', String(formData.wantsBeforeAfter));
+      formDataPayload.append('wants_checkout_system', String(formData.wantsCheckoutSystem));
       
       if (formData.wantsBooking) {
         formDataPayload.append('opening_hours', formData.openingHours);
@@ -247,7 +254,7 @@ export function WebsiteOrderWizard({
           contactPerson: formData.contactPerson,
           phone: formData.phone,
           selectedStyle: formData.selectedStyle,
-          selectedLanguage: formData.selectedLanguage,
+          selectedLanguage: formData.selectedLanguage === 'custom' ? formData.customLanguages : formData.selectedLanguage,
           carePlanId: formData.selectedCarePlan,
           isYearly: formData.isYearlyCarePlan,
           wantsBooking: formData.wantsBooking,
@@ -274,6 +281,7 @@ export function WebsiteOrderWizard({
         onComplete?.();
       }
     } catch (error) {
+      console.error('Checkout error:', error);
       toast({ 
         title: t('Något gick fel', 'Something went wrong'), 
         description: t('Försök igen senare.', 'Please try again later.'), 
@@ -284,7 +292,7 @@ export function WebsiteOrderWizard({
     }
   };
 
-  const pkg = packages.find(p => p.id === formData.selectedPackage);
+  const pkg = useMemo(() => packages.find(p => p.id === formData.selectedPackage), [formData.selectedPackage]);
 
   if (submitted) {
     return (
@@ -390,7 +398,7 @@ export function WebsiteOrderWizard({
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
             >
               {step === 1 && (
                 <Step1Contact formData={formData} setFormData={setFormData} errors={errors} showConceptOption={!isPostDemoFlow} />
@@ -467,32 +475,41 @@ export function WebsiteOrderWizard({
           </div>
         </div>
 
-        {/* Mobile Order Summary - Sticky Bottom - add padding to main content */}
-        <div className="lg:hidden h-28" /> {/* Spacer for mobile sticky bar */}
+        {/* Mobile: Show minimal info only on final step */}
+        <div className="lg:hidden h-20" />
         <motion.div 
           initial={{ y: 100 }}
           animate={{ y: 0 }}
           className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-md border-t z-50"
         >
           <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
-            <div className="flex-shrink-0">
-              <p className="text-xs text-muted-foreground">{t('Totalt', 'Total')}</p>
-              <p className="text-lg font-bold">
-                {formatPrice(
-                  (pkg?.price || 0) + 
-                  (formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0) -
-                  (isPostDemoFlow ? VERIFICATION_FEE : 0)
-                )}
-              </p>
-            </div>
-            {step === 5 ? (
-              <Button size="lg" onClick={handleSubmit} disabled={isLoading} className="flex-1 max-w-[160px]">
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('Betala', 'Pay')}
-              </Button>
+            {step === 5 && pkg ? (
+              // Final step: show total
+              <>
+                <div className="flex-shrink-0">
+                  <p className="text-xs text-muted-foreground">{t('Totalt', 'Total')}</p>
+                  <p className="text-lg font-bold">
+                    {formatPrice(
+                      (pkg?.price || 0) + 
+                      (formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0) -
+                      (isPostDemoFlow ? VERIFICATION_FEE : 0)
+                    )}
+                  </p>
+                </div>
+                <Button size="lg" onClick={handleSubmit} disabled={isLoading} className="flex-1 max-w-[160px]">
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('Betala', 'Pay')}
+                </Button>
+              </>
             ) : (
-              <Button size="lg" onClick={handleNextStep} className="flex-1 max-w-[160px]">
-                {t('Fortsätt', 'Continue')} <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+              // Other steps: just continue button
+              <>
+                <div className="flex-shrink-0 text-sm text-muted-foreground">
+                  {t('Steg', 'Step')} {step}/5
+                </div>
+                <Button size="lg" onClick={handleNextStep} className="flex-1 max-w-[180px]">
+                  {t('Fortsätt', 'Continue')} <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </>
             )}
           </div>
         </motion.div>
@@ -500,3 +517,5 @@ export function WebsiteOrderWizard({
     </div>
   );
 }
+
+export const WebsiteOrderWizard = memo(WebsiteOrderWizardComponent);
