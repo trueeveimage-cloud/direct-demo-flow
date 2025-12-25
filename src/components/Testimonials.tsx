@@ -4,29 +4,29 @@ import { AnimatedSection } from './AnimatedSection';
 
 const testimonials = [
   {
-    name: 'Anna Lindberg',
-    business: { sv: 'Salong Glow', en: 'Salon Glow' },
+    name: 'Gail',
+    business: { sv: "Gail's Hair", en: "Gail's Hair" },
     quote: {
-      sv: 'Fantastisk service! Fick min demo inom 48 timmar och webbplatsen var precis som jag hade föreställt mig. Bokningarna har ökat med 40% sedan lanseringen.',
-      en: 'Amazing service! Got my demo within 48 hours and the website was exactly as I imagined. Bookings have increased by 40% since launch.'
+      sv: 'Fick en snygg bokningssida som matchar min stil perfekt. Kunderna säger att det är så enkelt att boka nu – och jag slipper svara på samtal hela dagarna.',
+      en: 'Got a beautiful booking page that matches my style perfectly. Customers say it is so easy to book now – and I do not have to answer calls all day.'
     },
     rating: 5
   },
   {
-    name: 'Erik Johansson',
-    business: { sv: 'Johansson Bygg', en: 'Johansson Construction' },
+    name: 'Marcus',
+    business: { sv: 'Oh My Coffee', en: 'Oh My Coffee' },
     quote: {
-      sv: 'Professionellt och snabbt. De förstod precis vad mitt företag behövde. Nu får jag förfrågningar via webbplatsen varje vecka.',
-      en: 'Professional and fast. They understood exactly what my business needed. Now I get inquiries via the website every week.'
+      sv: 'Snyggt, snabbt och precis vad vi behövde. Folk hittar oss lättare och vi får fler besökare som sett menyn online först.',
+      en: 'Clean, fast and exactly what we needed. People find us easier and we get more visitors who saw the menu online first.'
     },
     rating: 5
   },
   {
-    name: 'Maria Svensson',
-    business: { sv: 'Café Solsken', en: 'Café Sunshine' },
+    name: 'Sofia',
+    business: { sv: 'En Deli Haga', en: 'En Deli Haga' },
     quote: {
-      sv: 'Bästa investeringen för mitt café. Enkel att uppdatera menyn och kunderna älskar designen. Rekommenderar varmt!',
-      en: 'Best investment for my café. Easy to update the menu and customers love the design. Highly recommend!'
+      sv: 'Äntligen en hemsida som visar hur mysigt det är hos oss. Beställde på fredag, hade demo på måndag. Otroligt smidigt!',
+      en: 'Finally a website that shows how cozy it is here. Ordered on Friday, had demo on Monday. Incredibly smooth!'
     },
     rating: 5
   }
