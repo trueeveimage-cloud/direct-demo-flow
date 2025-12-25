@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Briefcase, Target, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -6,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { WizardFormData, businessTypes, websiteGoals } from '../wizardConfig';
+import { BusinessTypeFollowUp } from './BusinessTypeFollowUp';
 
 interface Step1ContactProps {
   formData: WizardFormData;
@@ -23,7 +25,7 @@ const sectionVariants = {
   })
 };
 
-export function Step1Contact({ formData, setFormData, errors, showConceptOption = false }: Step1ContactProps) {
+function Step1ContactComponent({ formData, setFormData, errors, showConceptOption = false }: Step1ContactProps) {
   const { t, lang } = useLanguage();
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
@@ -72,7 +74,7 @@ export function Step1Contact({ formData, setFormData, errors, showConceptOption 
         </div>
         
         <div className="space-y-4">
-          <motion.div whileFocus={{ scale: 1.01 }} className="space-y-1">
+          <div className="space-y-1">
             <Label className={errors.businessName ? 'text-destructive' : ''}>
               {t('Företagsnamn', 'Business name')} *
             </Label>
@@ -80,9 +82,9 @@ export function Step1Contact({ formData, setFormData, errors, showConceptOption 
               value={formData.businessName} 
               onChange={(e) => updateField('businessName', e.target.value)} 
               placeholder={t('Ditt företagsnamn', 'Your business name')} 
-              className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.businessName ? 'border-destructive animate-shake' : ''}`}
+              className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.businessName ? 'border-destructive' : ''}`}
             />
-          </motion.div>
+          </div>
           
           <div className="space-y-1">
             <Label className={errors.contactPerson ? 'text-destructive' : ''}>
@@ -92,7 +94,7 @@ export function Step1Contact({ formData, setFormData, errors, showConceptOption 
               value={formData.contactPerson} 
               onChange={(e) => updateField('contactPerson', e.target.value)} 
               placeholder={t('Ditt namn', 'Your name')} 
-              className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.contactPerson ? 'border-destructive animate-shake' : ''}`}
+              className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.contactPerson ? 'border-destructive' : ''}`}
             />
           </div>
           
@@ -105,7 +107,7 @@ export function Step1Contact({ formData, setFormData, errors, showConceptOption 
               value={formData.email} 
               onChange={(e) => updateField('email', e.target.value)} 
               placeholder="name@example.com" 
-              className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.email ? 'border-destructive animate-shake' : ''}`}
+              className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.email ? 'border-destructive' : ''}`}
             />
           </div>
           
@@ -118,7 +120,7 @@ export function Step1Contact({ formData, setFormData, errors, showConceptOption 
               value={formData.phone} 
               onChange={(e) => updateField('phone', e.target.value)} 
               placeholder="+46 70 123 45 67" 
-              className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.phone ? 'border-destructive animate-shake' : ''}`}
+              className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.phone ? 'border-destructive' : ''}`}
             />
           </div>
         </div>
@@ -138,7 +140,7 @@ export function Step1Contact({ formData, setFormData, errors, showConceptOption 
           <InfoTooltip content={t('Hjälper oss anpassa designen för din bransch.', 'Helps us tailor the design for your industry.')} />
         </div>
         <Select value={formData.businessType} onValueChange={(v) => updateField('businessType', v)}>
-          <SelectTrigger className={`h-12 ${errors.businessType ? 'border-destructive animate-shake' : ''}`}>
+          <SelectTrigger className={`h-12 ${errors.businessType ? 'border-destructive' : ''}`}>
             <SelectValue placeholder={t('Välj företagstyp', 'Select business type')} />
           </SelectTrigger>
           <SelectContent>
@@ -159,9 +161,14 @@ export function Step1Contact({ formData, setFormData, errors, showConceptOption 
               value={formData.businessTypeOther} 
               onChange={(e) => updateField('businessTypeOther', e.target.value)} 
               placeholder={t('Beskriv din bransch...', 'Describe your industry...')} 
-              className={`h-12 mt-2 ${errors.businessTypeOther ? 'border-destructive animate-shake' : ''}`}
+              className={`h-12 mt-2 ${errors.businessTypeOther ? 'border-destructive' : ''}`}
             />
           </motion.div>
+        )}
+        
+        {/* Business Type Follow-up Questions */}
+        {formData.businessType && formData.businessType !== 'other' && (
+          <BusinessTypeFollowUp formData={formData} setFormData={setFormData} />
         )}
       </motion.div>
 
@@ -179,7 +186,7 @@ export function Step1Contact({ formData, setFormData, errors, showConceptOption 
           <InfoTooltip content={t('Vi anpassar layout och CTA baserat på ditt mål.', 'We tailor layout and CTA based on your goal.')} />
         </div>
         <Select value={formData.websiteGoal} onValueChange={(v) => updateField('websiteGoal', v)}>
-          <SelectTrigger className={`h-12 ${errors.websiteGoal ? 'border-destructive animate-shake' : ''}`}>
+          <SelectTrigger className={`h-12 ${errors.websiteGoal ? 'border-destructive' : ''}`}>
             <SelectValue placeholder={t('Välj huvudmål', 'Select main goal')} />
           </SelectTrigger>
           <SelectContent>
@@ -208,3 +215,5 @@ export function Step1Contact({ formData, setFormData, errors, showConceptOption 
     </div>
   );
 }
+
+export const Step1Contact = memo(Step1ContactComponent);

@@ -1,12 +1,13 @@
-import { motion } from 'framer-motion';
-import { Package, Palette, Globe, Calendar, Check } from 'lucide-react';
+import { memo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Package, Palette, Globe, Calendar, Check, MapPin, Star, Image, CreditCard } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
-import { WizardFormData, packages, styles, languages } from '../wizardConfig';
+import { WizardFormData, packages, styles, languages, businessTypeFollowUps } from '../wizardConfig';
 
 interface Step2PackageProps {
   formData: WizardFormData;
@@ -26,13 +27,15 @@ const cardVariants = {
   tap: { scale: 0.98 }
 };
 
-export function Step2Package({ formData, setFormData, errors, onComparePackages }: Step2PackageProps) {
+function Step2PackageComponent({ formData, setFormData, errors, onComparePackages }: Step2PackageProps) {
   const { t, lang } = useLanguage();
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
     setFormData({ ...formData, [field]: value });
   };
 
+  // Check if business type supports before/after
+  const showBeforeAfter = ['barber', 'nail', 'clinic', 'car'].includes(formData.businessType);
 
   return (
     <div className="space-y-8">
@@ -67,16 +70,11 @@ export function Step2Package({ formData, setFormData, errors, onComparePackages 
               }`}
             >
               {p.popular && (
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded"
-                >
+                <span className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">
                   {t('Populärast', 'Popular')}
-                </motion.span>
+                </span>
               )}
               
-              {/* Selection indicator */}
               {formData.selectedPackage === p.id && (
                 <motion.div
                   initial={{ scale: 0 }}
@@ -212,6 +210,31 @@ export function Step2Package({ formData, setFormData, errors, onComparePackages 
             </motion.button>
           ))}
         </div>
+        
+        {/* Custom language input */}
+        <AnimatePresence>
+          {formData.selectedLanguage === 'custom' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mt-4"
+            >
+              <Label className="text-sm font-medium">
+                {t('Vilka språk behöver du?', 'Which languages do you need?')} *
+              </Label>
+              <Input 
+                value={formData.customLanguages}
+                onChange={(e) => updateField('customLanguages', e.target.value)}
+                placeholder={t('t.ex. Svenska, Arabiska, Franska', 'e.g. Swedish, Arabic, French')}
+                className="h-12 mt-1"
+                required
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
         {formData.selectedLanguage === 'both' && formData.selectedPackage === 'starter' && (
           <p className="text-sm text-destructive mt-2">
             {t('Flerspråk kräver Standard eller Pro.', 'Multi-language requires Standard or Pro.')}
@@ -219,11 +242,132 @@ export function Step2Package({ formData, setFormData, errors, onComparePackages 
         )}
       </motion.div>
 
-      {/* Booking System */}
+      {/* FREE Essentials */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
+        className="p-6 bg-accent/5 border border-accent/20 rounded-xl space-y-4"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <Check className="w-5 h-5 text-accent" />
+          <h2 className="font-semibold text-lg">{t('Gratis funktioner', 'FREE features')}</h2>
+          <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full font-medium">INGÅR</span>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          {t('Välj vilka gratisfunktioner du vill ha på din webbplats.', 'Choose which free features you want on your website.')}
+        </p>
+        
+        <div className="space-y-3">
+          {/* Google Maps */}
+          <div className="flex items-start gap-3">
+            <Checkbox 
+              checked={formData.wantsGoogleMaps} 
+              onCheckedChange={(c) => updateField('wantsGoogleMaps', c === true)} 
+              className="mt-1"
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-accent" />
+                <span className="font-medium text-sm">{t('Google Maps', 'Google Maps')}</span>
+                <span className="text-xs text-accent font-medium">GRATIS</span>
+              </div>
+              <AnimatePresence>
+                {formData.wantsGoogleMaps && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-2"
+                  >
+                    <Input 
+                      value={formData.googleMapsAddress}
+                      onChange={(e) => updateField('googleMapsAddress', e.target.value)}
+                      placeholder={t('Din adress eller Google Maps-länk', 'Your address or Google Maps link')}
+                      className="h-10"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+          
+          {/* Google Reviews */}
+          <div className="flex items-start gap-3">
+            <Checkbox 
+              checked={formData.wantsGoogleReviews} 
+              onCheckedChange={(c) => updateField('wantsGoogleReviews', c === true)} 
+              className="mt-1"
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4 text-accent" />
+                <span className="font-medium text-sm">{t('Google Recensioner', 'Google Reviews')}</span>
+                <span className="text-xs text-accent font-medium">GRATIS</span>
+              </div>
+              <AnimatePresence>
+                {formData.wantsGoogleReviews && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-2"
+                  >
+                    <Input 
+                      value={formData.googleBusinessLink}
+                      onChange={(e) => updateField('googleBusinessLink', e.target.value)}
+                      placeholder={t('Din Google Business-länk', 'Your Google Business link')}
+                      className="h-10"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+          
+          {/* Before/After - only for relevant business types */}
+          {showBeforeAfter && (
+            <div className="flex items-start gap-3">
+              <Checkbox 
+                checked={formData.wantsBeforeAfter} 
+                onCheckedChange={(c) => updateField('wantsBeforeAfter', c === true)} 
+                className="mt-1"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <Image className="w-4 h-4 text-accent" />
+                  <span className="font-medium text-sm">{t('Före/Efter-sektion', 'Before/After section')}</span>
+                  <span className="text-xs text-accent font-medium">GRATIS</span>
+                  <InfoTooltip content={t('Visar dina transformationer – ökar konverteringar.', 'Shows your transformations – increases conversions.')} />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Checkout System */}
+          <div className="flex items-start gap-3">
+            <Checkbox 
+              checked={formData.wantsCheckoutSystem} 
+              onCheckedChange={(c) => updateField('wantsCheckoutSystem', c === true)} 
+              className="mt-1"
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-accent" />
+                <span className="font-medium text-sm">{t('Kassasystem', 'Checkout system')}</span>
+                <span className="text-xs text-accent font-medium">GRATIS</span>
+                <InfoTooltip content={t('Enkelt betalningsformulär för produkter/tjänster.', 'Simple payment form for products/services.')} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Booking System */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45 }}
         className="p-6 bg-secondary/50 rounded-xl"
       >
         <div className="flex items-center gap-2 mb-4">
@@ -262,3 +406,5 @@ export function Step2Package({ formData, setFormData, errors, onComparePackages 
     </div>
   );
 }
+
+export const Step2Package = memo(Step2PackageComponent);

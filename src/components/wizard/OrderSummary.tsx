@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, FileText, Calendar, CreditCard, Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ interface OrderSummaryProps {
   currentStep: number;
 }
 
-export function OrderSummary({ 
+function OrderSummaryComponent({ 
   formData, 
   isPostDemoFlow = false, 
   onCheckout,
@@ -38,6 +39,25 @@ export function OrderSummary({
     return formData.selectedPages.length + formData.customPages.filter(p => p.trim()).length;
   };
 
+  // Don't show price until package is selected
+  if (!pkg) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-secondary/50 backdrop-blur-sm rounded-2xl p-6 border border-border/50 sticky top-24"
+      >
+        <div className="flex items-center gap-2 mb-6">
+          <Sparkles className="w-5 h-5 text-accent" />
+          <h3 className="font-semibold text-lg">{t('Din beställning', 'Your order')}</h3>
+        </div>
+        <p className="text-sm text-muted-foreground text-center py-8">
+          {t('Välj ett paket för att se priset', 'Select a package to see the price')}
+        </p>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -52,27 +72,25 @@ export function OrderSummary({
       <div className="space-y-4">
         {/* Package */}
         <AnimatePresence mode="wait">
-          {pkg && (
-            <motion.div
-              key={pkg.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="flex items-center justify-between p-3 bg-background/50 rounded-xl"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                  <Package className="w-5 h-5 text-accent" />
-                </div>
-                <div>
-                  <p className="font-medium">{pkg.name}</p>
-                  <p className="text-xs text-muted-foreground">{lang === 'sv' ? pkg.pages.sv : pkg.pages.en}</p>
-                </div>
+          <motion.div
+            key={pkg.id}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="flex items-center justify-between p-3 bg-background/50 rounded-xl"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                <Package className="w-5 h-5 text-accent" />
               </div>
-              <p className="font-semibold">{formatPrice(pkg.price)}</p>
-            </motion.div>
-          )}
+              <div>
+                <p className="font-medium">{pkg.name}</p>
+                <p className="text-xs text-muted-foreground">{lang === 'sv' ? pkg.pages.sv : pkg.pages.en}</p>
+              </div>
+            </div>
+            <p className="font-semibold">{formatPrice(pkg.price)}</p>
+          </motion.div>
         </AnimatePresence>
 
         {/* Pages count */}
@@ -86,7 +104,7 @@ export function OrderSummary({
               <FileText className="w-4 h-4" />
               <span>{t('Valda sidor', 'Selected pages')}</span>
             </div>
-            <span className="text-sm font-medium">{getTotalPages()} / {pkg?.maxPages || 0}</span>
+            <span className="text-sm font-medium">{getTotalPages()} / {pkg.maxPages}</span>
           </motion.div>
         )}
 
@@ -113,7 +131,7 @@ export function OrderSummary({
           )}
         </AnimatePresence>
 
-        {/* Care plan */}
+        {/* Care plan - shown inline, not as separate billing */}
         <AnimatePresence>
           {carePlan && (
             <motion.div
@@ -124,14 +142,11 @@ export function OrderSummary({
             >
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-accent" />
-                <div>
-                  <span className="text-sm font-medium">{carePlan.name} {t('vårdplan', 'care plan')}</span>
-                  <p className="text-xs text-muted-foreground">
-                    {formData.isYearlyCarePlan ? t('Årsvis (spara 20%)', 'Yearly (save 20%)') : t('Månadsvis', 'Monthly')}
-                  </p>
-                </div>
+                <span className="text-sm font-medium">{carePlan.name}</span>
               </div>
-              <span className="text-sm font-medium">{carePlanPrice} kr/{t('mån', 'mo')}</span>
+              <span className="text-sm font-medium">
+                {carePlanPrice} kr/{formData.isYearlyCarePlan ? t('mån', 'mo') : t('mån', 'mo')}
+              </span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -167,13 +182,13 @@ export function OrderSummary({
           <span>{t('Delbetala enkelt', 'Easy installments')}</span>
         </div>
 
-        {/* Care plan recurring info */}
+        {/* Care plan recurring info - compact display */}
         {carePlan && (
-          <p className="text-xs text-muted-foreground">
-            + {formData.isYearlyCarePlan 
-              ? `${carePlanPrice * 12} kr/${t('år', 'year')}` 
-              : `${carePlanPrice} kr/${t('mån', 'month')}`
-            } {t('för webbvård', 'for web care')}
+          <p className="text-xs text-muted-foreground text-center">
+            {formData.isYearlyCarePlan 
+              ? `${t('Vårdplan', 'Care plan')}: ${carePlanPrice * 12} kr/${t('år', 'year')}`
+              : `${t('Vårdplan', 'Care plan')}: ${carePlanPrice} kr/${t('mån', 'month')}`
+            }
           </p>
         )}
 
@@ -209,3 +224,5 @@ export function OrderSummary({
     </motion.div>
   );
 }
+
+export const OrderSummary = memo(OrderSummaryComponent);
