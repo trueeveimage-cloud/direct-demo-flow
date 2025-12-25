@@ -1,34 +1,72 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle, Briefcase, Target, Calendar, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { AnimatedSection } from '@/components/AnimatedSection';
+import { InfoTooltip } from '@/components/InfoTooltip';
 import { setVerificationPaid } from '@/config/stripe';
+import { useTheme } from 'next-themes';
 
 type FormStep = 1 | 2;
 
 const styles = [
-  { id: 'minimal', name: 'Minimal', desc: { sv: 'Ren och enkel', en: 'Clean and simple' } },
-  { id: 'luxury', name: 'Luxury', desc: { sv: 'Elegant och exklusiv', en: 'Elegant and exclusive' } },
-  { id: 'bold', name: 'Bold', desc: { sv: 'Stark och modern', en: 'Strong and modern' } },
-  { id: 'playful', name: 'Playful', desc: { sv: 'Lekfull och kreativ', en: 'Playful and creative' } },
-  { id: 'corporate', name: 'Corporate', desc: { sv: 'Professionell och seriös', en: 'Professional and serious' } },
+  { id: 'minimal', name: 'Minimal', tooltip: { sv: 'Ren, mycket whitespace, modernt.', en: 'Clean, lots of whitespace, modern.' } },
+  { id: 'luxury', name: 'Luxury', tooltip: { sv: 'Premiumkänsla, elegant typografi, hög kontrast.', en: 'Premium feel, elegant typography, high contrast.' } },
+  { id: 'bold', name: 'Bold', tooltip: { sv: 'Starka rubriker, energifyllda sektioner.', en: 'Strong headlines, high energy sections.' } },
+  { id: 'playful', name: 'Playful', tooltip: { sv: 'Vänligt, färgglatt, mjukare ton.', en: 'Friendly, colorful, softer tone.' } },
+  { id: 'corporate', name: 'Corporate', tooltip: { sv: 'Professionellt, strukturerat, förtroendeingivande.', en: 'Professional, structured, trust-focused.' } },
 ];
+
+const businessTypes = [
+  { id: 'barber', label: { sv: 'Frisör / Barberare', en: 'Barber / Hair salon' } },
+  { id: 'nail', label: { sv: 'Nagelsalong', en: 'Nail salon' } },
+  { id: 'restaurant', label: { sv: 'Restaurang / Café', en: 'Restaurant / Café' } },
+  { id: 'gym', label: { sv: 'Gym / PT', en: 'Gym / PT' } },
+  { id: 'clinic', label: { sv: 'Klinik', en: 'Clinic' } },
+  { id: 'car', label: { sv: 'Bilverkstad', en: 'Car workshop' } },
+  { id: 'cleaning', label: { sv: 'Städtjänst', en: 'Cleaning service' } },
+  { id: 'realestate', label: { sv: 'Fastigheter', en: 'Real estate' } },
+  { id: 'retail', label: { sv: 'Butik', en: 'Retail store' } },
+  { id: 'other', label: { sv: 'Annat', en: 'Other' } },
+];
+
+const websiteGoals = [
+  { id: 'bookings', label: { sv: 'Få bokningar', en: 'Get bookings' } },
+  { id: 'calls', label: { sv: 'Få samtal', en: 'Get calls' } },
+  { id: 'leads', label: { sv: 'Få leads / offertförfrågningar', en: 'Get leads / quote requests' } },
+  { id: 'sell', label: { sv: 'Sälja online', en: 'Sell online' } },
+];
+
+const appointmentDurations = ['15', '30', '45', '60', '90', 'custom'];
+
+interface BookingService {
+  name: string;
+  duration: string;
+  price: string;
+}
 
 export default function FreeDemoPage() {
   const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { setTheme } = useTheme();
   const [step, setStep] = useState<FormStep>(1);
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Set dark mode on mount
+  useEffect(() => {
+    setTheme('dark');
+  }, [setTheme]);
   
   // Check for payment success from Stripe redirect
   useEffect(() => {
@@ -39,18 +77,68 @@ export default function FreeDemoPage() {
     }
   }, [searchParams]);
   
-  // Form state
+  // Form state - Contact info
   const [businessName, setBusinessName] = useState('');
   const [contactPerson, setContactPerson] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [currentWebsite, setCurrentWebsite] = useState('');
+
+  // Business info
+  const [businessType, setBusinessType] = useState('');
+  const [businessTypeOther, setBusinessTypeOther] = useState('');
+  const [websiteGoal, setWebsiteGoal] = useState('');
+
+  // Style and colors
   const [selectedStyle, setSelectedStyle] = useState('');
+  const [primaryColor, setPrimaryColor] = useState('');
+  const [accentColor, setAccentColor] = useState('');
+  const [noColorPreference, setNoColorPreference] = useState(false);
+
+  // Services
+  const [services, setServices] = useState('');
+
+  // Booking
+  const [wantsBooking, setWantsBooking] = useState<boolean | null>(null);
+  const [openingHours, setOpeningHours] = useState('');
+  const [appointmentLengths, setAppointmentLengths] = useState<string[]>([]);
+  const [customAppointmentLength, setCustomAppointmentLength] = useState('');
+  const [bookingServices, setBookingServices] = useState<BookingService[]>([{ name: '', duration: '', price: '' }]);
+  const [bufferTime, setBufferTime] = useState('');
+  const [maxBookingsPerDay, setMaxBookingsPerDay] = useState('');
+  const [advanceBookingDays, setAdvanceBookingDays] = useState('');
+
+  // Extra notes
   const [extraNotes, setExtraNotes] = useState('');
   
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   const verificationFee = 500;
+
+  // Booking services management
+  const addBookingService = () => {
+    setBookingServices([...bookingServices, { name: '', duration: '', price: '' }]);
+  };
+
+  const removeBookingService = (index: number) => {
+    if (bookingServices.length > 1) {
+      setBookingServices(bookingServices.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateBookingService = (index: number, field: keyof BookingService, value: string) => {
+    const updated = [...bookingServices];
+    updated[index] = { ...updated[index], [field]: value };
+    setBookingServices(updated);
+  };
+
+  const toggleAppointmentLength = (duration: string) => {
+    if (appointmentLengths.includes(duration)) {
+      setAppointmentLengths(appointmentLengths.filter(d => d !== duration));
+    } else {
+      setAppointmentLengths([...appointmentLengths, duration]);
+    }
+  };
 
   const validateStep1 = (): boolean => {
     const newErrors: Record<string, boolean> = {};
@@ -59,7 +147,11 @@ export default function FreeDemoPage() {
     if (!contactPerson.trim()) newErrors.contactPerson = true;
     if (!email.trim()) newErrors.email = true;
     if (!phone.trim()) newErrors.phone = true;
+    if (!businessType) newErrors.businessType = true;
+    if (businessType === 'other' && !businessTypeOther.trim()) newErrors.businessTypeOther = true;
+    if (!websiteGoal) newErrors.websiteGoal = true;
     if (!selectedStyle) newErrors.style = true;
+    if (!services.trim()) newErrors.services = true;
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -92,7 +184,23 @@ export default function FreeDemoPage() {
       formData.append('email', email);
       formData.append('phone', phone);
       formData.append('current_website', currentWebsite);
+      formData.append('business_type', businessType === 'other' ? businessTypeOther : businessType);
+      formData.append('website_goal', websiteGoal);
       formData.append('selected_style', selectedStyle);
+      formData.append('primary_color', noColorPreference ? 'No preference' : primaryColor);
+      formData.append('accent_color', noColorPreference ? 'No preference' : accentColor);
+      formData.append('services', services);
+      formData.append('wants_booking', String(wantsBooking));
+      
+      if (wantsBooking) {
+        formData.append('opening_hours', openingHours);
+        formData.append('appointment_lengths', appointmentLengths.join(', ') + (customAppointmentLength ? `, ${customAppointmentLength}` : ''));
+        formData.append('booking_services', JSON.stringify(bookingServices.filter(s => s.name.trim())));
+        formData.append('buffer_time', bufferTime);
+        formData.append('max_bookings_per_day', maxBookingsPerDay);
+        formData.append('advance_booking_days', advanceBookingDays);
+      }
+      
       formData.append('extra_notes', extraNotes);
       formData.append('verification_fee', '500 kr');
 
@@ -102,7 +210,7 @@ export default function FreeDemoPage() {
         headers: { 'Accept': 'application/json' },
       });
 
-      // Use edge function for Stripe checkout (same as working package checkout)
+      // Use edge function for Stripe checkout
       const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
       if (!SUPABASE_URL) {
         throw new Error('Payment not configured');
@@ -117,6 +225,10 @@ export default function FreeDemoPage() {
           contactPerson,
           phone,
           selectedStyle,
+          businessType: businessType === 'other' ? businessTypeOther : businessType,
+          websiteGoal,
+          services,
+          wantsBooking,
         }),
       });
 
@@ -233,7 +345,7 @@ export default function FreeDemoPage() {
             <div className="w-8 h-0.5 bg-border" />
             <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${step === 2 ? 'bg-accent text-accent-foreground' : 'bg-secondary text-muted-foreground'}`}>
               <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">2</span>
-              <span className="font-medium">{t('Betalning', 'Payment')}</span>
+              <span className="font-medium">{t('Verifiering', 'Verification')}</span>
             </div>
           </div>
         </AnimatedSection>
@@ -310,6 +422,87 @@ export default function FreeDemoPage() {
                 </Card>
               </AnimatedSection>
 
+              {/* Business Type */}
+              <AnimatedSection animation="fade-up" delay={120}>
+                <Card>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Briefcase className="w-5 h-5 text-accent" />
+                      <h2 className="font-semibold text-lg">{t('Företagstyp', 'Business type')} *</h2>
+                      <InfoTooltip content={t('Hjälper oss anpassa designen för din bransch.', 'Helps us tailor the design for your industry.')} />
+                    </div>
+                    <Select value={businessType} onValueChange={setBusinessType}>
+                      <SelectTrigger className={`h-12 ${errors.businessType ? 'border-destructive' : ''}`}>
+                        <SelectValue placeholder={t('Välj företagstyp', 'Select business type')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {businessTypes.map((type) => (
+                          <SelectItem key={type.id} value={type.id}>
+                            {lang === 'sv' ? type.label.sv : type.label.en}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {businessType === 'other' && (
+                      <Input 
+                        value={businessTypeOther} 
+                        onChange={(e) => setBusinessTypeOther(e.target.value)} 
+                        placeholder={t('Beskriv din bransch...', 'Describe your industry...')} 
+                        className={`h-12 mt-2 ${errors.businessTypeOther ? 'border-destructive' : ''}`}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+
+              {/* Website Goal */}
+              <AnimatedSection animation="fade-up" delay={130}>
+                <Card>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="w-5 h-5 text-accent" />
+                      <h2 className="font-semibold text-lg">{t('Vad ska din webbplats uppnå?', 'What should your website achieve?')} *</h2>
+                      <InfoTooltip content={t('Vi anpassar layout och CTA baserat på ditt mål.', 'We tailor layout and CTA based on your goal.')} />
+                    </div>
+                    <Select value={websiteGoal} onValueChange={setWebsiteGoal}>
+                      <SelectTrigger className={`h-12 ${errors.websiteGoal ? 'border-destructive' : ''}`}>
+                        <SelectValue placeholder={t('Välj huvudmål', 'Select main goal')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {websiteGoals.map((goal) => (
+                          <SelectItem key={goal.id} value={goal.id}>
+                            {lang === 'sv' ? goal.label.sv : goal.label.en}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+
+              {/* Services & Prices */}
+              <AnimatedSection animation="fade-up" delay={140}>
+                <Card>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FileText className="w-5 h-5 text-accent" />
+                      <h2 className="font-semibold text-lg">{t('Tjänster & priser', 'Services & prices')} *</h2>
+                      <InfoTooltip content={t('Detta innehåll kommer att användas på din webbplats.', 'This content will be used on your website.')} />
+                    </div>
+                    <Textarea
+                      value={services}
+                      onChange={(e) => setServices(e.target.value)}
+                      rows={4}
+                      placeholder={t(
+                        'Klippning – 350 kr\nSkägg – 200 kr\nHår + Skägg – 500 kr',
+                        'Haircut – 350 kr\nBeard – 200 kr\nHair + Beard – 500 kr'
+                      )}
+                      className={errors.services ? 'border-destructive' : ''}
+                    />
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+
               {/* Style Selection */}
               <AnimatedSection animation="fade-up" delay={150}>
                 <Card>
@@ -331,7 +524,7 @@ export default function FreeDemoPage() {
                           }`}
                         >
                           <span className="font-medium block">{style.name}</span>
-                          <span className="text-xs text-muted-foreground">{t(style.desc.sv, style.desc.en)}</span>
+                          <InfoTooltip content={lang === 'sv' ? style.tooltip.sv : style.tooltip.en} />
                         </button>
                       ))}
                     </div>
@@ -339,8 +532,188 @@ export default function FreeDemoPage() {
                 </Card>
               </AnimatedSection>
 
+              {/* Color Preferences */}
+              <AnimatedSection animation="fade-up" delay={160}>
+                <Card>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h2 className="font-semibold text-lg">{t('Färgpreferenser', 'Color preferences')}</h2>
+                      <InfoTooltip content={t('Färger används för knappar, highlights och varumärkeskänsla.', 'Colors are used for buttons, highlights, and brand feel.')} />
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label>{t('Primärfärg', 'Primary color')}</Label>
+                        <Input 
+                          value={primaryColor} 
+                          onChange={(e) => setPrimaryColor(e.target.value)} 
+                          placeholder={t('t.ex. Mörkblå, #1a2b3c', 'e.g. Dark blue, #1a2b3c')} 
+                          className="h-12 mt-1"
+                          disabled={noColorPreference}
+                        />
+                      </div>
+                      <div>
+                        <Label>{t('Accentfärg', 'Accent color')}</Label>
+                        <Input 
+                          value={accentColor} 
+                          onChange={(e) => setAccentColor(e.target.value)} 
+                          placeholder={t('t.ex. Guld, #ffd700', 'e.g. Gold, #ffd700')} 
+                          className="h-12 mt-1"
+                          disabled={noColorPreference}
+                        />
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <Checkbox checked={noColorPreference} onCheckedChange={(c) => setNoColorPreference(c === true)} />
+                      <span className="text-sm">{t('Ingen preferens – Nomia väljer', 'No preference – Nomia chooses')}</span>
+                    </label>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+
+              {/* Booking System */}
+              <AnimatedSection animation="fade-up" delay={170}>
+                <Card>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Calendar className="w-5 h-5 text-accent" />
+                      <h2 className="font-semibold text-lg">{t('Vill du ha ett bokningssystem?', 'Do you want a booking system?')}</h2>
+                      <InfoTooltip content={t('Vi skapar ditt helt egna bokningssystem integrerat med din webbplats.', 'We create your very own booking system integrated with your website.')} />
+                    </div>
+                    <div className="flex gap-4">
+                      <Button
+                        type="button"
+                        variant={wantsBooking === true ? 'default' : 'outline'}
+                        onClick={() => setWantsBooking(true)}
+                      >
+                        {t('Ja', 'Yes')}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={wantsBooking === false ? 'default' : 'outline'}
+                        onClick={() => setWantsBooking(false)}
+                      >
+                        {t('Nej', 'No')}
+                      </Button>
+                    </div>
+
+                    {/* Booking Requirements */}
+                    {wantsBooking === true && (
+                      <div className="space-y-4 pt-4 border-t border-border mt-4">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Label>{t('Öppettider', 'Opening hours')}</Label>
+                            <InfoTooltip content={t('När kan kunder boka? T.ex. "Mån-Fre 09-18, Lör 10-15"', 'When can customers book? E.g. "Mon-Fri 09-18, Sat 10-15"')} />
+                          </div>
+                          <Textarea
+                            value={openingHours}
+                            onChange={(e) => setOpeningHours(e.target.value)}
+                            rows={2}
+                            placeholder={t('Mån-Fre 09:00-18:00\nLör 10:00-15:00', 'Mon-Fri 09:00-18:00\nSat 10:00-15:00')}
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Label>{t('Tidslängder för bokningar', 'Appointment durations')}</Label>
+                            <InfoTooltip content={t('Välj vilka tidslängder som ska vara tillgängliga.', 'Choose which durations should be available.')} />
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {appointmentDurations.filter(d => d !== 'custom').map((duration) => (
+                              <Button
+                                key={duration}
+                                type="button"
+                                variant={appointmentLengths.includes(duration) ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => toggleAppointmentLength(duration)}
+                              >
+                                {duration} min
+                              </Button>
+                            ))}
+                          </div>
+                          <Input
+                            value={customAppointmentLength}
+                            onChange={(e) => setCustomAppointmentLength(e.target.value)}
+                            placeholder={t('Annan längd (t.ex. 120 min)', 'Other duration (e.g. 120 min)')}
+                            className="h-10 mt-2"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Label>{t('Bokningsbara tjänster', 'Bookable services')}</Label>
+                            <InfoTooltip content={t('Lägg till tjänster som kunder kan boka.', 'Add services that customers can book.')} />
+                          </div>
+                          <div className="space-y-2">
+                            {bookingServices.map((service, index) => (
+                              <div key={index} className="flex gap-2 items-start">
+                                <Input
+                                  value={service.name}
+                                  onChange={(e) => updateBookingService(index, 'name', e.target.value)}
+                                  placeholder={t('Tjänstnamn', 'Service name')}
+                                  className="h-10 flex-1"
+                                />
+                                <Input
+                                  value={service.duration}
+                                  onChange={(e) => updateBookingService(index, 'duration', e.target.value)}
+                                  placeholder={t('Tid (min)', 'Duration')}
+                                  className="h-10 w-24"
+                                />
+                                <Input
+                                  value={service.price}
+                                  onChange={(e) => updateBookingService(index, 'price', e.target.value)}
+                                  placeholder={t('Pris', 'Price')}
+                                  className="h-10 w-24"
+                                />
+                                {bookingServices.length > 1 && (
+                                  <Button type="button" variant="ghost" size="icon" onClick={() => removeBookingService(index)} className="h-10 w-10">
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                            <Button type="button" variant="outline" size="sm" onClick={addBookingService}>
+                              <Plus className="w-4 h-4 mr-1" /> {t('Lägg till tjänst', 'Add service')}
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-3 gap-4">
+                          <div>
+                            <Label>{t('Bufferttid', 'Buffer time')}</Label>
+                            <Input
+                              value={bufferTime}
+                              onChange={(e) => setBufferTime(e.target.value)}
+                              placeholder={t('t.ex. 15 min', 'e.g. 15 min')}
+                              className="h-10 mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label>{t('Max bokningar/dag', 'Max bookings/day')}</Label>
+                            <Input
+                              value={maxBookingsPerDay}
+                              onChange={(e) => setMaxBookingsPerDay(e.target.value)}
+                              placeholder={t('t.ex. 10', 'e.g. 10')}
+                              className="h-10 mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label>{t('Förbokning (dagar)', 'Advance booking (days)')}</Label>
+                            <Input
+                              value={advanceBookingDays}
+                              onChange={(e) => setAdvanceBookingDays(e.target.value)}
+                              placeholder={t('t.ex. 30', 'e.g. 30')}
+                              className="h-10 mt-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+
               {/* Extra Notes */}
-              <AnimatedSection animation="fade-up" delay={200}>
+              <AnimatedSection animation="fade-up" delay={180}>
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-4">
@@ -352,23 +725,23 @@ export default function FreeDemoPage() {
                       value={extraNotes}
                       onChange={(e) => setExtraNotes(e.target.value)}
                       rows={3}
-                      placeholder={t('Beskriv din verksamhet, vad du erbjuder, speciella önskemål...', 'Describe your business, what you offer, special requests...')}
+                      placeholder={t('Speciella önskemål, inspiration, etc...', 'Special requests, inspiration, etc...')}
                     />
                   </CardContent>
                 </Card>
               </AnimatedSection>
 
               {/* Submit Button */}
-              <AnimatedSection animation="fade-up" delay={250}>
+              <AnimatedSection animation="fade-up" delay={200}>
                 <Button type="submit" size="lg" className="w-full h-14 text-lg">
-                  {t('Fortsätt till betalning', 'Continue to payment')}
+                  {t('Fortsätt till verifiering', 'Continue to verification')}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </AnimatedSection>
             </motion.form>
           )}
 
-          {/* Step 2: Payment */}
+          {/* Step 2: Verification */}
           {step === 2 && (
             <motion.div
               key="step2"
@@ -414,9 +787,23 @@ export default function FreeDemoPage() {
                           <span className="font-medium">{businessName}</span>
                         </div>
                         <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t('Bransch', 'Industry')}</span>
+                          <span className="font-medium capitalize">{businessType === 'other' ? businessTypeOther : businessType}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t('Mål', 'Goal')}</span>
+                          <span className="font-medium capitalize">{websiteGoal}</span>
+                        </div>
+                        <div className="flex justify-between">
                           <span className="text-muted-foreground">{t('Stil', 'Style')}</span>
                           <span className="font-medium capitalize">{selectedStyle}</span>
                         </div>
+                        {wantsBooking !== null && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">{t('Bokningssystem', 'Booking system')}</span>
+                            <span className="font-medium">{wantsBooking ? t('Ja', 'Yes') : t('Nej', 'No')}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">{t('Leverans', 'Delivery')}</span>
                           <span className="font-medium">{t('Inom 72 timmar', 'Within 72 hours')}</span>

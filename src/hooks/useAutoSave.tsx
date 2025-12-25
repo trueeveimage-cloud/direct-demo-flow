@@ -3,6 +3,12 @@ import { useEffect, useCallback, useState } from 'react';
 const STORAGE_KEY = 'nomia_demo_intake';
 const SESSION_KEY = 'nomia_session_active';
 
+interface BookingServiceData {
+  name: string;
+  duration: string;
+  price: string;
+}
+
 interface IntakeData {
   step: number;
   demoLink: string;
@@ -21,8 +27,26 @@ interface IntakeData {
   bookingPlatform: string;
   extraNotes: string;
   services: string;
+  // New fields
+  businessType: string;
+  businessTypeOther: string;
+  websiteGoal: string;
+  primaryColor: string;
+  accentColor: string;
+  noColorPreference: boolean;
+  currentWebsite: string;
+  // Booking requirements
+  openingHours: string;
+  appointmentLengths: string[];
+  customAppointmentLength: string;
+  bookingServices: BookingServiceData[];
+  bufferTime: string;
+  maxBookingsPerDay: string;
+  advanceBookingDays: string;
   lastSaved: number;
 }
+
+export type { BookingServiceData };
 
 export function useAutoSave() {
   const [hasSavedData, setHasSavedData] = useState(false);
