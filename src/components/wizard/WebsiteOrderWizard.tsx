@@ -175,8 +175,8 @@ export function WebsiteOrderWizard({
     
     try {
       const pkg = packages.find(p => p.id === formData.selectedPackage);
-      const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
-      const totalPackagePrice = (pkg?.price || 0) + bookingAddonCost;
+      // Booking is now FREE - no addon cost
+      const totalPackagePrice = pkg?.price || 0;
 
       // Submit form data for record keeping
       const formDataPayload = new FormData();
@@ -194,7 +194,7 @@ export function WebsiteOrderWizard({
       formDataPayload.append('accent_color', formData.noColorPreference ? 'No preference' : formData.accentColor);
       formDataPayload.append('selected_language', formData.selectedLanguage);
       formDataPayload.append('wants_booking', String(formData.wantsBooking));
-      formDataPayload.append('booking_addon_cost', formData.wantsBooking && formData.selectedPackage !== 'pro' ? formatPrice(BOOKING_ADDON_PRICE) : 'Included');
+      formDataPayload.append('booking_addon_cost', 'FREE');
       formDataPayload.append('selected_pages', formData.selectedPages.join(', '));
       formDataPayload.append('custom_pages', formData.customPages.filter(p => p.trim()).join(', '));
       formDataPayload.append('services', formData.services);
@@ -250,7 +250,7 @@ export function WebsiteOrderWizard({
           carePlanId: formData.selectedCarePlan,
           isYearly: formData.isYearlyCarePlan,
           wantsBooking: formData.wantsBooking,
-          bookingAddonCost,
+          bookingAddonCost: 0, // Now free
           isPostDemoFlow,
           conceptLink: formData.conceptLink || conceptLink,
         }),
@@ -308,7 +308,7 @@ export function WebsiteOrderWizard({
               {t('Vi har mottagit din beställning och börjar arbeta direkt.', 'We have received your order and will start working immediately.')}
             </p>
             <div className="p-6 bg-accent/10 rounded-xl inline-block mb-8">
-              <p className="text-xl font-bold">{pkg?.name} — {formatPrice((pkg?.price || 0) + (formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0) - (isPostDemoFlow ? VERIFICATION_FEE : 0))}</p>
+              <p className="text-xl font-bold">{pkg?.name} — {formatPrice((pkg?.price || 0) - (isPostDemoFlow ? VERIFICATION_FEE : 0))}</p>
               <p className="text-muted-foreground">{t('Leverans inom', 'Delivery within')} {pkg?.delivery} {t('dagar', 'days')}</p>
             </div>
             <Button asChild><Link to="/">{t('Tillbaka till start', 'Back to home')}</Link></Button>
