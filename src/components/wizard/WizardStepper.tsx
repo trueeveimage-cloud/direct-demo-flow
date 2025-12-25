@@ -44,15 +44,7 @@ export function WizardStepper({ currentStep, onStepClick }: WizardStepperProps) 
                 whileHover={isClickable ? { scale: 1.02 } : {}}
                 whileTap={isClickable ? { scale: 0.98 } : {}}
               >
-                {/* Pulse effect for active step */}
-                {isActive && (
-                  <motion.div
-                    className="absolute inset-0 rounded-full sm:rounded-lg bg-accent"
-                    initial={{ opacity: 0.5, scale: 1 }}
-                    animate={{ opacity: 0, scale: 1.3 }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
-                )}
+                {/* Removed pulse animation to fix glitching */}
                 
                 <span className="w-6 h-6 rounded-full sm:bg-background/20 flex items-center justify-center text-xs sm:text-sm font-bold relative z-10">
                   {isCompleted ? (

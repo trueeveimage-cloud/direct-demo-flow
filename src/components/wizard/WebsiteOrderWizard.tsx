@@ -175,8 +175,9 @@ export function WebsiteOrderWizard({
     
     try {
       const pkg = packages.find(p => p.id === formData.selectedPackage);
-      // Booking is now FREE - no addon cost
-      const totalPackagePrice = pkg?.price || 0;
+      // Booking costs 2000kr except for Pro package
+      const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
+      const totalPackagePrice = (pkg?.price || 0) + bookingAddonCost;
 
       // Submit form data for record keeping
       const formDataPayload = new FormData();
@@ -194,7 +195,7 @@ export function WebsiteOrderWizard({
       formDataPayload.append('accent_color', formData.noColorPreference ? 'No preference' : formData.accentColor);
       formDataPayload.append('selected_language', formData.selectedLanguage);
       formDataPayload.append('wants_booking', String(formData.wantsBooking));
-      formDataPayload.append('booking_addon_cost', 'FREE');
+      formDataPayload.append('booking_addon_cost', bookingAddonCost > 0 ? `+${bookingAddonCost} kr` : 'Included');
       formDataPayload.append('selected_pages', formData.selectedPages.join(', '));
       formDataPayload.append('custom_pages', formData.customPages.filter(p => p.trim()).join(', '));
       formDataPayload.append('services', formData.services);
@@ -250,7 +251,7 @@ export function WebsiteOrderWizard({
           carePlanId: formData.selectedCarePlan,
           isYearly: formData.isYearlyCarePlan,
           wantsBooking: formData.wantsBooking,
-          bookingAddonCost: 0, // Now free
+          bookingAddonCost,
           isPostDemoFlow,
           conceptLink: formData.conceptLink || conceptLink,
         }),
@@ -392,7 +393,7 @@ export function WebsiteOrderWizard({
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
               {step === 1 && (
-                <Step1Contact formData={formData} setFormData={setFormData} errors={errors} />
+                <Step1Contact formData={formData} setFormData={setFormData} errors={errors} showConceptOption={!isPostDemoFlow} />
               )}
               {step === 2 && (
                 <Step2Package 
@@ -466,16 +467,17 @@ export function WebsiteOrderWizard({
           </div>
         </div>
 
-        {/* Mobile Order Summary - Sticky Bottom */}
+        {/* Mobile Order Summary - Sticky Bottom - add padding to main content */}
+        <div className="lg:hidden h-28" /> {/* Spacer for mobile sticky bar */}
         <motion.div 
           initial={{ y: 100 }}
           animate={{ y: 0 }}
-          className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t z-50"
+          className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-md border-t z-50"
         >
-          <div className="flex items-center justify-between gap-4 max-w-lg mx-auto">
-            <div>
-              <p className="text-sm text-muted-foreground">{t('Totalt idag', 'Total today')}</p>
-              <p className="text-xl font-bold">
+          <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
+            <div className="flex-shrink-0">
+              <p className="text-xs text-muted-foreground">{t('Totalt', 'Total')}</p>
+              <p className="text-lg font-bold">
                 {formatPrice(
                   (pkg?.price || 0) + 
                   (formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0) -
@@ -484,11 +486,11 @@ export function WebsiteOrderWizard({
               </p>
             </div>
             {step === 5 ? (
-              <Button size="lg" onClick={handleSubmit} disabled={isLoading}>
+              <Button size="lg" onClick={handleSubmit} disabled={isLoading} className="flex-1 max-w-[160px]">
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('Betala', 'Pay')}
               </Button>
             ) : (
-              <Button size="lg" onClick={handleNextStep}>
+              <Button size="lg" onClick={handleNextStep} className="flex-1 max-w-[160px]">
                 {t('Fortsätt', 'Continue')} <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             )}

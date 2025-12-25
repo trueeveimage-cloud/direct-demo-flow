@@ -19,6 +19,7 @@ export interface WizardFormData {
   businessType: string;
   businessTypeOther: string;
   websiteGoal: string;
+  websiteGoalOther: string;
   
   // Step 2: Package & Style
   selectedPackage: string;
@@ -69,6 +70,7 @@ export const initialFormData: WizardFormData = {
   businessType: '',
   businessTypeOther: '',
   websiteGoal: '',
+  websiteGoalOther: '',
   selectedPackage: 'standard',
   selectedStyle: '',
   selectedLanguage: 'sv',
@@ -160,7 +162,10 @@ export const styles = [
 export const languages = [
   { id: 'sv', label: { sv: 'Svenska', en: 'Swedish' } },
   { id: 'en', label: { sv: 'Engelska', en: 'English' } },
-  { id: 'both', label: { sv: 'Båda', en: 'Both' } },
+  { id: 'both', label: { sv: 'Svenska + Engelska', en: 'Swedish + English' } },
+  { id: 'sv-other', label: { sv: 'Svenska + Annat språk', en: 'Swedish + Other language' } },
+  { id: 'en-other', label: { sv: 'Engelska + Annat språk', en: 'English + Other language' } },
+  { id: 'custom', label: { sv: 'Annat/Flera språk', en: 'Other/Multiple languages' } },
 ];
 
 export const carePlans = [
@@ -187,6 +192,7 @@ export const websiteGoals = [
   { id: 'calls', label: { sv: 'Få samtal', en: 'Get calls' } },
   { id: 'leads', label: { sv: 'Få leads / offertförfrågningar', en: 'Get leads / quote requests' } },
   { id: 'sell', label: { sv: 'Sälja online', en: 'Sell online' } },
+  { id: 'other', label: { sv: 'Annat', en: 'Other' } },
 ];
 
 export const appointmentDurations = ['15', '30', '45', '60', '90', 'custom'];
