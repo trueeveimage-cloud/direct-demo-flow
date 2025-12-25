@@ -142,27 +142,26 @@ export default function Index() {
         </div>
 
         {/* Scroll indicator */}
-        <motion.button
-          onClick={() => {
-            const nextSection = document.querySelector('section:nth-of-type(2)');
-            if (nextSection) {
-              nextSection.scrollIntoView({ behavior: 'smooth' });
-            } else {
-              window.scrollTo({ top: window.innerHeight * 0.6, behavior: 'smooth' });
-            }
-          }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer group"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          aria-label="Scroll down"
-        >
-          <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-1 group-hover:border-accent/50 transition-colors">
-            <motion.div 
-              className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 group-hover:bg-accent transition-colors"
-              animate={{ y: [0, 16, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </div>
+        <motion.button onClick={() => {
+        const nextSection = document.querySelector('section:nth-of-type(2)');
+        if (nextSection) {
+          nextSection.scrollIntoView({
+            behavior: 'smooth'
+          });
+        } else {
+          window.scrollTo({
+            top: window.innerHeight * 0.6,
+            behavior: 'smooth'
+          });
+        }
+      }} className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer group" animate={{
+        y: [0, 10, 0]
+      }} transition={{
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }} aria-label="Scroll down">
+          
         </motion.button>
       </section>
 
