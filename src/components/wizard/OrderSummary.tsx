@@ -131,58 +131,6 @@ function OrderSummaryComponent({
           )}
         </AnimatePresence>
 
-        {/* FREE Essentials with "Limited Time Free" badge */}
-        <AnimatePresence>
-          {formData.wantsGoogleMaps && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="flex items-center justify-between px-3 py-2"
-            >
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-green-500" />
-                <span>Google Maps</span>
-              </div>
-              <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
-                {t('⏰ Gratis just nu!', '⏰ Free limited time!')}
-              </span>
-            </motion.div>
-          )}
-          {formData.wantsGoogleReviews && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="flex items-center justify-between px-3 py-2"
-            >
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-green-500" />
-                <span>Google Reviews</span>
-              </div>
-              <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
-                {t('⏰ Gratis just nu!', '⏰ Free limited time!')}
-              </span>
-            </motion.div>
-          )}
-          {formData.wantsBeforeAfter && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="flex items-center justify-between px-3 py-2"
-            >
-              <div className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-green-500" />
-                <span>{t('Före/Efter-sektion', 'Before/After section')}</span>
-              </div>
-              <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
-                {t('⏰ Gratis just nu!', '⏰ Free limited time!')}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Care plan - shown inline, not as separate billing */}
         <AnimatePresence>
           {carePlan && (

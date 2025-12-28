@@ -923,13 +923,9 @@ export default function FreeDemoPage() {
           {/* Right: Live Preview (desktop) */}
           <div className="hidden lg:block">
             <div className="sticky top-24">
-              <div className="mb-4 flex items-center gap-3">
+              <div className="mb-4 flex items-center gap-2">
                 <Eye className="w-5 h-5 text-accent" />
                 <span className="font-semibold">{t('Live förhandsgranskning', 'Live preview')}</span>
-                <InfoTooltip content={t(
-                  'Detta är en förhandsvisning av hur din hemsida kan se ut. Den uppdateras i realtid när du fyller i formuläret. Det slutliga resultatet kan skilja sig något beroende på dina bilder och innehåll.',
-                  'This is a preview of how your website could look. It updates in real-time as you fill out the form. The final result may vary slightly depending on your images and content.'
-                )} />
               </div>
               <LiveWebsitePreview
                 businessName={businessName}
@@ -949,16 +945,16 @@ export default function FreeDemoPage() {
           </div>
         </div>
 
-        {/* Mobile Preview Toggle - Positioned to avoid form buttons */}
-        <div className="lg:hidden fixed bottom-24 right-4 z-50">
+        {/* Mobile Preview Toggle - Better positioned */}
+        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
           <Button
             onClick={() => setShowPreview(!showPreview)}
             size="lg"
             variant={showPreview ? "secondary" : "default"}
-            className="rounded-full shadow-2xl px-5 h-12 text-sm border-2 border-accent/20"
+            className="rounded-full shadow-2xl px-6 h-14 text-base border-2 border-accent/20"
           >
-            <Eye className="w-4 h-4 mr-2" />
-            {showPreview ? t('Stäng', 'Close') : t('Se hemsida', 'See website')}
+            <Eye className="w-5 h-5 mr-2" />
+            {showPreview ? t('Stäng', 'Close') : t('👁️ Se din hemsida', '👁️ See your website')}
           </Button>
         </div>
 
