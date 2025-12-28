@@ -5,7 +5,6 @@ import { PageTransition } from './PageTransition';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { BackToTop } from './BackToTop';
 import { ScrollProgress } from './ScrollProgress';
-import { PromoBar } from './PromoBar';
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,7 +22,6 @@ export function Layout({ children }: LayoutProps) {
       </main>
       <Footer />
       <BackToTop />
-      <PromoBar />
     </div>
   );
 }
