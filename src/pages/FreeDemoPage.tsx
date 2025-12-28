@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle, Briefcase, Target, Calendar, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle, Briefcase, Target, Calendar, Plus, Trash2, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import { AnimatedSection } from '@/components/AnimatedSection';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { setVerificationPaid } from '@/config/stripe';
 import { useTheme } from 'next-themes';
+import { LiveWebsitePreview } from '@/components/LiveWebsitePreview';
 
 type FormStep = 1 | 2;
 
@@ -313,6 +314,9 @@ export default function FreeDemoPage() {
     );
   }
 
+  // State for preview visibility on mobile
+  const [showPreview, setShowPreview] = useState(false);
+
   return (
     <div className="min-h-screen section-padding py-12 relative overflow-hidden">
       {/* Background */}
@@ -321,10 +325,10 @@ export default function FreeDemoPage() {
         <div className="absolute bottom-40 -left-20 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="container-narrow relative">
+      <div className="max-w-7xl mx-auto relative">
         {/* Header */}
         <AnimatedSection animation="fade-up" className="text-center mb-10">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
             {t('Se hur din framtida hemsida kan se ut gratis innan du betalar', 'See how your future website can look for free before you pay')}
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -350,18 +354,21 @@ export default function FreeDemoPage() {
           </div>
         </AnimatedSection>
 
-        <AnimatePresence mode="wait">
-          {/* Step 1: Form */}
-          {step === 1 && (
-            <motion.form
-              key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              onSubmit={handleSubmitForm}
-              className="space-y-6 max-w-lg mx-auto"
-            >
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* Left: Form */}
+          <div>
+            <AnimatePresence mode="wait">
+              {/* Step 1: Form */}
+              {step === 1 && (
+                <motion.form
+                  key="step1"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  onSubmit={handleSubmitForm}
+                  className="space-y-6"
+                >
               {/* Contact Info */}
               <AnimatedSection animation="fade-up" delay={100}>
                 <Card>
@@ -849,6 +856,69 @@ export default function FreeDemoPage() {
                   </CardContent>
                 </Card>
               </AnimatedSection>
+            </motion.div>
+          )}
+        </AnimatePresence>
+          </div>
+
+          {/* Right: Live Preview (desktop) */}
+          <div className="hidden lg:block">
+            <div className="sticky top-24">
+              <div className="mb-4 flex items-center gap-2">
+                <Eye className="w-5 h-5 text-accent" />
+                <span className="font-semibold">{t('Live förhandsgranskning', 'Live preview')}</span>
+              </div>
+              <LiveWebsitePreview
+                businessName={businessName}
+                businessType={businessType}
+                selectedStyle={selectedStyle}
+                primaryColor={primaryColor}
+                accentColor={accentColor}
+                services={services}
+                websiteGoal={websiteGoal}
+                phone={phone}
+                email={email}
+              />
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                {t('Din hemsida uppdateras i realtid när du fyller i formuläret', 'Your website updates in real-time as you fill in the form')}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Preview Toggle */}
+        <div className="lg:hidden fixed bottom-4 right-4 z-50">
+          <Button
+            onClick={() => setShowPreview(!showPreview)}
+            size="lg"
+            variant={showPreview ? "secondary" : "default"}
+            className="rounded-full shadow-lg"
+          >
+            <Eye className="w-5 h-5 mr-2" />
+            {showPreview ? t('Dölj förhandsgranskning', 'Hide preview') : t('Visa förhandsgranskning', 'Show preview')}
+          </Button>
+        </div>
+
+        {/* Mobile Preview Modal */}
+        <AnimatePresence>
+          {showPreview && (
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="lg:hidden fixed inset-x-4 bottom-20 z-40 bg-background rounded-xl shadow-2xl border border-border p-4"
+            >
+              <LiveWebsitePreview
+                businessName={businessName}
+                businessType={businessType}
+                selectedStyle={selectedStyle}
+                primaryColor={primaryColor}
+                accentColor={accentColor}
+                services={services}
+                websiteGoal={websiteGoal}
+                phone={phone}
+                email={email}
+              />
             </motion.div>
           )}
         </AnimatePresence>
