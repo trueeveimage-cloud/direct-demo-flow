@@ -926,7 +926,6 @@ export default function FreeDemoPage() {
               <div className="mb-4 flex items-center gap-2">
                 <Eye className="w-5 h-5 text-accent" />
                 <span className="font-semibold">{t('Live förhandsgranskning', 'Live preview')}</span>
-                <InfoTooltip content={t('Detta är en snabb förhandsvisning baserad på dina val. Den visar riktning/stil — inte den färdiga hemsidan.', 'This is a quick preview based on your choices. It shows direction/style — not the final website.')} />
               </div>
               <LiveWebsitePreview
                 businessName={businessName}
@@ -946,15 +945,16 @@ export default function FreeDemoPage() {
           </div>
         </div>
 
-        {/* Mobile Preview Toggle - Fixed position that doesn't overlap Continue */}
-        <div className="lg:hidden fixed right-4 top-1/2 -translate-y-1/2 z-40">
+        {/* Mobile Preview Toggle - Better positioned */}
+        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
           <Button
             onClick={() => setShowPreview(!showPreview)}
-            size="icon"
+            size="lg"
             variant={showPreview ? "secondary" : "default"}
-            className="rounded-full shadow-2xl w-14 h-14 border-2 border-accent/20"
+            className="rounded-full shadow-2xl px-6 h-14 text-base border-2 border-accent/20"
           >
-            <Eye className="w-6 h-6" />
+            <Eye className="w-5 h-5 mr-2" />
+            {showPreview ? t('Stäng', 'Close') : t('👁️ Se din hemsida', '👁️ See your website')}
           </Button>
         </div>
 

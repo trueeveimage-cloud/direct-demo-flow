@@ -168,18 +168,6 @@ export const businessTypeFollowUps: BusinessTypeFollowUp[] = [
   },
 ];
 
-// ROI context for better estimations
-export interface ROIContext {
-  hasWebsite?: boolean;
-  currentWebsiteUrl?: string;
-  onlinePresence?: string;
-  monthlyLeads?: string;
-  contactMethod?: string;
-  avgOrderValue?: string;
-  topProblem?: string;
-  websiteImpact?: number;
-}
-
 export interface WizardFormData {
   // Step 1: Contact
   businessName: string;
@@ -194,14 +182,11 @@ export interface WizardFormData {
   // Business type follow-up answers
   businessFollowUps: Record<string, string | boolean | string[]>;
   
-  // ROI Context - for better website tailoring
-  roiContext: ROIContext;
-  
   // Step 2: Package & Style
   selectedPackage: string;
   selectedStyle: string;
   selectedLanguage: string;
-  customLanguages: string;
+  customLanguages: string; // NEW: For custom language input
   wantsBooking: boolean | null;
   bookingPlatform: string;
   primaryColor: string;
@@ -245,10 +230,6 @@ export interface WizardFormData {
   
   // For post-demo flow
   conceptLink?: string;
-  
-  // Photo uploads (stored as base64 for localStorage persistence)
-  logoPreview?: string | null;
-  photosPreviews?: string[];
 }
 
 export const initialFormData: WizardFormData = {
@@ -261,7 +242,6 @@ export const initialFormData: WizardFormData = {
   websiteGoal: '',
   websiteGoalOther: '',
   businessFollowUps: {},
-  roiContext: {},
   selectedPackage: '',
   selectedStyle: '',
   selectedLanguage: 'sv',
@@ -298,8 +278,6 @@ export const initialFormData: WizardFormData = {
   legalPages: [],
   termsExplanation: '',
   extraNotes: '',
-  logoPreview: null,
-  photosPreviews: [],
 };
 
 export const packages = [
