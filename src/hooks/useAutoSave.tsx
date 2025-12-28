@@ -1,7 +1,8 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 
 const STORAGE_KEY = 'nomia_demo_intake';
 const SESSION_KEY = 'nomia_session_active';
+const DEBOUNCE_MS = 1000;
 
 interface BookingServiceData {
   name: string;
@@ -43,6 +44,15 @@ interface IntakeData {
   bufferTime: string;
   maxBookingsPerDay: string;
   advanceBookingDays: string;
+  // ROI fields
+  hasWebsite: boolean | null;
+  businessGoal: string;
+  targetCustomersPerWeek: string;
+  averageOrderValue: string;
+  revenueRange: string;
+  websiteImpact: number;
+  // Photos
+  uploadedPhotoNames: string[];
   lastSaved: number;
 }
 
@@ -51,6 +61,8 @@ export type { BookingServiceData };
 export function useAutoSave() {
   const [hasSavedData, setHasSavedData] = useState(false);
   const [savedData, setSavedData] = useState<IntakeData | null>(null);
+  const [lastSaveTime, setLastSaveTime] = useState<number | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check for saved data on mount - only show resume prompt if returning from a closed session
   useEffect(() => {
@@ -75,19 +87,43 @@ export function useAutoSave() {
     
     // Mark session as active
     sessionStorage.setItem(SESSION_KEY, 'true');
+    
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
   }, []);
 
   const saveData = useCallback((data: Omit<IntakeData, 'lastSaved'>) => {
+    // Debounce saves
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    saveTimeoutRef.current = setTimeout(() => {
+      const toSave = { ...data, lastSaved: Date.now() };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      setSavedData(toSave);
+      setLastSaveTime(Date.now());
+    }, DEBOUNCE_MS);
+  }, []);
+
+  const saveDataImmediate = useCallback((data: Omit<IntakeData, 'lastSaved'>) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
     const toSave = { ...data, lastSaved: Date.now() };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     setSavedData(toSave);
-    // Don't set hasSavedData here - only for resume prompts
+    setLastSaveTime(Date.now());
   }, []);
 
   const clearData = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setSavedData(null);
     setHasSavedData(false);
+    setLastSaveTime(null);
   }, []);
 
   const dismissResume = useCallback(() => {
@@ -98,8 +134,10 @@ export function useAutoSave() {
     hasSavedData,
     savedData,
     saveData,
+    saveDataImmediate,
     clearData,
     dismissResume,
+    lastSaveTime,
   };
 }
 

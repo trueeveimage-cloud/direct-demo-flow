@@ -997,48 +997,30 @@ export default function FreeDemoPage() {
           </div>
         </div>
 
-        {/* Mobile Preview Toggle - Better positioned, above form buttons */}
-        <div className="lg:hidden fixed bottom-24 right-4 z-40">
-          <Button
-            onClick={() => setShowPreview(!showPreview)}
-            size="icon"
-            variant={showPreview ? "secondary" : "default"}
-            className="rounded-full shadow-2xl w-14 h-14 border-2 border-accent/20"
-          >
-            {showPreview ? <X className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
-          </Button>
-        </div>
-
-        {/* Mobile Preview Modal */}
-        <AnimatePresence>
-          {showPreview && (
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="lg:hidden fixed inset-x-4 bottom-24 top-24 z-30 bg-background rounded-xl shadow-2xl border border-border overflow-hidden flex flex-col"
-            >
-              <div className="p-3 border-b border-border flex items-center gap-2">
-                <Eye className="w-4 h-4 text-accent" />
-                <span className="font-semibold text-sm">{t('Förhandsgranskning', 'Preview')}</span>
-                <PreviewInfoTooltip />
-              </div>
-              <div className="flex-1 overflow-auto p-3">
-                <LiveWebsitePreview
-                  businessName={businessName}
-                  businessType={businessType}
-                  selectedStyle={selectedStyle}
-                  primaryColor={primaryColor}
-                  accentColor={accentColor}
-                  services={services}
-                  websiteGoal={websiteGoal}
-                  phone={phone}
-                  email={email}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Mobile Preview - Visible below continue button */}
+        {step === 1 && (
+          <div className="lg:hidden mt-8 px-4">
+            <div className="mb-4 flex items-center gap-2">
+              <Eye className="w-5 h-5 text-accent" />
+              <span className="font-semibold">{t('Förhandsgranskning', 'Preview')}</span>
+              <PreviewInfoTooltip />
+            </div>
+            <LiveWebsitePreview
+              businessName={businessName}
+              businessType={businessType}
+              selectedStyle={selectedStyle}
+              primaryColor={primaryColor}
+              accentColor={accentColor}
+              services={services}
+              websiteGoal={websiteGoal}
+              phone={phone}
+              email={email}
+            />
+            <p className="text-xs text-muted-foreground text-center mt-4">
+              {t('Din hemsida uppdateras i realtid', 'Your website updates in real-time')}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

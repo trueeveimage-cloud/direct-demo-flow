@@ -1,7 +1,8 @@
-import { memo, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Instagram, Clock, Menu, Star, ChevronRight, Calendar, Check } from 'lucide-react';
+import { memo, useMemo, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Phone, Mail, MapPin, Instagram, Clock, Menu, Star, ChevronRight, Calendar, Check, User, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { PreviewSkeleton } from './PreviewSkeleton';
 
 interface LiveWebsitePreviewProps {
   businessName: string;
@@ -13,17 +14,8 @@ interface LiveWebsitePreviewProps {
   websiteGoal: string;
   phone: string;
   email: string;
+  isLoading?: boolean;
 }
-
-// Color presets for quick selection
-const colorPresets = [
-  { name: 'Gold', primary: '#D4AF37', accent: '#FFD700' },
-  { name: 'Ocean', primary: '#0077B6', accent: '#00B4D8' },
-  { name: 'Forest', primary: '#2D6A4F', accent: '#40916C' },
-  { name: 'Rose', primary: '#9D4EDD', accent: '#E040FB' },
-  { name: 'Sunset', primary: '#E63946', accent: '#FF6B6B' },
-  { name: 'Midnight', primary: '#1A1A2E', accent: '#4A4E69' },
-];
 
 const styleThemes: Record<string, { bg: string; text: string; accent: string; font: string }> = {
   minimal: { bg: 'bg-white', text: 'text-gray-900', accent: 'bg-gray-900', font: 'font-sans' },
@@ -59,8 +51,17 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
   websiteGoal,
   phone,
   email,
+  isLoading = false,
 }: LiveWebsitePreviewProps) {
   const { t, lang } = useLanguage();
+  const [internalLoading, setInternalLoading] = useState(false);
+  
+  // Trigger loading state on significant changes
+  useEffect(() => {
+    setInternalLoading(true);
+    const timer = setTimeout(() => setInternalLoading(false), 400);
+    return () => clearTimeout(timer);
+  }, [selectedStyle, businessType, primaryColor]);
   
   const theme = useMemo(() => styleThemes[selectedStyle] || styleThemes.minimal, [selectedStyle]);
   const content = useMemo(() => businessTypeContent[businessType] || businessTypeContent.other, [businessType]);
@@ -84,244 +85,268 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
     return undefined;
   }, [primaryColor, accentColor]);
   
-  const customBorderStyle = useMemo(() => {
+  const customTextStyle = useMemo(() => {
     const color = primaryColor || accentColor;
     if (color && (color.startsWith('#') || color.startsWith('rgb'))) {
-      return { borderColor: color };
+      return { color };
     }
     return undefined;
   }, [primaryColor, accentColor]);
 
+  const showLoading = isLoading || internalLoading;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className="w-full h-full rounded-lg overflow-hidden shadow-2xl border border-border/50"
-    >
-      {/* Browser Chrome */}
-      <div className="bg-muted/50 px-3 py-2 flex items-center gap-2 border-b border-border/50">
-        <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-red-400" />
-          <div className="w-3 h-3 rounded-full bg-yellow-400" />
-          <div className="w-3 h-3 rounded-full bg-green-400" />
-        </div>
-        <div className="flex-1 mx-4">
-          <div className="bg-background/80 rounded-md px-3 py-1 text-xs text-muted-foreground truncate">
-            www.{displayName.toLowerCase().replace(/\s+/g, '')}.se
-          </div>
-        </div>
-      </div>
-
-      {/* Website Preview */}
-      <div className={`${theme.bg} ${theme.text} ${theme.font} h-[500px] overflow-y-auto relative`}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-current/10 sticky top-0 backdrop-blur-sm" style={{ backgroundColor: 'inherit' }}>
-          <motion.span 
-            key={displayName}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="font-bold text-sm truncate max-w-[120px]"
-          >
-            {displayName}
-          </motion.span>
-          <div className="flex items-center gap-3">
-            <span className="text-xs hidden sm:inline">{t('Om oss', 'About')}</span>
-            <span className="text-xs hidden sm:inline">{t('Tjänster', 'Services')}</span>
-            <span className="text-xs hidden sm:inline">{t('Kontakt', 'Contact')}</span>
-            <Menu className="w-4 h-4 sm:hidden" />
-          </div>
-        </div>
-
-        {/* Hero Section */}
-        <div className="px-4 py-8 text-center relative">
-          <motion.div
-            key={`${businessType}-${selectedStyle}-${primaryColor}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <h1 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">
-              {heroText}
-            </h1>
-            <p className="text-xs opacity-70 mb-4 max-w-[200px] mx-auto">
-              {lang === 'sv' 
-                ? 'Professionell service och kvalitet i världsklass' 
-                : 'Professional service and world-class quality'}
-            </p>
-            
-            {/* CTA Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className={`${theme.accent} px-4 py-2 rounded-md text-xs font-semibold text-white transition-all`}
-              style={customAccentStyle}
-            >
-              {ctaText}
-              <ChevronRight className="w-3 h-3 inline ml-1" />
-            </motion.button>
-          </motion.div>
-
-          {/* Rating */}
-          <div className="flex items-center justify-center gap-1 mt-4">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            ))}
-            <span className="text-xs ml-1 opacity-70">5.0</span>
-          </div>
-        </div>
-
-        {/* Services Section */}
-        {serviceList.length > 0 && (
-          <motion.div 
-            className="px-4 py-4 border-t border-current/10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            <h3 className="text-xs font-semibold mb-2 opacity-70">
-              {t('Våra tjänster', 'Our services')}
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {serviceList.map((service, i) => (
-                <motion.div
-                  key={service}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="text-xs bg-current/5 rounded px-2 py-1.5 truncate border border-current/10"
-                  style={customBorderStyle}
-                >
-                  {service}
-                </motion.div>
-              ))}
+    <AnimatePresence mode="wait">
+      {showLoading ? (
+        <PreviewSkeleton key="skeleton" />
+      ) : (
+        <motion.div
+          key="preview"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.3 }}
+          className="w-full h-full rounded-lg overflow-hidden shadow-2xl border border-border/50"
+        >
+          {/* Browser Chrome */}
+          <div className="bg-muted/50 px-3 py-2 flex items-center gap-2 border-b border-border/50">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-400" />
+              <div className="w-3 h-3 rounded-full bg-yellow-400" />
+              <div className="w-3 h-3 rounded-full bg-green-400" />
             </div>
-          </motion.div>
-        )}
+            <div className="flex-1 mx-4">
+              <div className="bg-background/80 rounded-md px-3 py-1 text-xs text-muted-foreground truncate">
+                www.{displayName.toLowerCase().replace(/\s+/g, '')}.se
+              </div>
+            </div>
+          </div>
 
-        {/* Booking Section - Clean, professional design */}
-        {showBooking && (
-          <motion.div 
-            className="mx-3 my-4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            {/* Booking Card */}
-            <div 
-              className="rounded-xl overflow-hidden border-2 border-current/20"
-            >
-              {/* Header */}
-              <div 
-                className="px-4 py-3 flex items-center gap-2"
-                style={{ backgroundColor: primaryColor || accentColor || 'rgba(0,0,0,0.1)' }}
+          {/* Website Preview */}
+          <div className={`${theme.bg} ${theme.text} ${theme.font} h-[500px] overflow-y-auto relative`}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-current/10 sticky top-0 backdrop-blur-sm" style={{ backgroundColor: 'inherit' }}>
+              <motion.span 
+                key={displayName}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="font-bold text-sm truncate max-w-[120px]"
               >
-                <Calendar className="w-4 h-4 text-white" />
-                <span className="text-sm font-bold text-white">
-                  {t('Boka tid', 'Book appointment')}
-                </span>
-              </div>
-              
-              {/* Content */}
-              <div className="p-3 space-y-3 bg-current/5">
-                {/* Step 1: Select date */}
-                <div>
-                  <p className="text-[10px] font-semibold opacity-70 mb-2 uppercase tracking-wide">
-                    1. {t('Välj datum', 'Select date')}
-                  </p>
-                  <div className="bg-background/50 rounded-lg p-2">
-                    <div className="grid grid-cols-7 gap-0.5 text-center mb-1">
-                      {['M', 'T', 'O', 'T', 'F', 'L', 'S'].map((day, i) => (
-                        <span key={i} className="text-[8px] font-medium opacity-40">{day}</span>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-7 gap-0.5 text-center">
-                      {[15, 16, 17, 18, 19, 20, 21].map((num, i) => (
-                        <motion.div 
-                          key={num}
-                          className={`text-[10px] rounded-md py-1 cursor-pointer transition-all ${
-                            num === 18 ? 'text-white font-bold shadow-sm' : 'hover:bg-current/10'
-                          }`}
-                          style={num === 18 ? customAccentStyle : undefined}
-                          initial={{ scale: 0.9, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: i * 0.02 }}
-                        >
-                          {num}
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Step 2: Select time */}
-                <div>
-                  <p className="text-[10px] font-semibold opacity-70 mb-2 uppercase tracking-wide">
-                    2. {t('Välj tid', 'Select time')}
-                  </p>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {['09:00', '10:30', '13:00', '15:30'].map((time, i) => (
-                      <motion.div 
-                        key={time}
-                        className={`text-[10px] text-center py-1.5 rounded-md border transition-all cursor-pointer ${
-                          i === 1 ? 'text-white border-transparent font-semibold' : 'border-current/20 hover:border-current/40'
-                        }`}
-                        style={i === 1 ? customAccentStyle : undefined}
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + i * 0.04 }}
-                      >
-                        {time}
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Book button */}
-                <motion.button
-                  className="w-full py-2 rounded-lg text-xs font-bold text-white flex items-center justify-center gap-1.5"
-                  style={customAccentStyle || { backgroundColor: 'hsl(var(--primary))' }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <Check className="w-3.5 h-3.5" />
-                  {t('Bekräfta bokning', 'Confirm booking')}
-                </motion.button>
+                {displayName}
+              </motion.span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs hidden sm:inline">{t('Om oss', 'About')}</span>
+                <span className="text-xs hidden sm:inline">{t('Tjänster', 'Services')}</span>
+                <span className="text-xs hidden sm:inline">{t('Kontakt', 'Contact')}</span>
+                <Menu className="w-4 h-4 sm:hidden" />
               </div>
             </div>
-            
-            {/* Trust indicators */}
-            <div className="flex items-center justify-center gap-3 mt-2 text-[9px] opacity-50">
-              <span className="flex items-center gap-1">
-                <Check className="w-3 h-3" />
-                {t('Gratis avbokning', 'Free cancellation')}
-              </span>
-              <span className="flex items-center gap-1">
-                <Check className="w-3 h-3" />
-                {t('Påminnelse via SMS', 'SMS reminder')}
-              </span>
-            </div>
-          </motion.div>
-        )}
 
-        {/* Contact Footer */}
-        <div className="px-4 py-3 border-t border-current/10 bg-current/5 mt-4">
-          <div className="flex items-center justify-center gap-4 text-xs opacity-70">
-            {phone && (
-              <span className="flex items-center gap-1">
-                <Phone className="w-3 h-3" />
-                <span className="truncate max-w-[80px]">{phone}</span>
-              </span>
+            {/* Hero Section */}
+            <div className="px-4 py-8 text-center relative">
+              <motion.div
+                key={`${businessType}-${selectedStyle}-${primaryColor}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h1 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">
+                  {heroText}
+                </h1>
+                <p className="text-xs opacity-70 mb-4 max-w-[200px] mx-auto">
+                  {lang === 'sv' 
+                    ? 'Professionell service och kvalitet i världsklass' 
+                    : 'Professional service and world-class quality'}
+                </p>
+                
+                {/* CTA Button */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  className={`${theme.accent} px-4 py-2 rounded-md text-xs font-semibold text-white transition-all`}
+                  style={customAccentStyle}
+                >
+                  {ctaText}
+                  <ChevronRight className="w-3 h-3 inline ml-1" />
+                </motion.button>
+              </motion.div>
+
+              {/* Rating */}
+              <div className="flex items-center justify-center gap-1 mt-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                ))}
+                <span className="text-xs ml-1 opacity-70">5.0</span>
+              </div>
+            </div>
+
+            {/* Services Section */}
+            {serviceList.length > 0 && (
+              <motion.div 
+                className="px-4 py-4 border-t border-current/10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <h3 className="text-xs font-semibold mb-2 opacity-70">
+                  {t('Våra tjänster', 'Our services')}
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {serviceList.map((service, i) => (
+                    <motion.div
+                      key={service}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="text-xs bg-current/5 rounded px-2 py-1.5 truncate border border-current/10"
+                    >
+                      {service}
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
             )}
-            {email && (
-              <span className="flex items-center gap-1">
-                <Mail className="w-3 h-3" />
-                <span className="truncate max-w-[100px]">{email}</span>
-              </span>
+
+            {/* Booking Section - Completely redesigned */}
+            {showBooking && (
+              <motion.div 
+                className="mx-4 my-4"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <div className="rounded-2xl overflow-hidden shadow-lg border border-current/10">
+                  {/* Booking Header */}
+                  <div 
+                    className="px-4 py-3 flex items-center gap-3"
+                    style={{ backgroundColor: primaryColor || accentColor || 'hsl(var(--accent))' }}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm">{t('Boka online', 'Book online')}</p>
+                      <p className="text-white/70 text-[10px]">{t('Snabbt & enkelt', 'Quick & easy')}</p>
+                    </div>
+                    <Sparkles className="w-4 h-4 text-white/60 ml-auto" />
+                  </div>
+                  
+                  {/* Booking Content */}
+                  <div className="p-4 bg-current/5 space-y-4">
+                    {/* Service Selection */}
+                    <div>
+                      <p className="text-[10px] font-semibold opacity-60 mb-2 flex items-center gap-1">
+                        <span className="w-4 h-4 rounded-full bg-current/10 flex items-center justify-center text-[8px] font-bold">1</span>
+                        {t('Välj tjänst', 'Select service')}
+                      </p>
+                      <div className="space-y-1.5">
+                        {['Klippning', 'Skägg', 'Klipp + Skägg'].slice(0, 3).map((service, i) => (
+                          <motion.div
+                            key={service}
+                            initial={{ opacity: 0, x: -5 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 + i * 0.05 }}
+                            className={`flex items-center justify-between p-2 rounded-lg text-[10px] cursor-pointer transition-all ${
+                              i === 0 ? 'bg-current/10 border-2' : 'bg-background/50 border border-current/10 hover:bg-current/5'
+                            }`}
+                            style={i === 0 ? { borderColor: primaryColor || accentColor || 'currentColor' } : undefined}
+                          >
+                            <span className="font-medium">{service}</span>
+                            <span className="opacity-60">{i === 2 ? '450 kr' : i === 0 ? '350 kr' : '200 kr'}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Date/Time Grid */}
+                    <div>
+                      <p className="text-[10px] font-semibold opacity-60 mb-2 flex items-center gap-1">
+                        <span className="w-4 h-4 rounded-full bg-current/10 flex items-center justify-center text-[8px] font-bold">2</span>
+                        {t('Välj tid', 'Select time')}
+                      </p>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {['09:00', '10:30', '11:00', '14:00', '15:30', '17:00'].map((time, i) => (
+                          <motion.button
+                            key={time}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.2 + i * 0.03 }}
+                            className={`text-[10px] py-2 rounded-lg transition-all ${
+                              i === 1 
+                                ? 'text-white font-bold shadow-md' 
+                                : 'bg-background/70 hover:bg-background border border-current/10'
+                            }`}
+                            style={i === 1 ? customAccentStyle : undefined}
+                          >
+                            {time}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Staff Selection - Mini */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <div className="flex -space-x-2">
+                        {[1, 2, 3].map((_, i) => (
+                          <div 
+                            key={i} 
+                            className="w-6 h-6 rounded-full bg-current/20 border-2 border-background flex items-center justify-center"
+                          >
+                            <User className="w-3 h-3 opacity-50" />
+                          </div>
+                        ))}
+                      </div>
+                      <span className="text-[9px] opacity-50">{t('Alla tillgängliga', 'All available')}</span>
+                    </div>
+                    
+                    {/* Book Button */}
+                    <motion.button
+                      className="w-full py-2.5 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 shadow-lg"
+                      style={customAccentStyle || { backgroundColor: 'hsl(var(--accent))' }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.4 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <Check className="w-4 h-4" />
+                      {t('Boka nu', 'Book now')}
+                    </motion.button>
+                  </div>
+                </div>
+                
+                {/* Trust badges */}
+                <div className="flex items-center justify-center gap-4 mt-3 text-[9px] opacity-40">
+                  <span className="flex items-center gap-1">
+                    <Check className="w-3 h-3" />
+                    {t('Gratis avbokning', 'Free cancellation')}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Check className="w-3 h-3" />
+                    {t('SMS-påminnelse', 'SMS reminder')}
+                  </span>
+                </div>
+              </motion.div>
             )}
+
+            {/* Contact Footer */}
+            <div className="px-4 py-3 border-t border-current/10 bg-current/5 mt-4">
+              <div className="flex items-center justify-center gap-4 text-xs opacity-70">
+                {phone && (
+                  <span className="flex items-center gap-1">
+                    <Phone className="w-3 h-3" />
+                    <span className="truncate max-w-[80px]">{phone}</span>
+                  </span>
+                )}
+                {email && (
+                  <span className="flex items-center gap-1">
+                    <Mail className="w-3 h-3" />
+                    <span className="truncate max-w-[100px]">{email}</span>
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 });
