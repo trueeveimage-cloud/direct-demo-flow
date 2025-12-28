@@ -539,34 +539,93 @@ export default function FreeDemoPage() {
                 </Card>
               </AnimatedSection>
 
-              {/* Color Preferences */}
+              {/* Color Preferences - with visual picker */}
               <AnimatedSection animation="fade-up" delay={160}>
                 <Card>
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center gap-2 mb-2">
+                      <Palette className="w-5 h-5 text-accent" />
                       <h2 className="font-semibold text-lg">{t('Färgpreferenser', 'Color preferences')}</h2>
-                      <InfoTooltip content={t('Färger används för knappar, highlights och varumärkeskänsla.', 'Colors are used for buttons, highlights, and brand feel.')} />
+                      <InfoTooltip content={t('Klicka på en färg för att se den i förhandsgranskningen!', 'Click a color to see it in the preview!')} />
                     </div>
+                    
+                    {/* Color Preset Buttons */}
+                    <div className="space-y-2">
+                      <Label className="text-sm text-muted-foreground">{t('Snabbval', 'Quick pick')}</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { name: 'Guld', color: '#D4AF37' },
+                          { name: 'Ocean', color: '#0077B6' },
+                          { name: 'Skog', color: '#2D6A4F' },
+                          { name: 'Lila', color: '#9D4EDD' },
+                          { name: 'Röd', color: '#E63946' },
+                          { name: 'Svart', color: '#1A1A2E' },
+                        ].map((preset) => (
+                          <button
+                            key={preset.name}
+                            type="button"
+                            onClick={() => {
+                              setPrimaryColor(preset.color);
+                              setNoColorPreference(false);
+                            }}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all hover:scale-105 ${
+                              primaryColor === preset.color ? 'border-accent ring-2 ring-accent/30' : 'border-border hover:border-accent/50'
+                            }`}
+                          >
+                            <span 
+                              className="w-5 h-5 rounded-full border border-border/50 shadow-sm"
+                              style={{ backgroundColor: preset.color }}
+                            />
+                            <span className="text-xs font-medium">{preset.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <Label>{t('Primärfärg', 'Primary color')}</Label>
-                        <Input 
-                          value={primaryColor} 
-                          onChange={(e) => setPrimaryColor(e.target.value)} 
-                          placeholder={t('t.ex. Mörkblå, #1a2b3c', 'e.g. Dark blue, #1a2b3c')} 
-                          className="h-12 mt-1"
-                          disabled={noColorPreference}
-                        />
+                        <div className="flex gap-2 mt-1">
+                          <Input 
+                            value={primaryColor} 
+                            onChange={(e) => setPrimaryColor(e.target.value)} 
+                            placeholder={t('t.ex. #1a2b3c', 'e.g. #1a2b3c')} 
+                            className="h-12 flex-1"
+                            disabled={noColorPreference}
+                          />
+                          <input 
+                            type="color"
+                            value={primaryColor || '#D4AF37'}
+                            onChange={(e) => {
+                              setPrimaryColor(e.target.value);
+                              setNoColorPreference(false);
+                            }}
+                            className="h-12 w-12 rounded-lg border border-border cursor-pointer"
+                            disabled={noColorPreference}
+                          />
+                        </div>
                       </div>
                       <div>
                         <Label>{t('Accentfärg', 'Accent color')}</Label>
-                        <Input 
-                          value={accentColor} 
-                          onChange={(e) => setAccentColor(e.target.value)} 
-                          placeholder={t('t.ex. Guld, #ffd700', 'e.g. Gold, #ffd700')} 
-                          className="h-12 mt-1"
-                          disabled={noColorPreference}
-                        />
+                        <div className="flex gap-2 mt-1">
+                          <Input 
+                            value={accentColor} 
+                            onChange={(e) => setAccentColor(e.target.value)} 
+                            placeholder={t('t.ex. #ffd700', 'e.g. #ffd700')} 
+                            className="h-12 flex-1"
+                            disabled={noColorPreference}
+                          />
+                          <input 
+                            type="color"
+                            value={accentColor || '#FFD700'}
+                            onChange={(e) => {
+                              setAccentColor(e.target.value);
+                              setNoColorPreference(false);
+                            }}
+                            className="h-12 w-12 rounded-lg border border-border cursor-pointer"
+                            disabled={noColorPreference}
+                          />
+                        </div>
                       </div>
                     </div>
                     <label className="flex items-center gap-3 cursor-pointer">
@@ -886,16 +945,16 @@ export default function FreeDemoPage() {
           </div>
         </div>
 
-        {/* Mobile Preview Toggle */}
-        <div className="lg:hidden fixed bottom-4 right-4 z-50">
+        {/* Mobile Preview Toggle - Better positioned */}
+        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
           <Button
             onClick={() => setShowPreview(!showPreview)}
             size="lg"
             variant={showPreview ? "secondary" : "default"}
-            className="rounded-full shadow-lg"
+            className="rounded-full shadow-2xl px-6 h-14 text-base border-2 border-accent/20"
           >
             <Eye className="w-5 h-5 mr-2" />
-            {showPreview ? t('Dölj förhandsgranskning', 'Hide preview') : t('Visa förhandsgranskning', 'Show preview')}
+            {showPreview ? t('Stäng', 'Close') : t('👁️ Se din hemsida', '👁️ See your website')}
           </Button>
         </div>
 

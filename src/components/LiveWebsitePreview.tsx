@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Instagram, Clock, Menu, Star, ChevronRight } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram, Clock, Menu, Star, ChevronRight, Calendar, Check } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LiveWebsitePreviewProps {
@@ -14,6 +14,16 @@ interface LiveWebsitePreviewProps {
   phone: string;
   email: string;
 }
+
+// Color presets for quick selection
+const colorPresets = [
+  { name: 'Gold', primary: '#D4AF37', accent: '#FFD700' },
+  { name: 'Ocean', primary: '#0077B6', accent: '#00B4D8' },
+  { name: 'Forest', primary: '#2D6A4F', accent: '#40916C' },
+  { name: 'Rose', primary: '#9D4EDD', accent: '#E040FB' },
+  { name: 'Sunset', primary: '#E63946', accent: '#FF6B6B' },
+  { name: 'Midnight', primary: '#1A1A2E', accent: '#4A4E69' },
+];
 
 const styleThemes: Record<string, { bg: string; text: string; accent: string; font: string }> = {
   minimal: { bg: 'bg-white', text: 'text-gray-900', accent: 'bg-gray-900', font: 'font-sans' },
@@ -36,6 +46,9 @@ const businessTypeContent: Record<string, { heroText: { sv: string; en: string }
   other: { heroText: { sv: 'Välkommen till oss', en: 'Welcome' }, ctaText: { sv: 'Kontakt', en: 'Contact' } },
 };
 
+// Booking system needs check
+const bookingBusinessTypes = ['barber', 'nail', 'gym', 'clinic', 'cleaning'];
+
 export const LiveWebsitePreview = memo(function LiveWebsitePreview({
   businessName,
   businessType,
@@ -51,6 +64,7 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
   
   const theme = useMemo(() => styleThemes[selectedStyle] || styleThemes.minimal, [selectedStyle]);
   const content = useMemo(() => businessTypeContent[businessType] || businessTypeContent.other, [businessType]);
+  const showBooking = useMemo(() => bookingBusinessTypes.includes(businessType), [businessType]);
   
   const displayName = businessName || (lang === 'sv' ? 'Ditt Företag' : 'Your Business');
   const heroText = lang === 'sv' ? content.heroText.sv : content.heroText.en;
@@ -61,10 +75,19 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
     return services.split(',').map(s => s.trim()).filter(Boolean).slice(0, 4);
   }, [services]);
 
-  // Custom color styles
+  // Custom color styles - use hex colors if provided
   const customAccentStyle = useMemo(() => {
-    if (primaryColor || accentColor) {
-      return { backgroundColor: primaryColor || accentColor || undefined };
+    const color = primaryColor || accentColor;
+    if (color && (color.startsWith('#') || color.startsWith('rgb'))) {
+      return { backgroundColor: color };
+    }
+    return undefined;
+  }, [primaryColor, accentColor]);
+  
+  const customBorderStyle = useMemo(() => {
+    const color = primaryColor || accentColor;
+    if (color && (color.startsWith('#') || color.startsWith('rgb'))) {
+      return { borderColor: color };
     }
     return undefined;
   }, [primaryColor, accentColor]);
@@ -91,9 +114,9 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
       </div>
 
       {/* Website Preview */}
-      <div className={`${theme.bg} ${theme.text} ${theme.font} h-[400px] overflow-hidden relative`}>
+      <div className={`${theme.bg} ${theme.text} ${theme.font} h-[500px] overflow-y-auto relative`}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-current/10">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-current/10 sticky top-0 backdrop-blur-sm" style={{ backgroundColor: 'inherit' }}>
           <motion.span 
             key={displayName}
             initial={{ opacity: 0 }}
@@ -113,7 +136,7 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
         {/* Hero Section */}
         <div className="px-4 py-8 text-center relative">
           <motion.div
-            key={`${businessType}-${selectedStyle}`}
+            key={`${businessType}-${selectedStyle}-${primaryColor}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -130,7 +153,7 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
             {/* CTA Button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
-              className={`${theme.accent} px-4 py-2 rounded-md text-xs font-semibold text-white`}
+              className={`${theme.accent} px-4 py-2 rounded-md text-xs font-semibold text-white transition-all`}
               style={customAccentStyle}
             >
               {ctaText}
@@ -165,7 +188,8 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="text-xs bg-current/5 rounded px-2 py-1.5 truncate"
+                  className="text-xs bg-current/5 rounded px-2 py-1.5 truncate border border-current/10"
+                  style={customBorderStyle}
                 >
                   {service}
                 </motion.div>
@@ -174,8 +198,68 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
           </motion.div>
         )}
 
+        {/* Booking Section - Shows for booking-type businesses */}
+        {showBooking && (
+          <motion.div 
+            className="px-4 py-4 border-t border-current/10 mx-2 my-3 rounded-lg bg-current/5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="w-4 h-4 opacity-70" />
+              <h3 className="text-xs font-semibold opacity-70">
+                {t('Boka online', 'Book online')}
+              </h3>
+            </div>
+            
+            {/* Mini Calendar Preview */}
+            <div className="bg-current/5 rounded-md p-2 mb-2">
+              <div className="grid grid-cols-7 gap-1 text-center">
+                {['M', 'T', 'O', 'T', 'F', 'L', 'S'].map((day, i) => (
+                  <span key={i} className="text-[8px] opacity-50">{day}</span>
+                ))}
+                {[1,2,3,4,5,6,7].map((num) => (
+                  <motion.span 
+                    key={num} 
+                    className={`text-[9px] rounded-full w-4 h-4 flex items-center justify-center mx-auto ${num === 3 ? 'text-white' : 'opacity-70'}`}
+                    style={num === 3 ? customAccentStyle : undefined}
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: num * 0.03 }}
+                  >
+                    {num}
+                  </motion.span>
+                ))}
+              </div>
+            </div>
+            
+            {/* Time Slots */}
+            <div className="flex gap-1 flex-wrap">
+              {['09:00', '10:00', '11:30', '14:00'].map((time, i) => (
+                <motion.span 
+                  key={time}
+                  className={`text-[9px] px-2 py-1 rounded border border-current/20 ${i === 1 ? 'text-white' : ''}`}
+                  style={i === 1 ? customAccentStyle : undefined}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 + i * 0.05 }}
+                >
+                  {time}
+                </motion.span>
+              ))}
+            </div>
+            
+            {/* Confirmation */}
+            <div className="flex items-center gap-1 mt-2 text-[9px] opacity-60">
+              <Check className="w-3 h-3" />
+              <span>{t('Direkt bekräftelse', 'Instant confirmation')}</span>
+            </div>
+          </motion.div>
+        )}
+
         {/* Contact Footer */}
-        <div className="absolute bottom-0 left-0 right-0 px-4 py-3 border-t border-current/10 bg-current/5">
+        <div className="px-4 py-3 border-t border-current/10 bg-current/5 mt-4">
           <div className="flex items-center justify-center gap-4 text-xs opacity-70">
             {phone && (
               <span className="flex items-center gap-1">
