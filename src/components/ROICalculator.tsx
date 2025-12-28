@@ -48,18 +48,32 @@ export function ROICalculator() {
     const orderValue = parseFloat(averageOrder) || 0;
     const multiplier = businessTypeMultipliers[businessType] || businessTypeMultipliers.other;
     
-    const lowMonthly = orderValue * multiplier.lowCustomers;
-    const highMonthly = orderValue * multiplier.highCustomers;
-    const lowYearly = lowMonthly * 12;
-    const highYearly = highMonthly * 12;
+    // Calculate new customers from website
+    const newCustomersLow = multiplier.lowCustomers;
+    const newCustomersHigh = multiplier.highCustomers;
+    
+    // Repeat customer factor (30-50% of new customers become repeat)
+    const repeatFactor = 1.4;
+    
+    // Average visits per year per repeat customer
+    const avgVisitsPerYear = businessType === 'barber' ? 8 : businessType === 'nail' ? 12 : businessType === 'restaurant' ? 6 : businessType === 'gym' ? 36 : 4;
+    
+    // First year: new customers + some repeats
+    const lowMonthly = orderValue * newCustomersLow * repeatFactor;
+    const highMonthly = orderValue * newCustomersHigh * repeatFactor;
+    
+    // Yearly with compounding repeat customers
+    const lowYearly = (lowMonthly * 12) + (orderValue * newCustomersLow * avgVisitsPerYear * 0.3);
+    const highYearly = (highMonthly * 12) + (orderValue * newCustomersHigh * avgVisitsPerYear * 0.5);
     
     return {
-      lowCustomers: multiplier.lowCustomers,
-      highCustomers: multiplier.highCustomers,
-      lowMonthly,
-      highMonthly,
-      lowYearly,
-      highYearly,
+      lowCustomers: newCustomersLow,
+      highCustomers: newCustomersHigh,
+      lowMonthly: Math.round(lowMonthly),
+      highMonthly: Math.round(highMonthly),
+      lowYearly: Math.round(lowYearly),
+      highYearly: Math.round(highYearly),
+      avgVisitsPerYear,
     };
   }, [businessType, averageOrder]);
 
@@ -93,7 +107,7 @@ export function ROICalculator() {
         className="group h-12 px-6 border-accent/50 hover:border-accent hover:bg-accent/10 text-foreground"
       >
         <Calculator className="w-5 h-5 mr-2 text-accent" />
-        {t('Hur mycket pengar missar jag?', 'How much money am I missing?')}
+        {t('Hur mycket omsättning går jag miste om?', 'How much revenue am I losing?')}
         <TrendingUp className="w-4 h-4 ml-2 text-accent group-hover:translate-x-1 transition-transform" />
       </Button>
 
@@ -194,8 +208,8 @@ export function ROICalculator() {
                       <div className="text-center">
                         <p className="text-muted-foreground text-sm mb-2">
                           {t(
-                            `En hemsida ger ${result.lowCustomers}-${result.highCustomers} nya kunder/månad`,
-                            `A website brings ${result.lowCustomers}-${result.highCustomers} new customers/month`
+                            `${result.lowCustomers}-${result.highCustomers} nya kunder/månad + återkommande besök`,
+                            `${result.lowCustomers}-${result.highCustomers} new customers/month + repeat visits`
                           )}
                         </p>
                         <p className="text-3xl font-bold text-accent">

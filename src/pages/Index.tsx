@@ -105,7 +105,7 @@ export default function Index() {
             {t('Skapa din hemsida.', 'Create your website.')}
             <br />
             <span className="text-muted-foreground">
-              {t('Se hur din framtida webbsida kan se ut innan du betalar.', 'See how your future website can look before you pay.')}
+              {t('Se hur din framtida webbsida kan se ut gratis innan du betalar.', 'See how your future website can look for free before you pay.')}
             </span>
           </motion.h1>
 
