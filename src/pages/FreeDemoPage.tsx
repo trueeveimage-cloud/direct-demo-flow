@@ -325,9 +325,12 @@ export default function FreeDemoPage() {
         {/* Header */}
         <AnimatedSection animation="fade-up" className="text-center mb-10">
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-            {t('Få ditt koncept', 'Get your concept')}
+            {t('Se hur din framtida hemsida kan se ut', 'See how your future website can look')}
           </h1>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-2">
+            {t('Gratis förhandsgranskning innan du betalar.', 'Free preview before you pay.')}
+          </p>
+          <p className="text-muted-foreground max-w-xl mx-auto">
             {t(
               'Fyll i formuläret så skapar vi ett unikt webb-koncept för dig inom 72 timmar.',
               'Fill in the form and we\'ll create a unique website concept for you within 72 hours.'
