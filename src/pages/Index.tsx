@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Testimonials } from '@/components/Testimonials';
 import { TrustBadges } from '@/components/TrustBadges';
+import { ROICalculator } from '@/components/ROICalculator';
 import { motion } from 'framer-motion';
 
 // Import portfolio images
@@ -140,6 +141,17 @@ export default function Index() {
             <span className="font-bold">Klarna</span>
             <span>{t('Delbetala enkelt', 'Easy installments')}</span>
           </motion.div>
+          
+          {/* ROI Calculator Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mt-6"
+          >
+            <ROICalculator />
+          </motion.div>
+          
           <motion.div initial={{
           opacity: 0
         }} animate={{
