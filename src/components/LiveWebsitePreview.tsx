@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Instagram, Clock, Menu, Star, ChevronRight, Calendar, Check } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram, Clock, Menu, Star, ChevronRight, Calendar, Check, Users, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LiveWebsitePreviewProps {
@@ -14,16 +14,6 @@ interface LiveWebsitePreviewProps {
   phone: string;
   email: string;
 }
-
-// Color presets for quick selection
-const colorPresets = [
-  { name: 'Gold', primary: '#D4AF37', accent: '#FFD700' },
-  { name: 'Ocean', primary: '#0077B6', accent: '#00B4D8' },
-  { name: 'Forest', primary: '#2D6A4F', accent: '#40916C' },
-  { name: 'Rose', primary: '#9D4EDD', accent: '#E040FB' },
-  { name: 'Sunset', primary: '#E63946', accent: '#FF6B6B' },
-  { name: 'Midnight', primary: '#1A1A2E', accent: '#4A4E69' },
-];
 
 const styleThemes: Record<string, { bg: string; text: string; accent: string; font: string }> = {
   minimal: { bg: 'bg-white', text: 'text-gray-900', accent: 'bg-gray-900', font: 'font-sans' },
@@ -88,6 +78,14 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
     const color = primaryColor || accentColor;
     if (color && (color.startsWith('#') || color.startsWith('rgb'))) {
       return { borderColor: color };
+    }
+    return undefined;
+  }, [primaryColor, accentColor]);
+
+  const customTextStyle = useMemo(() => {
+    const color = primaryColor || accentColor;
+    if (color && (color.startsWith('#') || color.startsWith('rgb'))) {
+      return { color };
     }
     return undefined;
   }, [primaryColor, accentColor]);
@@ -198,65 +196,89 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
           </motion.div>
         )}
 
-        {/* Booking Section - Shows for booking-type businesses */}
+        {/* Improved Booking Section - Shows for booking-type businesses */}
         {showBooking && (
           <motion.div 
-            className="px-4 py-4 border-t border-current/10 mx-2 my-3 rounded-lg bg-current/5"
+            className="mx-4 my-4 rounded-xl overflow-hidden border border-current/20 shadow-sm"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="flex items-center gap-2 mb-3">
-              <Calendar className="w-4 h-4 opacity-70" />
-              <h3 className="text-xs font-semibold opacity-70">
-                {t('Boka online', 'Book online')}
-              </h3>
+            {/* Booking Header */}
+            <div 
+              className="px-4 py-3 flex items-center justify-between"
+              style={customAccentStyle ? { ...customAccentStyle, color: 'white' } : undefined}
+            >
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" style={customAccentStyle ? { color: 'white' } : undefined} />
+                <span className="text-sm font-semibold" style={customAccentStyle ? { color: 'white' } : undefined}>
+                  {t('Boka online', 'Book online')}
+                </span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 bg-white/20 rounded-full">
+                {t('24/7', '24/7')}
+              </span>
             </div>
             
-            {/* Mini Calendar Preview */}
-            <div className="bg-current/5 rounded-md p-2 mb-2">
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {['M', 'T', 'O', 'T', 'F', 'L', 'S'].map((day, i) => (
-                  <span key={i} className="text-[8px] opacity-50">{day}</span>
-                ))}
-                {[1,2,3,4,5,6,7].map((num) => (
-                  <motion.span 
-                    key={num} 
-                    className={`text-[9px] rounded-full w-4 h-4 flex items-center justify-center mx-auto ${num === 3 ? 'text-white' : 'opacity-70'}`}
-                    style={num === 3 ? customAccentStyle : undefined}
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: num * 0.03 }}
+            <div className="bg-current/5 p-3 space-y-3">
+              {/* Date Selection */}
+              <div className="flex items-center justify-between text-xs">
+                <span className="opacity-70">{t('Välj datum', 'Select date')}</span>
+                <span className="font-medium" style={customTextStyle}>{new Date().toLocaleDateString(lang === 'sv' ? 'sv-SE' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+              </div>
+              
+              {/* Time Slots - More polished */}
+              <div className="grid grid-cols-4 gap-1.5">
+                {['09:00', '10:30', '13:00', '15:30'].map((time, i) => (
+                  <motion.button 
+                    key={time}
+                    className={`text-[10px] py-2 rounded-md border transition-all ${
+                      i === 1 
+                        ? 'text-white border-transparent' 
+                        : 'border-current/20 hover:border-current/40'
+                    }`}
+                    style={i === 1 ? customAccentStyle : undefined}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 + i * 0.05 }}
+                    whileHover={{ scale: 1.05 }}
                   >
-                    {num}
-                  </motion.span>
+                    {time}
+                  </motion.button>
                 ))}
               </div>
-            </div>
-            
-            {/* Time Slots */}
-            <div className="flex gap-1 flex-wrap">
-              {['09:00', '10:00', '11:30', '14:00'].map((time, i) => (
-                <motion.span 
-                  key={time}
-                  className={`text-[9px] px-2 py-1 rounded border border-current/20 ${i === 1 ? 'text-white' : ''}`}
-                  style={i === 1 ? customAccentStyle : undefined}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 + i * 0.05 }}
-                >
-                  {time}
-                </motion.span>
-              ))}
-            </div>
-            
-            {/* Confirmation */}
-            <div className="flex items-center gap-1 mt-2 text-[9px] opacity-60">
-              <Check className="w-3 h-3" />
-              <span>{t('Direkt bekräftelse', 'Instant confirmation')}</span>
+              
+              {/* Features */}
+              <div className="flex items-center justify-between pt-2 border-t border-current/10">
+                <div className="flex items-center gap-1 text-[10px] opacity-70">
+                  <Check className="w-3 h-3" style={customTextStyle} />
+                  <span>{t('Direkt bekräftelse', 'Instant confirmation')}</span>
+                </div>
+                <div className="flex items-center gap-1 text-[10px] opacity-70">
+                  <Users className="w-3 h-3" style={customTextStyle} />
+                  <span>{t('Gratis avbokning', 'Free cancellation')}</span>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
+
+        {/* Trust Badges */}
+        <motion.div 
+          className="px-4 py-3 flex items-center justify-center gap-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="flex items-center gap-1 text-[10px] opacity-50">
+            <Sparkles className="w-3 h-3" />
+            <span>{t('Snabb service', 'Fast service')}</span>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] opacity-50">
+            <Check className="w-3 h-3" />
+            <span>{t('Professionell', 'Professional')}</span>
+          </div>
+        </motion.div>
 
         {/* Contact Footer */}
         <div className="px-4 py-3 border-t border-current/10 bg-current/5 mt-4">
