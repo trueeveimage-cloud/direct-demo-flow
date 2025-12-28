@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle, Briefcase, Target, Calendar, Plus, Trash2, Eye } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle, Briefcase, Target, Calendar, Plus, Trash2, Eye, Image as ImageIcon, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,8 @@ import { InfoTooltip } from '@/components/InfoTooltip';
 import { setVerificationPaid } from '@/config/stripe';
 import { useTheme } from 'next-themes';
 import { LiveWebsitePreview } from '@/components/LiveWebsitePreview';
+import { PreviewInfoTooltip } from '@/components/PreviewInfoTooltip';
+import { PhotoUpload } from '@/components/PhotoUpload';
 
 type FormStep = 1 | 2;
 
@@ -111,6 +113,9 @@ export default function FreeDemoPage() {
 
   // Extra notes
   const [extraNotes, setExtraNotes] = useState('');
+  
+  // Photo uploads
+  const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([]);
   
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
@@ -636,7 +641,7 @@ export default function FreeDemoPage() {
                 </Card>
               </AnimatedSection>
 
-              {/* Booking System */}
+              {/* Booking System - Redesigned with Yes/No cards */}
               <AnimatedSection animation="fade-up" delay={170}>
                 <Card>
                   <CardContent className="p-6 space-y-4">
@@ -645,21 +650,48 @@ export default function FreeDemoPage() {
                       <h2 className="font-semibold text-lg">{t('Vill du ha ett bokningssystem?', 'Do you want a booking system?')}</h2>
                       <InfoTooltip content={t('Vi skapar ditt helt egna bokningssystem integrerat med din webbplats.', 'We create your very own booking system integrated with your website.')} />
                     </div>
-                    <div className="flex gap-4">
-                      <Button
+                    
+                    {/* Yes/No Cards */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
                         type="button"
-                        variant={wantsBooking === true ? 'default' : 'outline'}
                         onClick={() => setWantsBooking(true)}
+                        className={`p-6 rounded-xl border-2 transition-all flex flex-col items-center gap-3 hover:scale-[1.02] ${
+                          wantsBooking === true 
+                            ? 'border-accent bg-accent/10 ring-2 ring-accent/30' 
+                            : 'border-border hover:border-accent/50'
+                        }`}
                       >
-                        {t('Ja', 'Yes')}
-                      </Button>
-                      <Button
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          wantsBooking === true ? 'bg-accent text-accent-foreground' : 'bg-secondary'
+                        }`}>
+                          <Check className="w-6 h-6" />
+                        </div>
+                        <span className="font-semibold">{t('Ja, tack!', 'Yes, please!')}</span>
+                        <span className="text-xs text-muted-foreground text-center">
+                          {t('Kunder kan boka direkt online', 'Customers can book directly online')}
+                        </span>
+                      </button>
+                      
+                      <button
                         type="button"
-                        variant={wantsBooking === false ? 'default' : 'outline'}
                         onClick={() => setWantsBooking(false)}
+                        className={`p-6 rounded-xl border-2 transition-all flex flex-col items-center gap-3 hover:scale-[1.02] ${
+                          wantsBooking === false 
+                            ? 'border-accent bg-accent/10 ring-2 ring-accent/30' 
+                            : 'border-border hover:border-accent/50'
+                        }`}
                       >
-                        {t('Nej', 'No')}
-                      </Button>
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          wantsBooking === false ? 'bg-accent text-accent-foreground' : 'bg-secondary'
+                        }`}>
+                          <X className="w-6 h-6" />
+                        </div>
+                        <span className="font-semibold">{t('Nej, tack', 'No, thanks')}</span>
+                        <span className="text-xs text-muted-foreground text-center">
+                          {t('Jag kontaktas via telefon/e-post', 'I prefer phone/email contact')}
+                        </span>
+                      </button>
                     </div>
 
                     {/* Booking Requirements */}
@@ -774,6 +806,25 @@ export default function FreeDemoPage() {
                         </div>
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+
+              {/* Photo Upload Section */}
+              <AnimatedSection animation="fade-up" delay={175}>
+                <Card>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <ImageIcon className="w-5 h-5 text-accent" />
+                      <h2 className="font-semibold text-lg">{t('Bilder', 'Photos')}</h2>
+                      <InfoTooltip content={t('Ladda upp din logotyp, bilder från verksamheten, eller designinspiration.', 'Upload your logo, photos from your business, or design inspiration.')} />
+                      <span className="text-sm text-muted-foreground ml-auto">{t('Valfritt', 'Optional')}</span>
+                    </div>
+                    <PhotoUpload 
+                      photos={uploadedPhotos} 
+                      onChange={setUploadedPhotos}
+                      maxPhotos={5}
+                    />
                   </CardContent>
                 </Card>
               </AnimatedSection>
@@ -926,6 +977,7 @@ export default function FreeDemoPage() {
               <div className="mb-4 flex items-center gap-2">
                 <Eye className="w-5 h-5 text-accent" />
                 <span className="font-semibold">{t('Live förhandsgranskning', 'Live preview')}</span>
+                <PreviewInfoTooltip />
               </div>
               <LiveWebsitePreview
                 businessName={businessName}
@@ -945,16 +997,15 @@ export default function FreeDemoPage() {
           </div>
         </div>
 
-        {/* Mobile Preview Toggle - Better positioned */}
-        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        {/* Mobile Preview Toggle - Better positioned, above form buttons */}
+        <div className="lg:hidden fixed bottom-24 right-4 z-40">
           <Button
             onClick={() => setShowPreview(!showPreview)}
-            size="lg"
+            size="icon"
             variant={showPreview ? "secondary" : "default"}
-            className="rounded-full shadow-2xl px-6 h-14 text-base border-2 border-accent/20"
+            className="rounded-full shadow-2xl w-14 h-14 border-2 border-accent/20"
           >
-            <Eye className="w-5 h-5 mr-2" />
-            {showPreview ? t('Stäng', 'Close') : t('👁️ Se din hemsida', '👁️ See your website')}
+            {showPreview ? <X className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
           </Button>
         </div>
 
@@ -965,19 +1016,26 @@ export default function FreeDemoPage() {
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 100 }}
-              className="lg:hidden fixed inset-x-4 bottom-20 z-40 bg-background rounded-xl shadow-2xl border border-border p-4"
+              className="lg:hidden fixed inset-x-4 bottom-24 top-24 z-30 bg-background rounded-xl shadow-2xl border border-border overflow-hidden flex flex-col"
             >
-              <LiveWebsitePreview
-                businessName={businessName}
-                businessType={businessType}
-                selectedStyle={selectedStyle}
-                primaryColor={primaryColor}
-                accentColor={accentColor}
-                services={services}
-                websiteGoal={websiteGoal}
-                phone={phone}
-                email={email}
-              />
+              <div className="p-3 border-b border-border flex items-center gap-2">
+                <Eye className="w-4 h-4 text-accent" />
+                <span className="font-semibold text-sm">{t('Förhandsgranskning', 'Preview')}</span>
+                <PreviewInfoTooltip />
+              </div>
+              <div className="flex-1 overflow-auto p-3">
+                <LiveWebsitePreview
+                  businessName={businessName}
+                  businessType={businessType}
+                  selectedStyle={selectedStyle}
+                  primaryColor={primaryColor}
+                  accentColor={accentColor}
+                  services={services}
+                  websiteGoal={websiteGoal}
+                  phone={phone}
+                  email={email}
+                />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

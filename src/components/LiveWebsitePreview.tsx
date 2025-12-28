@@ -198,62 +198,108 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
           </motion.div>
         )}
 
-        {/* Booking Section - Shows for booking-type businesses */}
+        {/* Booking Section - Clean, professional design */}
         {showBooking && (
           <motion.div 
-            className="px-4 py-4 border-t border-current/10 mx-2 my-3 rounded-lg bg-current/5"
+            className="mx-3 my-4"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="flex items-center gap-2 mb-3">
-              <Calendar className="w-4 h-4 opacity-70" />
-              <h3 className="text-xs font-semibold opacity-70">
-                {t('Boka online', 'Book online')}
-              </h3>
-            </div>
-            
-            {/* Mini Calendar Preview */}
-            <div className="bg-current/5 rounded-md p-2 mb-2">
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {['M', 'T', 'O', 'T', 'F', 'L', 'S'].map((day, i) => (
-                  <span key={i} className="text-[8px] opacity-50">{day}</span>
-                ))}
-                {[1,2,3,4,5,6,7].map((num) => (
-                  <motion.span 
-                    key={num} 
-                    className={`text-[9px] rounded-full w-4 h-4 flex items-center justify-center mx-auto ${num === 3 ? 'text-white' : 'opacity-70'}`}
-                    style={num === 3 ? customAccentStyle : undefined}
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: num * 0.03 }}
-                  >
-                    {num}
-                  </motion.span>
-                ))}
+            {/* Booking Card */}
+            <div 
+              className="rounded-xl overflow-hidden border-2 border-current/20"
+            >
+              {/* Header */}
+              <div 
+                className="px-4 py-3 flex items-center gap-2"
+                style={{ backgroundColor: primaryColor || accentColor || 'rgba(0,0,0,0.1)' }}
+              >
+                <Calendar className="w-4 h-4 text-white" />
+                <span className="text-sm font-bold text-white">
+                  {t('Boka tid', 'Book appointment')}
+                </span>
+              </div>
+              
+              {/* Content */}
+              <div className="p-3 space-y-3 bg-current/5">
+                {/* Step 1: Select date */}
+                <div>
+                  <p className="text-[10px] font-semibold opacity-70 mb-2 uppercase tracking-wide">
+                    1. {t('Välj datum', 'Select date')}
+                  </p>
+                  <div className="bg-background/50 rounded-lg p-2">
+                    <div className="grid grid-cols-7 gap-0.5 text-center mb-1">
+                      {['M', 'T', 'O', 'T', 'F', 'L', 'S'].map((day, i) => (
+                        <span key={i} className="text-[8px] font-medium opacity-40">{day}</span>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-0.5 text-center">
+                      {[15, 16, 17, 18, 19, 20, 21].map((num, i) => (
+                        <motion.div 
+                          key={num}
+                          className={`text-[10px] rounded-md py-1 cursor-pointer transition-all ${
+                            num === 18 ? 'text-white font-bold shadow-sm' : 'hover:bg-current/10'
+                          }`}
+                          style={num === 18 ? customAccentStyle : undefined}
+                          initial={{ scale: 0.9, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: i * 0.02 }}
+                        >
+                          {num}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Step 2: Select time */}
+                <div>
+                  <p className="text-[10px] font-semibold opacity-70 mb-2 uppercase tracking-wide">
+                    2. {t('Välj tid', 'Select time')}
+                  </p>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {['09:00', '10:30', '13:00', '15:30'].map((time, i) => (
+                      <motion.div 
+                        key={time}
+                        className={`text-[10px] text-center py-1.5 rounded-md border transition-all cursor-pointer ${
+                          i === 1 ? 'text-white border-transparent font-semibold' : 'border-current/20 hover:border-current/40'
+                        }`}
+                        style={i === 1 ? customAccentStyle : undefined}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 + i * 0.04 }}
+                      >
+                        {time}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Book button */}
+                <motion.button
+                  className="w-full py-2 rounded-lg text-xs font-bold text-white flex items-center justify-center gap-1.5"
+                  style={customAccentStyle || { backgroundColor: 'hsl(var(--primary))' }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  {t('Bekräfta bokning', 'Confirm booking')}
+                </motion.button>
               </div>
             </div>
             
-            {/* Time Slots */}
-            <div className="flex gap-1 flex-wrap">
-              {['09:00', '10:00', '11:30', '14:00'].map((time, i) => (
-                <motion.span 
-                  key={time}
-                  className={`text-[9px] px-2 py-1 rounded border border-current/20 ${i === 1 ? 'text-white' : ''}`}
-                  style={i === 1 ? customAccentStyle : undefined}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 + i * 0.05 }}
-                >
-                  {time}
-                </motion.span>
-              ))}
-            </div>
-            
-            {/* Confirmation */}
-            <div className="flex items-center gap-1 mt-2 text-[9px] opacity-60">
-              <Check className="w-3 h-3" />
-              <span>{t('Direkt bekräftelse', 'Instant confirmation')}</span>
+            {/* Trust indicators */}
+            <div className="flex items-center justify-center gap-3 mt-2 text-[9px] opacity-50">
+              <span className="flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                {t('Gratis avbokning', 'Free cancellation')}
+              </span>
+              <span className="flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                {t('Påminnelse via SMS', 'SMS reminder')}
+              </span>
             </div>
           </motion.div>
         )}
