@@ -16,6 +16,7 @@ import { Step2Package } from './steps/Step2Package';
 import { Step3Pages } from './steps/Step3Pages';
 import { Step4CarePlan } from './steps/Step4CarePlan';
 import { Step5Payment } from './steps/Step5Payment';
+import { CustomerTypeData, initialCustomerTypeData, validateCustomerType } from './steps/CustomerTypeSelection';
 import { 
   WizardFormData, 
   FormStep, 
@@ -58,6 +59,7 @@ function WebsiteOrderWizardComponent({
   const [step, setStep] = useState<FormStep>(1);
   const [direction, setDirection] = useState(0);
   const [formData, setFormData] = useState<WizardFormData>({ ...initialFormData, conceptLink });
+  const [customerTypeData, setCustomerTypeData] = useState<CustomerTypeData>(initialCustomerTypeData);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -422,7 +424,13 @@ function WebsiteOrderWizardComponent({
                 />
               )}
               {step === 5 && (
-                <Step5Payment formData={formData} setFormData={setFormData} isPostDemoFlow={isPostDemoFlow} />
+                <Step5Payment 
+                  formData={formData} 
+                  setFormData={setFormData} 
+                  isPostDemoFlow={isPostDemoFlow}
+                  customerTypeData={customerTypeData}
+                  onCustomerTypeChange={setCustomerTypeData}
+                />
               )}
 
               {/* Navigation Buttons */}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Scale, CreditCard, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -8,15 +8,20 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { CheckoutUpsells, FreeInclusions } from '@/components/CheckoutUpsells';
+import { CustomerTypeSelection, CustomerTypeData, initialCustomerTypeData, validateCustomerType } from './CustomerTypeSelection';
+import { CheckoutTrustSection } from './CheckoutTrustSection';
 import { WizardFormData, packages, carePlans, BOOKING_ADDON_PRICE, VERIFICATION_FEE } from '../wizardConfig';
 
 interface Step5PaymentProps {
   formData: WizardFormData;
   setFormData: (data: WizardFormData) => void;
   isPostDemoFlow?: boolean;
+  customerTypeData: CustomerTypeData;
+  onCustomerTypeChange: (data: CustomerTypeData) => void;
 }
 
-const ADMIN_PANEL_PRICE = 1000;
+const ADMIN_PANEL_PRICE = 100;
+const VAT_RATE = 0.25; // 25% VAT
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -27,7 +32,13 @@ const sectionVariants = {
   })
 };
 
-export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: Step5PaymentProps) {
+export function Step5Payment({ 
+  formData, 
+  setFormData, 
+  isPostDemoFlow = false,
+  customerTypeData,
+  onCustomerTypeChange
+}: Step5PaymentProps) {
   const { t } = useLanguage();
   const [addedBooking, setAddedBooking] = useState(false);
   const [addedAdminPanel, setAddedAdminPanel] = useState(false);
@@ -60,12 +71,34 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
   const packageTotal = (pkg?.price || 0) + bookingAddonCost + adminPanelCost;
   const totalToday = isPostDemoFlow ? packageTotal - VERIFICATION_FEE : packageTotal;
 
+  // VAT calculations
+  const isBusinessWithVat = customerTypeData.customerType === 'business' && customerTypeData.vatVerified;
+  const isPrivate = customerTypeData.customerType === 'private';
+  
+  // For businesses with valid VAT in same country as seller (Sweden), show VAT breakdown
+  // For businesses with valid VAT in other EU countries, reverse charge (0% VAT)
+  const showVatBreakdown = isPrivate || (customerTypeData.customerType === 'business' && customerTypeData.country === 'SE');
+  const vatAmount = showVatBreakdown ? totalToday * VAT_RATE : 0;
+  const netAmount = showVatBreakdown ? totalToday - vatAmount : totalToday;
+
   const formatPrice = (price: number) => {
-    return price.toLocaleString('sv-SE').replace(/\s/g, ' ') + ' kr';
+    return '€' + price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      {/* Customer Type Selection */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <CustomerTypeSelection 
+          data={customerTypeData} 
+          onChange={onCustomerTypeChange} 
+        />
+      </motion.div>
+
       {/* Order Summary Card */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -111,6 +144,29 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
 
           <div className="h-px bg-border my-2" />
 
+          {/* VAT Breakdown for Business/Private */}
+          {customerTypeData.customerType && (
+            <>
+              {showVatBreakdown ? (
+                <>
+                  <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <span>{t('Netto', 'Net')}</span>
+                    <span>{formatPrice(Math.round(netAmount))}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <span>{t('Moms (25%)', 'VAT (25%)')}</span>
+                    <span>{formatPrice(Math.round(vatAmount))}</span>
+                  </div>
+                </>
+              ) : isBusinessWithVat && customerTypeData.country !== 'SE' ? (
+                <div className="flex justify-between items-center text-sm text-muted-foreground">
+                  <span>{t('Omvänd moms (EU)', 'Reverse charge (EU)')}</span>
+                  <span className="text-accent">€0</span>
+                </div>
+              ) : null}
+            </>
+          )}
+
           <div className="flex justify-between items-center text-lg font-bold">
             <span>{t('Totalt idag', 'Total today')}</span>
             <span className="text-accent">{formatPrice(totalToday)}</span>
@@ -119,13 +175,35 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
           {carePlan && (
             <p className="text-xs text-muted-foreground">
               + {formData.isYearlyCarePlan 
-                ? `${carePlanPrice * 12} kr/${t('år', 'year')}` 
-                : `${carePlanPrice} kr/${t('mån', 'month')}`
+                ? `€${carePlanPrice * 12}/${t('år', 'year')}` 
+                : `€${carePlanPrice}/${t('mån', 'month')}`
               } {t('för webbvård (faktureras separat)', 'for web care (billed separately)')}
             </p>
           )}
+
+          {/* Customer Type Badge */}
+          {customerTypeData.customerType && (
+            <div className="pt-2">
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                customerTypeData.customerType === 'business' 
+                  ? 'bg-blue-500/10 text-blue-500' 
+                  : 'bg-accent/10 text-accent'
+              }`}>
+                {customerTypeData.customerType === 'business' 
+                  ? `${t('Företag', 'Business')}: ${customerTypeData.companyName || '...'}`
+                  : t('Privatperson', 'Private')
+                }
+              </span>
+            </div>
+          )}
         </div>
       </motion.div>
+
+      {/* Trust Section */}
+      <CheckoutTrustSection 
+        selectedPackage={formData.selectedPackage} 
+        isPostDemoFlow={isPostDemoFlow} 
+      />
 
       {/* FREE Inclusions */}
       <FreeInclusions />
@@ -275,23 +353,6 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
           rows={3}
           className="mt-1"
         />
-      </motion.div>
-
-      {/* Payment Button Area */}
-      <motion.div
-        custom={3}
-        initial="hidden"
-        animate="visible"
-        variants={sectionVariants}
-        className="p-6 bg-gradient-to-r from-accent/5 to-accent/10 rounded-xl text-center"
-      >
-        <div className="flex items-center justify-center gap-2 text-muted-foreground mb-2">
-          <CreditCard className="w-4 h-4" />
-          <span className="text-sm">{t('Säker betalning via Stripe', 'Secure payment via Stripe')}</span>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {t('Du kommer att omdirigeras till Stripe för att slutföra betalningen.', 'You will be redirected to Stripe to complete the payment.')}
-        </p>
       </motion.div>
     </div>
   );
