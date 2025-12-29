@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { AnimatedSection } from '@/components/AnimatedSection';
@@ -103,24 +102,9 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="reason">{t('Vad gäller det?', 'What is this about?')} *</Label>
-                    <Select name="reason" required>
-                      <SelectTrigger className="bg-background">
-                        <SelectValue placeholder={t('Välj ett alternativ...', 'Choose an option...')} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border border-border z-50">
-                        <SelectItem value="received_concept">{t('Jag har fått mitt koncept', 'I received my concept')}</SelectItem>
-                        <SelectItem value="question_concept">{t('Fråga om mitt koncept', 'Question about my concept')}</SelectItem>
-                        <SelectItem value="general_question">{t('Generell fråga', 'General question')}</SelectItem>
-                        <SelectItem value="pricing">{t('Fråga om priser', 'Question about pricing')}</SelectItem>
-                        <SelectItem value="support">{t('Support / Hjälp', 'Support / Help')}</SelectItem>
-                        <SelectItem value="other">{t('Annat', 'Other')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                   <div className="space-y-2"><Label htmlFor="name">{t('Namn', 'Name')} *</Label><Input id="name" name="name" required placeholder={t('Ditt namn', 'Your name')} /></div>
                   <div className="space-y-2"><Label htmlFor="email">E-post *</Label><Input id="email" name="email" type="email" required placeholder="din@email.se" /></div>
+                  <div className="space-y-2"><Label htmlFor="subject">{t('Ämne', 'Subject')}</Label><Input id="subject" name="subject" placeholder={t('Vad gäller det?', 'What is it about?')} /></div>
                   <div className="space-y-2"><Label htmlFor="message">{t('Meddelande', 'Message')} *</Label><Textarea id="message" name="message" required rows={4} placeholder={t('Berätta mer...', 'Tell us more...')} /></div>
                   <Button type="submit" className="w-full">{t('Skicka meddelande', 'Send message')}<Send className="w-4 h-4" /></Button>
                 </form>

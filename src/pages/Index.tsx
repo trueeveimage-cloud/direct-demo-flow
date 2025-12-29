@@ -145,14 +145,15 @@ export default function Index() {
             <ROICalculator />
           </motion.div>
           
-          {/* Secondary link */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="mt-6"
-          >
-            <Link to="/kontakt" className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline">
+          <motion.div initial={{
+          opacity: 0
+        }} animate={{
+          opacity: 1
+        }} transition={{
+          duration: 0.6,
+          delay: 0.5
+        }} className="mt-4">
+            <Link to="/efter-demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               {t('Har du fått ditt koncept?', 'Have you received your concept?')}
             </Link>
           </motion.div>
