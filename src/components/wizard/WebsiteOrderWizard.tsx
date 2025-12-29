@@ -60,6 +60,8 @@ function WebsiteOrderWizardComponent({
   const [direction, setDirection] = useState(0);
   const [formData, setFormData] = useState<WizardFormData>({ ...initialFormData, conceptLink });
   const [customerTypeData, setCustomerTypeData] = useState<CustomerTypeData>(initialCustomerTypeData);
+  const [addedAdminPanel, setAddedAdminPanel] = useState(false);
+  const [addedBookingUpsell, setAddedBookingUpsell] = useState(false);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -174,12 +176,24 @@ function WebsiteOrderWizardComponent({
   };
 
   const handleSubmit = async () => {
+    // Validate customer type before proceeding
+    const customerValidation = validateCustomerType(customerTypeData);
+    if (!customerValidation.valid) {
+      toast({ 
+        title: t('Välj kundtyp', 'Select customer type'), 
+        description: customerValidation.errors[0],
+        variant: 'destructive' 
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
       const pkg = packages.find(p => p.id === formData.selectedPackage);
-      const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
-      const totalPackagePrice = (pkg?.price || 0) + bookingAddonCost;
+      const bookingAddonCost = (formData.wantsBooking || addedBookingUpsell) && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
+      const adminPanelCost = addedAdminPanel ? 100 : 0;
+      const totalPackagePrice = (pkg?.price || 0) + bookingAddonCost + adminPanelCost;
 
       // Submit form data for record keeping
       const formDataPayload = new FormData();
@@ -259,8 +273,17 @@ function WebsiteOrderWizardComponent({
           selectedLanguage: formData.selectedLanguage === 'custom' ? formData.customLanguages : formData.selectedLanguage,
           carePlanId: formData.selectedCarePlan,
           isYearly: formData.isYearlyCarePlan,
-          wantsBooking: formData.wantsBooking,
+          wantsBooking: formData.wantsBooking || addedBookingUpsell,
           bookingAddonCost,
+          wantsAdminPanel: addedAdminPanel,
+          adminPanelCost,
+          customerType: customerTypeData.customerType,
+          companyName: customerTypeData.companyName,
+          orgNumber: customerTypeData.orgNumber,
+          vatNumber: customerTypeData.vatNumber,
+          vatVerified: customerTypeData.vatVerified,
+          billingCountry: customerTypeData.country,
+          billingAddress: customerTypeData.billingAddress,
           isPostDemoFlow,
           conceptLink: formData.conceptLink || conceptLink,
         }),
@@ -430,6 +453,8 @@ function WebsiteOrderWizardComponent({
                   isPostDemoFlow={isPostDemoFlow}
                   customerTypeData={customerTypeData}
                   onCustomerTypeChange={setCustomerTypeData}
+                  onAdminPanelChange={setAddedAdminPanel}
+                  onBookingChange={setAddedBookingUpsell}
                 />
               )}
 

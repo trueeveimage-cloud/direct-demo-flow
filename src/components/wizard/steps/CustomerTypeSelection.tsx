@@ -1,5 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { Building2, User, CheckCircle, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -155,7 +154,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
             type="button"
             onClick={() => updateField('customerType', 'private')}
             className={cn(
-              'p-4 rounded-xl border-2 transition-all duration-200 text-left',
+              'p-4 rounded-xl border-2 transition-colors text-left',
               data.customerType === 'private'
                 ? 'border-accent bg-accent/10'
                 : 'border-border hover:border-accent/50'
@@ -170,7 +169,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
             type="button"
             onClick={() => updateField('customerType', 'business')}
             className={cn(
-              'p-4 rounded-xl border-2 transition-all duration-200 text-left',
+              'p-4 rounded-xl border-2 transition-colors text-left',
               data.customerType === 'business'
                 ? 'border-accent bg-accent/10'
                 : 'border-border hover:border-accent/50'
@@ -183,16 +182,9 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
         </div>
       </div>
 
-      {/* Business Fields */}
-      <AnimatePresence>
-        {data.customerType === 'business' && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-4 overflow-hidden"
-          >
+      {/* Business Fields - No animation to prevent lag */}
+      {data.customerType === 'business' && (
+        <div className="space-y-4">
             <div className="p-4 bg-secondary/50 rounded-xl space-y-4">
               <h4 className="font-medium flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-accent" />
@@ -319,12 +311,13 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                 />
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 }
+
+export const CustomerTypeSelectionMemo = memo(CustomerTypeSelection);
 
 export const initialCustomerTypeData: CustomerTypeData = {
   customerType: null,
