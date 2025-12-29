@@ -35,19 +35,11 @@ interface WebsiteOrderWizardProps {
   onComplete?: () => void;
 }
 
+// Simplified step transitions for performance
 const stepVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 50 : -50,
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction < 0 ? 50 : -50,
-    opacity: 0,
-  }),
+  enter: { opacity: 0 },
+  center: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 function WebsiteOrderWizardComponent({ 
@@ -392,15 +384,14 @@ function WebsiteOrderWizardComponent({
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-[1fr,320px] gap-8 max-w-6xl mx-auto">
           {/* Form Steps */}
-          <AnimatePresence mode="wait" custom={direction}>
+          <AnimatePresence mode="wait">
             <motion.div
               key={step}
-              custom={direction}
               variants={stepVariants}
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.25, ease: "easeInOut" }}
+              transition={{ duration: 0.15 }}
             >
               {step === 1 && (
                 <Step1Contact formData={formData} setFormData={setFormData} errors={errors} showConceptOption={!isPostDemoFlow} />

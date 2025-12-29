@@ -1,8 +1,6 @@
-import { memo, useMemo, useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { memo, useMemo } from 'react';
 import { Phone, Mail, Menu, Star, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { PreviewSkeleton } from './PreviewSkeleton';
 
 interface LiveWebsitePreviewProps {
   businessName: string;
@@ -45,20 +43,10 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
   primaryColor,
   accentColor,
   services,
-  websiteGoal,
   phone,
   email,
-  isLoading = false,
 }: LiveWebsitePreviewProps) {
   const { t, lang } = useLanguage();
-  const [internalLoading, setInternalLoading] = useState(false);
-  
-  // Trigger loading state on significant changes
-  useEffect(() => {
-    setInternalLoading(true);
-    const timer = setTimeout(() => setInternalLoading(false), 400);
-    return () => clearTimeout(timer);
-  }, [selectedStyle, businessType, primaryColor]);
   
   const theme = useMemo(() => styleThemes[selectedStyle] || styleThemes.minimal, [selectedStyle]);
   const content = useMemo(() => businessTypeContent[businessType] || businessTypeContent.other, [businessType]);
@@ -80,148 +68,104 @@ export const LiveWebsitePreview = memo(function LiveWebsitePreview({
     }
     return undefined;
   }, [primaryColor, accentColor]);
-  
-  const customTextStyle = useMemo(() => {
-    const color = primaryColor || accentColor;
-    if (color && (color.startsWith('#') || color.startsWith('rgb'))) {
-      return { color };
-    }
-    return undefined;
-  }, [primaryColor, accentColor]);
-
-  const showLoading = isLoading || internalLoading;
 
   return (
-    <AnimatePresence mode="wait">
-      {showLoading ? (
-        <PreviewSkeleton key="skeleton" />
-      ) : (
-        <motion.div
-          key="preview"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.3 }}
-          className="w-full h-full rounded-lg overflow-hidden shadow-2xl border border-border/50"
-        >
-          {/* Browser Chrome */}
-          <div className="bg-muted/50 px-3 py-2 flex items-center gap-2 border-b border-border/50">
-            <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-400" />
-              <div className="w-3 h-3 rounded-full bg-yellow-400" />
-              <div className="w-3 h-3 rounded-full bg-green-400" />
-            </div>
-            <div className="flex-1 mx-4">
-              <div className="bg-background/80 rounded-md px-3 py-1 text-xs text-muted-foreground truncate">
-                www.{displayName.toLowerCase().replace(/\s+/g, '')}.se
-              </div>
-            </div>
+    <div className="w-full h-full rounded-lg overflow-hidden shadow-2xl border border-border/50">
+      {/* Browser Chrome */}
+      <div className="bg-muted/50 px-3 py-2 flex items-center gap-2 border-b border-border/50">
+        <div className="flex gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-red-400" />
+          <div className="w-3 h-3 rounded-full bg-yellow-400" />
+          <div className="w-3 h-3 rounded-full bg-green-400" />
+        </div>
+        <div className="flex-1 mx-4">
+          <div className="bg-background/80 rounded-md px-3 py-1 text-xs text-muted-foreground truncate">
+            www.{displayName.toLowerCase().replace(/\s+/g, '')}.se
           </div>
+        </div>
+      </div>
 
-          {/* Website Preview */}
-          <div className={`${theme.bg} ${theme.text} ${theme.font} h-[500px] overflow-y-auto relative`}>
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-current/10 sticky top-0 backdrop-blur-sm" style={{ backgroundColor: 'inherit' }}>
-              <motion.span 
-                key={displayName}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="font-bold text-sm truncate max-w-[120px]"
-              >
-                {displayName}
-              </motion.span>
-              <div className="flex items-center gap-3">
-                <span className="text-xs hidden sm:inline">{t('Om oss', 'About')}</span>
-                <span className="text-xs hidden sm:inline">{t('Tjänster', 'Services')}</span>
-                <span className="text-xs hidden sm:inline">{t('Kontakt', 'Contact')}</span>
-                <Menu className="w-4 h-4 sm:hidden" />
-              </div>
-            </div>
+      {/* Website Preview */}
+      <div className={`${theme.bg} ${theme.text} ${theme.font} h-[500px] overflow-y-auto relative`}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-current/10 sticky top-0 backdrop-blur-sm" style={{ backgroundColor: 'inherit' }}>
+          <span className="font-bold text-sm truncate max-w-[120px]">
+            {displayName}
+          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs hidden sm:inline">{t('Om oss', 'About')}</span>
+            <span className="text-xs hidden sm:inline">{t('Tjänster', 'Services')}</span>
+            <span className="text-xs hidden sm:inline">{t('Kontakt', 'Contact')}</span>
+            <Menu className="w-4 h-4 sm:hidden" />
+          </div>
+        </div>
 
-            {/* Hero Section */}
-            <div className="px-4 py-8 text-center relative">
-              <motion.div
-                key={`${businessType}-${selectedStyle}-${primaryColor}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h1 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">
-                  {heroText}
-                </h1>
-                <p className="text-xs opacity-70 mb-4 max-w-[200px] mx-auto">
-                  {lang === 'sv' 
-                    ? 'Professionell service och kvalitet i världsklass' 
-                    : 'Professional service and world-class quality'}
-                </p>
-                
-                {/* CTA Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  className={`${theme.accent} px-4 py-2 rounded-md text-xs font-semibold text-white transition-all`}
-                  style={customAccentStyle}
+        {/* Hero Section */}
+        <div className="px-4 py-8 text-center relative">
+          <h1 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">
+            {heroText}
+          </h1>
+          <p className="text-xs opacity-70 mb-4 max-w-[200px] mx-auto">
+            {lang === 'sv' 
+              ? 'Professionell service och kvalitet i världsklass' 
+              : 'Professional service and world-class quality'}
+          </p>
+          
+          {/* CTA Button */}
+          <button
+            className={`${theme.accent} px-4 py-2 rounded-md text-xs font-semibold text-white transition-transform hover:scale-105`}
+            style={customAccentStyle}
+          >
+            {ctaText}
+            <ChevronRight className="w-3 h-3 inline ml-1" />
+          </button>
+
+          {/* Rating */}
+          <div className="flex items-center justify-center gap-1 mt-4">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            ))}
+            <span className="text-xs ml-1 opacity-70">5.0</span>
+          </div>
+        </div>
+
+        {/* Services Section */}
+        {serviceList.length > 0 && (
+          <div className="px-4 py-4 border-t border-current/10">
+            <h3 className="text-xs font-semibold mb-2 opacity-70">
+              {t('Våra tjänster', 'Our services')}
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {serviceList.map((service) => (
+                <div
+                  key={service}
+                  className="text-xs bg-current/5 rounded px-2 py-1.5 truncate border border-current/10"
                 >
-                  {ctaText}
-                  <ChevronRight className="w-3 h-3 inline ml-1" />
-                </motion.button>
-              </motion.div>
-
-              {/* Rating */}
-              <div className="flex items-center justify-center gap-1 mt-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                ))}
-                <span className="text-xs ml-1 opacity-70">5.0</span>
-              </div>
-            </div>
-
-            {/* Services Section */}
-            {serviceList.length > 0 && (
-              <motion.div 
-                className="px-4 py-4 border-t border-current/10"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.1 }}
-              >
-                <h3 className="text-xs font-semibold mb-2 opacity-70">
-                  {t('Våra tjänster', 'Our services')}
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {serviceList.map((service, i) => (
-                    <motion.div
-                      key={service}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="text-xs bg-current/5 rounded px-2 py-1.5 truncate border border-current/10"
-                    >
-                      {service}
-                    </motion.div>
-                  ))}
+                  {service}
                 </div>
-              </motion.div>
-            )}
-
-            {/* Contact Footer */}
-            <div className="px-4 py-3 border-t border-current/10 bg-current/5 mt-4">
-              <div className="flex items-center justify-center gap-4 text-xs opacity-70">
-                {phone && (
-                  <span className="flex items-center gap-1">
-                    <Phone className="w-3 h-3" />
-                    <span className="truncate max-w-[80px]">{phone}</span>
-                  </span>
-                )}
-                {email && (
-                  <span className="flex items-center gap-1">
-                    <Mail className="w-3 h-3" />
-                    <span className="truncate max-w-[100px]">{email}</span>
-                  </span>
-                )}
-              </div>
+              ))}
             </div>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+
+        {/* Contact Footer */}
+        <div className="px-4 py-3 border-t border-current/10 bg-current/5 mt-4">
+          <div className="flex items-center justify-center gap-4 text-xs opacity-70">
+            {phone && (
+              <span className="flex items-center gap-1">
+                <Phone className="w-3 h-3" />
+                <span className="truncate max-w-[80px]">{phone}</span>
+              </span>
+            )}
+            {email && (
+              <span className="flex items-center gap-1">
+                <Mail className="w-3 h-3" />
+                <span className="truncate max-w-[100px]">{email}</span>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 });
