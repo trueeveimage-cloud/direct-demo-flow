@@ -55,11 +55,7 @@ export default function ContactPage() {
     }
   };
 
-  const handleConceptClick = () => {
-    setContactReason('concept-received');
-    // Scroll to form
-    document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Navigate to efter-demo page handled by Link component
 
   return (
     <div className="section-padding py-20">
@@ -86,12 +82,14 @@ export default function ContactPage() {
                 {t('Berätta vad du tycker och ta nästa steg mot din nya hemsida.', 'Tell us what you think and take the next step towards your new website.')}
               </p>
               <Button 
+                asChild
                 size="lg" 
-                onClick={handleConceptClick}
                 className="group text-lg px-8 py-6 h-auto"
               >
-                {t('Ja, jag vill prata om mitt koncept', 'Yes, I want to discuss my concept')}
-                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                <Link to="/efter-demo">
+                  {t('Ja, jag vill prata om mitt koncept', 'Yes, I want to discuss my concept')}
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                </Link>
               </Button>
             </div>
           </div>
