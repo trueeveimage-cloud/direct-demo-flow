@@ -39,19 +39,19 @@ function isValidEmail(email: unknown): email is string {
   return emailRegex.test(email) && email.length <= 255;
 }
 
-// Care plan price IDs from Stripe
+// Care plan price IDs from Stripe (EUR)
 const CARE_PLAN_PRICES: Record<string, { monthly: string; yearly: string }> = {
   basic: {
-    monthly: "price_1ShZ2W74JfaAfHsdZwoAI3AM",  // 249 kr/month
-    yearly: "price_1ShZ0L74JfaAfHsd2ZD8f0jx",   // yearly
+    monthly: "price_1SjVDL74JfaAfHsd1i1pFby6",  // €25/month
+    yearly: "price_1SjVDP74JfaAfHsdsgUuSbuU",   // €240/year
   },
   standard: {
-    monthly: "price_1ShZ3974JfaAfHsdJRyNwKZF", // 449 kr/month
-    yearly: "price_1ShZ1A74JfaAfHsdbIkMmI0K",  // 4,300 kr/year
+    monthly: "price_1SjVDM74JfaAfHsdOemLHRqh", // €45/month
+    yearly: "price_1SjVDR74JfaAfHsduWagejHS",  // €432/year
   },
   pro: {
-    monthly: "price_1ShZ3V74JfaAfHsdFTHkwZfX", // 749 kr/month
-    yearly: "price_1ShZ2574JfaAfHsdGOu9YrQQ",  // 7,190 kr/year
+    monthly: "price_1SjVDO74JfaAfHsdfwTpnk0Y", // €75/month
+    yearly: "price_1SjVDS74JfaAfHsdwdQM3Seh",  // €720/year
   },
 };
 
