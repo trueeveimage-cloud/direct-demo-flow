@@ -205,7 +205,10 @@ function OrderSummaryComponent({
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                {t('Faktureras separat efter beställningen', 'Billed separately after your order')}
+                {formData.isYearlyCarePlan 
+                  ? t('Faktureras årligen', 'Billed yearly')
+                  : t('Faktureras månadsvis', 'Billed monthly')
+                }
               </p>
             </motion.div>
           )}
