@@ -254,7 +254,7 @@ serve(async (req) => {
       cancel_url: `${safeOrigin}/betalning-avbruten`,
       metadata: {
         packageId,
-        conceptLink: conceptLink || "",
+        conceptLink: (conceptLink || "").slice(0, 500), // Stripe metadata 500 char limit
         carePlanId: carePlanId || "",
         isYearly: String(isYearly),
         wantsBooking: String(wantsBooking),
@@ -265,8 +265,8 @@ serve(async (req) => {
         vatVerified: String(vatVerified),
         customerCountry: customerCountry,
         orgNumber: orgNumber || "",
-        businessName,
-        contactPerson,
+        businessName: businessName.slice(0, 500),
+        contactPerson: contactPerson.slice(0, 500),
         phone,
         selectedStyle,
         selectedLanguage,
@@ -274,7 +274,7 @@ serve(async (req) => {
         websiteGoal,
         primaryColor,
         accentColor,
-        services: services.slice(0, 500), // Stripe metadata limit
+        services: services.slice(0, 500),
       },
     };
 
