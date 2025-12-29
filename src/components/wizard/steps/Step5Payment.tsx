@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Scale, CreditCard, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -6,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
+import { CheckoutUpsells, FreeInclusions } from '@/components/CheckoutUpsells';
 import { WizardFormData, packages, carePlans, BOOKING_ADDON_PRICE, VERIFICATION_FEE } from '../wizardConfig';
 
 interface Step5PaymentProps {
@@ -13,6 +15,8 @@ interface Step5PaymentProps {
   setFormData: (data: WizardFormData) => void;
   isPostDemoFlow?: boolean;
 }
+
+const ADMIN_PANEL_PRICE = 1000;
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -25,6 +29,8 @@ const sectionVariants = {
 
 export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: Step5PaymentProps) {
   const { t } = useLanguage();
+  const [addedBooking, setAddedBooking] = useState(false);
+  const [addedAdminPanel, setAddedAdminPanel] = useState(false);
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
     setFormData({ ...formData, [field]: value });
@@ -38,11 +44,20 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
     }
   };
 
+  const handleAddBooking = () => {
+    setAddedBooking(true);
+  };
+
+  const handleAddAdminPanel = () => {
+    setAddedAdminPanel(true);
+  };
+
   const pkg = packages.find(p => p.id === formData.selectedPackage);
   const carePlan = carePlans.find(c => c.id === formData.selectedCarePlan);
   const carePlanPrice = carePlan ? (formData.isYearlyCarePlan ? carePlan.yearlyPrice : carePlan.monthlyPrice) : 0;
-  const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
-  const packageTotal = (pkg?.price || 0) + bookingAddonCost;
+  const bookingAddonCost = (formData.wantsBooking || addedBooking) && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
+  const adminPanelCost = addedAdminPanel ? ADMIN_PANEL_PRICE : 0;
+  const packageTotal = (pkg?.price || 0) + bookingAddonCost + adminPanelCost;
   const totalToday = isPostDemoFlow ? packageTotal - VERIFICATION_FEE : packageTotal;
 
   const formatPrice = (price: number) => {
@@ -68,7 +83,7 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
             <span className="font-medium">{formatPrice(pkg?.price || 0)}</span>
           </div>
           
-          {formData.wantsBooking && (
+          {(formData.wantsBooking || addedBooking) && (
             <div className="flex justify-between items-center text-sm">
               <span>{t('Bokningssystem', 'Booking system')}</span>
               <span className="font-medium">
@@ -77,6 +92,13 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
                   : formatPrice(BOOKING_ADDON_PRICE)
                 }
               </span>
+            </div>
+          )}
+
+          {addedAdminPanel && (
+            <div className="flex justify-between items-center text-sm">
+              <span>{t('Adminpanel', 'Admin Panel')}</span>
+              <span className="font-medium">{formatPrice(ADMIN_PANEL_PRICE)}</span>
             </div>
           )}
 
@@ -104,6 +126,20 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
           )}
         </div>
       </motion.div>
+
+      {/* FREE Inclusions */}
+      <FreeInclusions />
+
+      {/* Upsells */}
+      <CheckoutUpsells 
+        businessType={formData.businessType}
+        wantsBooking={formData.wantsBooking}
+        selectedPackage={formData.selectedPackage}
+        onAddBooking={handleAddBooking}
+        onAddAdminPanel={handleAddAdminPanel}
+        addedBooking={addedBooking}
+        addedAdminPanel={addedAdminPanel}
+      />
 
       {/* Project Details */}
       <motion.div
