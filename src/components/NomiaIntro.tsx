@@ -143,10 +143,10 @@ export function NomiaIntro({ onComplete }: NomiaIntroProps) {
         }}
         animate={{ 
           filter: phase === 'enter' ? 'blur(20px)' : 'blur(0px)', 
-          scale: phase === 'morph' ? 0.45 : phase === 'enter' ? 0.8 : 1, 
+          scale: phase === 'morph' ? 0.55 : phase === 'enter' ? 0.8 : 1, 
           opacity: phase === 'morph' ? 0 : 1,
           rotateX: phase === 'morph' ? -5 : phase === 'enter' ? 20 : 0,
-          y: phase === 'morph' ? '-42vh' : 0,
+          y: phase === 'morph' ? '-40vh' : 0,
           z: phase === 'morph' ? 50 : phase === 'enter' ? -100 : 0,
         }}
         transition={{ 
@@ -171,16 +171,6 @@ export function NomiaIntro({ onComplete }: NomiaIntroProps) {
         </motion.h1>
       </motion.div>
 
-      {/* Accent line sweep */}
-      <motion.div
-        initial={{ scaleX: 0, opacity: 0 }}
-        animate={{ 
-          scaleX: phase === 'visible' ? [0, 1, 1, 0] : 0,
-          opacity: phase === 'visible' ? [0, 1, 1, 0] : 0,
-        }}
-        transition={{ duration: 1.5, ease: 'easeInOut', delay: 0.5 }}
-        className="absolute bottom-[45%] left-1/2 -translate-x-1/2 w-[300px] h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent pointer-events-none origin-center"
-      />
     </motion.div>
   );
 }

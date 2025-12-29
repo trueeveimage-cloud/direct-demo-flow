@@ -59,76 +59,69 @@ export default function Index() {
         </div>
       </div>
 
-      {/* Hero Logo - Clean, static */}
-      <motion.div initial={{
-      opacity: 0,
-      y: 10
-    }} animate={{
-      opacity: 1,
-      y: 0
-    }} transition={{
-      duration: 0.5,
-      ease: "easeOut"
-    }} className="pt-8 pb-4 text-center relative z-10">
-        <span className="font-heading font-bold text-5xl sm:text-6xl lg:text-7xl tracking-tighter">
+      {/* Hero Logo - Large, prominent */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="pt-12 pb-6 text-center relative z-10"
+      >
+        <span className="font-heading font-extrabold text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tighter">
           Nomia<span className="text-accent">.</span>
         </span>
       </motion.div>
 
-      {/* Hero Section - Clean, no parallax */}
-      <section className="min-h-[55vh] flex items-center relative overflow-hidden">
-        <div className="container-narrow text-center relative z-10 section-padding py-16">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6,
-          delay: 0
-        }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20">
+      {/* Hero Section - Clean, premium */}
+      <section className="min-h-[50vh] flex items-center relative overflow-hidden">
+        <div className="container-narrow text-center relative z-10 section-padding py-12">
+          {/* Badge */}
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20"
+          >
             <Clock className="w-4 h-4" />
             {t('Begränsade platser', 'Limited spots')}
           </motion.div>
 
-          <motion.h1 initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6,
-          delay: 0.1
-        }} className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.15] tracking-tight max-w-2xl mx-auto">
-            {t('Skapa din hemsida.', 'Create your website.')}
-            <br />
-            <span className="text-muted-foreground">
-              {t('Se hur din framtida webbsida kan se ut gratis innan du betalar.', 'See how your future website can look for free before you pay.')}
-            </span>
+          {/* Main Headline */}
+          <motion.h1 
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4"
+          >
+            {t('Webbdesign, gjord på rätt sätt.', 'Web design, done properly.')}
           </motion.h1>
 
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6,
-          delay: 0.3
-        }} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button asChild size="lg" className="group h-14 px-8 text-base hover:scale-105 transition-transform">
+          {/* Subheadline */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="text-xl sm:text-2xl text-muted-foreground max-w-xl mx-auto"
+          >
+            {t('Få ett gratis webbkoncept inom 72h.', 'Get a free website concept in 72h.')}
+          </motion.p>
+
+          {/* CTA Buttons */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
+          >
+            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium hover:scale-[1.03] transition-all duration-300 shadow-lg shadow-accent/20">
               <Link to="/demo">
                 {t('Få ditt koncept', 'Get your concept')}
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button asChild variant="secondary" size="lg" className="group h-14 px-8 text-base hover:scale-105 transition-transform">
+            <Button asChild variant="outline" size="lg" className="group h-14 px-10 text-base font-medium hover:scale-[1.03] transition-all duration-300 border-border/60 hover:border-accent/50 hover:bg-accent/5">
               <Link to="/bestall">
                 {t('Beställ direkt', 'Order directly')}
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </motion.div>
