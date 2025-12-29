@@ -18,8 +18,6 @@ import { useTheme } from 'next-themes';
 import { LiveWebsitePreview } from '@/components/LiveWebsitePreview';
 import { PreviewInfoTooltip } from '@/components/PreviewInfoTooltip';
 import { PhotoUpload } from '@/components/PhotoUpload';
-import { ROISection } from '@/components/ROISection';
-import { useAutoSave } from '@/hooks/useAutoSave';
 
 type FormStep = 1 | 2;
 
@@ -493,13 +491,6 @@ export default function FreeDemoPage() {
                   </CardContent>
                 </Card>
               </AnimatedSection>
-
-              {/* ROI Section */}
-              {businessType && (
-                <AnimatedSection animation="fade-up" delay={135}>
-                  <ROISection businessType={businessType} />
-                </AnimatedSection>
-              )}
 
               {/* Services & Prices */}
               <AnimatedSection animation="fade-up" delay={140}>

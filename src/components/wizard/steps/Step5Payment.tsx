@@ -7,7 +7,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { WizardFormData, packages, carePlans, BOOKING_ADDON_PRICE, VERIFICATION_FEE } from '../wizardConfig';
-import { CheckoutUpsells, FreeInclusions } from '@/components/CheckoutUpsells';
 
 interface Step5PaymentProps {
   formData: WizardFormData;
@@ -48,10 +47,6 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
 
   const formatPrice = (price: number) => {
     return price.toLocaleString('sv-SE').replace(/\s/g, ' ') + ' kr';
-  };
-
-  const handleAddBooking = () => {
-    updateField('wantsBooking', true);
   };
 
   return (
@@ -109,17 +104,6 @@ export function Step5Payment({ formData, setFormData, isPostDemoFlow = false }: 
           )}
         </div>
       </motion.div>
-
-      {/* FREE Inclusions */}
-      <FreeInclusions />
-
-      {/* Upsells */}
-      <CheckoutUpsells 
-        businessType={formData.businessType}
-        wantsBooking={formData.wantsBooking}
-        selectedPackage={formData.selectedPackage}
-        onAddBooking={handleAddBooking}
-      />
 
       {/* Project Details */}
       <motion.div
