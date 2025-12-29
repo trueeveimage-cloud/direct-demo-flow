@@ -8,123 +8,142 @@ interface NomiaIntroProps {
 }
 
 export function NomiaIntro({ onComplete }: NomiaIntroProps) {
-  const [isVisible, setIsVisible] = useState(true);
-  const [shouldRender, setShouldRender] = useState(true);
+  const [phase, setPhase] = useState<'enter' | 'visible' | 'exit' | 'done'>('enter');
 
   useEffect(() => {
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
     if (prefersReducedMotion) {
-      // Skip animation entirely
-      setIsVisible(false);
-      setShouldRender(false);
+      setPhase('done');
       onComplete();
       return;
     }
 
-    // Auto-complete after animation
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(() => {
-        setShouldRender(false);
-        onComplete();
-      }, 500); // Wait for exit animation
-    }, 2200);
+    // Phase timing: enter -> visible -> exit -> done
+    const enterTimer = setTimeout(() => setPhase('visible'), 100);
+    const exitTimer = setTimeout(() => setPhase('exit'), 2000);
+    const doneTimer = setTimeout(() => {
+      setPhase('done');
+      onComplete();
+    }, 2500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(enterTimer);
+      clearTimeout(exitTimer);
+      clearTimeout(doneTimer);
+    };
   }, [onComplete]);
 
-  if (!shouldRender) return null;
+  if (phase === 'done') return null;
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="fixed inset-0 z-[9999] bg-background flex items-center justify-center overflow-hidden"
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+    <motion.div
+      initial={{ opacity: 1 }}
+      animate={{ opacity: phase === 'exit' ? 0 : 1 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="fixed inset-0 z-[99999] bg-background flex items-center justify-center overflow-hidden"
+      style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0,
+        zIndex: 99999,
+      }}
+    >
+      {/* Shimmer sweep effect */}
+      <motion.div
+        initial={{ x: '-100%', opacity: 0 }}
+        animate={{ x: '200%', opacity: [0, 0.7, 0] }}
+        transition={{ duration: 1.4, ease: 'easeInOut', delay: 0.2 }}
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/40 to-transparent skew-x-12 pointer-events-none"
+      />
+
+      {/* Secondary shimmer - white highlight */}
+      <motion.div
+        initial={{ x: '-100%', opacity: 0 }}
+        animate={{ x: '200%', opacity: [0, 0.25, 0] }}
+        transition={{ duration: 1.2, ease: 'easeInOut', delay: 0.4 }}
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 pointer-events-none"
+      />
+
+      {/* Glow background */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1.2 }}
+        transition={{ duration: 1.5, ease: 'easeOut' }}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <div className="w-[600px] h-[300px] bg-accent/30 rounded-full blur-[150px]" />
+      </motion.div>
+
+      {/* NOMIA text with blur-to-sharp effect */}
+      <motion.div
+        initial={{ filter: 'blur(20px)', scale: 0.85, opacity: 0 }}
+        animate={{ 
+          filter: phase === 'enter' ? 'blur(20px)' : 'blur(0px)', 
+          scale: phase === 'enter' ? 0.85 : 1, 
+          opacity: 1 
+        }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+        className="relative z-10"
+      >
+        <motion.h1
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
+          className="font-heading font-extrabold text-7xl sm:text-8xl md:text-9xl lg:text-[10rem] tracking-tighter text-center text-foreground select-none"
         >
-          {/* Shimmer sweep effect */}
-          <motion.div
-            initial={{ x: '-100%', opacity: 0 }}
-            animate={{ x: '200%', opacity: [0, 0.6, 0] }}
-            transition={{ duration: 1.5, ease: 'easeInOut', delay: 0.3 }}
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/30 to-transparent skew-x-12 pointer-events-none"
-          />
-
-          {/* Secondary shimmer */}
-          <motion.div
-            initial={{ x: '-100%', opacity: 0 }}
-            animate={{ x: '200%', opacity: [0, 0.3, 0] }}
-            transition={{ duration: 1.2, ease: 'easeInOut', delay: 0.5 }}
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 pointer-events-none"
-          />
-
-          {/* Blur-to-sharp container */}
-          <motion.div
-            initial={{ filter: 'blur(12px)', scale: 0.9, opacity: 0 }}
-            animate={{ filter: 'blur(0px)', scale: 1, opacity: 1 }}
-            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
-            className="relative z-10"
-          >
-            {/* NOMIA text */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
-              className="font-heading font-extrabold text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tighter text-center text-foreground"
-            >
-              Nomia<span className="text-accent">.</span>
-            </motion.h1>
-          </motion.div>
-
-          {/* Subtle glow behind text */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, delay: 0.1 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          >
-            <div className="w-[500px] h-[250px] bg-accent/25 rounded-full blur-[120px]" />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          NOMIA<span className="text-accent">.</span>
+        </motion.h1>
+      </motion.div>
+    </motion.div>
   );
 }
 
+// Hook to manage intro state
 export function useNomiaIntro() {
-  const [hasSeenIntro, setHasSeenIntro] = useState<boolean | null>(null);
-  const [showIntro, setShowIntro] = useState(false);
+  const [state, setState] = useState<{
+    hasSeenIntro: boolean | null;
+    showIntro: boolean;
+    isLoading: boolean;
+  }>({
+    hasSeenIntro: null,
+    showIntro: false,
+    isLoading: true,
+  });
 
   useEffect(() => {
-    // Check localStorage for seen flag
-    const seen = localStorage.getItem(INTRO_SEEN_KEY);
-    const hasSeen = seen === 'true';
-    setHasSeenIntro(hasSeen);
-    
-    // Show intro only if not seen before
-    if (!hasSeen) {
-      setShowIntro(true);
-    }
+    // Check localStorage on mount
+    const seen = localStorage.getItem(INTRO_SEEN_KEY) === 'true';
+    setState({
+      hasSeenIntro: seen,
+      showIntro: !seen,
+      isLoading: false,
+    });
   }, []);
 
   const markIntroSeen = () => {
     localStorage.setItem(INTRO_SEEN_KEY, 'true');
-    setHasSeenIntro(true);
-    setShowIntro(false);
+    setState(prev => ({
+      ...prev,
+      hasSeenIntro: true,
+      showIntro: false,
+    }));
   };
 
   const replayIntro = () => {
     localStorage.removeItem(INTRO_SEEN_KEY);
-    setHasSeenIntro(false);
-    setShowIntro(true);
-    // Force page reload to show intro properly
+    // Reload to show intro fresh
     window.location.reload();
   };
 
-  return { hasSeenIntro, showIntro, markIntroSeen, replayIntro };
+  return { 
+    hasSeenIntro: state.hasSeenIntro, 
+    showIntro: state.showIntro, 
+    isLoading: state.isLoading,
+    markIntroSeen, 
+    replayIntro 
+  };
 }

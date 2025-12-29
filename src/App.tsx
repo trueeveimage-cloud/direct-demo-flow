@@ -28,8 +28,8 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function AppContent() {
-  const { showIntro, markIntroSeen, replayIntro } = useNomiaIntro();
-  const [introComplete, setIntroComplete] = useState(!showIntro);
+  const { showIntro, isLoading, markIntroSeen, replayIntro } = useNomiaIntro();
+  const [introComplete, setIntroComplete] = useState(false);
 
   // Initialize analytics on mount
   useEffect(() => {
@@ -42,13 +42,25 @@ function AppContent() {
   };
 
   // Store replayIntro in window for footer access
-  if (typeof window !== 'undefined') {
-    (window as any).__nomiaReplayIntro = replayIntro;
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__nomiaReplayIntro = replayIntro;
+    }
+  }, [replayIntro]);
+
+  // Show loading state briefly while checking localStorage
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-background z-[99999]" />
+    );
   }
+
+  // Determine if we should show the intro
+  const shouldShowIntro = showIntro && !introComplete;
 
   return (
     <>
-      {showIntro && !introComplete && (
+      {shouldShowIntro && (
         <NomiaIntro onComplete={handleIntroComplete} />
       )}
       <BrowserRouter>
