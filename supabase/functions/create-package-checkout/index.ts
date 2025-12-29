@@ -33,10 +33,6 @@ function isValidPackageId(id: unknown): id is string {
   return typeof id === "string" && ["starter", "standard", "pro"].includes(id);
 }
 
-function isValidCarePlanId(id: unknown): id is string {
-  return typeof id === "string" && ["basic", "standard", "pro"].includes(id);
-}
-
 function isValidEmail(email: unknown): email is string {
   if (typeof email !== "string") return false;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -60,22 +56,6 @@ const BOOKING_ADDON_PRICE_ID = "price_1Shhqd74JfaAfHsdN70mmlQ8"; // €200 booki
 
 // Admin panel add-on price ID from Stripe (€100 one-time)
 const ADMIN_PANEL_PRICE_ID = "price_1SjVDH74JfaAfHsdJ2bpHabL"; // €100 admin panel add-on
-
-// Care plan price IDs from Stripe (subscriptions in EUR)
-const CARE_PLAN_PRICES: Record<string, { monthly: string; yearly: string }> = {
-  basic: {
-    monthly: "price_1SjVDL74JfaAfHsd1i1pFby6",  // €25/month
-    yearly: "price_1SjVDP74JfaAfHsdsgUuSbuU",   // €240/year
-  },
-  standard: {
-    monthly: "price_1SjVDM74JfaAfHsdOemLHRqh", // €45/month
-    yearly: "price_1SjVDR74JfaAfHsduWagejHS",  // €432/year
-  },
-  pro: {
-    monthly: "price_1SjVDO74JfaAfHsdfwTpnk0Y", // €75/month
-    yearly: "price_1SjVDS74JfaAfHsdwdQM3Seh",  // €720/year
-  },
-};
 
 interface CheckoutRequest {
   packageId: string;
@@ -165,7 +145,7 @@ serve(async (req) => {
     const packageId = requestData.packageId;
     const email = requestData.email && isValidEmail(requestData.email) ? requestData.email : undefined;
     const conceptLink = sanitizeString(requestData.conceptLink, 2000);
-    const carePlanId = isValidCarePlanId(requestData.carePlanId) ? requestData.carePlanId : undefined;
+    const carePlanId = sanitizeString(requestData.carePlanId, 20); // Store for metadata only, not billed here
     const isYearly = requestData.isYearly === true;
     const wantsBooking = requestData.wantsBooking === true;
     const bookingAddonCost = typeof requestData.bookingAddonCost === "number" ? requestData.bookingAddonCost : 0;
@@ -176,7 +156,7 @@ serve(async (req) => {
       ? requestData.customerType : null;
     const vatNumber = sanitizeString(requestData.vatNumber, 50);
     const vatVerified = requestData.vatVerified === true;
-    const customerCountry = sanitizeString(requestData.country, 5);
+    const customerCountry = sanitizeString(requestData.country, 5) || "SE";
     const orgNumber = sanitizeString(requestData.orgNumber, 50);
     
     // Additional metadata fields
@@ -200,7 +180,8 @@ serve(async (req) => {
       bookingAddonCost,
       addedAdminPanel,
       customerType,
-      vatVerified
+      vatVerified,
+      customerCountry
     });
 
     const priceId = PACKAGE_PRICES[packageId];
@@ -219,7 +200,7 @@ serve(async (req) => {
 
     const safeOrigin = origin || "https://nomia.se";
     
-    // Build line items - always include the package
+    // Build line items - only one-time payments (NO care plan - that's billed separately)
     const lineItems: Array<{ price: string; quantity: number }> = [
       {
         price: priceId,
@@ -245,27 +226,25 @@ serve(async (req) => {
       console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on to checkout");
     }
 
-    // Determine checkout mode - if care plan is selected, we need subscription mode
-    let mode: "payment" | "subscription" = "payment";
+    // Always use payment mode - care plan is billed separately after
+    const mode: "payment" = "payment";
     
-    // Add care plan subscription if selected
-    if (carePlanId && CARE_PLAN_PRICES[carePlanId]) {
-      const carePlanPrices = CARE_PLAN_PRICES[carePlanId];
-      const carePlanPriceId = isYearly ? carePlanPrices.yearly : carePlanPrices.monthly;
-      lineItems.push({
-        price: carePlanPriceId,
-        quantity: 1,
-      });
-      mode = "subscription"; // Switch to subscription mode when care plan is included
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added care plan to checkout", { carePlanId, isYearly, carePlanPriceId });
-    }
-    
-    // Build success URL with metadata
+    // Build success URL with metadata for care plan follow-up
     const successUrl = new URL(`${safeOrigin}/betalning-klar`);
     successUrl.searchParams.set("session_id", "{CHECKOUT_SESSION_ID}");
     if (conceptLink) successUrl.searchParams.set("concept", encodeURIComponent(conceptLink));
+    if (carePlanId) {
+      successUrl.searchParams.set("care_plan", carePlanId);
+      successUrl.searchParams.set("care_yearly", String(isYearly));
+    }
 
-    const session = await stripe.checkout.sessions.create({
+    // Determine if we should apply automatic tax (for Swedish customers = 25% VAT)
+    // EU business with valid VAT = reverse charge (no VAT)
+    const shouldApplyTax = customerType === "private" || 
+      (customerType === "business" && customerCountry === "SE") ||
+      (customerType === "business" && !vatVerified);
+
+    const sessionConfig: any = {
       customer: customerId,
       customer_email: customerId ? undefined : email,
       line_items: lineItems,
@@ -284,7 +263,7 @@ serve(async (req) => {
         customerType: customerType || "private",
         vatNumber: vatNumber || "",
         vatVerified: String(vatVerified),
-        customerCountry: customerCountry || "SE",
+        customerCountry: customerCountry,
         orgNumber: orgNumber || "",
         businessName,
         contactPerson,
@@ -297,7 +276,19 @@ serve(async (req) => {
         accentColor,
         services: services.slice(0, 500), // Stripe metadata limit
       },
-    });
+    };
+
+    // Apply automatic tax collection for applicable customers
+    if (shouldApplyTax) {
+      sessionConfig.automatic_tax = { enabled: true };
+      console.log("[CREATE-PACKAGE-CHECKOUT] Automatic tax enabled");
+    } else {
+      // EU B2B with valid VAT - add tax exemption note
+      sessionConfig.tax_id_collection = { enabled: true };
+      console.log("[CREATE-PACKAGE-CHECKOUT] Tax ID collection enabled for B2B reverse charge");
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     console.log("[CREATE-PACKAGE-CHECKOUT] Checkout session created", { sessionId: session.id });
 
