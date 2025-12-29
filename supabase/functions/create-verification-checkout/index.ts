@@ -38,7 +38,7 @@ function sanitizeString(str: unknown, maxLength = 500): string {
 }
 
 // Verification fee price ID (€50 one-time payment - "Downpayment" product)
-const VERIFICATION_PRICE_ID = "price_1Shc5O74JfaAfHsdSbkb0NTQ"; // €50
+const VERIFICATION_PRICE_ID = "price_1SjVDJ74JfaAfHsdbZ0gBoeh"; // €50
 
 interface CheckoutRequest {
   email?: string;

@@ -48,29 +48,29 @@ function sanitizeString(str: unknown, maxLength = 500): string {
   return str.slice(0, maxLength).replace(/[<>]/g, "");
 }
 
-// Package price IDs from Stripe (one-time payments)
+// Package price IDs from Stripe (one-time payments in EUR)
 const PACKAGE_PRICES: Record<string, string> = {
-  starter: "price_1ShYyX74JfaAfHsd9Bsgi0bK",   // 4,900 kr
-  standard: "price_1ShYyp74JfaAfHsdLj5pMJLF", // 7,900 kr
-  pro: "price_1ShYz774JfaAfHsdpobK6ORT",      // 12,900 kr
+  starter: "price_1Shc6N74JfaAfHsdaVZU5rQL",   // €440 (€490 - €50 deposit)
+  standard: "price_1Shc6274JfaAfHsdSQEMwWZ0", // €740 (€790 - €50 deposit)
+  pro: "price_1Shc5k74JfaAfHsdT7xzOxfA",      // €1,240 (€1,290 - €50 deposit)
 };
 
-// Booking add-on price ID from Stripe (2,000 kr one-time)
-const BOOKING_ADDON_PRICE_ID = "price_1Shc5O74JfaAfHsdSbkb0NTQ"; // 2,000 kr booking add-on
+// Booking add-on price ID from Stripe (€200 one-time)
+const BOOKING_ADDON_PRICE_ID = "price_1Shhqd74JfaAfHsdN70mmlQ8"; // €200 booking add-on
 
-// Care plan price IDs from Stripe (subscriptions)
+// Care plan price IDs from Stripe (subscriptions in EUR)
 const CARE_PLAN_PRICES: Record<string, { monthly: string; yearly: string }> = {
   basic: {
-    monthly: "price_1ShZ2W74JfaAfHsdZwoAI3AM",  // 249 kr/month
-    yearly: "price_1ShZ0L74JfaAfHsd2ZD8f0jx",   // yearly
+    monthly: "price_1SjVDL74JfaAfHsd1i1pFby6",  // €25/month
+    yearly: "price_1SjVDP74JfaAfHsdsgUuSbuU",   // €240/year
   },
   standard: {
-    monthly: "price_1ShZ3974JfaAfHsdJRyNwKZF", // 449 kr/month
-    yearly: "price_1ShZ1A74JfaAfHsdbIkMmI0K",  // 4,300 kr/year
+    monthly: "price_1SjVDM74JfaAfHsdOemLHRqh", // €45/month
+    yearly: "price_1SjVDR74JfaAfHsduWagejHS",  // €432/year
   },
   pro: {
-    monthly: "price_1ShZ3V74JfaAfHsdFTHkwZfX", // 749 kr/month
-    yearly: "price_1ShZ2574JfaAfHsdGOu9YrQQ",  // 7,190 kr/year
+    monthly: "price_1SjVDO74JfaAfHsdfwTpnk0Y", // €75/month
+    yearly: "price_1SjVDS74JfaAfHsdwdQM3Seh",  // €720/year
   },
 };
 
