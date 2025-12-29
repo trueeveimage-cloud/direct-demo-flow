@@ -125,24 +125,41 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
     }
   }, [data.orgNumber, data.country]);
 
-  // Mock VIES verification (in production, call edge function)
+  // Real VIES verification via edge function
   const verifyVat = async () => {
     if (!data.vatNumber || vatError) return;
     
     setIsVerifyingVat(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock verification - in production, call VIES API via edge function
-    const isValid = data.vatNumber.length >= 10;
-    
-    if (isValid) {
-      updateField('vatVerified', true);
-      updateField('vatVerifiedAt', new Date().toISOString());
-      setVatError(null);
-    } else {
-      setVatError(t('VAT-nummer kunde inte verifieras', 'VAT number could not be verified'));
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-vat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            vatNumber: data.vatNumber,
+            countryCode: data.country,
+          }),
+        }
+      );
+      
+      const result = await response.json();
+      
+      if (result.valid) {
+        updateField('vatVerified', true);
+        updateField('vatVerifiedAt', result.verifiedAt || new Date().toISOString());
+        setVatError(null);
+      } else {
+        setVatError(result.message || t('VAT-nummer kunde inte verifieras', 'VAT number could not be verified'));
+        updateField('vatVerified', false);
+      }
+    } catch (error) {
+      console.error('VAT verification error:', error);
+      setVatError(t('Kunde inte verifiera VAT-nummer. Försök igen.', 'Could not verify VAT number. Please try again.'));
       updateField('vatVerified', false);
     }
     

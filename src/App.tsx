@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Layout } from "@/components/Layout";
 import { NomiaIntro, useNomiaIntro } from "@/components/NomiaIntro";
+import { getAnalytics } from "@/lib/posthog";
 import Index from "./pages/Index";
 import FreeDemoPage from "./pages/FreeDemoPage";
 import PricingPage from "./pages/PricingPage";
@@ -29,6 +30,11 @@ const queryClient = new QueryClient();
 function AppContent() {
   const { showIntro, markIntroSeen, replayIntro } = useNomiaIntro();
   const [introComplete, setIntroComplete] = useState(!showIntro);
+
+  // Initialize analytics on mount
+  useEffect(() => {
+    getAnalytics();
+  }, []);
 
   const handleIntroComplete = () => {
     markIntroSeen();

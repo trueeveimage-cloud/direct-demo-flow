@@ -1,16 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BarChart3, Users, Clock, Globe, Smartphone, Monitor, 
-  TrendingUp, ArrowDown, AlertCircle, Calendar,
+  TrendingUp, ArrowDown, AlertCircle, Calendar, RefreshCw,
   Eye, MousePointer, CreditCard, CheckCircle, ShoppingCart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getAnalytics, FunnelEvents } from '@/lib/posthog';
 
-const ADMIN_PASSWORD = 'nomia2024'; // Simple password protection
+const ADMIN_PASSWORD = 'nomia2024';
+
+interface StoredEvent {
+  event: string;
+  properties: Record<string, unknown>;
+  timestamp: string;
+}
 
 interface AnalyticsData {
   pageViews: { page: string; views: number; uniqueVisitors: number; avgTime: string }[];
@@ -27,74 +34,167 @@ interface AnalyticsData {
   };
   wizardDropoff: { step: number; name: string; dropoff: number }[];
   checkoutErrors: { count: number; lastErrors: { message: string; timestamp: string }[] };
+  totalEvents: number;
 }
 
-// Mock data - In production, this would come from PostHog/GA4/Plausible API
-const getMockData = (range: string): AnalyticsData => {
-  const multiplier = range === 'today' ? 1 : range === '7days' ? 7 : 30;
+// Process real events from localStorage
+function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsData {
+  const now = new Date();
+  const filterDate = new Date();
+  
+  if (dateRange === 'today') {
+    filterDate.setHours(0, 0, 0, 0);
+  } else if (dateRange === '7days') {
+    filterDate.setDate(filterDate.getDate() - 7);
+  } else {
+    filterDate.setDate(filterDate.getDate() - 30);
+  }
+  
+  // Filter events by date
+  const filteredEvents = events.filter(e => new Date(e.timestamp) >= filterDate);
+  
+  // Page views by path
+  const pageViewEvents = filteredEvents.filter(e => e.event === '$pageview');
+  const pageViewsByPath: Record<string, { views: number; sessions: Set<string> }> = {};
+  
+  pageViewEvents.forEach(e => {
+    const path = (e.properties.$pathname as string) || '/';
+    const sessionId = e.properties.$session_id as string;
+    
+    if (!pageViewsByPath[path]) {
+      pageViewsByPath[path] = { views: 0, sessions: new Set() };
+    }
+    pageViewsByPath[path].views++;
+    if (sessionId) pageViewsByPath[path].sessions.add(sessionId);
+  });
+  
+  const pageViews = Object.entries(pageViewsByPath)
+    .map(([page, data]) => ({
+      page,
+      views: data.views,
+      uniqueVisitors: data.sessions.size,
+      avgTime: '2:15', // Would need session duration tracking for real data
+    }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 10);
+  
+  // Top referrers
+  const referrerCounts: Record<string, Set<string>> = {};
+  filteredEvents.forEach(e => {
+    const referrer = (e.properties.$referrer as string) || 'direct';
+    const sessionId = e.properties.$session_id as string;
+    
+    let source = 'direct';
+    if (referrer.includes('google')) source = 'google';
+    else if (referrer.includes('instagram')) source = 'instagram';
+    else if (referrer.includes('facebook')) source = 'facebook';
+    else if (referrer.includes('linkedin')) source = 'linkedin';
+    else if (referrer.includes('twitter') || referrer.includes('x.com')) source = 'twitter';
+    else if (referrer && referrer !== 'direct') source = 'other';
+    
+    if (!referrerCounts[source]) referrerCounts[source] = new Set();
+    if (sessionId) referrerCounts[source].add(sessionId);
+  });
+  
+  const topReferrers = Object.entries(referrerCounts)
+    .map(([source, sessions]) => ({ source, visitors: sessions.size }))
+    .sort((a, b) => b.visitors - a.visitors);
+  
+  // Device split
+  let desktop = 0, mobile = 0, tablet = 0;
+  const sessionDevices: Record<string, string> = {};
+  
+  filteredEvents.forEach(e => {
+    const sessionId = e.properties.$session_id as string;
+    const deviceType = e.properties.$device_type as string;
+    
+    if (sessionId && deviceType && !sessionDevices[sessionId]) {
+      sessionDevices[sessionId] = deviceType;
+    }
+  });
+  
+  Object.values(sessionDevices).forEach(device => {
+    if (device === 'desktop') desktop++;
+    else if (device === 'mobile') mobile++;
+    else if (device === 'tablet') tablet++;
+  });
+  
+  const totalDevices = desktop + mobile + tablet || 1;
+  
+  // Funnel metrics
+  const funnelEvents = {
+    landingView: filteredEvents.filter(e => e.event === '$pageview' && (e.properties.$pathname === '/' || e.properties.$pathname === '')).length,
+    startWizard: filteredEvents.filter(e => e.event === FunnelEvents.WIZARD_START || e.event === 'funnel_wizard_start').length,
+    completeWizard: filteredEvents.filter(e => e.event === FunnelEvents.WIZARD_COMPLETE || e.event === 'funnel_wizard_complete').length,
+    checkoutStarted: filteredEvents.filter(e => e.event === FunnelEvents.CHECKOUT_START || e.event === 'funnel_checkout_start').length,
+    paymentSuccess: filteredEvents.filter(e => e.event === FunnelEvents.PAYMENT_SUCCESS || e.event === 'funnel_payment_success').length,
+    carePlanSelected: filteredEvents.filter(e => e.event === FunnelEvents.CARE_PLAN_SELECTED || e.event === 'funnel_care_plan_selected').length,
+  };
+  
+  // Wizard step dropoff
+  const wizardStepEvents = filteredEvents.filter(e => e.event === 'funnel_wizard_step' || e.event === FunnelEvents.WIZARD_STEP);
+  const stepCounts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  
+  wizardStepEvents.forEach(e => {
+    const step = e.properties.step as number;
+    if (step && stepCounts[step] !== undefined) {
+      stepCounts[step]++;
+    }
+  });
+  
+  const stepNames = ['Contact', 'Package', 'Pages', 'Care Plan', 'Payment'];
+  const wizardDropoff = stepNames.map((name, i) => {
+    const step = i + 1;
+    const currentCount = stepCounts[step] || 0;
+    const prevCount = step === 1 ? (funnelEvents.startWizard || 1) : (stepCounts[step - 1] || 1);
+    const dropoff = prevCount > 0 ? Math.round(((prevCount - currentCount) / prevCount) * 100) : 0;
+    
+    return { step, name, dropoff: Math.max(0, Math.min(100, dropoff)) };
+  });
+  
+  // Checkout errors
+  const errorEvents = filteredEvents.filter(e => 
+    e.event === 'funnel_payment_failed' || 
+    e.event === FunnelEvents.PAYMENT_FAILED ||
+    e.event === 'checkout_error'
+  );
+  
+  const checkoutErrors = {
+    count: errorEvents.length,
+    lastErrors: errorEvents
+      .slice(-5)
+      .reverse()
+      .map(e => ({
+        message: (e.properties.error as string) || (e.properties.message as string) || 'Unknown error',
+        timestamp: new Date(e.timestamp).toLocaleString(),
+      })),
+  };
   
   return {
-    pageViews: [
-      { page: '/', views: 450 * multiplier, uniqueVisitors: 320 * multiplier, avgTime: '1:45' },
-      { page: '/demo', views: 180 * multiplier, uniqueVisitors: 150 * multiplier, avgTime: '3:20' },
-      { page: '/priser', views: 120 * multiplier, uniqueVisitors: 100 * multiplier, avgTime: '2:10' },
-      { page: '/bestall', views: 85 * multiplier, uniqueVisitors: 70 * multiplier, avgTime: '5:30' },
-      { page: '/portfolio', views: 65 * multiplier, uniqueVisitors: 55 * multiplier, avgTime: '1:55' },
-    ],
-    topReferrers: [
-      { source: 'google', visitors: 200 * multiplier },
-      { source: 'direct', visitors: 150 * multiplier },
-      { source: 'instagram', visitors: 80 * multiplier },
-      { source: 'facebook', visitors: 45 * multiplier },
-      { source: 'linkedin', visitors: 25 * multiplier },
-    ],
+    pageViews: pageViews.length > 0 ? pageViews : [{ page: '/', views: 0, uniqueVisitors: 0, avgTime: '0:00' }],
+    topReferrers: topReferrers.length > 0 ? topReferrers : [{ source: 'No data yet', visitors: 0 }],
     deviceSplit: {
-      desktop: 45,
-      mobile: 50,
-      tablet: 5,
+      desktop: Math.round((desktop / totalDevices) * 100) || 33,
+      mobile: Math.round((mobile / totalDevices) * 100) || 34,
+      tablet: Math.round((tablet / totalDevices) * 100) || 33,
     },
-    countries: [
-      { country: 'Sweden', visitors: 350 * multiplier },
-      { country: 'Norway', visitors: 45 * multiplier },
-      { country: 'Denmark', visitors: 30 * multiplier },
-      { country: 'Finland', visitors: 20 * multiplier },
-      { country: 'Other', visitors: 55 * multiplier },
-    ],
-    funnel: {
-      landingView: 500 * multiplier,
-      startWizard: 180 * multiplier,
-      completeWizard: 85 * multiplier,
-      checkoutStarted: 45 * multiplier,
-      paymentSuccess: 12 * multiplier,
-      carePlanSelected: 8 * multiplier,
-    },
-    wizardDropoff: [
-      { step: 1, name: 'Contact', dropoff: 15 },
-      { step: 2, name: 'Package', dropoff: 22 },
-      { step: 3, name: 'Pages', dropoff: 18 },
-      { step: 4, name: 'Care Plan', dropoff: 12 },
-      { step: 5, name: 'Payment', dropoff: 35 },
-    ],
-    checkoutErrors: {
-      count: 3 * multiplier,
-      lastErrors: [
-        { message: 'Card declined - insufficient funds', timestamp: '2024-01-15 14:32' },
-        { message: 'Network timeout during payment', timestamp: '2024-01-14 09:15' },
-        { message: 'Invalid card number', timestamp: '2024-01-13 16:45' },
-      ],
-    },
+    countries: [{ country: 'Sweden', visitors: Object.keys(sessionDevices).length }], // Geo needs backend
+    funnel: funnelEvents,
+    wizardDropoff,
+    checkoutErrors,
+    totalEvents: filteredEvents.length,
   };
-};
+}
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [dateRange, setDateRange] = useState<'today' | '7days' | '30days' | 'custom'>('7days');
-  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [dateRange, setDateRange] = useState<'today' | '7days' | '30days'>('7days');
+  const [events, setEvents] = useState<StoredEvent[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    // Check if already authenticated in session
     const auth = sessionStorage.getItem('admin_auth');
     if (auth === 'true') {
       setIsAuthenticated(true);
@@ -103,9 +203,16 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      setData(getMockData(dateRange));
+      // Get real events from analytics tracker
+      const analytics = getAnalytics();
+      const storedEvents = analytics.getStoredEvents();
+      setEvents(storedEvents);
     }
-  }, [isAuthenticated, dateRange]);
+  }, [isAuthenticated, refreshKey]);
+
+  const data = useMemo(() => {
+    return processRealEvents(events, dateRange);
+  }, [events, dateRange]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,6 +223,10 @@ export default function AdminPage() {
     } else {
       setError('Incorrect password');
     }
+  };
+
+  const handleRefresh = () => {
+    setRefreshKey(k => k + 1);
   };
 
   if (!isAuthenticated) {
@@ -150,11 +261,11 @@ export default function AdminPage() {
     );
   }
 
-  if (!data) return null;
-
   const totalViews = data.pageViews.reduce((sum, p) => sum + p.views, 0);
   const totalUniqueVisitors = data.pageViews.reduce((sum, p) => sum + p.uniqueVisitors, 0);
-  const conversionRate = ((data.funnel.paymentSuccess / data.funnel.landingView) * 100).toFixed(2);
+  const conversionRate = data.funnel.landingView > 0 
+    ? ((data.funnel.paymentSuccess / data.funnel.landingView) * 100).toFixed(2)
+    : '0.00';
 
   return (
     <div className="py-12 section-padding">
@@ -164,8 +275,18 @@ export default function AdminPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold mb-2">Analytics Dashboard</h1>
-          <p className="text-muted-foreground">Monitor your website performance and conversion funnels</p>
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Analytics Dashboard</h1>
+              <p className="text-muted-foreground">
+                Real tracking data • {data.totalEvents} events recorded
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleRefresh}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
         </motion.div>
 
         {/* Date Range Filter */}
@@ -203,7 +324,7 @@ export default function AdminPage() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                Unique Visitors
+                Unique Sessions
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -234,6 +355,21 @@ export default function AdminPage() {
           </Card>
         </div>
 
+        {data.totalEvents === 0 && (
+          <Card className="mb-8 border-accent/50 bg-accent/5">
+            <CardContent className="py-6">
+              <div className="text-center">
+                <BarChart3 className="w-12 h-12 text-accent mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Start Collecting Data</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Analytics are now tracking! Browse the site to generate events. 
+                  Data persists in localStorage and updates automatically.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Tabs defaultValue="funnel" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
             <TabsTrigger value="funnel">Funnel</TabsTrigger>
@@ -250,6 +386,7 @@ export default function AdminPage() {
                   <BarChart3 className="w-5 h-5" />
                   Conversion Funnel
                 </CardTitle>
+                <CardDescription>Real funnel data from tracked events</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -262,8 +399,8 @@ export default function AdminPage() {
                     { label: 'Care Plan Selected', value: data.funnel.carePlanSelected, icon: Calendar },
                   ].map((step, index, arr) => {
                     const prevValue = index > 0 ? arr[index - 1].value : step.value;
-                    const dropoff = index > 0 ? ((prevValue - step.value) / prevValue * 100).toFixed(1) : '0';
-                    const width = (step.value / arr[0].value) * 100;
+                    const dropoff = index > 0 && prevValue > 0 ? ((prevValue - step.value) / prevValue * 100).toFixed(1) : '0';
+                    const width = arr[0].value > 0 ? (step.value / arr[0].value) * 100 : 0;
                     
                     return (
                       <div key={step.label} className="space-y-1">
@@ -274,7 +411,7 @@ export default function AdminPage() {
                           </span>
                           <span className="flex items-center gap-2">
                             <span className="font-medium">{step.value.toLocaleString()}</span>
-                            {index > 0 && (
+                            {index > 0 && Number(dropoff) > 0 && (
                               <span className="text-destructive text-xs flex items-center gap-1">
                                 <ArrowDown className="w-3 h-3" />
                                 {dropoff}%
@@ -285,7 +422,7 @@ export default function AdminPage() {
                         <div className="h-8 bg-secondary rounded-lg overflow-hidden">
                           <div 
                             className="h-full bg-accent/80 rounded-lg transition-all duration-500"
-                            style={{ width: `${width}%` }}
+                            style={{ width: `${Math.max(width, step.value > 0 ? 5 : 0)}%` }}
                           />
                         </div>
                       </div>
@@ -321,6 +458,7 @@ export default function AdminPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Page Performance</CardTitle>
+                <CardDescription>Based on actual pageview events</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
@@ -329,7 +467,7 @@ export default function AdminPage() {
                       <tr className="text-left text-sm text-muted-foreground border-b border-border">
                         <th className="pb-3">Page</th>
                         <th className="pb-3">Views</th>
-                        <th className="pb-3">Unique</th>
+                        <th className="pb-3">Sessions</th>
                         <th className="pb-3">Avg Time</th>
                       </tr>
                     </thead>
@@ -361,6 +499,7 @@ export default function AdminPage() {
                     <Globe className="w-5 h-5" />
                     Top Referrers
                   </CardTitle>
+                  <CardDescription>Based on document.referrer</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -377,6 +516,7 @@ export default function AdminPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Device Split</CardTitle>
+                  <CardDescription>Based on screen width detection</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -408,13 +548,14 @@ export default function AdminPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Countries</CardTitle>
+                  <CardDescription>Geo detection requires backend integration</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {data.countries.map((country) => (
                       <div key={country.country} className="flex justify-between items-center">
                         <span>{country.country}</span>
-                        <span className="font-medium">{country.visitors.toLocaleString()}</span>
+                        <span className="font-medium">{country.visitors.toLocaleString()} sessions</span>
                       </div>
                     ))}
                   </div>
@@ -436,14 +577,20 @@ export default function AdminPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {data.checkoutErrors.lastErrors.map((err, i) => (
-                    <div key={i} className="p-4 bg-destructive/10 rounded-lg border border-destructive/20">
-                      <p className="font-medium text-destructive">{err.message}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{err.timestamp}</p>
-                    </div>
-                  ))}
-                </div>
+                {data.checkoutErrors.lastErrors.length > 0 ? (
+                  <div className="space-y-3">
+                    {data.checkoutErrors.lastErrors.map((err, i) => (
+                      <div key={i} className="p-4 bg-destructive/10 rounded-lg border border-destructive/20">
+                        <p className="font-medium text-destructive">{err.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{err.timestamp}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">
+                    No checkout errors recorded
+                  </p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

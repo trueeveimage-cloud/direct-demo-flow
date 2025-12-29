@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.create-verification-checkout]
 verify_jwt = false
+
+[functions.verify-vat]
+verify_jwt = false
