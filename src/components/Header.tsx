@@ -64,12 +64,14 @@ export function Header() {
           <div className="hidden lg:flex items-center gap-3">
             <ThemeToggle />
             
-            {/* Language Toggle */}
+            {/* Language Toggle with Flags */}
             <button
               onClick={() => setLang(lang === 'sv' ? 'en' : 'sv')}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded border border-border"
+              className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded border border-border hover:border-accent/50 hover:bg-accent/5"
+              aria-label={lang === 'sv' ? 'Switch to English' : 'Byt till svenska'}
             >
-              {lang === 'sv' ? 'EN' : 'SV'}
+              <span className="text-base leading-none">{lang === 'sv' ? '🇬🇧' : '🇸🇪'}</span>
+              <span>{lang === 'sv' ? 'EN' : 'SV'}</span>
             </button>
 
             {/* CTA */}
@@ -86,9 +88,10 @@ export function Header() {
             <ThemeToggle />
             <button
               onClick={() => setLang(lang === 'sv' ? 'en' : 'sv')}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded border border-border"
+              className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded border border-border"
+              aria-label={lang === 'sv' ? 'Switch to English' : 'Byt till svenska'}
             >
-              {lang === 'sv' ? 'EN' : 'SV'}
+              <span className="text-base leading-none">{lang === 'sv' ? '🇬🇧' : '🇸🇪'}</span>
             </button>
             <button
               onClick={() => setIsOpen(!isOpen)}
