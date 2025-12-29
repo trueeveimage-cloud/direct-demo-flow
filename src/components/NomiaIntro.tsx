@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const INTRO_SEEN_KEY = 'nomia_intro_seen_v2';
@@ -7,8 +7,21 @@ interface NomiaIntroProps {
   onComplete: () => void;
 }
 
+// Generate particles for the effect
+function generateParticles(count: number) {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 4 + 1,
+    delay: Math.random() * 0.5,
+    duration: Math.random() * 2 + 1,
+  }));
+}
+
 export function NomiaIntro({ onComplete }: NomiaIntroProps) {
-  const [phase, setPhase] = useState<'enter' | 'visible' | 'exit' | 'done'>('enter');
+  const [phase, setPhase] = useState<'enter' | 'visible' | 'morph' | 'done'>('enter');
+  const particles = useMemo(() => generateParticles(50), []);
 
   useEffect(() => {
     // Check for reduced motion preference
@@ -20,17 +33,17 @@ export function NomiaIntro({ onComplete }: NomiaIntroProps) {
       return;
     }
 
-    // Phase timing: enter -> visible -> exit -> done
-    const enterTimer = setTimeout(() => setPhase('visible'), 100);
-    const exitTimer = setTimeout(() => setPhase('exit'), 2000);
+    // Phase timing: enter -> visible -> morph -> done
+    const visibleTimer = setTimeout(() => setPhase('visible'), 100);
+    const morphTimer = setTimeout(() => setPhase('morph'), 1800);
     const doneTimer = setTimeout(() => {
       setPhase('done');
       onComplete();
-    }, 2500);
+    }, 2600);
 
     return () => {
-      clearTimeout(enterTimer);
-      clearTimeout(exitTimer);
+      clearTimeout(visibleTimer);
+      clearTimeout(morphTimer);
       clearTimeout(doneTimer);
     };
   }, [onComplete]);
@@ -40,8 +53,10 @@ export function NomiaIntro({ onComplete }: NomiaIntroProps) {
   return (
     <motion.div
       initial={{ opacity: 1 }}
-      animate={{ opacity: phase === 'exit' ? 0 : 1 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
+      animate={{ 
+        opacity: phase === 'morph' ? 0 : 1,
+      }}
+      transition={{ duration: 0.6, ease: 'easeInOut', delay: phase === 'morph' ? 0.2 : 0 }}
       className="fixed inset-0 z-[99999] bg-background flex items-center justify-center overflow-hidden"
       style={{ 
         position: 'fixed', 
@@ -50,54 +65,122 @@ export function NomiaIntro({ onComplete }: NomiaIntroProps) {
         right: 0, 
         bottom: 0,
         zIndex: 99999,
+        perspective: '1000px',
       }}
     >
+      {/* Particle field */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {particles.map((particle) => (
+          <motion.div
+            key={particle.id}
+            className="absolute rounded-full bg-accent"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              width: particle.size,
+              height: particle.size,
+            }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={phase !== 'enter' ? {
+              opacity: [0, 1, 1, 0],
+              scale: [0, 1, 1.5, 0],
+              y: phase === 'morph' ? [0, -200] : [0, -50, -100],
+              x: phase === 'morph' 
+                ? [(particle.x - 50) * -2] 
+                : [0, (Math.random() - 0.5) * 50],
+            } : {}}
+            transition={{
+              duration: phase === 'morph' ? 0.8 : particle.duration + 1,
+              delay: particle.delay,
+              ease: 'easeOut',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Radial glow burst */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.3 }}
+        animate={{ 
+          opacity: phase === 'visible' ? [0, 0.8, 0.4] : phase === 'morph' ? 0 : 0,
+          scale: phase === 'visible' ? [0.3, 1.5, 1.2] : phase === 'morph' ? 2 : 0.3,
+        }}
+        transition={{ duration: 1, ease: 'easeOut' }}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <div className="w-[800px] h-[400px] bg-accent/30 rounded-full blur-[180px]" />
+      </motion.div>
+
+      {/* Secondary radial rings */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ 
+          opacity: phase === 'visible' ? [0, 0.3, 0.15] : 0,
+          scale: phase === 'visible' ? [0.5, 2, 2.5] : 0.5,
+        }}
+        transition={{ duration: 1.5, ease: 'easeOut', delay: 0.2 }}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <div className="w-[600px] h-[600px] border-2 border-accent/20 rounded-full" />
+      </motion.div>
+
       {/* Shimmer sweep effect */}
       <motion.div
         initial={{ x: '-100%', opacity: 0 }}
-        animate={{ x: '200%', opacity: [0, 0.7, 0] }}
-        transition={{ duration: 1.4, ease: 'easeInOut', delay: 0.2 }}
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/40 to-transparent skew-x-12 pointer-events-none"
+        animate={{ x: '200%', opacity: [0, 0.8, 0] }}
+        transition={{ duration: 1.2, ease: 'easeInOut', delay: 0.3 }}
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/50 to-transparent skew-x-12 pointer-events-none"
       />
 
-      {/* Secondary shimmer - white highlight */}
+      {/* NOMIA text with 3D morph effect */}
       <motion.div
-        initial={{ x: '-100%', opacity: 0 }}
-        animate={{ x: '200%', opacity: [0, 0.25, 0] }}
-        transition={{ duration: 1.2, ease: 'easeInOut', delay: 0.4 }}
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 pointer-events-none"
-      />
-
-      {/* Glow background */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1.2 }}
-        transition={{ duration: 1.5, ease: 'easeOut' }}
-        className="absolute inset-0 flex items-center justify-center pointer-events-none"
-      >
-        <div className="w-[600px] h-[300px] bg-accent/30 rounded-full blur-[150px]" />
-      </motion.div>
-
-      {/* NOMIA text with blur-to-sharp effect */}
-      <motion.div
-        initial={{ filter: 'blur(20px)', scale: 0.85, opacity: 0 }}
+        initial={{ 
+          filter: 'blur(20px)', 
+          scale: 0.8, 
+          opacity: 0,
+          rotateX: 20,
+          z: -100,
+        }}
         animate={{ 
           filter: phase === 'enter' ? 'blur(20px)' : 'blur(0px)', 
-          scale: phase === 'enter' ? 0.85 : 1, 
-          opacity: 1 
+          scale: phase === 'morph' ? 0.45 : phase === 'enter' ? 0.8 : 1, 
+          opacity: phase === 'morph' ? 0 : 1,
+          rotateX: phase === 'morph' ? -5 : phase === 'enter' ? 20 : 0,
+          y: phase === 'morph' ? '-42vh' : 0,
+          z: phase === 'morph' ? 50 : phase === 'enter' ? -100 : 0,
         }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
+        transition={{ 
+          duration: phase === 'morph' ? 0.7 : 0.6, 
+          ease: [0.22, 1, 0.36, 1],
+        }}
         className="relative z-10"
+        style={{ transformStyle: 'preserve-3d' }}
       >
         <motion.h1
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
-          className="font-heading font-extrabold text-7xl sm:text-8xl md:text-9xl lg:text-[10rem] tracking-tighter text-center text-foreground select-none"
+          transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
+          className="font-heading font-extrabold text-7xl sm:text-8xl md:text-9xl lg:text-[11rem] tracking-tighter text-center text-foreground select-none"
+          style={{ 
+            textShadow: phase === 'visible' 
+              ? '0 0 80px hsl(var(--accent) / 0.5), 0 0 120px hsl(var(--accent) / 0.3)' 
+              : 'none',
+          }}
         >
           NOMIA<span className="text-accent">.</span>
         </motion.h1>
       </motion.div>
+
+      {/* Accent line sweep */}
+      <motion.div
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={{ 
+          scaleX: phase === 'visible' ? [0, 1, 1, 0] : 0,
+          opacity: phase === 'visible' ? [0, 1, 1, 0] : 0,
+        }}
+        transition={{ duration: 1.5, ease: 'easeInOut', delay: 0.5 }}
+        className="absolute bottom-[45%] left-1/2 -translate-x-1/2 w-[300px] h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent pointer-events-none origin-center"
+      />
     </motion.div>
   );
 }
