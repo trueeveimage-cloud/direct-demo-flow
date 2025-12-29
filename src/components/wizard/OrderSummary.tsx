@@ -1,9 +1,11 @@
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, FileText, Calendar, CreditCard, Check, Sparkles } from 'lucide-react';
+import { Package, FileText, Calendar, CreditCard, Check, Sparkles, MapPin, Star, Image, ShoppingCart, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { packages, carePlans, BOOKING_ADDON_PRICE, VERIFICATION_FEE, type WizardFormData } from './wizardConfig';
+
+const ADMIN_PANEL_PRICE = 100;
 
 interface OrderSummaryProps {
   formData: WizardFormData;
@@ -11,6 +13,7 @@ interface OrderSummaryProps {
   onCheckout?: () => void;
   isLoading?: boolean;
   currentStep: number;
+  addedAdminPanel?: boolean;
 }
 
 function OrderSummaryComponent({ 
@@ -18,7 +21,8 @@ function OrderSummaryComponent({
   isPostDemoFlow = false, 
   onCheckout,
   isLoading = false,
-  currentStep 
+  currentStep,
+  addedAdminPanel = false
 }: OrderSummaryProps) {
   const { t, lang } = useLanguage();
   
@@ -26,14 +30,23 @@ function OrderSummaryComponent({
   const carePlan = carePlans.find(c => c.id === formData.selectedCarePlan);
   const carePlanPrice = carePlan ? (formData.isYearlyCarePlan ? carePlan.yearlyPrice : carePlan.monthlyPrice) : 0;
   
-  // Booking costs 2000kr except for Pro package where it's included
+  // Booking costs €200 except for Pro package where it's included
   const bookingCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
-  const packageTotal = (pkg?.price || 0) + bookingCost;
+  const adminPanelCost = addedAdminPanel ? ADMIN_PANEL_PRICE : 0;
+  const packageTotal = (pkg?.price || 0) + bookingCost + adminPanelCost;
   const totalToday = isPostDemoFlow ? packageTotal - VERIFICATION_FEE : packageTotal;
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString('sv-SE').replace(/\s/g, ' ') + ' kr';
+    return '€' + price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   };
+  
+  // Count selected free features
+  const freeFeatures = [
+    { enabled: formData.wantsGoogleMaps, label: t('Google Maps', 'Google Maps'), icon: MapPin },
+    { enabled: formData.wantsGoogleReviews, label: t('Google Recensioner', 'Google Reviews'), icon: Star },
+    { enabled: formData.wantsBeforeAfter, label: t('Före/Efter', 'Before/After'), icon: Image },
+    { enabled: formData.wantsCheckoutSystem, label: t('Kassasystem', 'Checkout'), icon: ShoppingCart },
+  ].filter(f => f.enabled);
 
   const getTotalPages = () => {
     return formData.selectedPages.length + formData.customPages.filter(p => p.trim()).length;
@@ -108,7 +121,7 @@ function OrderSummaryComponent({
           </motion.div>
         )}
 
-        {/* Booking add-on - costs 2000kr or FREE for Pro */}
+        {/* Booking add-on - costs €200 or FREE for Pro */}
         <AnimatePresence>
           {formData.wantsBooking && (
             <motion.div
@@ -131,6 +144,48 @@ function OrderSummaryComponent({
           )}
         </AnimatePresence>
 
+        {/* Admin Panel add-on */}
+        <AnimatePresence>
+          {addedAdminPanel && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex items-center justify-between px-3 py-2"
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <LayoutDashboard className="w-4 h-4 text-accent" />
+                <span>{t('Adminpanel', 'Admin Panel')}</span>
+              </div>
+              <span className="text-sm font-medium">+{formatPrice(ADMIN_PANEL_PRICE)}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Free Features */}
+        <AnimatePresence>
+          {freeFeatures.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-1"
+            >
+              {freeFeatures.map((feature) => (
+                <div key={feature.label} className="flex items-center justify-between px-3 py-1.5">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <feature.icon className="w-3.5 h-3.5 text-accent" />
+                    <span>{feature.label}</span>
+                  </div>
+                  <span className="text-xs font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">
+                    {t('GRATIS', 'FREE')}
+                  </span>
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Care plan - shown inline, not as separate billing */}
         <AnimatePresence>
           {carePlan && (
@@ -145,7 +200,7 @@ function OrderSummaryComponent({
                 <span className="text-sm font-medium">{carePlan.name}</span>
               </div>
               <span className="text-sm font-medium">
-                {carePlanPrice} kr/{formData.isYearlyCarePlan ? t('mån', 'mo') : t('mån', 'mo')}
+                €{carePlanPrice}/{formData.isYearlyCarePlan ? t('mån', 'mo') : t('mån', 'mo')}
               </span>
             </motion.div>
           )}
@@ -186,8 +241,8 @@ function OrderSummaryComponent({
         {carePlan && (
           <p className="text-xs text-muted-foreground text-center">
             {formData.isYearlyCarePlan 
-              ? `${t('Vårdplan', 'Care plan')}: ${carePlanPrice * 12} kr/${t('år', 'year')}`
-              : `${t('Vårdplan', 'Care plan')}: ${carePlanPrice} kr/${t('mån', 'month')}`
+              ? `${t('Vårdplan', 'Care plan')}: €${carePlanPrice * 12}/${t('år', 'year')}`
+              : `${t('Vårdplan', 'Care plan')}: €${carePlanPrice}/${t('mån', 'month')}`
             }
           </p>
         )}

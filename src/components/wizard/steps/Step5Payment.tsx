@@ -18,6 +18,8 @@ interface Step5PaymentProps {
   isPostDemoFlow?: boolean;
   customerTypeData: CustomerTypeData;
   onCustomerTypeChange: (data: CustomerTypeData) => void;
+  addedAdminPanel?: boolean;
+  onAddAdminPanel?: () => void;
 }
 
 const ADMIN_PANEL_PRICE = 100;
@@ -37,11 +39,12 @@ export function Step5Payment({
   setFormData, 
   isPostDemoFlow = false,
   customerTypeData,
-  onCustomerTypeChange
+  onCustomerTypeChange,
+  addedAdminPanel = false,
+  onAddAdminPanel
 }: Step5PaymentProps) {
   const { t } = useLanguage();
   const [addedBooking, setAddedBooking] = useState(false);
-  const [addedAdminPanel, setAddedAdminPanel] = useState(false);
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
     setFormData({ ...formData, [field]: value });
@@ -60,7 +63,9 @@ export function Step5Payment({
   };
 
   const handleAddAdminPanel = () => {
-    setAddedAdminPanel(true);
+    if (onAddAdminPanel) {
+      onAddAdminPanel();
+    }
   };
 
   const pkg = packages.find(p => p.id === formData.selectedPackage);
