@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle, Briefcase, Target, Calendar, Plus, Trash2, Eye, Image as ImageIcon, Check, X } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle, Briefcase, Target, Calendar, Plus, Trash2, Image as ImageIcon, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,8 +15,6 @@ import { AnimatedSection } from '@/components/AnimatedSection';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { setVerificationPaid } from '@/config/stripe';
 import { useTheme } from 'next-themes';
-import { LiveWebsitePreview } from '@/components/LiveWebsitePreview';
-import { PreviewInfoTooltip } from '@/components/PreviewInfoTooltip';
 import { PhotoUpload } from '@/components/PhotoUpload';
 
 type FormStep = 1 | 2;
@@ -319,8 +317,6 @@ export default function FreeDemoPage() {
     );
   }
 
-  // State for preview visibility on mobile
-  const [showPreview, setShowPreview] = useState(false);
 
   return (
     <div className="min-h-screen section-padding py-12 relative overflow-hidden">
@@ -359,8 +355,8 @@ export default function FreeDemoPage() {
           </div>
         </AnimatedSection>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Left: Form */}
+        <div className="max-w-2xl mx-auto">
+          {/* Form */}
           <div>
             <AnimatePresence mode="wait">
               {/* Step 1: Form */}
@@ -970,57 +966,7 @@ export default function FreeDemoPage() {
           )}
         </AnimatePresence>
           </div>
-
-          {/* Right: Live Preview (desktop) */}
-          <div className="hidden lg:block">
-            <div className="sticky top-24">
-              <div className="mb-4 flex items-center gap-2">
-                <Eye className="w-5 h-5 text-accent" />
-                <span className="font-semibold">{t('Live förhandsgranskning', 'Live preview')}</span>
-                <PreviewInfoTooltip />
-              </div>
-              <LiveWebsitePreview
-                businessName={businessName}
-                businessType={businessType}
-                selectedStyle={selectedStyle}
-                primaryColor={primaryColor}
-                accentColor={accentColor}
-                services={services}
-                websiteGoal={websiteGoal}
-                phone={phone}
-                email={email}
-              />
-              <p className="text-xs text-muted-foreground text-center mt-4">
-                {t('Din hemsida uppdateras i realtid när du fyller i formuläret', 'Your website updates in real-time as you fill in the form')}
-              </p>
-            </div>
-          </div>
         </div>
-
-        {/* Mobile Preview - Visible below continue button */}
-        {step === 1 && (
-          <div className="lg:hidden mt-8 px-4">
-            <div className="mb-4 flex items-center gap-2">
-              <Eye className="w-5 h-5 text-accent" />
-              <span className="font-semibold">{t('Förhandsgranskning', 'Preview')}</span>
-              <PreviewInfoTooltip />
-            </div>
-            <LiveWebsitePreview
-              businessName={businessName}
-              businessType={businessType}
-              selectedStyle={selectedStyle}
-              primaryColor={primaryColor}
-              accentColor={accentColor}
-              services={services}
-              websiteGoal={websiteGoal}
-              phone={phone}
-              email={email}
-            />
-            <p className="text-xs text-muted-foreground text-center mt-4">
-              {t('Din hemsida uppdateras i realtid', 'Your website updates in real-time')}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
