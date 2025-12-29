@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, TrendingUp, ArrowRight, Target, Check, Phone, CalendarCheck, FileText, ShoppingCart, Award, Instagram, Search, Users, Megaphone, Globe, HelpCircle, Sparkles, Lightbulb } from 'lucide-react';
+import { Calculator, TrendingUp, ArrowRight, Target, Check, Phone, CalendarCheck, FileText, ShoppingCart, Award, Instagram, Search, Users, Megaphone, Globe, Sparkles, Lightbulb, Building2, Percent, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,10 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
 
-// Business type data with realistic conversion factors
+// Business type data
 const businessTypes = [
   { id: 'barber', label: { sv: 'Frisör / Barberare', en: 'Barber / Hair salon' } },
   { id: 'nail', label: { sv: 'Nagelsalong', en: 'Nail salon' } },
@@ -42,18 +41,25 @@ const currentPresenceOptions = [
   { id: 'oldsite', label: { sv: 'Gammal hemsida', en: 'Outdated website' }, icon: Globe },
 ];
 
-const missedLeadsOptions = [
-  { id: '0-2', label: '0–2', multiplier: 1 },
-  { id: '3-5', label: '3–5', multiplier: 4 },
-  { id: '6-10', label: '6–10', multiplier: 8 },
-  { id: '10+', label: '10+', multiplier: 12 },
+const conversionOptions = [
+  { id: 'low', label: { sv: 'Låg (under 10%)', en: 'Low (under 10%)' }, value: 0.05 },
+  { id: 'medium', label: { sv: 'Medel (10-30%)', en: 'Medium (10-30%)' }, value: 0.2 },
+  { id: 'high', label: { sv: 'Hög (över 30%)', en: 'High (over 30%)' }, value: 0.4 },
+  { id: 'unknown', label: { sv: 'Vet ej', en: 'Not sure' }, value: 0.15 },
+];
+
+const websiteImportanceOptions = [
+  { id: 'critical', label: { sv: 'Avgörande', en: 'Critical' }, value: 0.5 },
+  { id: 'important', label: { sv: 'Viktigt', en: 'Important' }, value: 0.35 },
+  { id: 'helpful', label: { sv: 'Hjälpsamt', en: 'Helpful' }, value: 0.2 },
+  { id: 'unsure', label: { sv: 'Osäker', en: 'Unsure' }, value: 0.3 },
 ];
 
 const calculationSteps = [
-  { sv: 'Analyserar din nuvarande närvaro...', en: 'Analyzing your current presence...' },
-  { sv: 'Uppskattar missade förfrågningar...', en: 'Estimating missed enquiries...' },
-  { sv: 'Beräknar potentiell intäktsökning...', en: 'Calculating potential uplift...' },
-  { sv: 'Förbereder rekommendationer...', en: 'Preparing recommendations...' },
+  { sv: 'Analyserar din bransch...', en: 'Analyzing your industry...' },
+  { sv: 'Beräknar marknadsandel...', en: 'Calculating market share...' },
+  { sv: 'Uppskattar konverteringspotential...', en: 'Estimating conversion potential...' },
+  { sv: 'Sammanställer resultat...', en: 'Compiling results...' },
 ];
 
 // Goal-based recommendations
@@ -87,46 +93,55 @@ export function ROICalculator() {
   const { t, lang } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   
-  // Form state
+  // Form state - Page 1
   const [businessType, setBusinessType] = useState('');
   const [primaryGoal, setPrimaryGoal] = useState('');
   const [weeklyLeads, setWeeklyLeads] = useState('');
   const [avgCustomerValue, setAvgCustomerValue] = useState('');
+  
+  // Form state - Page 2
   const [currentPresence, setCurrentPresence] = useState<string[]>([]);
-  const [missedLeads, setMissedLeads] = useState('');
+  const [conversionRate, setConversionRate] = useState('');
+  const [websiteImportance, setWebsiteImportance] = useState('');
+  const [yearsInBusiness, setYearsInBusiness] = useState('');
   
   // UI state
+  const [formPage, setFormPage] = useState(1);
   const [step, setStep] = useState<'form' | 'calculating' | 'result'>('form');
   const [calcProgress, setCalcProgress] = useState(0);
   const [calcStepIndex, setCalcStepIndex] = useState(0);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
-  // Calculate result
+  // Calculate result - tighter range (max €2000 difference), yearly display
   const result = useMemo(() => {
     const value = parseFloat(avgCustomerValue) || 0;
-    const missedData = missedLeadsOptions.find(m => m.id === missedLeads);
-    const missedMultiplier = missedData?.multiplier || 4;
+    const leads = parseFloat(weeklyLeads) || 0;
+    const conversionData = conversionOptions.find(c => c.id === conversionRate);
+    const importanceData = websiteImportanceOptions.find(w => w.id === websiteImportance);
     
-    // Calculate monthly missed revenue range
-    const weeksPerMonth = 4;
-    const lowMissed = Math.max(1, missedMultiplier - 2);
-    const highMissed = missedMultiplier + 2;
+    const conversionValue = conversionData?.value || 0.15;
+    const importanceValue = importanceData?.value || 0.3;
     
-    const lowMonthly = Math.round(lowMissed * value * weeksPerMonth);
-    const highMonthly = Math.round(highMissed * value * weeksPerMonth);
+    // Base calculation: weekly leads × avg value × 52 weeks × importance factor × conversion improvement
+    const baseYearly = leads * value * 52;
+    const lostFactor = importanceValue * (1 - conversionValue);
     
-    // Yearly projection
-    const lowYearly = lowMonthly * 12;
-    const highYearly = highMonthly * 12;
+    // Calculate yearly loss with tight range (max €2000 difference)
+    const midYearly = Math.round(baseYearly * lostFactor);
+    const variance = Math.min(1000, midYearly * 0.08); // 8% variance or €1000 max per side
+    
+    const lowYearly = Math.max(0, Math.round(midYearly - variance));
+    const highYearly = Math.round(midYearly + variance);
+    
+    // Ensure max €2000 difference
+    const actualHigh = Math.min(highYearly, lowYearly + 2000);
     
     return {
-      lowMonthly,
-      highMonthly,
       lowYearly,
-      highYearly,
+      highYearly: actualHigh,
       recommendations: getRecommendations(primaryGoal || 'trust', lang),
     };
-  }, [avgCustomerValue, missedLeads, primaryGoal, lang]);
+  }, [avgCustomerValue, weeklyLeads, conversionRate, websiteImportance, primaryGoal, lang]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-EU', { 
@@ -136,21 +151,36 @@ export function ROICalculator() {
     }).format(amount);
   };
 
-  const validateForm = () => {
+  const validatePage1 = () => {
     const newErrors: Record<string, boolean> = {};
     if (!businessType) newErrors.businessType = true;
     if (!primaryGoal) newErrors.primaryGoal = true;
     if (!weeklyLeads) newErrors.weeklyLeads = true;
     if (!avgCustomerValue) newErrors.avgCustomerValue = true;
-    if (currentPresence.length === 0) newErrors.currentPresence = true;
-    if (!missedLeads) newErrors.missedLeads = true;
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const validatePage2 = () => {
+    const newErrors: Record<string, boolean> = {};
+    if (currentPresence.length === 0) newErrors.currentPresence = true;
+    if (!conversionRate) newErrors.conversionRate = true;
+    if (!websiteImportance) newErrors.websiteImportance = true;
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNextPage = () => {
+    if (validatePage1()) {
+      setFormPage(2);
+      setErrors({});
+    }
+  };
+
   const handleCalculate = () => {
-    if (!validateForm()) return;
+    if (!validatePage2()) return;
     
     setStep('calculating');
     setCalcProgress(0);
@@ -178,7 +208,10 @@ export function ROICalculator() {
     setWeeklyLeads('');
     setAvgCustomerValue('');
     setCurrentPresence([]);
-    setMissedLeads('');
+    setConversionRate('');
+    setWebsiteImportance('');
+    setYearsInBusiness('');
+    setFormPage(1);
     setStep('form');
     setCalcProgress(0);
     setCalcStepIndex(0);
@@ -191,19 +224,6 @@ export function ROICalculator() {
     );
     setErrors(prev => ({ ...prev, currentPresence: false }));
   };
-
-  const InfoTip = ({ content }: { content: string }) => (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button type="button" className="ml-1.5 text-muted-foreground hover:text-foreground">
-          <HelpCircle className="w-3.5 h-3.5" />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent className="max-w-[200px] text-xs">
-        {content}
-      </TooltipContent>
-    </Tooltip>
-  );
 
   return (
     <>
@@ -232,18 +252,26 @@ export function ROICalculator() {
           </DialogHeader>
 
           <AnimatePresence mode="wait">
-            {/* FORM STEP */}
-            {step === 'form' && (
+            {/* FORM PAGE 1 */}
+            {step === 'form' && formPage === 1 && (
               <motion.div
-                key="form"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                key="form-page-1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
                 className="space-y-5 py-2"
               >
+                {/* Progress indicator */}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                  <div className="w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold">1</div>
+                  <div className="h-0.5 flex-1 bg-border" />
+                  <div className="w-6 h-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-bold">2</div>
+                </div>
+
                 {/* 1. Business Type */}
                 <div className="space-y-2">
                   <Label className={`flex items-center ${errors.businessType ? 'text-destructive' : ''}`}>
+                    <Building2 className="w-4 h-4 mr-1.5 text-muted-foreground" />
                     {t('Verksamhetstyp', 'Business type')} *
                   </Label>
                   <Select value={businessType} onValueChange={(v) => { setBusinessType(v); setErrors(e => ({...e, businessType: false})); }}>
@@ -291,11 +319,11 @@ export function ROICalculator() {
                   </div>
                 </div>
 
-                {/* 3. Lead Volume */}
+                {/* 3. Weekly Leads */}
                 <div className="space-y-2">
                   <Label className={`flex items-center ${errors.weeklyLeads ? 'text-destructive' : ''}`}>
-                    {t('Önskade förfrågningar/vecka', 'Desired enquiries/week')} *
-                    <InfoTip content={t('Bokningar, samtal eller offertförfrågningar du vill ha.', 'Bookings, calls, or quote requests you want.')} />
+                    <Users className="w-4 h-4 mr-1.5 text-muted-foreground" />
+                    {t('Önskade kunder/vecka', 'Desired customers/week')} *
                   </Label>
                   <Input
                     type="number"
@@ -310,7 +338,6 @@ export function ROICalculator() {
                 <div className="space-y-2">
                   <Label className={`flex items-center ${errors.avgCustomerValue ? 'text-destructive' : ''}`}>
                     {t('Genomsnittligt kundvärde', 'Average customer value')} *
-                    <InfoTip content={t('Hur mycket spenderar en typisk kund? Uppskatta om osäker.', 'How much does a typical customer spend? Estimate if unsure.')} />
                   </Label>
                   <div className="relative">
                     <Input
@@ -324,9 +351,39 @@ export function ROICalculator() {
                   </div>
                 </div>
 
+                <Button 
+                  onClick={handleNextPage}
+                  className="w-full h-12 mt-4"
+                  size="lg"
+                >
+                  {t('Fortsätt', 'Continue')}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </motion.div>
+            )}
+
+            {/* FORM PAGE 2 */}
+            {step === 'form' && formPage === 2 && (
+              <motion.div
+                key="form-page-2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-5 py-2"
+              >
+                {/* Progress indicator */}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                  <div className="w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-bold">
+                    <Check className="w-3 h-3" />
+                  </div>
+                  <div className="h-0.5 flex-1 bg-accent" />
+                  <div className="w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold">2</div>
+                </div>
+
                 {/* 5. Current Presence */}
                 <div className="space-y-2">
                   <Label className={`flex items-center ${errors.currentPresence ? 'text-destructive' : ''}`}>
+                    <Globe className="w-4 h-4 mr-1.5 text-muted-foreground" />
                     {t('Var hittar kunder dig idag?', 'Where do customers find you today?')} *
                   </Label>
                   <div className="flex flex-wrap gap-2">
@@ -355,43 +412,96 @@ export function ROICalculator() {
                   </div>
                 </div>
 
-                {/* 6. Missed Leads */}
+                {/* 6. Conversion Rate */}
                 <div className="space-y-2">
-                  <Label className={`flex items-center ${errors.missedLeads ? 'text-destructive' : ''}`}>
-                    {t('Missade förfrågningar/vecka pga svag närvaro?', 'Missed enquiries/week due to weak presence?')} *
-                    <InfoTip content={t('Uppskatta hur många som inte hittar eller kontaktar dig.', 'Estimate how many don\'t find or contact you.')} />
+                  <Label className={`flex items-center ${errors.conversionRate ? 'text-destructive' : ''}`}>
+                    <Percent className="w-4 h-4 mr-1.5 text-muted-foreground" />
+                    {t('Hur många förfrågningar blir kunder?', 'How many enquiries become customers?')} *
                   </Label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {missedLeadsOptions.map((option) => {
-                      const isSelected = missedLeads === option.id;
+                  <div className="grid grid-cols-2 gap-2">
+                    {conversionOptions.map((option) => {
+                      const isSelected = conversionRate === option.id;
                       return (
                         <button
                           key={option.id}
                           type="button"
-                          onClick={() => { setMissedLeads(option.id); setErrors(e => ({...e, missedLeads: false})); }}
+                          onClick={() => { setConversionRate(option.id); setErrors(e => ({...e, conversionRate: false})); }}
                           className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
                             isSelected 
                               ? 'border-accent bg-accent/10' 
-                              : errors.missedLeads 
+                              : errors.conversionRate 
                                 ? 'border-destructive/50' 
                                 : 'border-border hover:border-accent/50'
                           }`}
                         >
-                          {option.label}
+                          {lang === 'sv' ? option.label.sv : option.label.en}
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                <Button 
-                  onClick={handleCalculate}
-                  className="w-full h-12 mt-4"
-                  size="lg"
-                >
-                  {t('Beräkna min förlorade intäkt', 'Calculate my lost revenue')}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                {/* 7. Website Importance */}
+                <div className="space-y-2">
+                  <Label className={`flex items-center ${errors.websiteImportance ? 'text-destructive' : ''}`}>
+                    <TrendingUp className="w-4 h-4 mr-1.5 text-muted-foreground" />
+                    {t('Hur viktigt är hemsidan för din bransch?', 'How important is a website for your industry?')} *
+                  </Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {websiteImportanceOptions.map((option) => {
+                      const isSelected = websiteImportance === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => { setWebsiteImportance(option.id); setErrors(e => ({...e, websiteImportance: false})); }}
+                          className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                            isSelected 
+                              ? 'border-accent bg-accent/10' 
+                              : errors.websiteImportance 
+                                ? 'border-destructive/50' 
+                                : 'border-border hover:border-accent/50'
+                          }`}
+                        >
+                          {lang === 'sv' ? option.label.sv : option.label.en}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 8. Years in Business (optional) */}
+                <div className="space-y-2">
+                  <Label className="flex items-center text-muted-foreground">
+                    <Clock className="w-4 h-4 mr-1.5" />
+                    {t('År i branschen (valfritt)', 'Years in business (optional)')}
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder={t('T.ex. 3', 'E.g. 3')}
+                    value={yearsInBusiness}
+                    onChange={(e) => setYearsInBusiness(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setFormPage(1)}
+                    className="flex-1 h-12"
+                    size="lg"
+                  >
+                    {t('Tillbaka', 'Back')}
+                  </Button>
+                  <Button 
+                    onClick={handleCalculate}
+                    className="flex-1 h-12"
+                    size="lg"
+                  >
+                    {t('Beräkna', 'Calculate')}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
               </motion.div>
             )}
 
@@ -442,19 +552,19 @@ export function ROICalculator() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="space-y-5 py-2"
               >
-                {/* Main Result Card */}
+                {/* Main Result Card - YEARLY */}
                 <div className="p-5 rounded-xl bg-gradient-to-br from-destructive/15 to-destructive/5 border border-destructive/30 space-y-3">
                   <div className="flex items-center gap-2 text-destructive text-sm font-medium">
                     <TrendingUp className="w-4 h-4" />
-                    {t('Uppskattad missad intäkt/månad', 'Estimated missed revenue/month')}
+                    {t('Uppskattad förlorad intäkt per år', 'Estimated lost revenue per year')}
                   </div>
                   
                   <div className="text-center py-2">
                     <p className="text-3xl sm:text-4xl font-bold text-foreground">
-                      {formatCurrency(result.lowMonthly)} – {formatCurrency(result.highMonthly)}
+                      {formatCurrency(result.lowYearly)} – {formatCurrency(result.highYearly)}
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {t('per månad', 'per month')} · {formatCurrency(result.lowYearly)} – {formatCurrency(result.highYearly)} {t('per år', 'per year')}
+                      {t('per år', 'per year')}
                     </p>
                   </div>
                 </div>
