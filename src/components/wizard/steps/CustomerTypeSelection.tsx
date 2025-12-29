@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback, memo } from 'react';
-import { Building2, User, CheckCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Building2, User, Info, CheckCircle, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -38,7 +39,7 @@ const EU_COUNTRIES = [
 
 // Basic VAT format validation per country
 const validateVatFormat = (vatNumber: string, countryCode: string): boolean => {
-  if (!vatNumber) return true;
+  if (!vatNumber) return true; // VAT is optional
   
   const patterns: Record<string, RegExp> = {
     SE: /^SE\d{12}$/i,
@@ -54,14 +55,14 @@ const validateVatFormat = (vatNumber: string, countryCode: string): boolean => {
   };
   
   const pattern = patterns[countryCode];
-  if (!pattern) return true;
+  if (!pattern) return true; // Accept if no pattern defined
   
   return pattern.test(vatNumber.replace(/[\s.-]/g, ''));
 };
 
 // Basic org number format validation
 const validateOrgFormat = (orgNumber: string, countryCode: string): boolean => {
-  if (!orgNumber) return true; // Empty is valid (will be caught by required check)
+  if (!orgNumber) return false;
   
   const patterns: Record<string, RegExp> = {
     SE: /^\d{6}-?\d{4}$/,
@@ -85,62 +86,68 @@ const validateOrgFormat = (orgNumber: string, countryCode: string): boolean => {
 export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionProps) {
   const { t } = useLanguage();
   const [isVerifyingVat, setIsVerifyingVat] = useState(false);
+  const [vatError, setVatError] = useState<string | null>(null);
+  const [orgError, setOrgError] = useState<string | null>(null);
 
-  const updateField = useCallback(<K extends keyof CustomerTypeData>(field: K, value: CustomerTypeData[K]) => {
+  const updateField = <K extends keyof CustomerTypeData>(field: K, value: CustomerTypeData[K]) => {
     onChange({ ...data, [field]: value });
-  }, [data, onChange]);
+  };
 
-  const selectedCountry = useMemo(() => 
-    EU_COUNTRIES.find(c => c.code === data.country), 
-    [data.country]
-  );
+  const selectedCountry = EU_COUNTRIES.find(c => c.code === data.country);
 
-  // Compute validation errors without useEffect (prevents infinite loops)
-  const vatError = useMemo(() => {
-    if (!data.vatNumber || !data.country) return null;
-    const isValidFormat = validateVatFormat(data.vatNumber, data.country);
-    if (!isValidFormat) {
-      return t('Ogiltigt format. Förväntat: ', 'Invalid format. Expected: ') + `${selectedCountry?.vatPrefix}XXXXXXXXX`;
+  // Validate VAT number
+  useEffect(() => {
+    if (data.vatNumber && data.country) {
+      const isValidFormat = validateVatFormat(data.vatNumber, data.country);
+      if (!isValidFormat) {
+        setVatError(t('Ogiltigt format. Förväntat: ', 'Invalid format. Expected: ') + `${selectedCountry?.vatPrefix}XXXXXXXXX`);
+        updateField('vatVerified', false);
+        updateField('vatVerifiedAt', null);
+      } else {
+        setVatError(null);
+      }
+    } else {
+      setVatError(null);
     }
-    return null;
-  }, [data.vatNumber, data.country, selectedCountry?.vatPrefix, t]);
+  }, [data.vatNumber, data.country]);
 
-  const orgError = useMemo(() => {
-    if (!data.orgNumber || !data.country) return null;
-    const isValidFormat = validateOrgFormat(data.orgNumber, data.country);
-    if (!isValidFormat) {
-      return t('Ogiltigt format. Förväntat: ', 'Invalid format. Expected: ') + selectedCountry?.orgFormat;
+  // Validate Org number
+  useEffect(() => {
+    if (data.orgNumber && data.country) {
+      const isValidFormat = validateOrgFormat(data.orgNumber, data.country);
+      if (!isValidFormat) {
+        setOrgError(t('Ogiltigt format. Förväntat: ', 'Invalid format. Expected: ') + selectedCountry?.orgFormat);
+      } else {
+        setOrgError(null);
+      }
+    } else {
+      setOrgError(null);
     }
-    return null;
-  }, [data.orgNumber, data.country, selectedCountry?.orgFormat, t]);
+  }, [data.orgNumber, data.country]);
 
-  // Mock VIES verification
-  const verifyVat = useCallback(async () => {
+  // Mock VIES verification (in production, call edge function)
+  const verifyVat = async () => {
     if (!data.vatNumber || vatError) return;
     
     setIsVerifyingVat(true);
     
+    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     
+    // Mock verification - in production, call VIES API via edge function
     const isValid = data.vatNumber.length >= 10;
     
-    onChange({
-      ...data,
-      vatVerified: isValid,
-      vatVerifiedAt: isValid ? new Date().toISOString() : null,
-    });
+    if (isValid) {
+      updateField('vatVerified', true);
+      updateField('vatVerifiedAt', new Date().toISOString());
+      setVatError(null);
+    } else {
+      setVatError(t('VAT-nummer kunde inte verifieras', 'VAT number could not be verified'));
+      updateField('vatVerified', false);
+    }
     
     setIsVerifyingVat(false);
-  }, [data, vatError, onChange]);
-
-  const handleVatChange = useCallback((value: string) => {
-    onChange({
-      ...data,
-      vatNumber: value.toUpperCase(),
-      vatVerified: false,
-      vatVerifiedAt: null,
-    });
-  }, [data, onChange]);
+  };
 
   return (
     <div className="space-y-6">
@@ -154,7 +161,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
             type="button"
             onClick={() => updateField('customerType', 'private')}
             className={cn(
-              'p-4 rounded-xl border-2 transition-colors text-left',
+              'p-4 rounded-xl border-2 transition-all duration-200 text-left',
               data.customerType === 'private'
                 ? 'border-accent bg-accent/10'
                 : 'border-border hover:border-accent/50'
@@ -169,7 +176,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
             type="button"
             onClick={() => updateField('customerType', 'business')}
             className={cn(
-              'p-4 rounded-xl border-2 transition-colors text-left',
+              'p-4 rounded-xl border-2 transition-all duration-200 text-left',
               data.customerType === 'business'
                 ? 'border-accent bg-accent/10'
                 : 'border-border hover:border-accent/50'
@@ -182,9 +189,16 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
         </div>
       </div>
 
-      {/* Business Fields - No animation to prevent lag */}
-      {data.customerType === 'business' && (
-        <div className="space-y-4">
+      {/* Business Fields */}
+      <AnimatePresence>
+        {data.customerType === 'business' && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-4 overflow-hidden"
+          >
             <div className="p-4 bg-secondary/50 rounded-xl space-y-4">
               <h4 className="font-medium flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-accent" />
@@ -260,7 +274,11 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                 <div className="flex gap-2 mt-1">
                   <Input
                     value={data.vatNumber}
-                    onChange={(e) => handleVatChange(e.target.value)}
+                    onChange={(e) => {
+                      updateField('vatNumber', e.target.value.toUpperCase());
+                      updateField('vatVerified', false);
+                      updateField('vatVerifiedAt', null);
+                    }}
                     placeholder={`${selectedCountry?.vatPrefix || 'SE'}XXXXXXXXXXXX`}
                     className={cn('h-12 flex-1', vatError && 'border-destructive', data.vatVerified && 'border-green-500')}
                   />
@@ -311,13 +329,12 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
+      </AnimatePresence>
     </div>
   );
 }
-
-export const CustomerTypeSelectionMemo = memo(CustomerTypeSelection);
 
 export const initialCustomerTypeData: CustomerTypeData = {
   customerType: null,
@@ -344,6 +361,7 @@ export const validateCustomerType = (data: CustomerTypeData): { valid: boolean; 
     if (!data.orgNumber) errors.push('Organisation number is required');
     if (!data.billingAddress) errors.push('Billing address is required');
     
+    // If VAT number is provided, it must be verified
     if (data.vatNumber && !data.vatVerified) {
       errors.push('VAT number must be verified');
     }

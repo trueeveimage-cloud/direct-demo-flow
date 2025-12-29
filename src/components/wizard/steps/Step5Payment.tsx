@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { CheckoutUpsells, FreeInclusions } from '@/components/CheckoutUpsells';
-import { CustomerTypeSelectionMemo as CustomerTypeSelection, CustomerTypeData, initialCustomerTypeData, validateCustomerType } from './CustomerTypeSelection';
+import { CustomerTypeSelection, CustomerTypeData, initialCustomerTypeData, validateCustomerType } from './CustomerTypeSelection';
 import { CheckoutTrustSection } from './CheckoutTrustSection';
 import { WizardFormData, packages, carePlans, BOOKING_ADDON_PRICE, VERIFICATION_FEE } from '../wizardConfig';
 
@@ -18,8 +18,6 @@ interface Step5PaymentProps {
   isPostDemoFlow?: boolean;
   customerTypeData: CustomerTypeData;
   onCustomerTypeChange: (data: CustomerTypeData) => void;
-  onAdminPanelChange?: (added: boolean) => void;
-  onBookingChange?: (added: boolean) => void;
 }
 
 const ADMIN_PANEL_PRICE = 100;
@@ -39,9 +37,7 @@ export function Step5Payment({
   setFormData, 
   isPostDemoFlow = false,
   customerTypeData,
-  onCustomerTypeChange,
-  onAdminPanelChange,
-  onBookingChange
+  onCustomerTypeChange
 }: Step5PaymentProps) {
   const { t } = useLanguage();
   const [addedBooking, setAddedBooking] = useState(false);
@@ -61,12 +57,10 @@ export function Step5Payment({
 
   const handleAddBooking = () => {
     setAddedBooking(true);
-    onBookingChange?.(true);
   };
 
   const handleAddAdminPanel = () => {
     setAddedAdminPanel(true);
-    onAdminPanelChange?.(true);
   };
 
   const pkg = packages.find(p => p.id === formData.selectedPackage);
