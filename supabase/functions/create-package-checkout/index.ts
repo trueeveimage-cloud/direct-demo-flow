@@ -247,6 +247,8 @@ serve(async (req) => {
     const sessionConfig: any = {
       customer: customerId,
       customer_email: customerId ? undefined : email,
+      customer_creation: customerId ? undefined : 'always',
+      billing_address_collection: 'required',
       line_items: lineItems,
       mode,
       allow_promotion_codes: true,
