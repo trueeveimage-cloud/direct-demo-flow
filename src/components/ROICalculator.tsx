@@ -1,141 +1,132 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, TrendingUp, DollarSign, Users, Calendar, ArrowRight, Target, BarChart3, Check, Loader2 } from 'lucide-react';
+import { Calculator, TrendingUp, ArrowRight, Target, Check, Phone, CalendarCheck, FileText, ShoppingCart, Award, Instagram, Search, Users, Megaphone, Globe, HelpCircle, Sparkles, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
-import { InfoTooltip } from '@/components/InfoTooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Progress } from '@/components/ui/progress';
 
-const businessTypeMultipliers: Record<string, { lowCustomers: number; highCustomers: number; multiplier: number }> = {
-  barber: { lowCustomers: 8, highCustomers: 15, multiplier: 3 },
-  nail: { lowCustomers: 6, highCustomers: 12, multiplier: 2.5 },
-  restaurant: { lowCustomers: 15, highCustomers: 30, multiplier: 4 },
-  gym: { lowCustomers: 5, highCustomers: 12, multiplier: 2 },
-  clinic: { lowCustomers: 4, highCustomers: 10, multiplier: 5 },
-  car: { lowCustomers: 3, highCustomers: 8, multiplier: 3.5 },
-  cleaning: { lowCustomers: 4, highCustomers: 10, multiplier: 2.5 },
-  realestate: { lowCustomers: 2, highCustomers: 5, multiplier: 8 },
-  retail: { lowCustomers: 10, highCustomers: 25, multiplier: 3 },
-  other: { lowCustomers: 5, highCustomers: 10, multiplier: 2.5 },
-};
-
+// Business type data with realistic conversion factors
 const businessTypes = [
   { id: 'barber', label: { sv: 'Frisör / Barberare', en: 'Barber / Hair salon' } },
   { id: 'nail', label: { sv: 'Nagelsalong', en: 'Nail salon' } },
   { id: 'restaurant', label: { sv: 'Restaurang / Café', en: 'Restaurant / Café' } },
   { id: 'gym', label: { sv: 'Gym / PT', en: 'Gym / PT' } },
-  { id: 'clinic', label: { sv: 'Klinik', en: 'Clinic' } },
-  { id: 'car', label: { sv: 'Bilverkstad', en: 'Car workshop' } },
-  { id: 'cleaning', label: { sv: 'Städtjänst', en: 'Cleaning service' } },
-  { id: 'realestate', label: { sv: 'Fastigheter', en: 'Real estate' } },
-  { id: 'retail', label: { sv: 'Butik', en: 'Retail store' } },
+  { id: 'clinic', label: { sv: 'Klinik / Vårdmottagning', en: 'Clinic / Healthcare' } },
+  { id: 'car', label: { sv: 'Bilverkstad / Detailing', en: 'Car workshop / Detailing' } },
+  { id: 'cleaning', label: { sv: 'Städ / Hemtjänst', en: 'Cleaning / Home services' } },
+  { id: 'realestate', label: { sv: 'Fastigheter / Mäklare', en: 'Real estate / Agent' } },
+  { id: 'retail', label: { sv: 'Butik / E-handel', en: 'Retail / E-commerce' } },
+  { id: 'consultant', label: { sv: 'Konsult / Byrå', en: 'Consultant / Agency' } },
   { id: 'other', label: { sv: 'Annat', en: 'Other' } },
 ];
 
-const revenueRanges = [
-  { id: 'less1k', label: { sv: 'Under €1,000', en: 'Under €1,000' }, value: 1000 },
-  { id: '1k-3k', label: { sv: '€1,000 - €3,000', en: '€1,000 - €3,000' }, value: 2000 },
-  { id: '3k-5k', label: { sv: '€3,000 - €5,000', en: '€3,000 - €5,000' }, value: 4000 },
-  { id: '5k-10k', label: { sv: '€5,000 - €10,000', en: '€5,000 - €10,000' }, value: 7500 },
-  { id: '10k-20k', label: { sv: '€10,000 - €20,000', en: '€10,000 - €20,000' }, value: 15000 },
-  { id: 'more20k', label: { sv: 'Över €20,000', en: 'Over €20,000' }, value: 25000 },
+const goalOptions = [
+  { id: 'bookings', label: { sv: 'Fler bokningar', en: 'More bookings' }, icon: CalendarCheck },
+  { id: 'calls', label: { sv: 'Fler samtal', en: 'More calls' }, icon: Phone },
+  { id: 'quotes', label: { sv: 'Fler offertförfrågningar', en: 'More quote requests' }, icon: FileText },
+  { id: 'sell', label: { sv: 'Sälja online', en: 'Sell online' }, icon: ShoppingCart },
+  { id: 'trust', label: { sv: 'Bygga förtroende', en: 'Build trust / brand' }, icon: Award },
 ];
 
-const businessGoalOptions = [
-  { id: 'bookings', label: { sv: 'Fler bokningar', en: 'More bookings' }, icon: '📅' },
-  { id: 'calls', label: { sv: 'Fler samtal', en: 'More calls' }, icon: '📞' },
-  { id: 'quotes', label: { sv: 'Fler offertförfrågningar', en: 'More quote requests' }, icon: '📋' },
-  { id: 'trust', label: { sv: 'Mer förtroende', en: 'More trust' }, icon: '🤝' },
-  { id: 'sell', label: { sv: 'Sälja online', en: 'Sell online' }, icon: '🛒' },
+const currentPresenceOptions = [
+  { id: 'social', label: { sv: 'Bara Instagram/TikTok', en: 'Instagram/TikTok only' }, icon: Instagram },
+  { id: 'google', label: { sv: 'Google Maps / Sök', en: 'Google Maps / Search' }, icon: Search },
+  { id: 'wordofmouth', label: { sv: 'Rekommendationer', en: 'Word of mouth' }, icon: Users },
+  { id: 'ads', label: { sv: 'Annonser', en: 'Paid ads' }, icon: Megaphone },
+  { id: 'oldsite', label: { sv: 'Gammal hemsida', en: 'Outdated website' }, icon: Globe },
 ];
+
+const missedLeadsOptions = [
+  { id: '0-2', label: '0–2', multiplier: 1 },
+  { id: '3-5', label: '3–5', multiplier: 4 },
+  { id: '6-10', label: '6–10', multiplier: 8 },
+  { id: '10+', label: '10+', multiplier: 12 },
+];
+
+const calculationSteps = [
+  { sv: 'Analyserar din nuvarande närvaro...', en: 'Analyzing your current presence...' },
+  { sv: 'Uppskattar missade förfrågningar...', en: 'Estimating missed enquiries...' },
+  { sv: 'Beräknar potentiell intäktsökning...', en: 'Calculating potential uplift...' },
+  { sv: 'Förbereder rekommendationer...', en: 'Preparing recommendations...' },
+];
+
+// Goal-based recommendations
+const getRecommendations = (goal: string, lang: 'sv' | 'en') => {
+  const recommendations: Record<string, { sv: string[]; en: string[] }> = {
+    bookings: {
+      sv: ['Tydlig bokningsknapp på varje sida', 'Visa lediga tider direkt', 'Snabb mobilvänlig upplevelse'],
+      en: ['Clear booking button on every page', 'Show available slots directly', 'Fast mobile-first experience'],
+    },
+    calls: {
+      sv: ['Click-to-call knapp i headern', 'Visa telefonnummer tydligt', 'Kontaktformulär som backup'],
+      en: ['Click-to-call button in header', 'Display phone number prominently', 'Contact form as backup'],
+    },
+    quotes: {
+      sv: ['Enkel offertförfrågan-formulär', 'Visa tidigare projekt/case', 'Priser eller prisintervall synliga'],
+      en: ['Simple quote request form', 'Showcase previous projects/cases', 'Prices or price ranges visible'],
+    },
+    sell: {
+      sv: ['Smidig checkout-upplevelse', 'Tydliga produktbilder', 'Betalningsalternativ synliga tidigt'],
+      en: ['Smooth checkout experience', 'Clear product images', 'Payment options visible early'],
+    },
+    trust: {
+      sv: ['Google-recensioner integrerade', 'Professionella bilder & design', 'Tydlig "Om oss" sektion'],
+      en: ['Google reviews integrated', 'Professional photos & design', 'Clear "About us" section'],
+    },
+  };
+  return recommendations[goal]?.[lang] || recommendations.trust[lang];
+};
 
 export function ROICalculator() {
   const { t, lang } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Form state
   const [businessType, setBusinessType] = useState('');
-  const [averageOrder, setAverageOrder] = useState('');
-  const [hasWebsite, setHasWebsite] = useState<boolean | null>(null);
-  const [businessGoal, setBusinessGoal] = useState('');
-  const [targetCustomersPerWeek, setTargetCustomersPerWeek] = useState('');
-  const [revenueRange, setRevenueRange] = useState('');
-  const [websiteImpact, setWebsiteImpact] = useState<number[]>([5]);
-  const [showResult, setShowResult] = useState(false);
-  const [isCalculating, setIsCalculating] = useState(false);
+  const [primaryGoal, setPrimaryGoal] = useState('');
+  const [weeklyLeads, setWeeklyLeads] = useState('');
+  const [avgCustomerValue, setAvgCustomerValue] = useState('');
+  const [currentPresence, setCurrentPresence] = useState<string[]>([]);
+  const [missedLeads, setMissedLeads] = useState('');
+  
+  // UI state
+  const [step, setStep] = useState<'form' | 'calculating' | 'result'>('form');
+  const [calcProgress, setCalcProgress] = useState(0);
+  const [calcStepIndex, setCalcStepIndex] = useState(0);
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
 
+  // Calculate result
   const result = useMemo(() => {
-    if (!businessType || !averageOrder) return null;
+    const value = parseFloat(avgCustomerValue) || 0;
+    const missedData = missedLeadsOptions.find(m => m.id === missedLeads);
+    const missedMultiplier = missedData?.multiplier || 4;
     
-    const orderValue = parseFloat(averageOrder) || 0;
-    const data = businessTypeMultipliers[businessType] || businessTypeMultipliers.other;
-    const targetCustomers = parseFloat(targetCustomersPerWeek) || 0;
-    const impact = websiteImpact[0] / 10;
-    const revenue = revenueRanges.find(r => r.id === revenueRange)?.value || 0;
+    // Calculate monthly missed revenue range
+    const weeksPerMonth = 4;
+    const lowMissed = Math.max(1, missedMultiplier - 2);
+    const highMissed = missedMultiplier + 2;
     
-    // Calculate new customers from website
-    const newCustomersLow = data.lowCustomers;
-    const newCustomersHigh = data.highCustomers;
+    const lowMonthly = Math.round(lowMissed * value * weeksPerMonth);
+    const highMonthly = Math.round(highMissed * value * weeksPerMonth);
     
-    // Repeat customer factor
-    const repeatFactor = 1.4;
-    
-    // Average visits per year per repeat customer
-    const avgVisitsPerYear = businessType === 'barber' ? 8 : businessType === 'nail' ? 12 : businessType === 'restaurant' ? 6 : businessType === 'gym' ? 36 : 4;
-    
-    // Base monthly calculation
-    let lowMonthly = orderValue * newCustomersLow * repeatFactor;
-    let highMonthly = orderValue * newCustomersHigh * repeatFactor;
-    
-    // Factor in website impact and target customers if provided
-    if (targetCustomers > 0) {
-      const baseFromOrders = orderValue * targetCustomers * 4 * impact * data.multiplier;
-      lowMonthly = Math.max(lowMonthly, baseFromOrders * 0.7);
-      highMonthly = Math.max(highMonthly, baseFromOrders);
-    }
-    
-    // Factor in revenue range if provided
-    if (revenue > 0) {
-      const baseFromRevenue = revenue * impact * 0.15;
-      lowMonthly = Math.max(lowMonthly, baseFromRevenue * 0.7);
-      highMonthly = Math.max(highMonthly, baseFromRevenue);
-    }
-    
-    // Apply no-website penalty
-    if (hasWebsite === false) {
-      lowMonthly *= 1.3;
-      highMonthly *= 1.3;
-    }
-    
-    // Yearly with compounding repeat customers
-    const lowYearly = (lowMonthly * 12) + (orderValue * newCustomersLow * avgVisitsPerYear * 0.3);
-    const highYearly = (highMonthly * 12) + (orderValue * newCustomersHigh * avgVisitsPerYear * 0.5);
-    
-    // Package recommendation
-    let packageSuggestion = '';
-    if (revenue > 50000 || highYearly > 100000) {
-      packageSuggestion = 'Pro';
-    } else if (revenue > 20000 || highYearly > 50000) {
-      packageSuggestion = 'Standard';
-    } else {
-      packageSuggestion = 'Starter';
-    }
+    // Yearly projection
+    const lowYearly = lowMonthly * 12;
+    const highYearly = highMonthly * 12;
     
     return {
-      lowCustomers: newCustomersLow,
-      highCustomers: newCustomersHigh,
-      lowMonthly: Math.round(lowMonthly),
-      highMonthly: Math.round(highMonthly),
-      lowYearly: Math.round(lowYearly),
-      highYearly: Math.round(highYearly),
-      avgVisitsPerYear,
-      packageSuggestion,
-      hasWebsite,
+      lowMonthly,
+      highMonthly,
+      lowYearly,
+      highYearly,
+      recommendations: getRecommendations(primaryGoal || 'trust', lang),
     };
-  }, [businessType, averageOrder, hasWebsite, targetCustomersPerWeek, revenueRange, websiteImpact]);
+  }, [avgCustomerValue, missedLeads, primaryGoal, lang]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-EU', { 
@@ -145,26 +136,74 @@ export function ROICalculator() {
     }).format(amount);
   };
 
+  const validateForm = () => {
+    const newErrors: Record<string, boolean> = {};
+    if (!businessType) newErrors.businessType = true;
+    if (!primaryGoal) newErrors.primaryGoal = true;
+    if (!weeklyLeads) newErrors.weeklyLeads = true;
+    if (!avgCustomerValue) newErrors.avgCustomerValue = true;
+    if (currentPresence.length === 0) newErrors.currentPresence = true;
+    if (!missedLeads) newErrors.missedLeads = true;
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleCalculate = () => {
-    if (businessType && averageOrder) {
-      setIsCalculating(true);
+    if (!validateForm()) return;
+    
+    setStep('calculating');
+    setCalcProgress(0);
+    setCalcStepIndex(0);
+    
+    // Animate through calculation steps
+    const totalDuration = 3000;
+    const stepDuration = totalDuration / calculationSteps.length;
+    
+    calculationSteps.forEach((_, index) => {
       setTimeout(() => {
-        setIsCalculating(false);
-        setShowResult(true);
-      }, 1500);
-    }
+        setCalcStepIndex(index);
+        setCalcProgress(((index + 1) / calculationSteps.length) * 100);
+      }, stepDuration * index);
+    });
+    
+    setTimeout(() => {
+      setStep('result');
+    }, totalDuration + 300);
   };
 
   const resetCalculator = () => {
     setBusinessType('');
-    setAverageOrder('');
-    setHasWebsite(null);
-    setBusinessGoal('');
-    setTargetCustomersPerWeek('');
-    setRevenueRange('');
-    setWebsiteImpact([5]);
-    setShowResult(false);
+    setPrimaryGoal('');
+    setWeeklyLeads('');
+    setAvgCustomerValue('');
+    setCurrentPresence([]);
+    setMissedLeads('');
+    setStep('form');
+    setCalcProgress(0);
+    setCalcStepIndex(0);
+    setErrors({});
   };
+
+  const togglePresence = (id: string) => {
+    setCurrentPresence(prev => 
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+    setErrors(prev => ({ ...prev, currentPresence: false }));
+  };
+
+  const InfoTip = ({ content }: { content: string }) => (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button type="button" className="ml-1.5 text-muted-foreground hover:text-foreground">
+          <HelpCircle className="w-3.5 h-3.5" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-[200px] text-xs">
+        {content}
+      </TooltipContent>
+    </Tooltip>
+  );
 
   return (
     <>
@@ -184,62 +223,32 @@ export function ROICalculator() {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-              <DollarSign className="w-6 h-6 text-accent" />
-              {t('ROI-kalkylator', 'ROI Calculator')}
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                <Calculator className="w-4 h-4 text-accent" />
+              </div>
+              {t('Intäktskalkylator', 'Revenue Calculator')}
             </DialogTitle>
           </DialogHeader>
 
           <AnimatePresence mode="wait">
-            {!showResult ? (
+            {/* FORM STEP */}
+            {step === 'form' && (
               <motion.div
                 key="form"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="space-y-5 py-4"
+                className="space-y-5 py-2"
               >
-                <p className="text-muted-foreground text-sm">
-                  {t(
-                    'Se hur mycket intäkter du förlorar utan en professionell hemsida.',
-                    'See how much revenue you\'re losing without a professional website.'
-                  )}
-                </p>
-
-                {/* Has Website */}
+                {/* 1. Business Type */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    {t('Har du en hemsida idag?', 'Do you have a website today?')} *
+                  <Label className={`flex items-center ${errors.businessType ? 'text-destructive' : ''}`}>
+                    {t('Verksamhetstyp', 'Business type')} *
                   </Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setHasWebsite(true)}
-                      className={`p-3 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
-                        hasWebsite === true ? 'border-accent bg-accent/10' : 'border-border hover:border-accent/50'
-                      }`}
-                    >
-                      <Check className={`w-4 h-4 ${hasWebsite === true ? 'text-accent' : ''}`} />
-                      <span className="font-medium">{t('Ja', 'Yes')}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setHasWebsite(false)}
-                      className={`p-3 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
-                        hasWebsite === false ? 'border-accent bg-accent/10' : 'border-border hover:border-accent/50'
-                      }`}
-                    >
-                      <span className="font-medium">{t('Nej', 'No')}</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Business Type */}
-                <div className="space-y-2">
-                  <Label>{t('Vilken typ av verksamhet har du?', 'What type of business do you have?')} *</Label>
-                  <Select value={businessType} onValueChange={setBusinessType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('Välj verksamhetstyp', 'Select business type')} />
+                  <Select value={businessType} onValueChange={(v) => { setBusinessType(v); setErrors(e => ({...e, businessType: false})); }}>
+                    <SelectTrigger className={errors.businessType ? 'border-destructive' : ''}>
+                      <SelectValue placeholder={t('Välj...', 'Select...')} />
                     </SelectTrigger>
                     <SelectContent>
                       {businessTypes.map((type) => (
@@ -251,208 +260,254 @@ export function ROICalculator() {
                   </Select>
                 </div>
 
-                {/* Business Goal */}
+                {/* 2. Primary Goal */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Target className="w-4 h-4 text-muted-foreground" />
-                    {t('Vad skulle hjälpa dig mest?', 'What would help you most?')}
+                  <Label className={`flex items-center ${errors.primaryGoal ? 'text-destructive' : ''}`}>
+                    <Target className="w-4 h-4 mr-1.5 text-muted-foreground" />
+                    {t('Primärt mål', 'Primary goal')} *
                   </Label>
                   <div className="flex flex-wrap gap-2">
-                    {businessGoalOptions.map((goal) => (
-                      <button
-                        key={goal.id}
-                        type="button"
-                        onClick={() => setBusinessGoal(goal.id)}
-                        className={`px-3 py-1.5 rounded-lg border-2 text-sm transition-all flex items-center gap-1.5 ${
-                          businessGoal === goal.id ? 'border-accent bg-accent/10' : 'border-border hover:border-accent/50'
-                        }`}
-                      >
-                        <span>{goal.icon}</span>
-                        <span>{lang === 'sv' ? goal.label.sv : goal.label.en}</span>
-                      </button>
-                    ))}
+                    {goalOptions.map((goal) => {
+                      const Icon = goal.icon;
+                      const isSelected = primaryGoal === goal.id;
+                      return (
+                        <button
+                          key={goal.id}
+                          type="button"
+                          onClick={() => { setPrimaryGoal(goal.id); setErrors(e => ({...e, primaryGoal: false})); }}
+                          className={`px-3 py-2 rounded-lg border-2 text-sm transition-all flex items-center gap-1.5 ${
+                            isSelected 
+                              ? 'border-accent bg-accent/10 text-foreground' 
+                              : errors.primaryGoal 
+                                ? 'border-destructive/50 hover:border-destructive' 
+                                : 'border-border hover:border-accent/50'
+                          }`}
+                        >
+                          <Icon className={`w-4 h-4 ${isSelected ? 'text-accent' : 'text-muted-foreground'}`} />
+                          <span>{lang === 'sv' ? goal.label.sv : goal.label.en}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Average Order Value */}
+                {/* 3. Lead Volume */}
                 <div className="space-y-2">
-                  <Label>{t('Genomsnittligt ordervärde (€)', 'Average order value (€)')} *</Label>
-                  <div className="relative">
-                    <Input
-                      type="number"
-                      placeholder={t('T.ex. 50', 'E.g. 50')}
-                      value={averageOrder}
-                      onChange={(e) => setAverageOrder(e.target.value)}
-                      className="pr-12"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                      €
-                    </span>
-                  </div>
-                </div>
-
-                {/* Target Customers */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-muted-foreground" />
-                    {t('Målantal kunder/vecka', 'Target customers/week')}
-                    <InfoTooltip content={t('Hur många kunder vill du nå per vecka?', 'How many customers do you want to reach per week?')} />
+                  <Label className={`flex items-center ${errors.weeklyLeads ? 'text-destructive' : ''}`}>
+                    {t('Önskade förfrågningar/vecka', 'Desired enquiries/week')} *
+                    <InfoTip content={t('Bokningar, samtal eller offertförfrågningar du vill ha.', 'Bookings, calls, or quote requests you want.')} />
                   </Label>
                   <Input
                     type="number"
-                    placeholder={t('T.ex. 20', 'E.g. 20')}
-                    value={targetCustomersPerWeek}
-                    onChange={(e) => setTargetCustomersPerWeek(e.target.value)}
+                    placeholder={t('T.ex. 10', 'E.g. 10')}
+                    value={weeklyLeads}
+                    onChange={(e) => { setWeeklyLeads(e.target.value); setErrors(er => ({...er, weeklyLeads: false})); }}
+                    className={errors.weeklyLeads ? 'border-destructive' : ''}
                   />
                 </div>
 
-                {/* Monthly Revenue Range */}
+                {/* 4. Average Customer Value */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-muted-foreground" />
-                    {t('Nuvarande månadsintäkt', 'Current monthly revenue')}
+                  <Label className={`flex items-center ${errors.avgCustomerValue ? 'text-destructive' : ''}`}>
+                    {t('Genomsnittligt kundvärde', 'Average customer value')} *
+                    <InfoTip content={t('Hur mycket spenderar en typisk kund? Uppskatta om osäker.', 'How much does a typical customer spend? Estimate if unsure.')} />
                   </Label>
-                  <Select value={revenueRange} onValueChange={setRevenueRange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('Välj intervall', 'Select range')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {revenueRanges.map((range) => (
-                        <SelectItem key={range.id} value={range.id}>
-                          {lang === 'sv' ? range.label.sv : range.label.en}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      placeholder={t('T.ex. 80', 'E.g. 80')}
+                      value={avgCustomerValue}
+                      onChange={(e) => { setAvgCustomerValue(e.target.value); setErrors(er => ({...er, avgCustomerValue: false})); }}
+                      className={`pr-10 ${errors.avgCustomerValue ? 'border-destructive' : ''}`}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">€</span>
+                  </div>
                 </div>
 
-                {/* Website Impact Slider */}
+                {/* 5. Current Presence */}
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    {t('Hur mycket tror du en hemsida skulle hjälpa?', 'How much would a website help?')}
+                  <Label className={`flex items-center ${errors.currentPresence ? 'text-destructive' : ''}`}>
+                    {t('Var hittar kunder dig idag?', 'Where do customers find you today?')} *
                   </Label>
-                  <div className="px-2">
-                    <Slider
-                      value={websiteImpact}
-                      onValueChange={setWebsiteImpact}
-                      min={1}
-                      max={10}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>{t('Lite', 'Little')}</span>
-                      <span className="font-bold text-accent">{websiteImpact[0]}/10</span>
-                      <span>{t('Mycket', 'A lot')}</span>
-                    </div>
+                  <div className="flex flex-wrap gap-2">
+                    {currentPresenceOptions.map((option) => {
+                      const Icon = option.icon;
+                      const isSelected = currentPresence.includes(option.id);
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => togglePresence(option.id)}
+                          className={`px-3 py-2 rounded-lg border-2 text-sm transition-all flex items-center gap-1.5 ${
+                            isSelected 
+                              ? 'border-accent bg-accent/10 text-foreground' 
+                              : errors.currentPresence 
+                                ? 'border-destructive/50' 
+                                : 'border-border hover:border-accent/50'
+                          }`}
+                        >
+                          <Icon className={`w-4 h-4 ${isSelected ? 'text-accent' : 'text-muted-foreground'}`} />
+                          <span>{lang === 'sv' ? option.label.sv : option.label.en}</span>
+                          {isSelected && <Check className="w-3 h-3 text-accent" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 6. Missed Leads */}
+                <div className="space-y-2">
+                  <Label className={`flex items-center ${errors.missedLeads ? 'text-destructive' : ''}`}>
+                    {t('Missade förfrågningar/vecka pga svag närvaro?', 'Missed enquiries/week due to weak presence?')} *
+                    <InfoTip content={t('Uppskatta hur många som inte hittar eller kontaktar dig.', 'Estimate how many don\'t find or contact you.')} />
+                  </Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {missedLeadsOptions.map((option) => {
+                      const isSelected = missedLeads === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => { setMissedLeads(option.id); setErrors(e => ({...e, missedLeads: false})); }}
+                          className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                            isSelected 
+                              ? 'border-accent bg-accent/10' 
+                              : errors.missedLeads 
+                                ? 'border-destructive/50' 
+                                : 'border-border hover:border-accent/50'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 <Button 
                   onClick={handleCalculate}
-                  className="w-full h-12"
-                  disabled={!businessType || !averageOrder || isCalculating}
+                  className="w-full h-12 mt-4"
+                  size="lg"
                 >
-                  {isCalculating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {t('Beräknar...', 'Calculating...')}
-                    </>
-                  ) : (
-                    <>
-                      {t('Beräkna min förlorade intäkt', 'Calculate my lost revenue')}
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </>
-                  )}
+                  {t('Beräkna min förlorade intäkt', 'Calculate my lost revenue')}
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </motion.div>
-            ) : (
+            )}
+
+            {/* CALCULATING STEP */}
+            {step === 'calculating' && (
+              <motion.div
+                key="calculating"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="py-12 space-y-8"
+              >
+                <div className="text-center space-y-4">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="w-16 h-16 mx-auto rounded-full border-4 border-accent/20 border-t-accent"
+                  />
+                  
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={calcStepIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="text-lg font-medium"
+                    >
+                      {lang === 'sv' ? calculationSteps[calcStepIndex]?.sv : calculationSteps[calcStepIndex]?.en}
+                    </motion.p>
+                  </AnimatePresence>
+                </div>
+
+                <div className="space-y-2">
+                  <Progress value={calcProgress} className="h-2" />
+                  <p className="text-center text-sm text-muted-foreground">
+                    {Math.round(calcProgress)}%
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* RESULT STEP */}
+            {step === 'result' && (
               <motion.div
                 key="result"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="space-y-6 py-4"
+                className="space-y-5 py-2"
               >
-                {result && (
-                  <>
-                    {/* No Website Warning */}
-                    {result.hasWebsite === false && (
-                      <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
-                        {t(
-                          '⚠️ Utan hemsida går du miste om kunder varje dag!',
-                          '⚠️ Without a website you\'re losing customers every day!'
-                        )}
-                      </div>
-                    )}
+                {/* Main Result Card */}
+                <div className="p-5 rounded-xl bg-gradient-to-br from-destructive/15 to-destructive/5 border border-destructive/30 space-y-3">
+                  <div className="flex items-center gap-2 text-destructive text-sm font-medium">
+                    <TrendingUp className="w-4 h-4" />
+                    {t('Uppskattad missad intäkt/månad', 'Estimated missed revenue/month')}
+                  </div>
+                  
+                  <div className="text-center py-2">
+                    <p className="text-3xl sm:text-4xl font-bold text-foreground">
+                      {formatCurrency(result.lowMonthly)} – {formatCurrency(result.highMonthly)}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('per månad', 'per month')} · {formatCurrency(result.lowYearly)} – {formatCurrency(result.highYearly)} {t('per år', 'per year')}
+                    </p>
+                  </div>
+                </div>
 
-                    {/* Monthly Stats */}
-                    <div className="p-5 rounded-xl bg-destructive/10 border border-destructive/30 space-y-3">
-                      <div className="flex items-center gap-2 text-destructive">
-                        <Users className="w-5 h-5" />
-                        <span className="font-semibold">
-                          {t('Potentiell förlust per månad', 'Potential loss per month')}
-                        </span>
-                      </div>
-                      
-                      <div className="text-center">
-                        <p className="text-muted-foreground text-sm mb-2">
-                          {t(
-                            `${result.lowCustomers}-${result.highCustomers} missade kunder/månad`,
-                            `${result.lowCustomers}-${result.highCustomers} missed customers/month`
-                          )}
-                        </p>
-                        <p className="text-3xl font-bold text-destructive">
-                          {formatCurrency(result.lowMonthly)} - {formatCurrency(result.highMonthly)}
-                        </p>
-                      </div>
-                    </div>
+                {/* Recommendations */}
+                <div className="p-4 rounded-xl bg-secondary/50 border border-border space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <Lightbulb className="w-4 h-4 text-accent" />
+                    {t('Vad som skulle göra störst skillnad', 'What would move the needle fastest')}
+                  </div>
+                  <ul className="space-y-2">
+                    {result.recommendations.map((rec, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                        <span>{rec}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-                    {/* Yearly Stats */}
-                    <div className="p-5 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/5 border border-destructive/40 space-y-3">
-                      <div className="flex items-center gap-2 text-destructive">
-                        <Calendar className="w-5 h-5" />
-                        <span className="font-semibold">
-                          {t('Potentiell förlust per år', 'Potential loss per year')}
-                        </span>
-                      </div>
-                      
-                      <div className="text-center">
-                        <p className="text-4xl font-bold text-foreground">
-                          {formatCurrency(result.lowYearly)} - {formatCurrency(result.highYearly)}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {t('som du lämnar på bordet', 'that you\'re leaving on the table')}
-                        </p>
-                      </div>
-                    </div>
+                {/* CTAs */}
+                <div className="space-y-3 pt-2">
+                  <Button asChild className="w-full h-12 group" size="lg">
+                    <Link to="/demo" onClick={() => setIsOpen(false)}>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      {t('Få mitt gratis konceptförslag', 'Get my free concept demo')}
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                  
+                  <Button asChild variant="outline" className="w-full" size="lg">
+                    <Link to="/bestall" onClick={() => setIsOpen(false)}>
+                      {t('Beställ direkt', 'Order directly')}
+                    </Link>
+                  </Button>
+                </div>
 
-                    {/* Package Recommendation */}
-                    <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
-                      <p className="text-sm font-semibold">
-                        {t('Rekommenderat paket:', 'Recommended package:')} <span className="text-accent">{result.packageSuggestion}</span>
-                      </p>
-                    </div>
+                {/* Disclaimer */}
+                <p className="text-xs text-muted-foreground text-center pt-2">
+                  {t(
+                    'Uppskattningar baseras på dina svar och typiska konverteringsintervall.',
+                    'Estimates are based on your inputs and typical conversion ranges.'
+                  )}
+                </p>
 
-                    {/* CTA */}
-                    <div className="space-y-3">
-                      <Button asChild className="w-full h-12" size="lg">
-                        <Link to="/demo" onClick={() => setIsOpen(false)}>
-                          {t('Sluta förlora intäkter - Kom igång', 'Stop losing revenue - Get started')}
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Link>
-                      </Button>
-                      
-                      <Button 
-                        variant="ghost" 
-                        className="w-full text-muted-foreground"
-                        onClick={resetCalculator}
-                      >
-                        {t('Beräkna igen', 'Calculate again')}
-                      </Button>
-                    </div>
-                  </>
-                )}
+                {/* Calculate Again */}
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-muted-foreground text-sm"
+                  onClick={resetCalculator}
+                >
+                  {t('Beräkna igen', 'Calculate again')}
+                </Button>
               </motion.div>
             )}
           </AnimatePresence>
