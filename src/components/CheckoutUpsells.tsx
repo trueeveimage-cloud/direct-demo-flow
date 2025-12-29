@@ -66,7 +66,7 @@ export function CheckoutUpsells({
                   </ul>
                   <Button onClick={onAddBooking} size="sm" className="gap-2">
                     <Calendar className="w-4 h-4" />
-                    {t('Lägg till', 'Add')} +2 000 kr
+                    {t('Lägg till', 'Add')} +€200
                   </Button>
                 </div>
               </div>
@@ -113,7 +113,7 @@ export function CheckoutUpsells({
                   </ul>
                   <Button onClick={onAddAdminPanel} variant="outline" size="sm" className="gap-2">
                     <LayoutDashboard className="w-4 h-4" />
-                    {t('Lägg till', 'Add')} +1 000 kr
+                    {t('Lägg till', 'Add')} +€100
                   </Button>
                 </div>
               </div>

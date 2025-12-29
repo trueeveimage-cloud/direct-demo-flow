@@ -19,7 +19,7 @@ export default function PricingPage() {
   const packages = [
     { 
       name: 'Starter', 
-      price: '4 900 kr',
+      price: '€490',
       delivery: t('14 dagar', '14 days'),
       description: t('För små företag som bara behöver något snyggt och tydligt.', 'For small businesses that just need something nice and clear.'),
       pages: t('Upp till 3 sidor', 'Up to 3 pages'), 
@@ -34,7 +34,7 @@ export default function PricingPage() {
     },
     { 
       name: 'Standard', 
-      price: '7 900 kr',
+      price: '€790',
       delivery: t('10 dagar', '10 days'),
       description: t('Bästa värdet för de flesta företag.', 'Best value for most businesses.'),
       pages: t('Upp till 5 sidor', 'Up to 5 pages'), 
@@ -49,7 +49,7 @@ export default function PricingPage() {
     },
     { 
       name: 'Pro', 
-      price: '12 900 kr',
+      price: '€1,290',
       delivery: t('7 dagar', '7 days'),
       description: t('För företag som vill ha bokning + mer tillväxt.', 'For businesses wanting booking + more growth.'),
       pages: t('Upp till 8 sidor', 'Up to 8 pages'), 
@@ -67,8 +67,8 @@ export default function PricingPage() {
   const carePlans = [
     { 
       name: 'Basic',
-      monthlyPrice: 249,
-      yearlyPrice: 199,
+      monthlyPrice: 25,
+      yearlyPrice: 20,
       description: t('Du behöver inte tänka på teknik.', 'You don\'t need to think about tech.'),
       features: [
         t('Hosting (snabb + SSL)', 'Hosting (fast + SSL)'), 
@@ -80,8 +80,8 @@ export default function PricingPage() {
     },
     { 
       name: 'Standard', 
-      monthlyPrice: 449,
-      yearlyPrice: 359,
+      monthlyPrice: 45,
+      yearlyPrice: 36,
       description: t('Allt i Basic + sidan kan alltid ändras utan krångel.', 'Everything in Basic + the site can always be changed without hassle.'),
       popular: true, 
       features: [
@@ -94,8 +94,8 @@ export default function PricingPage() {
     },
     { 
       name: 'Pro',
-      monthlyPrice: 749,
-      yearlyPrice: 599,
+      monthlyPrice: 75,
+      yearlyPrice: 60,
       description: t('För företag som växer och vill ha mer fart + prioritet.', 'For growing businesses wanting more speed + priority.'),
       features: [
         t('Allt i Standard', 'Everything in Standard'), 
@@ -109,7 +109,7 @@ export default function PricingPage() {
 
   const getCarePlanPrice = (plan: typeof carePlans[0]) => {
     const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-    return `${price} kr/mån`;
+    return `€${price}/mo`;
   };
 
   return (
@@ -242,7 +242,7 @@ export default function PricingPage() {
                     <span className="text-xl sm:text-2xl font-bold text-accent">{getCarePlanPrice(plan)}</span>
                     {isYearly && (
                       <span className="ml-2 text-xs text-muted-foreground line-through">
-                        {plan.monthlyPrice} kr/mån
+                        €{plan.monthlyPrice}/mo
                       </span>
                     )}
                   </div>

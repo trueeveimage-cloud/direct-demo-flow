@@ -1,8 +1,8 @@
 // Shared configuration for the Website Order Wizard
 // This is the SINGLE SOURCE OF TRUTH for both DirectCheckout and PostDemo flows
 
-export const BOOKING_ADDON_PRICE = 2000;
-export const VERIFICATION_FEE = 500;
+export const BOOKING_ADDON_PRICE = 200;
+export const VERIFICATION_FEE = 50;
 
 export interface BookingService {
   name: string;
@@ -284,8 +284,8 @@ export const packages = [
   { 
     id: 'starter', 
     name: 'Starter', 
-    price: 4900, 
-    priceDisplay: '4 900 kr', 
+    price: 490, 
+    priceDisplay: '€490', 
     pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, 
     maxPages: 3, 
     delivery: 14, 
@@ -299,8 +299,8 @@ export const packages = [
   { 
     id: 'standard', 
     name: 'Standard', 
-    price: 7900, 
-    priceDisplay: '7 900 kr', 
+    price: 790, 
+    priceDisplay: '€790', 
     pages: { sv: 'Upp till 5 sidor', en: 'Up to 5 pages' }, 
     popular: true, 
     maxPages: 5, 
@@ -315,8 +315,8 @@ export const packages = [
   { 
     id: 'pro', 
     name: 'Pro', 
-    price: 12900, 
-    priceDisplay: '12 900 kr', 
+    price: 1290, 
+    priceDisplay: '€1,290', 
     pages: { sv: 'Upp till 8 sidor', en: 'Up to 8 pages' }, 
     maxPages: 8, 
     delivery: 7, 
@@ -345,9 +345,9 @@ export const languages = [
 ];
 
 export const carePlans = [
-  { id: 'basic', name: 'Basic', monthlyPrice: 249, yearlyPrice: 199, features: { sv: ['Hosting', 'Uppdateringar', 'Säkerhetskopiering'], en: ['Hosting', 'Updates', 'Backups'] } },
-  { id: 'standard', name: 'Standard', monthlyPrice: 449, yearlyPrice: 359, popular: true, features: { sv: ['Allt i Basic', 'Domän ingår', 'Företagsmail', '1h ändringar/mån'], en: ['Everything in Basic', 'Domain included', 'Business email', '1h edits/month'] } },
-  { id: 'pro', name: 'Pro', monthlyPrice: 749, yearlyPrice: 599, features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Prioriterad support'], en: ['Everything in Standard', '3h edits/month', 'Priority support'] } },
+  { id: 'basic', name: 'Basic', monthlyPrice: 25, yearlyPrice: 20, features: { sv: ['Hosting', 'Uppdateringar', 'Säkerhetskopiering'], en: ['Hosting', 'Updates', 'Backups'] } },
+  { id: 'standard', name: 'Standard', monthlyPrice: 45, yearlyPrice: 36, popular: true, features: { sv: ['Allt i Basic', 'Domän ingår', 'Företagsmail', '1h ändringar/mån'], en: ['Everything in Basic', 'Domain included', 'Business email', '1h edits/month'] } },
+  { id: 'pro', name: 'Pro', monthlyPrice: 75, yearlyPrice: 60, features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Prioriterad support'], en: ['Everything in Standard', '3h edits/month', 'Priority support'] } },
 ];
 
 export const businessTypes = [

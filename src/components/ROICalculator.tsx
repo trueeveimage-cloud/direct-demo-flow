@@ -38,12 +38,12 @@ const businessTypes = [
 ];
 
 const revenueRanges = [
-  { id: 'less10k', label: { sv: 'Under 10 000 kr', en: 'Under 10,000 kr' }, value: 10000 },
-  { id: '10k-30k', label: { sv: '10 000 - 30 000 kr', en: '10,000 - 30,000 kr' }, value: 20000 },
-  { id: '30k-50k', label: { sv: '30 000 - 50 000 kr', en: '30,000 - 50,000 kr' }, value: 40000 },
-  { id: '50k-100k', label: { sv: '50 000 - 100 000 kr', en: '50,000 - 100,000 kr' }, value: 75000 },
-  { id: '100k-200k', label: { sv: '100 000 - 200 000 kr', en: '100,000 - 200,000 kr' }, value: 150000 },
-  { id: 'more200k', label: { sv: 'Över 200 000 kr', en: 'Over 200,000 kr' }, value: 250000 },
+  { id: 'less1k', label: { sv: 'Under €1,000', en: 'Under €1,000' }, value: 1000 },
+  { id: '1k-3k', label: { sv: '€1,000 - €3,000', en: '€1,000 - €3,000' }, value: 2000 },
+  { id: '3k-5k', label: { sv: '€3,000 - €5,000', en: '€3,000 - €5,000' }, value: 4000 },
+  { id: '5k-10k', label: { sv: '€5,000 - €10,000', en: '€5,000 - €10,000' }, value: 7500 },
+  { id: '10k-20k', label: { sv: '€10,000 - €20,000', en: '€10,000 - €20,000' }, value: 15000 },
+  { id: 'more20k', label: { sv: 'Över €20,000', en: 'Over €20,000' }, value: 25000 },
 ];
 
 const businessGoalOptions = [
@@ -138,9 +138,9 @@ export function ROICalculator() {
   }, [businessType, averageOrder, hasWebsite, targetCustomersPerWeek, revenueRange, websiteImpact]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('sv-SE', { 
+    return new Intl.NumberFormat('en-EU', { 
       style: 'currency', 
-      currency: 'SEK',
+      currency: 'EUR',
       maximumFractionDigits: 0 
     }).format(amount);
   };
@@ -276,17 +276,17 @@ export function ROICalculator() {
 
                 {/* Average Order Value */}
                 <div className="space-y-2">
-                  <Label>{t('Genomsnittligt ordervärde (kr)', 'Average order value (SEK)')} *</Label>
+                  <Label>{t('Genomsnittligt ordervärde (€)', 'Average order value (€)')} *</Label>
                   <div className="relative">
                     <Input
                       type="number"
-                      placeholder={t('T.ex. 500', 'E.g. 500')}
+                      placeholder={t('T.ex. 50', 'E.g. 50')}
                       value={averageOrder}
                       onChange={(e) => setAverageOrder(e.target.value)}
                       className="pr-12"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                      kr
+                      €
                     </span>
                   </div>
                 </div>

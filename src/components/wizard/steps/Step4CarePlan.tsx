@@ -126,11 +126,11 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans }: Ste
               
               <h3 className="font-semibold text-xl mb-2">{c.name}</h3>
               <div className="mb-4">
-                <span className="text-2xl font-bold text-accent">{price} kr</span>
+                <span className="text-2xl font-bold text-accent">€{price}</span>
                 <span className="text-muted-foreground">/{t('mån', 'mo')}</span>
                 {formData.isYearlyCarePlan && (
                   <span className="ml-2 text-xs text-muted-foreground line-through">
-                    {c.monthlyPrice} kr/mån
+                    €{c.monthlyPrice}/mo
                   </span>
                 )}
               </div>
