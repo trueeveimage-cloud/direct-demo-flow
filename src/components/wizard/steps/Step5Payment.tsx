@@ -178,12 +178,24 @@ export function Step5Payment({
           </div>
 
           {carePlan && (
-            <p className="text-xs text-muted-foreground">
-              + {formData.isYearlyCarePlan 
-                ? `€${carePlanPrice * 12}/${t('år', 'year')}` 
-                : `€${carePlanPrice}/${t('mån', 'month')}`
-              } {t('för webbvård (faktureras separat)', 'for web care (billed separately)')}
-            </p>
+            <div className="pt-3 mt-3 border-t border-border/50">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <CreditCard className="w-4 h-4" />
+                {t('Webbvård faktureras separat:', 'Web care billed separately:')}
+              </p>
+              <div className="flex justify-between items-center mt-1">
+                <span className="text-sm font-medium">{carePlan.name} {t('Webbvård', 'Web Care')}</span>
+                <span className="text-sm font-semibold">
+                  {formData.isYearlyCarePlan 
+                    ? `€${carePlanPrice}/${t('år', 'year')}`
+                    : `€${carePlanPrice}/${t('mån', 'month')}`
+                  }
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('Du får en separat betalningslänk för webbvård efter beställningen.', 'You will receive a separate payment link for web care after your order.')}
+              </p>
+            </div>
           )}
 
           {/* Customer Type Badge */}

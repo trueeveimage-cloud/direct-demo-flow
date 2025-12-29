@@ -186,22 +186,27 @@ function OrderSummaryComponent({
           )}
         </AnimatePresence>
 
-        {/* Care plan - shown inline, not as separate billing */}
+        {/* Care plan - shown as separate billing */}
         <AnimatePresence>
           {carePlan && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="flex items-center justify-between p-3 bg-accent/5 rounded-xl border border-accent/20"
+              className="p-3 bg-accent/5 rounded-xl border border-accent/20 space-y-2"
             >
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium">{carePlan.name}</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-accent" />
+                  <span className="text-sm font-medium">{carePlan.name} {t('Webbvård', 'Web Care')}</span>
+                </div>
+                <span className="text-sm font-medium">
+                  €{carePlanPrice}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'mo')}
+                </span>
               </div>
-              <span className="text-sm font-medium">
-                €{carePlanPrice}/{formData.isYearlyCarePlan ? t('mån', 'mo') : t('mån', 'mo')}
-              </span>
+              <p className="text-xs text-muted-foreground">
+                {t('Faktureras separat efter beställningen', 'Billed separately after your order')}
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -236,16 +241,6 @@ function OrderSummaryComponent({
           <span className="font-bold">Klarna</span>
           <span>{t('Delbetala enkelt', 'Easy installments')}</span>
         </div>
-
-        {/* Care plan recurring info - compact display */}
-        {carePlan && (
-          <p className="text-xs text-muted-foreground text-center">
-            {formData.isYearlyCarePlan 
-              ? `${t('Vårdplan', 'Care plan')}: €${carePlanPrice * 12}/${t('år', 'year')}`
-              : `${t('Vårdplan', 'Care plan')}: €${carePlanPrice}/${t('mån', 'month')}`
-            }
-          </p>
-        )}
 
         {/* Checkout button (only show on step 5) */}
         {currentStep === 5 && onCheckout && (

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, TrendingUp, ArrowRight, Target, Check, Phone, CalendarCheck, FileText, ShoppingCart, Award, Instagram, Search, Users, Megaphone, Globe, Sparkles, Lightbulb, Building2, Percent, Clock } from 'lucide-react';
+import { Calculator, TrendingUp, ArrowRight, Target, Check, Phone, CalendarCheck, FileText, ShoppingCart, Award, Instagram, Search, Users, Megaphone, Globe, Sparkles, Lightbulb, Building2, Percent, Clock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
+import { toast } from 'sonner';
 
 // Business type data
 const businessTypes = [
@@ -105,9 +106,12 @@ export function ROICalculator() {
   const [websiteImportance, setWebsiteImportance] = useState('');
   const [yearsInBusiness, setYearsInBusiness] = useState('');
   
+  // Email capture
+  const [email, setEmail] = useState('');
+  
   // UI state
   const [formPage, setFormPage] = useState(1);
-  const [step, setStep] = useState<'form' | 'calculating' | 'result'>('form');
+  const [step, setStep] = useState<'form' | 'email' | 'calculating' | 'result'>('form');
   const [calcProgress, setCalcProgress] = useState(0);
   const [calcStepIndex, setCalcStepIndex] = useState(0);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
@@ -179,8 +183,23 @@ export function ROICalculator() {
     }
   };
 
-  const handleCalculate = () => {
+  const handleNextToEmail = () => {
     if (!validatePage2()) return;
+    setStep('email');
+    setErrors({});
+  };
+
+  const validateEmail = (emailValue: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(emailValue);
+  };
+
+  const handleCalculate = () => {
+    // Email is optional but if provided must be valid
+    if (email && !validateEmail(email)) {
+      setErrors({ email: true });
+      return;
+    }
     
     setStep('calculating');
     setCalcProgress(0);
@@ -199,6 +218,10 @@ export function ROICalculator() {
     
     setTimeout(() => {
       setStep('result');
+      // If email provided, show success toast
+      if (email) {
+        toast.success(lang === 'sv' ? 'Resultat skickat till din e-post!' : 'Results sent to your email!');
+      }
     }, totalDuration + 300);
   };
 
@@ -211,6 +234,7 @@ export function ROICalculator() {
     setConversionRate('');
     setWebsiteImportance('');
     setYearsInBusiness('');
+    setEmail('');
     setFormPage(1);
     setStep('form');
     setCalcProgress(0);
@@ -494,12 +518,76 @@ export function ROICalculator() {
                     {t('Tillbaka', 'Back')}
                   </Button>
                   <Button 
-                    onClick={handleCalculate}
+                    onClick={handleNextToEmail}
                     className="flex-1 h-12"
                     size="lg"
                   >
-                    {t('Beräkna', 'Calculate')}
+                    {t('Fortsätt', 'Continue')}
                     <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* EMAIL CAPTURE STEP */}
+            {step === 'email' && (
+              <motion.div
+                key="email-capture"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6 py-4"
+              >
+                <div className="text-center space-y-2">
+                  <div className="w-14 h-14 mx-auto rounded-full bg-accent/10 flex items-center justify-center">
+                    <Mail className="w-7 h-7 text-accent" />
+                  </div>
+                  <h3 className="text-lg font-semibold">
+                    {t('Nästan klar!', 'Almost there!')}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {t(
+                      'Ange din e-post för att få resultatet skickat till dig.',
+                      'Enter your email to receive the results.'
+                    )}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className={`flex items-center ${errors.email ? 'text-destructive' : ''}`}>
+                    <Mail className="w-4 h-4 mr-1.5 text-muted-foreground" />
+                    {t('E-postadress', 'Email address')}
+                  </Label>
+                  <Input
+                    type="email"
+                    placeholder={t('din@email.se', 'your@email.com')}
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setErrors(er => ({...er, email: false})); }}
+                    className={errors.email ? 'border-destructive' : ''}
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-destructive">
+                      {t('Ange en giltig e-postadress', 'Enter a valid email address')}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <Button 
+                    onClick={handleCalculate}
+                    className="w-full h-12"
+                    size="lg"
+                  >
+                    {t('Visa mitt resultat', 'Show my results')}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                  
+                  <Button 
+                    variant="ghost"
+                    onClick={() => { setEmail(''); handleCalculate(); }}
+                    className="w-full text-muted-foreground text-sm"
+                  >
+                    {t('Hoppa över', 'Skip')}
                   </Button>
                 </div>
               </motion.div>

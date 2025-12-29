@@ -59,6 +59,9 @@ interface CheckoutRequest {
   carePlanId: string;
   isYearly: boolean;
   email?: string;
+  customerType?: 'private' | 'business';
+  vatVerified?: boolean;
+  country?: string;
 }
 
 serve(async (req) => {
@@ -121,8 +124,19 @@ serve(async (req) => {
     const carePlanId = requestData.carePlanId;
     const isYearly = requestData.isYearly === true;
     const email = requestData.email && isValidEmail(requestData.email) ? requestData.email : undefined;
+    const customerType = requestData.customerType === "private" || requestData.customerType === "business" 
+      ? requestData.customerType : "private";
+    const vatVerified = requestData.vatVerified === true;
+    const customerCountry = typeof requestData.country === "string" ? requestData.country : "SE";
 
-    console.log("[CREATE-CARE-PLAN-CHECKOUT] Request validated", { carePlanId, isYearly, email: email ? "provided" : "none" });
+    console.log("[CREATE-CARE-PLAN-CHECKOUT] Request validated", { 
+      carePlanId, 
+      isYearly, 
+      email: email ? "provided" : "none",
+      customerType,
+      vatVerified,
+      customerCountry
+    });
 
     const planPrices = CARE_PLAN_PRICES[carePlanId];
     const priceId = isYearly ? planPrices.yearly : planPrices.monthly;
@@ -141,7 +155,12 @@ serve(async (req) => {
 
     const safeOrigin = origin || "https://nomia.se";
 
-    const session = await stripe.checkout.sessions.create({
+    // Determine if we should apply automatic tax
+    const shouldApplyTax = customerType === "private" || 
+      (customerType === "business" && customerCountry === "SE") ||
+      (customerType === "business" && !vatVerified);
+
+    const sessionConfig: any = {
       customer: customerId,
       customer_email: customerId ? undefined : email,
       line_items: [
@@ -152,13 +171,25 @@ serve(async (req) => {
       ],
       mode: "subscription",
       allow_promotion_codes: true,
-      success_url: `${safeOrigin}/betalning-klar?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${safeOrigin}/betalning-klar?session_id={CHECKOUT_SESSION_ID}&care_complete=true`,
       cancel_url: `${safeOrigin}/betalning-avbruten`,
       metadata: {
         carePlanId,
         isYearly: String(isYearly),
+        customerType,
       },
-    });
+    };
+
+    // Apply automatic tax collection for applicable customers
+    if (shouldApplyTax) {
+      sessionConfig.automatic_tax = { enabled: true };
+      console.log("[CREATE-CARE-PLAN-CHECKOUT] Automatic tax enabled");
+    } else {
+      sessionConfig.tax_id_collection = { enabled: true };
+      console.log("[CREATE-CARE-PLAN-CHECKOUT] Tax ID collection enabled for B2B reverse charge");
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     console.log("[CREATE-CARE-PLAN-CHECKOUT] Checkout session created", { sessionId: session.id });
 
