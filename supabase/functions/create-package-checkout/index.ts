@@ -58,6 +58,9 @@ const PACKAGE_PRICES: Record<string, string> = {
 // Booking add-on price ID from Stripe (€200 one-time)
 const BOOKING_ADDON_PRICE_ID = "price_1Shhqd74JfaAfHsdN70mmlQ8"; // €200 booking add-on
 
+// Admin panel add-on price ID from Stripe (€100 one-time)
+const ADMIN_PANEL_PRICE_ID = "price_1SjVDH74JfaAfHsdJ2bpHabL"; // €100 admin panel add-on
+
 // Care plan price IDs from Stripe (subscriptions in EUR)
 const CARE_PLAN_PRICES: Record<string, { monthly: string; yearly: string }> = {
   basic: {
@@ -87,11 +90,19 @@ interface CheckoutRequest {
   isYearly?: boolean;
   wantsBooking?: boolean;
   bookingAddonCost?: number;
+  addedAdminPanel?: boolean;
   businessType?: string;
   websiteGoal?: string;
   primaryColor?: string;
   accentColor?: string;
   services?: string;
+  // Customer type data for VAT
+  customerType?: 'private' | 'business' | null;
+  companyName?: string;
+  orgNumber?: string;
+  vatNumber?: string;
+  vatVerified?: boolean;
+  country?: string;
 }
 
 serve(async (req) => {
@@ -158,6 +169,15 @@ serve(async (req) => {
     const isYearly = requestData.isYearly === true;
     const wantsBooking = requestData.wantsBooking === true;
     const bookingAddonCost = typeof requestData.bookingAddonCost === "number" ? requestData.bookingAddonCost : 0;
+    const addedAdminPanel = requestData.addedAdminPanel === true;
+    
+    // Customer type data
+    const customerType = requestData.customerType === "private" || requestData.customerType === "business" 
+      ? requestData.customerType : null;
+    const vatNumber = sanitizeString(requestData.vatNumber, 50);
+    const vatVerified = requestData.vatVerified === true;
+    const customerCountry = sanitizeString(requestData.country, 5);
+    const orgNumber = sanitizeString(requestData.orgNumber, 50);
     
     // Additional metadata fields
     const businessName = sanitizeString(requestData.businessName, 200);
@@ -177,7 +197,10 @@ serve(async (req) => {
       carePlanId, 
       isYearly,
       wantsBooking,
-      bookingAddonCost
+      bookingAddonCost,
+      addedAdminPanel,
+      customerType,
+      vatVerified
     });
 
     const priceId = PACKAGE_PRICES[packageId];
@@ -211,6 +234,15 @@ serve(async (req) => {
         quantity: 1,
       });
       console.log("[CREATE-PACKAGE-CHECKOUT] Added booking add-on to checkout", { bookingAddonCost });
+    }
+
+    // Add admin panel add-on if selected
+    if (addedAdminPanel) {
+      lineItems.push({
+        price: ADMIN_PANEL_PRICE_ID,
+        quantity: 1,
+      });
+      console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on to checkout");
     }
 
     // Determine checkout mode - if care plan is selected, we need subscription mode
@@ -248,6 +280,12 @@ serve(async (req) => {
         isYearly: String(isYearly),
         wantsBooking: String(wantsBooking),
         bookingAddonIncluded: packageId === "pro" ? "included" : (wantsBooking ? "addon" : "none"),
+        adminPanelIncluded: String(addedAdminPanel),
+        customerType: customerType || "private",
+        vatNumber: vatNumber || "",
+        vatVerified: String(vatVerified),
+        customerCountry: customerCountry || "SE",
+        orgNumber: orgNumber || "",
         businessName,
         contactPerson,
         phone,

@@ -55,6 +55,7 @@ function WebsiteOrderWizardComponent({
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [addedAdminPanel, setAddedAdminPanel] = useState(false);
   const [showPackageCompare, setShowPackageCompare] = useState(false);
   const [showCarePlanCompare, setShowCarePlanCompare] = useState(false);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
@@ -162,8 +163,10 @@ function WebsiteOrderWizardComponent({
   }, []);
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString('sv-SE').replace(/\s/g, ' ') + ' kr';
+    return '€' + price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   };
+
+  const ADMIN_PANEL_PRICE = 100;
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -171,7 +174,8 @@ function WebsiteOrderWizardComponent({
     try {
       const pkg = packages.find(p => p.id === formData.selectedPackage);
       const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
-      const totalPackagePrice = (pkg?.price || 0) + bookingAddonCost;
+      const adminPanelCost = addedAdminPanel ? ADMIN_PANEL_PRICE : 0;
+      const totalPackagePrice = (pkg?.price || 0) + bookingAddonCost + adminPanelCost;
 
       // Submit form data for record keeping
       const formDataPayload = new FormData();
@@ -253,8 +257,16 @@ function WebsiteOrderWizardComponent({
           isYearly: formData.isYearlyCarePlan,
           wantsBooking: formData.wantsBooking,
           bookingAddonCost,
+          addedAdminPanel,
           isPostDemoFlow,
           conceptLink: formData.conceptLink || conceptLink,
+          // Customer type and VAT info
+          customerType: customerTypeData.customerType,
+          companyName: customerTypeData.companyName,
+          orgNumber: customerTypeData.orgNumber,
+          vatNumber: customerTypeData.vatNumber,
+          vatVerified: customerTypeData.vatVerified,
+          country: customerTypeData.country,
         }),
       });
 
@@ -421,6 +433,8 @@ function WebsiteOrderWizardComponent({
                   isPostDemoFlow={isPostDemoFlow}
                   customerTypeData={customerTypeData}
                   onCustomerTypeChange={setCustomerTypeData}
+                  addedAdminPanel={addedAdminPanel}
+                  onAddAdminPanel={() => setAddedAdminPanel(true)}
                 />
               )}
 
@@ -462,7 +476,6 @@ function WebsiteOrderWizardComponent({
             </motion.div>
           </AnimatePresence>
 
-          {/* Order Summary Sidebar - Desktop Only */}
           <div className="hidden lg:block">
             <OrderSummary 
               formData={formData} 
@@ -470,6 +483,7 @@ function WebsiteOrderWizardComponent({
               currentStep={step}
               onCheckout={step === 5 ? handleSubmit : undefined}
               isLoading={isLoading}
+              addedAdminPanel={addedAdminPanel}
             />
           </div>
         </div>
@@ -490,7 +504,8 @@ function WebsiteOrderWizardComponent({
                   <p className="text-lg font-bold">
                     {formatPrice(
                       (pkg?.price || 0) + 
-                      (formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0) -
+                      (formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0) +
+                      (addedAdminPanel ? ADMIN_PANEL_PRICE : 0) -
                       (isPostDemoFlow ? VERIFICATION_FEE : 0)
                     )}
                   </p>
