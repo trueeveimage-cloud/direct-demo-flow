@@ -54,7 +54,15 @@ export function Footer() {
 
           <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Nomia</p>
-            <p className="text-sm text-muted-foreground">Göteborg</p>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => (window as any).__nomiaReplayIntro?.()}
+                className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+              >
+                {t('Spela intro igen', 'Replay intro')}
+              </button>
+              <p className="text-sm text-muted-foreground">Göteborg</p>
+            </div>
           </div>
         </div>
       </div>
