@@ -20,7 +20,7 @@ export default function FAQPage() {
     },
     { 
       q: t('Vilka paket erbjuder ni?', 'What packages do you offer?'), 
-      a: t('Vi har tre paket: Starter (4 900 kr, 3 sidor), Standard (7 900 kr, 5 sidor, flerspråk), och Pro (12 900 kr, 8 sidor, flerspråk, bokningssystem, Google Analytics).', 'We have three packages: Starter (4,900 SEK, 3 pages), Standard (7,900 SEK, 5 pages, multi-language), and Pro (12,900 SEK, 8 pages, multi-language, booking system, Google Analytics).') 
+      a: t('Vi har tre paket: Starter (€490, 3 sidor), Standard (€790, 5 sidor, flerspråk), och Pro (€1,290, 8 sidor, flerspråk, bokningssystem, Google Analytics).', 'We have three packages: Starter (€490, 3 pages), Standard (€790, 5 pages, multi-language), and Pro (€1,290, 8 pages, multi-language, booking system, Google Analytics).') 
     },
     { 
       q: t('Vad ingår i bokningssystemet?', 'What\'s included in the booking system?'), 
@@ -32,7 +32,7 @@ export default function FAQPage() {
     },
     { 
       q: t('Erbjuder ni hosting och domän?', 'Do you provide hosting and domain?'), 
-      a: t('Ja! Vi erbjuder månatliga vårdplaner: Basic (249 kr/mån - hosting, uppdateringar), Standard (449 kr/mån - + domän, e-post, 1h ändringar/mån), och Pro (749 kr/mån - + 3h ändringar/mån, prioriterad support). Med årsbetalning sparar du 20%.', 'Yes! We offer monthly care plans: Basic (249 SEK/month - hosting, updates), Standard (449 SEK/month - + domain, email, 1h edits/month), and Pro (749 SEK/month - + 3h edits/month, priority support). Save 20% with yearly payment.') 
+      a: t('Ja! Vi erbjuder månatliga vårdplaner: Basic (€25/mån - hosting, uppdateringar), Standard (€45/mån - + domän, e-post, 1h ändringar/mån), och Pro (€75/mån - + 3h ändringar/mån, prioriterad support). Med årsbetalning sparar du 20%.', 'Yes! We offer monthly care plans: Basic (€25/month - hosting, updates), Standard (€45/month - + domain, email, 1h edits/month), and Pro (€75/month - + 3h edits/month, priority support). Save 20% with yearly payment.') 
     },
     { 
       q: t('Hur lång är leveranstiden?', 'What\'s the delivery time?'), 

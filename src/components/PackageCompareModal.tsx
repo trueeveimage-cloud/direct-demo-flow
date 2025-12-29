@@ -35,7 +35,7 @@ const packages = [
   { 
     id: 'starter', 
     name: 'Starter', 
-    price: '4 900 kr',
+    price: '€490',
     pages: 3,
     delivery: 14,
     revisions: 1,
@@ -52,7 +52,7 @@ const packages = [
   { 
     id: 'standard', 
     name: 'Standard', 
-    price: '7 900 kr',
+    price: '€790',
     pages: 5,
     delivery: 10,
     revisions: 2,
@@ -70,7 +70,7 @@ const packages = [
   { 
     id: 'pro', 
     name: 'Pro', 
-    price: '12 900 kr',
+    price: '€1,290',
     pages: 8,
     delivery: 7,
     revisions: 3,

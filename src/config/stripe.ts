@@ -5,13 +5,13 @@
 // These are the ONLY places you need to update Stripe links
 
 export const STRIPE_LINKS = {
-  // Verification fee (500 kr) - "Get your concept" flow
-  VERIFICATION_500: 'https://buy.stripe.com/PLACEHOLDER_VERIFICATION_500',
+  // Verification fee (€50) - "Get your concept" flow
+  VERIFICATION_50: 'https://buy.stripe.com/PLACEHOLDER_VERIFICATION_50',
   
   // Package one-time payments - "Direct order" flow
-  STARTER: 'https://buy.stripe.com/PLACEHOLDER_STARTER_4900',
-  STANDARD: 'https://buy.stripe.com/PLACEHOLDER_STANDARD_7900',
-  PRO: 'https://buy.stripe.com/PLACEHOLDER_PRO_12900',
+  STARTER: 'https://buy.stripe.com/PLACEHOLDER_STARTER_490',
+  STANDARD: 'https://buy.stripe.com/PLACEHOLDER_STANDARD_790',
+  PRO: 'https://buy.stripe.com/PLACEHOLDER_PRO_1290',
   
   // Care plan subscriptions (monthly)
   CARE_BASIC_MONTHLY: 'https://buy.stripe.com/PLACEHOLDER_CARE_BASIC_MONTHLY',

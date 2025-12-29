@@ -12,8 +12,8 @@ const carePlans = [
   { 
     id: 'basic', 
     name: 'Basic', 
-    monthlyPrice: 249,
-    yearlyPrice: 199,
+    monthlyPrice: 25,
+    yearlyPrice: 20,
     features: {
       sv: [
         'Hosting (snabb + SSL)',
@@ -39,8 +39,8 @@ const carePlans = [
   { 
     id: 'standard', 
     name: 'Standard', 
-    monthlyPrice: 449,
-    yearlyPrice: 359,
+    monthlyPrice: 45,
+    yearlyPrice: 36,
     popular: true,
     features: {
       sv: [
@@ -67,8 +67,8 @@ const carePlans = [
   { 
     id: 'pro', 
     name: 'Pro', 
-    monthlyPrice: 749,
-    yearlyPrice: 599,
+    monthlyPrice: 75,
+    yearlyPrice: 60,
     features: {
       sv: [
         'Allt i Standard',
@@ -98,7 +98,7 @@ export function CarePlansCompareModal({ open, onOpenChange, isYearly }: CarePlan
 
   const getPrice = (plan: typeof carePlans[0]) => {
     const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-    return `${price} kr/mån`;
+    return `€${price}/mo`;
   };
 
   return (
@@ -119,7 +119,7 @@ export function CarePlansCompareModal({ open, onOpenChange, isYearly }: CarePlan
                     <div className="text-accent font-bold">{getPrice(plan)}</div>
                     {isYearly && (
                       <div className="text-xs text-muted-foreground line-through">
-                        {plan.monthlyPrice} kr/mån
+                        €{plan.monthlyPrice}/mo
                       </div>
                     )}
                     {plan.popular && (
