@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
-import { PageTransition } from './PageTransition';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { BackToTop } from './BackToTop';
 import { ScrollProgress } from './ScrollProgress';
@@ -18,7 +17,7 @@ export function Layout({ children }: LayoutProps) {
       <Header />
       <ScrollProgress />
       <main className="flex-1 pt-16">
-        <PageTransition>{children}</PageTransition>
+        {children}
       </main>
       <Footer />
       <BackToTop />
