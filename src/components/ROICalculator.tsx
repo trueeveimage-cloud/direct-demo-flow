@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, TrendingUp, ArrowRight, Target, Check, Phone, CalendarCheck, FileText, ShoppingCart, Award, Instagram, Search, Users, Megaphone, Globe, Sparkles, Lightbulb, Building2, Percent, Clock, Mail } from 'lucide-react';
+import { Calculator, TrendingUp, ArrowRight, Target, Check, Phone, CalendarCheck, FileText, ShoppingCart, Award, Instagram, Search, Users, Megaphone, Globe, Sparkles, Lightbulb, Building2, Clock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,95 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
+
+// Industry-specific data with average customer values and website importance multipliers
+const industryData: Record<string, {
+  avgValue: { min: number; max: number; default: number };
+  websiteImpact: number; // 0.1-0.5 - how much a website affects customer acquisition
+  conversionLift: number; // potential conversion improvement with good website
+  customerLabel: { sv: string; en: string };
+  valueLabel: { sv: string; en: string };
+}> = {
+  barber: {
+    avgValue: { min: 20, max: 100, default: 40 },
+    websiteImpact: 0.25,
+    conversionLift: 0.15,
+    customerLabel: { sv: 'kunder', en: 'customers' },
+    valueLabel: { sv: 'per besök', en: 'per visit' },
+  },
+  nail: {
+    avgValue: { min: 30, max: 150, default: 60 },
+    websiteImpact: 0.3,
+    conversionLift: 0.2,
+    customerLabel: { sv: 'kunder', en: 'customers' },
+    valueLabel: { sv: 'per behandling', en: 'per treatment' },
+  },
+  restaurant: {
+    avgValue: { min: 15, max: 80, default: 35 },
+    websiteImpact: 0.35,
+    conversionLift: 0.25,
+    customerLabel: { sv: 'gäster', en: 'guests' },
+    valueLabel: { sv: 'per nota', en: 'per check' },
+  },
+  gym: {
+    avgValue: { min: 30, max: 200, default: 50 },
+    websiteImpact: 0.4,
+    conversionLift: 0.3,
+    customerLabel: { sv: 'medlemmar', en: 'members' },
+    valueLabel: { sv: 'per månad', en: 'per month' },
+  },
+  clinic: {
+    avgValue: { min: 50, max: 500, default: 150 },
+    websiteImpact: 0.5,
+    conversionLift: 0.35,
+    customerLabel: { sv: 'patienter', en: 'patients' },
+    valueLabel: { sv: 'per besök', en: 'per visit' },
+  },
+  car: {
+    avgValue: { min: 100, max: 1000, default: 300 },
+    websiteImpact: 0.45,
+    conversionLift: 0.3,
+    customerLabel: { sv: 'kunder', en: 'customers' },
+    valueLabel: { sv: 'per jobb', en: 'per job' },
+  },
+  cleaning: {
+    avgValue: { min: 50, max: 300, default: 100 },
+    websiteImpact: 0.4,
+    conversionLift: 0.25,
+    customerLabel: { sv: 'kunder', en: 'customers' },
+    valueLabel: { sv: 'per uppdrag', en: 'per job' },
+  },
+  realestate: {
+    avgValue: { min: 1000, max: 10000, default: 3000 },
+    websiteImpact: 0.5,
+    conversionLift: 0.35,
+    customerLabel: { sv: 'affärer', en: 'deals' },
+    valueLabel: { sv: 'provision per affär', en: 'commission per deal' },
+  },
+  retail: {
+    avgValue: { min: 20, max: 200, default: 50 },
+    websiteImpact: 0.35,
+    conversionLift: 0.25,
+    customerLabel: { sv: 'kunder', en: 'customers' },
+    valueLabel: { sv: 'per köp', en: 'per purchase' },
+  },
+  consultant: {
+    avgValue: { min: 500, max: 5000, default: 1500 },
+    websiteImpact: 0.5,
+    conversionLift: 0.35,
+    customerLabel: { sv: 'kunder', en: 'clients' },
+    valueLabel: { sv: 'per projekt', en: 'per project' },
+  },
+  other: {
+    avgValue: { min: 50, max: 500, default: 100 },
+    websiteImpact: 0.35,
+    conversionLift: 0.25,
+    customerLabel: { sv: 'kunder', en: 'customers' },
+    valueLabel: { sv: 'per kund', en: 'per customer' },
+  },
+};
 
 // Business type data
 const businessTypes = [
@@ -35,25 +123,11 @@ const goalOptions = [
 ];
 
 const currentPresenceOptions = [
-  { id: 'social', label: { sv: 'Bara Instagram/TikTok', en: 'Instagram/TikTok only' }, icon: Instagram },
-  { id: 'google', label: { sv: 'Google Maps / Sök', en: 'Google Maps / Search' }, icon: Search },
-  { id: 'wordofmouth', label: { sv: 'Rekommendationer', en: 'Word of mouth' }, icon: Users },
-  { id: 'ads', label: { sv: 'Annonser', en: 'Paid ads' }, icon: Megaphone },
-  { id: 'oldsite', label: { sv: 'Gammal hemsida', en: 'Outdated website' }, icon: Globe },
-];
-
-const conversionOptions = [
-  { id: 'low', label: { sv: 'Låg (under 10%)', en: 'Low (under 10%)' }, value: 0.05 },
-  { id: 'medium', label: { sv: 'Medel (10-30%)', en: 'Medium (10-30%)' }, value: 0.2 },
-  { id: 'high', label: { sv: 'Hög (över 30%)', en: 'High (over 30%)' }, value: 0.4 },
-  { id: 'unknown', label: { sv: 'Vet ej', en: 'Not sure' }, value: 0.15 },
-];
-
-const websiteImportanceOptions = [
-  { id: 'critical', label: { sv: 'Avgörande', en: 'Critical' }, value: 0.5 },
-  { id: 'important', label: { sv: 'Viktigt', en: 'Important' }, value: 0.35 },
-  { id: 'helpful', label: { sv: 'Hjälpsamt', en: 'Helpful' }, value: 0.2 },
-  { id: 'unsure', label: { sv: 'Osäker', en: 'Unsure' }, value: 0.3 },
+  { id: 'social', label: { sv: 'Bara Instagram/TikTok', en: 'Instagram/TikTok only' }, icon: Instagram, lostFactor: 0.35 },
+  { id: 'google', label: { sv: 'Google Maps / Sök', en: 'Google Maps / Search' }, icon: Search, lostFactor: 0.25 },
+  { id: 'wordofmouth', label: { sv: 'Rekommendationer', en: 'Word of mouth' }, icon: Users, lostFactor: 0.2 },
+  { id: 'ads', label: { sv: 'Annonser', en: 'Paid ads' }, icon: Megaphone, lostFactor: 0.3 },
+  { id: 'oldsite', label: { sv: 'Gammal hemsida', en: 'Outdated website' }, icon: Globe, lostFactor: 0.15 },
 ];
 
 const calculationSteps = [
@@ -63,9 +137,9 @@ const calculationSteps = [
   { sv: 'Sammanställer resultat...', en: 'Compiling results...' },
 ];
 
-// Goal-based recommendations
-const getRecommendations = (goal: string, lang: 'sv' | 'en') => {
-  const recommendations: Record<string, { sv: string[]; en: string[] }> = {
+// Goal-based recommendations per industry
+const getRecommendations = (goal: string, businessType: string, lang: 'sv' | 'en') => {
+  const baseRecs: Record<string, { sv: string[]; en: string[] }> = {
     bookings: {
       sv: ['Tydlig bokningsknapp på varje sida', 'Visa lediga tider direkt', 'Snabb mobilvänlig upplevelse'],
       en: ['Clear booking button on every page', 'Show available slots directly', 'Fast mobile-first experience'],
@@ -87,7 +161,22 @@ const getRecommendations = (goal: string, lang: 'sv' | 'en') => {
       en: ['Google reviews integrated', 'Professional photos & design', 'Clear "About us" section'],
     },
   };
-  return recommendations[goal]?.[lang] || recommendations.trust[lang];
+
+  const industryRecs: Record<string, { sv: string; en: string }> = {
+    restaurant: { sv: 'Online-meny med bilder och priser', en: 'Online menu with photos and prices' },
+    gym: { sv: 'Visa klassschema och medlemspriser', en: 'Display class schedule and membership prices' },
+    clinic: { sv: 'Trygg patientinformation och kontakt', en: 'Secure patient info and easy contact' },
+    car: { sv: 'Galleri med före/efter-bilder', en: 'Before/after photo gallery' },
+    realestate: { sv: 'Objektlistning med sökfunktion', en: 'Property listings with search' },
+  };
+
+  const recs = baseRecs[goal]?.[lang] || baseRecs.trust[lang];
+  const industryRec = industryRecs[businessType];
+  
+  if (industryRec) {
+    return [industryRec[lang], ...recs.slice(0, 2)];
+  }
+  return recs;
 };
 
 export function ROICalculator() {
@@ -97,14 +186,12 @@ export function ROICalculator() {
   // Form state - Page 1
   const [businessType, setBusinessType] = useState('');
   const [primaryGoal, setPrimaryGoal] = useState('');
-  const [weeklyLeads, setWeeklyLeads] = useState('');
-  const [avgCustomerValue, setAvgCustomerValue] = useState('');
+  const [currentCustomers, setCurrentCustomers] = useState([10]); // slider value
+  const [avgCustomerValue, setAvgCustomerValue] = useState([50]); // slider value
   
   // Form state - Page 2
   const [currentPresence, setCurrentPresence] = useState<string[]>([]);
-  const [conversionRate, setConversionRate] = useState('');
-  const [websiteImportance, setWebsiteImportance] = useState('');
-  const [yearsInBusiness, setYearsInBusiness] = useState('');
+  const [yearsInBusiness, setYearsInBusiness] = useState([3]); // slider value
   
   // Email capture
   const [email, setEmail] = useState('');
@@ -116,36 +203,48 @@ export function ROICalculator() {
   const [calcStepIndex, setCalcStepIndex] = useState(0);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
-  // Calculate result - tighter range (max €2000 difference), yearly display
+  // Get industry config
+  const industry = industryData[businessType] || industryData.other;
+
+  // Calculate result based on industry-specific logic
   const result = useMemo(() => {
-    const value = parseFloat(avgCustomerValue) || 0;
-    const leads = parseFloat(weeklyLeads) || 0;
-    const conversionData = conversionOptions.find(c => c.id === conversionRate);
-    const importanceData = websiteImportanceOptions.find(w => w.id === websiteImportance);
+    const customers = currentCustomers[0];
+    const value = avgCustomerValue[0];
+    const years = yearsInBusiness[0];
     
-    const conversionValue = conversionData?.value || 0.15;
-    const importanceValue = importanceData?.value || 0.3;
+    // Get lost factor from current presence (average of selected)
+    const presenceFactors = currentPresence.map(p => 
+      currentPresenceOptions.find(o => o.id === p)?.lostFactor || 0.25
+    );
+    const avgPresenceFactor = presenceFactors.length > 0 
+      ? presenceFactors.reduce((a, b) => a + b, 0) / presenceFactors.length
+      : 0.3;
     
-    // Base calculation: weekly leads × avg value × 52 weeks × importance factor × conversion improvement
-    const baseYearly = leads * value * 52;
-    const lostFactor = importanceValue * (1 - conversionValue);
+    // Industry website impact multiplier
+    const industryImpact = industry.websiteImpact;
     
-    // Calculate yearly loss with tight range (max €2000 difference)
-    const midYearly = Math.round(baseYearly * lostFactor);
-    const variance = Math.min(1000, midYearly * 0.08); // 8% variance or €1000 max per side
+    // Years multiplier (more established = more to lose from poor online presence)
+    const yearsMultiplier = Math.min(1.5, 0.8 + (years * 0.07));
     
-    const lowYearly = Math.max(0, Math.round(midYearly - variance));
-    const highYearly = Math.round(midYearly + variance);
+    // Calculate potential customers lost per week due to no/poor website
+    // Formula: current customers × industry impact × presence factor × years multiplier
+    const weeklyLostCustomers = customers * industryImpact * avgPresenceFactor * yearsMultiplier;
     
-    // Ensure max €2000 difference
-    const actualHigh = Math.min(highYearly, lowYearly + 2000);
+    // Yearly lost revenue
+    const yearlyLost = weeklyLostCustomers * value * 52;
+    
+    // Create a range (±10% or max €1000 per side)
+    const variance = Math.min(1000, yearlyLost * 0.1);
+    const lowYearly = Math.max(0, Math.round(yearlyLost - variance));
+    const highYearly = Math.round(yearlyLost + variance);
     
     return {
       lowYearly,
-      highYearly: actualHigh,
-      recommendations: getRecommendations(primaryGoal || 'trust', lang),
+      highYearly,
+      weeklyLost: Math.round(weeklyLostCustomers * 10) / 10,
+      recommendations: getRecommendations(primaryGoal || 'trust', businessType, lang),
     };
-  }, [avgCustomerValue, weeklyLeads, conversionRate, websiteImportance, primaryGoal, lang]);
+  }, [avgCustomerValue, currentCustomers, currentPresence, yearsInBusiness, industry, primaryGoal, businessType, lang]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-EU', { 
@@ -159,8 +258,6 @@ export function ROICalculator() {
     const newErrors: Record<string, boolean> = {};
     if (!businessType) newErrors.businessType = true;
     if (!primaryGoal) newErrors.primaryGoal = true;
-    if (!weeklyLeads) newErrors.weeklyLeads = true;
-    if (!avgCustomerValue) newErrors.avgCustomerValue = true;
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -169,8 +266,6 @@ export function ROICalculator() {
   const validatePage2 = () => {
     const newErrors: Record<string, boolean> = {};
     if (currentPresence.length === 0) newErrors.currentPresence = true;
-    if (!conversionRate) newErrors.conversionRate = true;
-    if (!websiteImportance) newErrors.websiteImportance = true;
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -195,7 +290,6 @@ export function ROICalculator() {
   };
 
   const handleCalculate = () => {
-    // Email is optional but if provided must be valid
     if (email && !validateEmail(email)) {
       setErrors({ email: true });
       return;
@@ -205,7 +299,6 @@ export function ROICalculator() {
     setCalcProgress(0);
     setCalcStepIndex(0);
     
-    // Animate through calculation steps
     const totalDuration = 3000;
     const stepDuration = totalDuration / calculationSteps.length;
     
@@ -218,7 +311,6 @@ export function ROICalculator() {
     
     setTimeout(() => {
       setStep('result');
-      // If email provided, show success toast
       if (email) {
         toast.success(lang === 'sv' ? 'Resultat skickat till din e-post!' : 'Results sent to your email!');
       }
@@ -228,12 +320,10 @@ export function ROICalculator() {
   const resetCalculator = () => {
     setBusinessType('');
     setPrimaryGoal('');
-    setWeeklyLeads('');
-    setAvgCustomerValue('');
+    setCurrentCustomers([10]);
+    setAvgCustomerValue([50]);
     setCurrentPresence([]);
-    setConversionRate('');
-    setWebsiteImportance('');
-    setYearsInBusiness('');
+    setYearsInBusiness([3]);
     setEmail('');
     setFormPage(1);
     setStep('form');
@@ -247,6 +337,17 @@ export function ROICalculator() {
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
     setErrors(prev => ({ ...prev, currentPresence: false }));
+  };
+
+  // Update sliders when business type changes
+  const handleBusinessTypeChange = (value: string) => {
+    setBusinessType(value);
+    setErrors(e => ({...e, businessType: false}));
+    
+    const data = industryData[value];
+    if (data) {
+      setAvgCustomerValue([data.avgValue.default]);
+    }
   };
 
   return (
@@ -298,7 +399,7 @@ export function ROICalculator() {
                     <Building2 className="w-4 h-4 mr-1.5 text-muted-foreground" />
                     {t('Verksamhetstyp', 'Business type')} *
                   </Label>
-                  <Select value={businessType} onValueChange={(v) => { setBusinessType(v); setErrors(e => ({...e, businessType: false})); }}>
+                  <Select value={businessType} onValueChange={handleBusinessTypeChange}>
                     <SelectTrigger className={errors.businessType ? 'border-destructive' : ''}>
                       <SelectValue placeholder={t('Välj...', 'Select...')} />
                     </SelectTrigger>
@@ -343,35 +444,54 @@ export function ROICalculator() {
                   </div>
                 </div>
 
-                {/* 3. Weekly Leads */}
-                <div className="space-y-2">
-                  <Label className={`flex items-center ${errors.weeklyLeads ? 'text-destructive' : ''}`}>
-                    <Users className="w-4 h-4 mr-1.5 text-muted-foreground" />
-                    {t('Önskade kunder/vecka', 'Desired customers/week')} *
+                {/* 3. Current Customers per Week - SLIDER */}
+                <div className="space-y-4">
+                  <Label className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      <Users className="w-4 h-4 mr-1.5 text-muted-foreground" />
+                      {t('Kunder per vecka just nu', 'Current customers per week')}
+                    </span>
+                    <span className="text-lg font-bold text-accent">{currentCustomers[0]}</span>
                   </Label>
-                  <Input
-                    type="number"
-                    placeholder={t('T.ex. 10', 'E.g. 10')}
-                    value={weeklyLeads}
-                    onChange={(e) => { setWeeklyLeads(e.target.value); setErrors(er => ({...er, weeklyLeads: false})); }}
-                    className={errors.weeklyLeads ? 'border-destructive' : ''}
+                  <Slider
+                    value={currentCustomers}
+                    onValueChange={setCurrentCustomers}
+                    min={1}
+                    max={100}
+                    step={1}
+                    className="w-full"
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>1</span>
+                    <span>50</span>
+                    <span>100+</span>
+                  </div>
                 </div>
 
-                {/* 4. Average Customer Value */}
-                <div className="space-y-2">
-                  <Label className={`flex items-center ${errors.avgCustomerValue ? 'text-destructive' : ''}`}>
-                    {t('Genomsnittligt kundvärde', 'Average customer value')} *
+                {/* 4. Average Customer Value - SLIDER */}
+                <div className="space-y-4">
+                  <Label className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      {t('Snittintäkt', 'Avg. revenue')} {businessType && (
+                        <span className="text-muted-foreground ml-1">
+                          ({lang === 'sv' ? industry.valueLabel.sv : industry.valueLabel.en})
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-lg font-bold text-accent">€{avgCustomerValue[0]}</span>
                   </Label>
-                  <div className="relative">
-                    <Input
-                      type="number"
-                      placeholder={t('T.ex. 80', 'E.g. 80')}
-                      value={avgCustomerValue}
-                      onChange={(e) => { setAvgCustomerValue(e.target.value); setErrors(er => ({...er, avgCustomerValue: false})); }}
-                      className={`pr-10 ${errors.avgCustomerValue ? 'border-destructive' : ''}`}
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">€</span>
+                  <Slider
+                    value={avgCustomerValue}
+                    onValueChange={setAvgCustomerValue}
+                    min={industry.avgValue.min}
+                    max={industry.avgValue.max}
+                    step={5}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>€{industry.avgValue.min}</span>
+                    <span>€{Math.round((industry.avgValue.min + industry.avgValue.max) / 2)}</span>
+                    <span>€{industry.avgValue.max}</span>
                   </div>
                 </div>
 
@@ -436,76 +556,30 @@ export function ROICalculator() {
                   </div>
                 </div>
 
-                {/* 6. Conversion Rate */}
-                <div className="space-y-2">
-                  <Label className={`flex items-center ${errors.conversionRate ? 'text-destructive' : ''}`}>
-                    <Percent className="w-4 h-4 mr-1.5 text-muted-foreground" />
-                    {t('Hur många förfrågningar blir kunder?', 'How many enquiries become customers?')} *
+                {/* 6. Years in Business - SLIDER */}
+                <div className="space-y-4">
+                  <Label className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      <Clock className="w-4 h-4 mr-1.5 text-muted-foreground" />
+                      {t('År i branschen', 'Years in business')}
+                    </span>
+                    <span className="text-lg font-bold text-accent">
+                      {yearsInBusiness[0]} {t('år', 'years')}
+                    </span>
                   </Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {conversionOptions.map((option) => {
-                      const isSelected = conversionRate === option.id;
-                      return (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => { setConversionRate(option.id); setErrors(e => ({...e, conversionRate: false})); }}
-                          className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
-                            isSelected 
-                              ? 'border-accent bg-accent/10' 
-                              : errors.conversionRate 
-                                ? 'border-destructive/50' 
-                                : 'border-border hover:border-accent/50'
-                          }`}
-                        >
-                          {lang === 'sv' ? option.label.sv : option.label.en}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 7. Website Importance */}
-                <div className="space-y-2">
-                  <Label className={`flex items-center ${errors.websiteImportance ? 'text-destructive' : ''}`}>
-                    <TrendingUp className="w-4 h-4 mr-1.5 text-muted-foreground" />
-                    {t('Hur viktigt är hemsidan för din bransch?', 'How important is a website for your industry?')} *
-                  </Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {websiteImportanceOptions.map((option) => {
-                      const isSelected = websiteImportance === option.id;
-                      return (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => { setWebsiteImportance(option.id); setErrors(e => ({...e, websiteImportance: false})); }}
-                          className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
-                            isSelected 
-                              ? 'border-accent bg-accent/10' 
-                              : errors.websiteImportance 
-                                ? 'border-destructive/50' 
-                                : 'border-border hover:border-accent/50'
-                          }`}
-                        >
-                          {lang === 'sv' ? option.label.sv : option.label.en}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 8. Years in Business (optional) */}
-                <div className="space-y-2">
-                  <Label className="flex items-center text-muted-foreground">
-                    <Clock className="w-4 h-4 mr-1.5" />
-                    {t('År i branschen (valfritt)', 'Years in business (optional)')}
-                  </Label>
-                  <Input
-                    type="number"
-                    placeholder={t('T.ex. 3', 'E.g. 3')}
+                  <Slider
                     value={yearsInBusiness}
-                    onChange={(e) => setYearsInBusiness(e.target.value)}
+                    onValueChange={setYearsInBusiness}
+                    min={0}
+                    max={20}
+                    step={1}
+                    className="w-full"
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{t('Nystart', 'New')}</span>
+                    <span>10</span>
+                    <span>20+</span>
+                  </div>
                 </div>
 
                 <div className="flex gap-3 pt-2">
@@ -655,6 +729,12 @@ export function ROICalculator() {
                       {t('per år', 'per year')}
                     </p>
                   </div>
+                  
+                  {result.weeklyLost > 0 && (
+                    <p className="text-center text-sm text-muted-foreground">
+                      ≈ {result.weeklyLost} {lang === 'sv' ? industry.customerLabel.sv : industry.customerLabel.en} / {t('vecka', 'week')}
+                    </p>
+                  )}
                 </div>
 
                 {/* Recommendations */}
@@ -693,8 +773,8 @@ export function ROICalculator() {
                 {/* Disclaimer */}
                 <p className="text-xs text-muted-foreground text-center pt-2">
                   {t(
-                    'Uppskattningar baseras på dina svar och typiska konverteringsintervall.',
-                    'Estimates are based on your inputs and typical conversion ranges.'
+                    'Uppskattningar baseras på dina svar och branschdata.',
+                    'Estimates are based on your inputs and industry data.'
                   )}
                 </p>
 
