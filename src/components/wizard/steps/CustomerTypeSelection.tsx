@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Building2, User, Info, CheckCircle, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -88,6 +88,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
   const [isVerifyingVat, setIsVerifyingVat] = useState(false);
   const [vatError, setVatError] = useState<string | null>(null);
   const [orgError, setOrgError] = useState<string | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateField = <K extends keyof CustomerTypeData>(field: K, value: CustomerTypeData[K]) => {
     onChange({ ...data, [field]: value });
@@ -95,39 +96,15 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
 
   const selectedCountry = EU_COUNTRIES.find(c => c.code === data.country);
 
-  // Validate VAT number
-  useEffect(() => {
-    if (data.vatNumber && data.country) {
-      const isValidFormat = validateVatFormat(data.vatNumber, data.country);
-      if (!isValidFormat) {
-        setVatError(t('Ogiltigt format. Förväntat: ', 'Invalid format. Expected: ') + `${selectedCountry?.vatPrefix}XXXXXXXXX`);
-        updateField('vatVerified', false);
-        updateField('vatVerifiedAt', null);
-      } else {
-        setVatError(null);
-      }
-    } else {
-      setVatError(null);
-    }
-  }, [data.vatNumber, data.country]);
-
-  // Validate Org number
-  useEffect(() => {
-    if (data.orgNumber && data.country) {
-      const isValidFormat = validateOrgFormat(data.orgNumber, data.country);
-      if (!isValidFormat) {
-        setOrgError(t('Ogiltigt format. Förväntat: ', 'Invalid format. Expected: ') + selectedCountry?.orgFormat);
-      } else {
-        setOrgError(null);
-      }
-    } else {
-      setOrgError(null);
-    }
-  }, [data.orgNumber, data.country]);
-
   // Real VIES verification via edge function
-  const verifyVat = async () => {
-    if (!data.vatNumber || vatError) return;
+  const verifyVat = useCallback(async (vatToVerify: string, country: string, currentData: CustomerTypeData) => {
+    if (!vatToVerify) return;
+    
+    // Check format first
+    const isValidFormat = validateVatFormat(vatToVerify, country);
+    if (!isValidFormat) {
+      return;
+    }
     
     setIsVerifyingVat(true);
     
@@ -141,8 +118,8 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
             'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
           body: JSON.stringify({
-            vatNumber: data.vatNumber,
-            countryCode: data.country,
+            vatNumber: vatToVerify,
+            countryCode: country,
           }),
         }
       );
@@ -150,21 +127,67 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
       const result = await response.json();
       
       if (result.valid) {
-        updateField('vatVerified', true);
-        updateField('vatVerifiedAt', result.verifiedAt || new Date().toISOString());
+        onChange({ 
+          ...currentData, 
+          vatVerified: true, 
+          vatVerifiedAt: result.verifiedAt || new Date().toISOString() 
+        });
         setVatError(null);
       } else {
         setVatError(result.message || t('VAT-nummer kunde inte verifieras', 'VAT number could not be verified'));
-        updateField('vatVerified', false);
+        onChange({ ...currentData, vatVerified: false, vatVerifiedAt: null });
       }
     } catch (error) {
       console.error('VAT verification error:', error);
       setVatError(t('Kunde inte verifiera VAT-nummer. Försök igen.', 'Could not verify VAT number. Please try again.'));
-      updateField('vatVerified', false);
+      onChange({ ...currentData, vatVerified: false, vatVerifiedAt: null });
     }
     
     setIsVerifyingVat(false);
-  };
+  }, [t, onChange]);
+
+  // Validate VAT number format and auto-verify with debounce
+  useEffect(() => {
+    if (data.vatNumber && data.country) {
+      const isValidFormat = validateVatFormat(data.vatNumber, data.country);
+      if (!isValidFormat) {
+        setVatError(t('Ogiltigt format. Förväntat: ', 'Invalid format. Expected: ') + `${selectedCountry?.vatPrefix}XXXXXXXXX`);
+      } else {
+        setVatError(null);
+        // Auto-verify with debounce when format is valid
+        if (!data.vatVerified) {
+          if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+          }
+          debounceTimerRef.current = setTimeout(() => {
+            verifyVat(data.vatNumber, data.country, data);
+          }, 800);
+        }
+      }
+    } else {
+      setVatError(null);
+    }
+    
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [data.vatNumber, data.country, data.vatVerified, verifyVat, selectedCountry?.vatPrefix, t]);
+
+  // Validate Org number
+  useEffect(() => {
+    if (data.orgNumber && data.country) {
+      const isValidFormat = validateOrgFormat(data.orgNumber, data.country);
+      if (!isValidFormat) {
+        setOrgError(t('Ogiltigt format. Förväntat: ', 'Invalid format. Expected: ') + selectedCountry?.orgFormat);
+      } else {
+        setOrgError(null);
+      }
+    } else {
+      setOrgError(null);
+    }
+  }, [data.orgNumber, data.country, selectedCountry?.orgFormat, t]);
 
   return (
     <div className="space-y-6">
@@ -289,37 +312,35 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                   />
                 </Label>
                 <div className="flex gap-2 mt-1">
-                  <Input
-                    value={data.vatNumber}
-                    onChange={(e) => {
-                      updateField('vatNumber', e.target.value.toUpperCase());
-                      updateField('vatVerified', false);
-                      updateField('vatVerifiedAt', null);
-                    }}
-                    placeholder={`${selectedCountry?.vatPrefix || 'SE'}XXXXXXXXXXXX`}
-                    className={cn('h-12 flex-1', vatError && 'border-destructive', data.vatVerified && 'border-green-500')}
-                  />
-                  {data.vatNumber && !vatError && (
-                    <button
-                      type="button"
-                      onClick={verifyVat}
-                      disabled={isVerifyingVat || data.vatVerified}
+                  <div className="relative flex-1">
+                    <Input
+                      value={data.vatNumber}
+                      onChange={(e) => {
+                        onChange({ 
+                          ...data, 
+                          vatNumber: e.target.value.toUpperCase(),
+                          vatVerified: false,
+                          vatVerifiedAt: null
+                        });
+                      }}
+                      placeholder={`${selectedCountry?.vatPrefix || 'SE'}XXXXXXXXXXXX`}
                       className={cn(
-                        'px-4 h-12 rounded-lg font-medium transition-colors',
-                        data.vatVerified 
-                          ? 'bg-green-500/20 text-green-500'
-                          : 'bg-accent text-accent-foreground hover:bg-accent/90'
+                        'h-12 w-full bg-background', 
+                        vatError && 'border-destructive', 
+                        data.vatVerified && 'border-green-500 pr-10'
                       )}
-                    >
-                      {isVerifyingVat ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : data.vatVerified ? (
-                        <CheckCircle className="w-4 h-4" />
-                      ) : (
-                        t('Verifiera', 'Verify')
-                      )}
-                    </button>
-                  )}
+                    />
+                    {isVerifyingVat && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Loader2 className="w-5 h-5 animate-spin text-accent" />
+                      </div>
+                    )}
+                    {data.vatVerified && !isVerifyingVat && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {vatError && (
                   <p className="text-sm text-destructive mt-1">{vatError}</p>
