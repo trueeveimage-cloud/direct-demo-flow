@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
-import { CheckoutUpsells, FreeInclusions } from '@/components/CheckoutUpsells';
+import { CheckoutUpsells } from '@/components/CheckoutUpsells';
 import { CustomerTypeSelection, CustomerTypeData, initialCustomerTypeData, validateCustomerType } from './CustomerTypeSelection';
 import { CheckoutTrustSection } from './CheckoutTrustSection';
 import { WizardFormData, packages, carePlans, BOOKING_ADDON_PRICE, VERIFICATION_FEE } from '../wizardConfig';
@@ -221,9 +221,6 @@ export function Step5Payment({
         selectedPackage={formData.selectedPackage} 
         isPostDemoFlow={isPostDemoFlow} 
       />
-
-      {/* FREE Inclusions */}
-      <FreeInclusions />
 
       {/* Upsells */}
       <CheckoutUpsells 
