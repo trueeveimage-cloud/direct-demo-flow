@@ -44,7 +44,7 @@ function sanitizeString(str: unknown, maxLength = 500): string {
   return str.slice(0, maxLength).replace(/[<>]/g, "");
 }
 
-// Package price IDs from Stripe (one-time payments in EUR)
+// Package price IDs from Stripe (one-time payments in EUR) - NET prices (without VAT)
 const PACKAGE_PRICES: Record<string, string> = {
   starter: "price_1Shc6N74JfaAfHsdaVZU5rQL",   // €440 (€490 - €50 deposit)
   standard: "price_1Shc6274JfaAfHsdSQEMwWZ0", // €740 (€790 - €50 deposit)
@@ -83,6 +83,33 @@ interface CheckoutRequest {
   vatNumber?: string;
   vatVerified?: boolean;
   country?: string;
+}
+
+// Helper to get or create a 25% VAT tax rate
+async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
+  // List existing tax rates to find a 25% VAT rate
+  const existingRates = await stripe.taxRates.list({ limit: 100, active: true });
+  const vatRate = existingRates.data.find(
+    (rate: Stripe.TaxRate) => rate.percentage === 25 && rate.display_name.toLowerCase().includes("vat") && rate.inclusive === false
+  );
+  
+  if (vatRate) {
+    console.log("[CREATE-PACKAGE-CHECKOUT] Found existing VAT tax rate", { id: vatRate.id });
+    return vatRate.id;
+  }
+  
+  // Create a new 25% VAT tax rate
+  const newRate = await stripe.taxRates.create({
+    display_name: "VAT",
+    description: "Swedish VAT 25%",
+    percentage: 25,
+    inclusive: false,
+    country: "SE",
+    jurisdiction: "Sweden",
+  });
+  
+  console.log("[CREATE-PACKAGE-CHECKOUT] Created new VAT tax rate", { id: newRate.id });
+  return newRate.id;
 }
 
 serve(async (req) => {
@@ -188,6 +215,25 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
+    // Determine if VAT should be applied
+    // Apply 25% VAT for:
+    // - Private customers (regardless of country, assuming EU)
+    // - Swedish businesses (with or without VAT number)
+    // - Non-EU businesses or businesses without valid VAT number
+    // Do NOT apply VAT for:
+    // - EU businesses with valid VAT number (reverse charge)
+    const shouldApplyVat = customerType === "private" || 
+      (customerType === "business" && customerCountry === "SE") ||
+      (customerType === "business" && !vatVerified);
+
+    let taxRateId: string | null = null;
+    if (shouldApplyVat) {
+      taxRateId = await getOrCreateVatTaxRate(stripe);
+      console.log("[CREATE-PACKAGE-CHECKOUT] Will apply VAT tax rate", { taxRateId });
+    } else {
+      console.log("[CREATE-PACKAGE-CHECKOUT] No VAT (reverse charge for EU B2B)", { vatVerified, customerCountry });
+    }
+
     // Check for existing customer
     let customerId: string | undefined;
     if (email) {
@@ -200,11 +246,12 @@ serve(async (req) => {
 
     const safeOrigin = origin || "https://nomia.se";
     
-    // Build line items - only one-time payments (NO care plan - that's billed separately)
-    const lineItems: Array<{ price: string; quantity: number }> = [
+    // Build line items with tax rates - only one-time payments (NO care plan - that's billed separately)
+    const lineItems: Array<{ price: string; quantity: number; tax_rates?: string[] }> = [
       {
         price: priceId,
         quantity: 1,
+        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       },
     ];
 
@@ -213,6 +260,7 @@ serve(async (req) => {
       lineItems.push({
         price: BOOKING_ADDON_PRICE_ID,
         quantity: 1,
+        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
       console.log("[CREATE-PACKAGE-CHECKOUT] Added booking add-on to checkout", { bookingAddonCost });
     }
@@ -222,6 +270,7 @@ serve(async (req) => {
       lineItems.push({
         price: ADMIN_PANEL_PRICE_ID,
         quantity: 1,
+        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
       console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on to checkout");
     }
@@ -238,13 +287,7 @@ serve(async (req) => {
       successUrl.searchParams.set("care_yearly", String(isYearly));
     }
 
-    // Determine if we should apply automatic tax (for Swedish customers = 25% VAT)
-    // EU business with valid VAT = reverse charge (no VAT)
-    const shouldApplyTax = customerType === "private" || 
-      (customerType === "business" && customerCountry === "SE") ||
-      (customerType === "business" && !vatVerified);
-
-    const sessionConfig: any = {
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : email,
       customer_creation: customerId ? undefined : 'always',
@@ -254,6 +297,7 @@ serve(async (req) => {
       allow_promotion_codes: true,
       success_url: successUrl.toString(),
       cancel_url: `${safeOrigin}/betalning-avbruten`,
+      tax_id_collection: { enabled: true },
       metadata: {
         packageId,
         conceptLink: (conceptLink || "").slice(0, 500), // Stripe metadata 500 char limit
@@ -277,22 +321,17 @@ serve(async (req) => {
         primaryColor,
         accentColor,
         services: services.slice(0, 500),
+        vatApplied: String(shouldApplyVat),
       },
     };
 
-    // Apply automatic tax collection for applicable customers
-    if (shouldApplyTax) {
-      sessionConfig.automatic_tax = { enabled: true };
-      console.log("[CREATE-PACKAGE-CHECKOUT] Automatic tax enabled");
-    } else {
-      // EU B2B with valid VAT - add tax exemption note
-      sessionConfig.tax_id_collection = { enabled: true };
-      console.log("[CREATE-PACKAGE-CHECKOUT] Tax ID collection enabled for B2B reverse charge");
-    }
-
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
-    console.log("[CREATE-PACKAGE-CHECKOUT] Checkout session created", { sessionId: session.id });
+    console.log("[CREATE-PACKAGE-CHECKOUT] Checkout session created", { 
+      sessionId: session.id,
+      vatApplied: shouldApplyVat,
+      taxRateId 
+    });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
