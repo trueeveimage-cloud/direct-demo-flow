@@ -368,13 +368,28 @@ function WebsiteOrderWizardComponent({
     (isPostDemoFlow ? VERIFICATION_FEE : 0);
 
   return (
-    <div className="min-h-screen section-padding py-8 sm:py-12 relative overflow-hidden">
+    <div className="min-h-screen section-padding py-6 sm:py-12 relative overflow-hidden">
       <WizardBackground />
       
       <PackageCompareModal open={showPackageCompare} onOpenChange={setShowPackageCompare} />
       <CarePlansCompareModal open={showCarePlanCompare} onOpenChange={setShowCarePlanCompare} isYearly={formData.isYearlyCarePlan} />
+      <AdminPanelUpsellModal 
+        open={showAdminPanelModal} 
+        onOpenChange={setShowAdminPanelModal}
+        onAccept={() => {
+          setAddedAdminPanel(true);
+          setShowAdminPanelModal(false);
+          setAdminPanelDecision(true);
+          handleSubmit();
+        }}
+        onDecline={() => {
+          setShowAdminPanelModal(false);
+          setAdminPanelDecision(true);
+          handleSubmit();
+        }}
+      />
 
-      <div className="container-wide relative z-10 max-w-6xl mx-auto">
+      <div className="container-wide relative z-10 max-w-6xl mx-auto px-3 sm:px-6">
         {/* Resume Banner */}
         <AnimatePresence>
           {showResumeBanner && (
@@ -428,7 +443,7 @@ function WebsiteOrderWizardComponent({
         <WizardStepper currentStep={step} />
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-[1fr,320px] gap-6 lg:gap-8">
+        <div className="grid lg:grid-cols-[1fr,320px] gap-4 sm:gap-6 lg:gap-8">
           {/* Form Steps */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -480,28 +495,38 @@ function WebsiteOrderWizardComponent({
               )}
 
               {/* Navigation Buttons */}
-              <div className="flex justify-between mt-6 sm:mt-8 gap-3">
+              <div className="flex justify-between mt-4 sm:mt-8 gap-2 sm:gap-3">
                 <Button 
                   variant="outline" 
                   onClick={handlePrevStep}
                   disabled={step === 1}
-                  className="group"
+                  className="group h-11 sm:h-12 px-3 sm:px-4"
+                  size="sm"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
+                  <ArrowLeft className="w-4 h-4 sm:mr-2 transition-transform group-hover:-translate-x-1" />
                   <span className="hidden sm:inline">{t('Tillbaka', 'Back')}</span>
                 </Button>
                 
                 {step < 6 ? (
-                  <Button size="lg" onClick={handleNextStep} className="group flex-1 sm:flex-initial sm:min-w-[160px]">
+                  <Button 
+                    onClick={handleNextStep} 
+                    className="group flex-1 sm:flex-initial sm:min-w-[160px] h-11 sm:h-12"
+                  >
                     {t('Fortsätt', 'Continue')}
                     <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                   </Button>
                 ) : (
                   <Button 
-                    size="lg" 
-                    onClick={handleSubmit}
+                    onClick={() => {
+                      // Show admin panel popup if not already decided
+                      if (!addedAdminPanel && !adminPanelDecision) {
+                        setShowAdminPanelModal(true);
+                      } else {
+                        handleSubmit();
+                      }
+                    }}
                     disabled={isLoading}
-                    className="flex-1 sm:flex-initial sm:min-w-[200px]"
+                    className="flex-1 sm:flex-initial sm:min-w-[200px] h-11 sm:h-12"
                   >
                     {isLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -530,30 +555,40 @@ function WebsiteOrderWizardComponent({
         </div>
 
         {/* Mobile: Fixed bottom bar */}
-        <div className="lg:hidden h-20" />
+        <div className="lg:hidden h-24" />
         <motion.div 
           initial={{ y: 100 }}
           animate={{ y: 0 }}
-          className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-md border-t z-50"
+          className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-md border-t z-50 safe-area-bottom"
         >
-          <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
+          <div className="flex items-center justify-between gap-2 max-w-lg mx-auto">
             {step === 6 && pkg ? (
               <>
-                <div className="flex-shrink-0">
-                  <p className="text-xs text-muted-foreground">{t('Totalt', 'Total')}</p>
-                  <p className="text-lg font-bold">{formatPrice(totalPrice)}</p>
+                <div className="flex-shrink-0 min-w-0">
+                  <p className="text-[10px] text-muted-foreground">{t('Totalt', 'Total')}</p>
+                  <p className="text-base font-bold truncate">{formatPrice(totalPrice)}</p>
                 </div>
-                <Button size="lg" onClick={handleSubmit} disabled={isLoading} className="flex-1 max-w-[160px]">
+                <Button 
+                  onClick={() => {
+                    if (!addedAdminPanel && !adminPanelDecision) {
+                      setShowAdminPanelModal(true);
+                    } else {
+                      handleSubmit();
+                    }
+                  }} 
+                  disabled={isLoading} 
+                  className="flex-1 max-w-[140px] h-11"
+                >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('Betala', 'Pay')}
                 </Button>
               </>
             ) : (
               <>
-                <div className="flex-shrink-0 text-sm text-muted-foreground">
-                  {t('Steg', 'Step')} {step}/6
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="font-medium">{t('Steg', 'Step')} {step}/6</span>
                 </div>
-                <Button size="lg" onClick={handleNextStep} className="flex-1 max-w-[180px]">
-                  {t('Fortsätt', 'Continue')} <ArrowRight className="w-4 h-4 ml-2" />
+                <Button onClick={handleNextStep} className="flex-1 max-w-[160px] h-11">
+                  {t('Fortsätt', 'Continue')} <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </>
             )}
