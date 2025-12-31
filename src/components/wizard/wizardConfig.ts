@@ -393,12 +393,13 @@ export const freeEssentials = [
   { id: 'checkout', label: { sv: 'Kassasystem', en: 'Checkout system' }, always: false },
 ];
 
-export type FormStep = 1 | 2 | 3 | 4 | 5;
+export type FormStep = 1 | 2 | 3 | 4 | 5 | 6;
 
 export const stepInfo = [
   { num: 1, labelSv: 'Kontakt', labelEn: 'Contact' },
   { num: 2, labelSv: 'Paket', labelEn: 'Package' },
   { num: 3, labelSv: 'Sidor', labelEn: 'Pages' },
   { num: 4, labelSv: 'Vårdplan', labelEn: 'Care plan' },
-  { num: 5, labelSv: 'Betalning', labelEn: 'Payment' },
+  { num: 5, labelSv: 'Detaljer', labelEn: 'Details' },
+  { num: 6, labelSv: 'Betalning', labelEn: 'Payment' },
 ];

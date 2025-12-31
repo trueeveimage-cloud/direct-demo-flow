@@ -12,8 +12,7 @@ const ALLOWED_ORIGINS = [
 // Helper to validate origin
 function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) return false;
-  // Allow Lovable preview domains
-  if (origin.includes("lovableproject.com") || origin.includes("lovable.dev")) {
+  if (origin.includes("lovableproject.com") || origin.includes("lovable.dev") || origin.includes("lovable.app")) {
     return true;
   }
   return ALLOWED_ORIGINS.some(allowed => origin === allowed || origin.startsWith(allowed));
@@ -62,6 +61,29 @@ interface CheckoutRequest {
   customerType?: 'private' | 'business';
   vatVerified?: boolean;
   country?: string;
+}
+
+// Helper to get or create a 25% VAT tax rate
+async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
+  const existingRates = await stripe.taxRates.list({ limit: 100, active: true });
+  const vatRate = existingRates.data.find(
+    (rate: Stripe.TaxRate) => rate.percentage === 25 && rate.display_name.toLowerCase().includes("vat") && rate.inclusive === false
+  );
+  
+  if (vatRate) {
+    return vatRate.id;
+  }
+  
+  const newRate = await stripe.taxRates.create({
+    display_name: "VAT",
+    description: "Swedish VAT 25%",
+    percentage: 25,
+    inclusive: false,
+    country: "SE",
+    jurisdiction: "Sweden",
+  });
+  
+  return newRate.id;
 }
 
 serve(async (req) => {
@@ -143,6 +165,19 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
+    // Determine if VAT should be applied
+    const shouldApplyVat = customerType === "private" || 
+      (customerType === "business" && customerCountry === "SE") ||
+      (customerType === "business" && !vatVerified);
+
+    let taxRateId: string | null = null;
+    if (shouldApplyVat) {
+      taxRateId = await getOrCreateVatTaxRate(stripe);
+      console.log("[CREATE-CARE-PLAN-CHECKOUT] Will apply VAT tax rate", { taxRateId });
+    } else {
+      console.log("[CREATE-CARE-PLAN-CHECKOUT] No VAT (reverse charge for EU B2B)");
+    }
+
     // Check for existing customer
     let customerId: string | undefined;
     if (email) {
@@ -155,43 +190,47 @@ serve(async (req) => {
 
     const safeOrigin = origin || "https://nomia.se";
 
-    // Determine if we should apply automatic tax
-    const shouldApplyTax = customerType === "private" || 
-      (customerType === "business" && customerCountry === "SE") ||
-      (customerType === "business" && !vatVerified);
+    // Build line items with tax rates for subscriptions
+    const lineItems: Array<{ price: string; quantity: number; tax_rates?: string[] }> = [
+      {
+        price: priceId,
+        quantity: 1,
+        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+      },
+    ];
 
-    const sessionConfig: any = {
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : email,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      customer_creation: customerId ? undefined : 'always',
+      billing_address_collection: 'required',
+      line_items: lineItems,
       mode: "subscription",
       allow_promotion_codes: true,
       success_url: `${safeOrigin}/betalning-klar?session_id={CHECKOUT_SESSION_ID}&care_complete=true`,
       cancel_url: `${safeOrigin}/betalning-avbruten`,
+      tax_id_collection: { enabled: true },
+      subscription_data: {
+        metadata: {
+          carePlanId,
+          isYearly: String(isYearly),
+          vatApplied: String(shouldApplyVat),
+        },
+      },
       metadata: {
         carePlanId,
         isYearly: String(isYearly),
         customerType,
+        vatApplied: String(shouldApplyVat),
       },
     };
 
-    // Apply automatic tax collection for applicable customers
-    if (shouldApplyTax) {
-      sessionConfig.automatic_tax = { enabled: true };
-      console.log("[CREATE-CARE-PLAN-CHECKOUT] Automatic tax enabled");
-    } else {
-      sessionConfig.tax_id_collection = { enabled: true };
-      console.log("[CREATE-CARE-PLAN-CHECKOUT] Tax ID collection enabled for B2B reverse charge");
-    }
-
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
-    console.log("[CREATE-CARE-PLAN-CHECKOUT] Checkout session created", { sessionId: session.id });
+    console.log("[CREATE-CARE-PLAN-CHECKOUT] Checkout session created", { 
+      sessionId: session.id,
+      vatApplied: shouldApplyVat 
+    });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
