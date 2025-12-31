@@ -291,6 +291,8 @@ serve(async (req) => {
       customer: customerId,
       customer_email: customerId ? undefined : email,
       customer_creation: customerId ? undefined : 'always',
+      // Fix: When using tax_id_collection with existing customer, must allow name update
+      customer_update: customerId ? { name: 'auto', address: 'auto' } : undefined,
       billing_address_collection: 'required',
       line_items: lineItems,
       mode,

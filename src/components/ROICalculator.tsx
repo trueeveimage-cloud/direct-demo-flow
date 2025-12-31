@@ -190,7 +190,11 @@ export function ROICalculator() {
   const [businessType, setBusinessType] = useState('');
   const [primaryGoal, setPrimaryGoal] = useState('');
   const [currentCustomers, setCurrentCustomers] = useState([10]); // slider value
+  const [showCustomCustomers, setShowCustomCustomers] = useState(false);
+  const [customCustomersValue, setCustomCustomersValue] = useState('');
   const [avgCustomerValue, setAvgCustomerValue] = useState([50]); // slider value
+  const [showCustomValue, setShowCustomValue] = useState(false);
+  const [customValueInput, setCustomValueInput] = useState('');
   
   // Form state - Page 2
   const [currentPresence, setCurrentPresence] = useState<string[]>([]);
@@ -206,13 +210,21 @@ export function ROICalculator() {
   const [calcStepIndex, setCalcStepIndex] = useState(0);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
+  // Get effective values (custom or slider)
+  const effectiveCustomers = showCustomCustomers && customCustomersValue 
+    ? parseInt(customCustomersValue) || 100 
+    : currentCustomers[0];
+  const effectiveValue = showCustomValue && customValueInput 
+    ? parseInt(customValueInput) || 500 
+    : avgCustomerValue[0];
+
   // Get industry config
   const industry = industryData[businessType] || industryData.other;
 
   // Calculate result based on industry-specific logic
   const result = useMemo(() => {
-    const customers = currentCustomers[0];
-    const value = avgCustomerValue[0];
+    const customers = effectiveCustomers;
+    const value = effectiveValue;
     const years = yearsInBusiness[0];
     
     // Get lost factor from current presence (average of selected)
@@ -247,7 +259,7 @@ export function ROICalculator() {
       weeklyLost: Math.round(weeklyLostCustomers * 10) / 10,
       recommendations: getRecommendations(primaryGoal || 'trust', businessType, lang),
     };
-  }, [avgCustomerValue, currentCustomers, currentPresence, yearsInBusiness, industry, primaryGoal, businessType, lang]);
+  }, [effectiveValue, effectiveCustomers, currentPresence, yearsInBusiness, industry, primaryGoal, businessType, lang]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-EU', { 
@@ -324,7 +336,11 @@ export function ROICalculator() {
     setBusinessType('');
     setPrimaryGoal('');
     setCurrentCustomers([10]);
+    setShowCustomCustomers(false);
+    setCustomCustomersValue('');
     setAvgCustomerValue([50]);
+    setShowCustomValue(false);
+    setCustomValueInput('');
     setCurrentPresence([]);
     setYearsInBusiness([3]);
     setEmail('');
@@ -453,31 +469,65 @@ export function ROICalculator() {
                   </div>
                 </div>
 
-                {/* 3. Current Customers per Week - SLIDER */}
+                {/* 3. Current Customers per Week - SLIDER with custom option */}
                 <div className="space-y-4">
                   <Label className="flex items-center justify-between">
                     <span className="flex items-center">
                       <Users className="w-4 h-4 mr-1.5 text-muted-foreground" />
                       {t('Kunder per vecka just nu', 'Current customers per week')}
                     </span>
-                    <span className="text-lg font-bold text-accent">{currentCustomers[0]}</span>
+                    {showCustomCustomers ? (
+                      <Input
+                        type="number"
+                        value={customCustomersValue}
+                        onChange={(e) => setCustomCustomersValue(e.target.value)}
+                        placeholder="100+"
+                        className="w-24 h-8 text-right font-bold text-accent"
+                        min={100}
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="text-lg font-bold text-accent">{currentCustomers[0]}</span>
+                    )}
                   </Label>
-                  <Slider
-                    value={currentCustomers}
-                    onValueChange={setCurrentCustomers}
-                    min={1}
-                    max={100}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>1</span>
-                    <span>50</span>
-                    <span>100+</span>
-                  </div>
+                  {!showCustomCustomers ? (
+                    <>
+                      <Slider
+                        value={currentCustomers}
+                        onValueChange={(val) => {
+                          setCurrentCustomers(val);
+                          if (val[0] >= 100) {
+                            setShowCustomCustomers(true);
+                            setCustomCustomersValue('');
+                          }
+                        }}
+                        min={1}
+                        max={100}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>1</span>
+                        <span>50</span>
+                        <span>100+</span>
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCustomCustomers(false);
+                        setCustomCustomersValue('');
+                        setCurrentCustomers([50]);
+                      }}
+                      className="text-xs text-accent hover:underline"
+                    >
+                      {t('← Tillbaka till skjutreglaget', '← Back to slider')}
+                    </button>
+                  )}
                 </div>
 
-                {/* 4. Average Customer Value - SLIDER + INPUT */}
+                {/* 4. Average Customer Value - SLIDER + Custom option */}
                 <div className="space-y-4">
                   <Label className="flex items-center justify-between">
                     <span className="flex items-center">
@@ -489,32 +539,66 @@ export function ROICalculator() {
                     </span>
                     <div className="flex items-center gap-1">
                       <span className="text-muted-foreground">€</span>
-                      <Input
-                        type="number"
-                        value={avgCustomerValue[0]}
-                        onChange={(e) => {
-                          const val = Math.max(industry.avgValue.min, Math.min(industry.avgValue.max, Number(e.target.value) || industry.avgValue.min));
-                          setAvgCustomerValue([val]);
-                        }}
-                        className="w-20 h-8 text-right font-bold text-accent"
-                        min={industry.avgValue.min}
-                        max={industry.avgValue.max}
-                      />
+                      {showCustomValue ? (
+                        <Input
+                          type="number"
+                          value={customValueInput}
+                          onChange={(e) => setCustomValueInput(e.target.value)}
+                          placeholder={`${industry.avgValue.max}+`}
+                          className="w-24 h-8 text-right font-bold text-accent"
+                          min={industry.avgValue.max}
+                          autoFocus
+                        />
+                      ) : (
+                        <Input
+                          type="number"
+                          value={avgCustomerValue[0]}
+                          onChange={(e) => {
+                            const val = Math.max(industry.avgValue.min, Math.min(industry.avgValue.max, Number(e.target.value) || industry.avgValue.min));
+                            setAvgCustomerValue([val]);
+                          }}
+                          className="w-20 h-8 text-right font-bold text-accent"
+                          min={industry.avgValue.min}
+                          max={industry.avgValue.max}
+                        />
+                      )}
                     </div>
                   </Label>
-                  <Slider
-                    value={avgCustomerValue}
-                    onValueChange={setAvgCustomerValue}
-                    min={industry.avgValue.min}
-                    max={industry.avgValue.max}
-                    step={5}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>€{industry.avgValue.min}</span>
-                    <span>€{Math.round((industry.avgValue.min + industry.avgValue.max) / 2)}</span>
-                    <span>€{industry.avgValue.max}</span>
-                  </div>
+                  {!showCustomValue ? (
+                    <>
+                      <Slider
+                        value={avgCustomerValue}
+                        onValueChange={(val) => {
+                          setAvgCustomerValue(val);
+                          if (val[0] >= industry.avgValue.max) {
+                            setShowCustomValue(true);
+                            setCustomValueInput('');
+                          }
+                        }}
+                        min={industry.avgValue.min}
+                        max={industry.avgValue.max}
+                        step={5}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>€{industry.avgValue.min}</span>
+                        <span>€{Math.round((industry.avgValue.min + industry.avgValue.max) / 2)}</span>
+                        <span>€{industry.avgValue.max}+</span>
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCustomValue(false);
+                        setCustomValueInput('');
+                        setAvgCustomerValue([Math.round(industry.avgValue.max / 2)]);
+                      }}
+                      className="text-xs text-accent hover:underline"
+                    >
+                      {t('← Tillbaka till skjutreglaget', '← Back to slider')}
+                    </button>
+                  )}
                 </div>
 
                 <Button 
