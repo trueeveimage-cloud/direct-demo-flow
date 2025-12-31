@@ -8,6 +8,8 @@ import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Layout } from "@/components/Layout";
 import { NomiaIntro, useNomiaIntro } from "@/components/NomiaIntro";
+import { CookieConsent } from "@/components/CookieConsent";
+import { SEOHead } from "@/components/SEOHead";
 import { getAnalytics } from "@/lib/posthog";
 import Index from "./pages/Index";
 import FreeDemoPage from "./pages/FreeDemoPage";
@@ -64,6 +66,7 @@ function AppContent() {
         <NomiaIntro onComplete={handleIntroComplete} />
       )}
       <BrowserRouter>
+        <SEOHead />
         <Layout>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -83,6 +86,7 @@ function AppContent() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
+        <CookieConsent />
       </BrowserRouter>
     </>
   );
