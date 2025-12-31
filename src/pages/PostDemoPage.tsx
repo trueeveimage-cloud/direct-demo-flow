@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, XCircle, FileText, Star, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowRight, CheckCircle2, XCircle, FileText, Star, AlertCircle, RotateCcw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,12 +12,16 @@ import { toast } from '@/hooks/use-toast';
 import { setVerificationPaid } from '@/config/stripe';
 import { WebsiteOrderWizard } from '@/components/wizard';
 
+const POST_DEMO_STORAGE_KEY = 'nomia_postdemo_data';
+const POST_DEMO_SESSION_KEY = 'nomia_postdemo_session';
+
 export default function PostDemoPage() {
   const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const [selectedOption, setSelectedOption] = useState<'proceed' | 'refund' | null>(null);
   const [conceptLink, setConceptLink] = useState('');
   const [conceptLinkError, setConceptLinkError] = useState(false);
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
   
   // Refund flow state
   const [refundStep, setRefundStep] = useState(1);
@@ -35,6 +39,52 @@ export default function PostDemoPage() {
       setVerificationPaid();
     }
   }, [searchParams]);
+
+  // Check for saved data on mount
+  useEffect(() => {
+    const wasSessionActive = sessionStorage.getItem(POST_DEMO_SESSION_KEY);
+    const stored = localStorage.getItem(POST_DEMO_STORAGE_KEY);
+    
+    if (stored && !wasSessionActive) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
+          setShowResumeBanner(true);
+        } else {
+          localStorage.removeItem(POST_DEMO_STORAGE_KEY);
+        }
+      } catch {
+        localStorage.removeItem(POST_DEMO_STORAGE_KEY);
+      }
+    }
+    
+    sessionStorage.setItem(POST_DEMO_SESSION_KEY, 'true');
+  }, []);
+
+  // Auto-save data
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (conceptLink) {
+        const toSave = { conceptLink, lastSaved: Date.now() };
+        localStorage.setItem(POST_DEMO_STORAGE_KEY, JSON.stringify(toSave));
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [conceptLink]);
+
+  const loadSavedData = () => {
+    const stored = localStorage.getItem(POST_DEMO_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setConceptLink(parsed.conceptLink || '');
+    }
+    setShowResumeBanner(false);
+  };
+
+  const clearSavedData = () => {
+    localStorage.removeItem(POST_DEMO_STORAGE_KEY);
+    setShowResumeBanner(false);
+  };
 
   const validateConceptLink = (link: string): boolean => {
     try {
@@ -57,6 +107,7 @@ export default function PostDemoPage() {
       return;
     }
     setConceptLinkError(false);
+    localStorage.removeItem(POST_DEMO_STORAGE_KEY);
     setSelectedOption(option);
   };
 
@@ -253,20 +304,47 @@ export default function PostDemoPage() {
 
   // Initial page - concept link input
   return (
-    <div className="section-padding py-20">
-      <div className="container-narrow text-center">
+    <div className="section-padding py-12 sm:py-20">
+      <div className="container-narrow text-center px-4">
+        {/* Resume Banner */}
+        <AnimatePresence>
+          {showResumeBanner && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="max-w-md mx-auto mb-6 p-4 bg-accent/10 border border-accent/20 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-3">
+                <RotateCcw className="w-5 h-5 text-accent flex-shrink-0" />
+                <div className="text-left">
+                  <p className="font-medium text-sm">{t('Fortsätt där du slutade?', 'Continue where you left off?')}</p>
+                </div>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button variant="ghost" size="sm" onClick={clearSavedData} className="flex-1 sm:flex-initial">
+                  {t('Börja om', 'Start over')}
+                </Button>
+                <Button size="sm" onClick={loadSavedData} className="flex-1 sm:flex-initial">
+                  {t('Fortsätt', 'Continue')}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <AnimatedSection animation="fade-up">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-3xl sm:text-4xl font-bold mb-4">
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-2xl sm:text-4xl font-bold mb-4">
             {t('Har du fått ditt koncept?', 'Have you received your concept?')}
           </motion.h1>
-          <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+          <p className="text-sm sm:text-base text-muted-foreground mb-8 max-w-md mx-auto">
             {t('Klistra in länken till ditt koncept för att fortsätta.', 'Paste the link to your concept to continue.')}
           </p>
         </AnimatedSection>
 
         <AnimatedSection animation="fade-up" delay={100}>
           <div className="max-w-md mx-auto mb-8">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 justify-center">
               <Label>{t('Konceptlänk', 'Concept link')} *</Label>
               {conceptLinkError && <AlertCircle className="w-4 h-4 text-destructive" />}
             </div>
@@ -274,7 +352,7 @@ export default function PostDemoPage() {
               value={conceptLink}
               onChange={(e) => { setConceptLink(e.target.value); setConceptLinkError(false); }}
               placeholder="https://..."
-              className={`h-14 text-center ${conceptLinkError ? 'border-destructive' : ''}`}
+              className={`h-12 sm:h-14 text-center ${conceptLinkError ? 'border-destructive' : ''}`}
             />
           </div>
         </AnimatedSection>

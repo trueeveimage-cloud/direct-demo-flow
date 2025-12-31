@@ -55,6 +55,9 @@ interface BookingService {
   price: string;
 }
 
+const DEMO_STORAGE_KEY = 'nomia_demo_intake_v2';
+const DEMO_SESSION_KEY = 'nomia_demo_session';
+
 export default function FreeDemoPage() {
   const { t, lang } = useLanguage();
   const navigate = useNavigate();
@@ -63,6 +66,7 @@ export default function FreeDemoPage() {
   const [step, setStep] = useState<FormStep>(1);
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
 
   // Set dark mode on mount
   useEffect(() => {
@@ -118,6 +122,85 @@ export default function FreeDemoPage() {
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   const verificationFee = 500;
+
+  // Check for saved data on mount
+  useEffect(() => {
+    const wasSessionActive = sessionStorage.getItem(DEMO_SESSION_KEY);
+    const stored = localStorage.getItem(DEMO_STORAGE_KEY);
+    
+    if (stored && !wasSessionActive) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
+          setShowResumeBanner(true);
+        } else {
+          localStorage.removeItem(DEMO_STORAGE_KEY);
+        }
+      } catch {
+        localStorage.removeItem(DEMO_STORAGE_KEY);
+      }
+    }
+    
+    sessionStorage.setItem(DEMO_SESSION_KEY, 'true');
+  }, []);
+
+  // Auto-save data
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const toSave = {
+        step,
+        businessName, contactPerson, email, phone, currentWebsite,
+        businessType, businessTypeOther, websiteGoal,
+        selectedStyle, primaryColor, accentColor, noColorPreference,
+        services, wantsBooking, openingHours, appointmentLengths,
+        customAppointmentLength, bookingServices, bufferTime,
+        maxBookingsPerDay, advanceBookingDays, extraNotes,
+        lastSaved: Date.now()
+      };
+      localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(toSave));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [step, businessName, contactPerson, email, phone, currentWebsite,
+      businessType, businessTypeOther, websiteGoal, selectedStyle,
+      primaryColor, accentColor, noColorPreference, services, wantsBooking,
+      openingHours, appointmentLengths, customAppointmentLength, bookingServices,
+      bufferTime, maxBookingsPerDay, advanceBookingDays, extraNotes]);
+
+  const loadSavedData = () => {
+    const stored = localStorage.getItem(DEMO_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setStep(parsed.step || 1);
+      setBusinessName(parsed.businessName || '');
+      setContactPerson(parsed.contactPerson || '');
+      setEmail(parsed.email || '');
+      setPhone(parsed.phone || '');
+      setCurrentWebsite(parsed.currentWebsite || '');
+      setBusinessType(parsed.businessType || '');
+      setBusinessTypeOther(parsed.businessTypeOther || '');
+      setWebsiteGoal(parsed.websiteGoal || '');
+      setSelectedStyle(parsed.selectedStyle || '');
+      setPrimaryColor(parsed.primaryColor || '');
+      setAccentColor(parsed.accentColor || '');
+      setNoColorPreference(parsed.noColorPreference || false);
+      setServices(parsed.services || '');
+      setWantsBooking(parsed.wantsBooking ?? null);
+      setOpeningHours(parsed.openingHours || '');
+      setAppointmentLengths(parsed.appointmentLengths || []);
+      setCustomAppointmentLength(parsed.customAppointmentLength || '');
+      setBookingServices(parsed.bookingServices || [{ name: '', duration: '', price: '' }]);
+      setBufferTime(parsed.bufferTime || '');
+      setMaxBookingsPerDay(parsed.maxBookingsPerDay || '');
+      setAdvanceBookingDays(parsed.advanceBookingDays || '');
+      setExtraNotes(parsed.extraNotes || '');
+    }
+    setShowResumeBanner(false);
+  };
+
+  const clearSavedData = () => {
+    localStorage.removeItem(DEMO_STORAGE_KEY);
+    setShowResumeBanner(false);
+  };
 
   // Booking services management
   const addBookingService = () => {
@@ -319,20 +402,50 @@ export default function FreeDemoPage() {
 
 
   return (
-    <div className="min-h-screen section-padding py-12 relative overflow-hidden">
+    <div className="min-h-screen section-padding py-8 sm:py-12 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-20 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
         <div className="absolute bottom-40 -left-20 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="max-w-7xl mx-auto relative">
+      <div className="max-w-7xl mx-auto relative px-3 sm:px-6">
+        {/* Resume Banner */}
+        <AnimatePresence>
+          {showResumeBanner && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="max-w-2xl mx-auto mb-4 sm:mb-6 p-3 sm:p-4 bg-accent/10 border border-accent/20 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-4 h-4 text-accent" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">{t('Fortsätt där du slutade?', 'Continue where you left off?')}</p>
+                  <p className="text-xs text-muted-foreground">{t('Vi har sparat dina svar.', 'We\'ve saved your answers.')}</p>
+                </div>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button variant="ghost" size="sm" onClick={clearSavedData} className="flex-1 sm:flex-initial">
+                  {t('Börja om', 'Start over')}
+                </Button>
+                <Button size="sm" onClick={loadSavedData} className="flex-1 sm:flex-initial">
+                  {t('Fortsätt', 'Continue')}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
-        <AnimatedSection animation="fade-up" className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+        <AnimatedSection animation="fade-up" className="text-center mb-8 sm:mb-10">
+          <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2">
             {t('Se hur din framtida hemsida kan se ut gratis innan du betalar', 'See how your future website can look for free before you pay')}
           </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
             {t(
               'Fyll i formuläret så skapar vi ett unikt webb-koncept för dig inom 72 timmar.',
               'Fill in the form and we\'ll create a unique website concept for you within 72 hours.'
@@ -341,16 +454,16 @@ export default function FreeDemoPage() {
         </AnimatedSection>
 
         {/* Step Indicator */}
-        <AnimatedSection animation="fade-up" delay={50} className="mb-8">
-          <div className="flex items-center justify-center gap-4">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${step === 1 ? 'bg-accent text-accent-foreground' : 'bg-secondary text-muted-foreground'}`}>
-              <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">1</span>
-              <span className="font-medium">{t('Information', 'Information')}</span>
+        <AnimatedSection animation="fade-up" delay={50} className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-center gap-2 sm:gap-4">
+            <div className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full ${step === 1 ? 'bg-accent text-accent-foreground' : 'bg-secondary text-muted-foreground'}`}>
+              <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-background/20 flex items-center justify-center text-xs sm:text-sm font-bold">1</span>
+              <span className="font-medium text-sm sm:text-base">{t('Information', 'Information')}</span>
             </div>
-            <div className="w-8 h-0.5 bg-border" />
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${step === 2 ? 'bg-accent text-accent-foreground' : 'bg-secondary text-muted-foreground'}`}>
-              <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm font-bold">2</span>
-              <span className="font-medium">{t('Verifiering', 'Verification')}</span>
+            <div className="w-4 sm:w-8 h-0.5 bg-border" />
+            <div className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full ${step === 2 ? 'bg-accent text-accent-foreground' : 'bg-secondary text-muted-foreground'}`}>
+              <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-background/20 flex items-center justify-center text-xs sm:text-sm font-bold">2</span>
+              <span className="font-medium text-sm sm:text-base">{t('Verifiering', 'Verification')}</span>
             </div>
           </div>
         </AnimatedSection>
