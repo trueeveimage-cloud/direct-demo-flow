@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const INTRO_SEEN_KEY = 'nomia_intro_seen_v2';
-
 interface NomiaIntroProps {
   onComplete: () => void;
 }
@@ -175,45 +173,30 @@ export function NomiaIntro({ onComplete }: NomiaIntroProps) {
   );
 }
 
-// Hook to manage intro state
+// Hook to manage intro state - always show on every page load
 export function useNomiaIntro() {
   const [state, setState] = useState<{
-    hasSeenIntro: boolean | null;
     showIntro: boolean;
     isLoading: boolean;
   }>({
-    hasSeenIntro: null,
-    showIntro: false,
-    isLoading: true,
+    showIntro: true,
+    isLoading: false,
   });
 
-  useEffect(() => {
-    // Check localStorage on mount
-    const seen = localStorage.getItem(INTRO_SEEN_KEY) === 'true';
-    setState({
-      hasSeenIntro: seen,
-      showIntro: !seen,
-      isLoading: false,
-    });
-  }, []);
-
   const markIntroSeen = () => {
-    localStorage.setItem(INTRO_SEEN_KEY, 'true');
     setState(prev => ({
       ...prev,
-      hasSeenIntro: true,
       showIntro: false,
     }));
   };
 
   const replayIntro = () => {
-    localStorage.removeItem(INTRO_SEEN_KEY);
     // Reload to show intro fresh
     window.location.reload();
   };
 
   return { 
-    hasSeenIntro: state.hasSeenIntro, 
+    hasSeenIntro: false, 
     showIntro: state.showIntro, 
     isLoading: state.isLoading,
     markIntroSeen, 

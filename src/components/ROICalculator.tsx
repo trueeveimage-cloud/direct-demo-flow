@@ -99,19 +99,22 @@ const industryData: Record<string, {
   },
 };
 
-// Business type data
+// Import Lucide icons for industries
+import { Scissors, Utensils, Dumbbell, Stethoscope, Car, Sparkle, Home, Building, ShoppingBag, Briefcase, CircleDot } from 'lucide-react';
+
+// Business type data with icons
 const businessTypes = [
-  { id: 'barber', label: { sv: 'Frisör / Barberare', en: 'Barber / Hair salon' } },
-  { id: 'nail', label: { sv: 'Nagelsalong', en: 'Nail salon' } },
-  { id: 'restaurant', label: { sv: 'Restaurang / Café', en: 'Restaurant / Café' } },
-  { id: 'gym', label: { sv: 'Gym / PT', en: 'Gym / PT' } },
-  { id: 'clinic', label: { sv: 'Klinik / Vårdmottagning', en: 'Clinic / Healthcare' } },
-  { id: 'car', label: { sv: 'Bilverkstad / Detailing', en: 'Car workshop / Detailing' } },
-  { id: 'cleaning', label: { sv: 'Städ / Hemtjänst', en: 'Cleaning / Home services' } },
-  { id: 'realestate', label: { sv: 'Fastigheter / Mäklare', en: 'Real estate / Agent' } },
-  { id: 'retail', label: { sv: 'Butik / E-handel', en: 'Retail / E-commerce' } },
-  { id: 'consultant', label: { sv: 'Konsult / Byrå', en: 'Consultant / Agency' } },
-  { id: 'other', label: { sv: 'Annat', en: 'Other' } },
+  { id: 'barber', label: { sv: 'Frisör / Barberare', en: 'Barber / Hair salon' }, icon: Scissors },
+  { id: 'nail', label: { sv: 'Nagelsalong', en: 'Nail salon' }, icon: Sparkle },
+  { id: 'restaurant', label: { sv: 'Restaurang / Café', en: 'Restaurant / Café' }, icon: Utensils },
+  { id: 'gym', label: { sv: 'Gym / PT', en: 'Gym / PT' }, icon: Dumbbell },
+  { id: 'clinic', label: { sv: 'Klinik / Vårdmottagning', en: 'Clinic / Healthcare' }, icon: Stethoscope },
+  { id: 'car', label: { sv: 'Bilverkstad / Detailing', en: 'Car workshop / Detailing' }, icon: Car },
+  { id: 'cleaning', label: { sv: 'Städ / Hemtjänst', en: 'Cleaning / Home services' }, icon: Home },
+  { id: 'realestate', label: { sv: 'Fastigheter / Mäklare', en: 'Real estate / Agent' }, icon: Building },
+  { id: 'retail', label: { sv: 'Butik / E-handel', en: 'Retail / E-commerce' }, icon: ShoppingBag },
+  { id: 'consultant', label: { sv: 'Konsult / Byrå', en: 'Consultant / Agency' }, icon: Briefcase },
+  { id: 'other', label: { sv: 'Annat', en: 'Other' }, icon: CircleDot },
 ];
 
 const goalOptions = [
@@ -404,11 +407,17 @@ export function ROICalculator() {
                       <SelectValue placeholder={t('Välj...', 'Select...')} />
                     </SelectTrigger>
                     <SelectContent>
-                      {businessTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.id}>
-                          {lang === 'sv' ? type.label.sv : type.label.en}
-                        </SelectItem>
-                      ))}
+                      {businessTypes.map((type) => {
+                        const TypeIcon = type.icon;
+                        return (
+                          <SelectItem key={type.id} value={type.id}>
+                            <span className="flex items-center gap-2">
+                              <TypeIcon className="w-4 h-4 text-muted-foreground" />
+                              {lang === 'sv' ? type.label.sv : type.label.en}
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -468,7 +477,7 @@ export function ROICalculator() {
                   </div>
                 </div>
 
-                {/* 4. Average Customer Value - SLIDER */}
+                {/* 4. Average Customer Value - SLIDER + INPUT */}
                 <div className="space-y-4">
                   <Label className="flex items-center justify-between">
                     <span className="flex items-center">
@@ -478,7 +487,20 @@ export function ROICalculator() {
                         </span>
                       )}
                     </span>
-                    <span className="text-lg font-bold text-accent">€{avgCustomerValue[0]}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">€</span>
+                      <Input
+                        type="number"
+                        value={avgCustomerValue[0]}
+                        onChange={(e) => {
+                          const val = Math.max(industry.avgValue.min, Math.min(industry.avgValue.max, Number(e.target.value) || industry.avgValue.min));
+                          setAvgCustomerValue([val]);
+                        }}
+                        className="w-20 h-8 text-right font-bold text-accent"
+                        min={industry.avgValue.min}
+                        max={industry.avgValue.max}
+                      />
+                    </div>
                   </Label>
                   <Slider
                     value={avgCustomerValue}
@@ -556,16 +578,27 @@ export function ROICalculator() {
                   </div>
                 </div>
 
-                {/* 6. Years in Business - SLIDER */}
+                {/* 6. Years in Business - SLIDER + INPUT */}
                 <div className="space-y-4">
                   <Label className="flex items-center justify-between">
                     <span className="flex items-center">
                       <Clock className="w-4 h-4 mr-1.5 text-muted-foreground" />
                       {t('År i branschen', 'Years in business')}
                     </span>
-                    <span className="text-lg font-bold text-accent">
-                      {yearsInBusiness[0]} {t('år', 'years')}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        value={yearsInBusiness[0]}
+                        onChange={(e) => {
+                          const val = Math.max(0, Math.min(20, Number(e.target.value) || 0));
+                          setYearsInBusiness([val]);
+                        }}
+                        className="w-16 h-8 text-right font-bold text-accent"
+                        min={0}
+                        max={20}
+                      />
+                      <span className="text-muted-foreground text-sm">{t('år', 'yrs')}</span>
+                    </div>
                   </Label>
                   <Slider
                     value={yearsInBusiness}
