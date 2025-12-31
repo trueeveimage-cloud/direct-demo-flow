@@ -273,131 +273,213 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 3-Step Process - Staggered layout with scroll animations */}
+      {/* How We Work - Full service explanation */}
       <section className="py-32 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent pointer-events-none" />
         
         <div className="container-wide section-padding relative">
-          <motion.h2 initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} viewport={{
-          once: true,
-          margin: "-100px"
-        }} transition={{
-          duration: 0.6
-        }} className="text-3xl sm:text-4xl font-bold text-center mb-20">
-            {t('Så här fungerar det', 'How it works')}
-          </motion.h2>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              {t('Så här fungerar det', 'How it works')}
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {t('Två sätt att komma igång — välj det som passar dig bäst.', 'Two ways to get started — choose what suits you best.')}
+            </p>
+          </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-            {[{
-            icon: FileText,
-            step: '01',
-            title: t('Välj paket & stil', 'Choose package & style'),
-            desc: t('Berätta om ditt företag och välj riktning.', 'Tell us about your business and choose direction.')
-          }, {
-            icon: Shield,
-            step: '02',
-            title: t('Bekräfta din plats', 'Confirm your slot'),
-            desc: t('Boka en prioritetsplats, helt återbetalningsbar.', 'Book a priority slot, fully refundable.')
-          }, {
-            icon: Zap,
-            step: '03',
-            title: t('Få koncept inom 72h', 'Get concept in 72h'),
-            desc: t('Granska och bestäm om du vill fortsätta.', 'Review and decide if you want to proceed.')
-          }].map((item, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            y: 50
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} viewport={{
-            once: true,
-            margin: "-50px"
-          }} transition={{
-            duration: 0.6,
-            delay: index * 0.15
-          }} className="relative group" style={{
-            marginTop: index === 1 ? '2rem' : index === 2 ? '4rem' : '0'
-          }}>
-                <div className="absolute -inset-4 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <motion.div className="relative p-8 bg-background/50 backdrop-blur-sm rounded-xl border border-border/50 hover:border-accent/30 transition-all duration-500" whileHover={{
-              y: -5,
-              scale: 1.02
-            }} transition={{
-              type: "spring",
-              stiffness: 300
-            }}>
-                  <span className="text-6xl font-bold text-accent/10 absolute top-4 right-4">
-                    {item.step}
-                  </span>
-                  <item.icon className="w-10 h-10 text-accent mb-6" />
-                  <h3 className="font-heading font-semibold text-xl mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.desc}</p>
-                </motion.div>
-              </motion.div>)}
+          {/* Two Paths */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-16">
+            {/* Free Concept Path */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="relative p-8 rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/5 to-transparent"
+            >
+              <div className="absolute -top-3 left-6">
+                <span className="bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full">
+                  {t('Rekommenderas', 'Recommended')}
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold mb-4 mt-2">{t('Gratis koncept', 'Free Concept')}</h3>
+              <p className="text-muted-foreground mb-6">
+                {t('Se din framtida hemsida innan du bestämmer dig. Perfekt om du vill testa först.', 'See your future website before deciding. Perfect if you want to try first.')}
+              </p>
+              <div className="space-y-4">
+                {[
+                  { step: '1', text: t('Berätta om ditt företag och välj stil', 'Tell us about your business and choose style') },
+                  { step: '2', text: t('Betala €50 verifieringsavgift (återbetalningsbar)', 'Pay €50 verification fee (refundable)') },
+                  { step: '3', text: t('Få ett skräddarsytt koncept inom 72h', 'Get a custom concept within 72h') },
+                  { step: '4', text: t('Gillar du det? Avgiften dras från priset. Gillar du det inte? Full återbetalning.', 'Like it? Fee is deducted from price. Don\'t like it? Full refund.') },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent flex-shrink-0">
+                      {item.step}
+                    </span>
+                    <span className="text-sm">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Direct Order Path */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="relative p-8 rounded-2xl border border-border/50 bg-secondary/30"
+            >
+              <h3 className="text-2xl font-bold mb-4">{t('Direktbeställning', 'Direct Order')}</h3>
+              <p className="text-muted-foreground mb-6">
+                {t('Vet du redan vad du vill ha? Hoppa över demo och beställ direkt.', 'Already know what you want? Skip the demo and order directly.')}
+              </p>
+              <div className="space-y-4">
+                {[
+                  { step: '1', text: t('Välj paket och anpassa din beställning', 'Choose package and customize your order') },
+                  { step: '2', text: t('Ladda upp material och beskriv dina önskemål', 'Upload materials and describe your wishes') },
+                  { step: '3', text: t('Betala och vi börjar bygga direkt', 'Pay and we start building immediately') },
+                  { step: '4', text: t('Din webbplats levereras inom 7-14 dagar', 'Your website delivered within 7-14 days') },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground flex-shrink-0">
+                      {item.step}
+                    </span>
+                    <span className="text-sm">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </div>
+
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <Button asChild size="lg" className="group">
+              <Link to="/demo">
+                {t('Få gratis koncept', 'Get free concept')}
+                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="group">
+              <Link to="/bestall">
+                {t('Beställ direkt', 'Order directly')}
+                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
 
-      {/* Vad du får - Benefits section */}
-      <section className="py-24 relative">
+      {/* What You Get - Premium Deliverables */}
+      <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent pointer-events-none" />
         
-        <div className="container-narrow section-padding relative">
-          <motion.h2 initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} viewport={{
-          once: true,
-          margin: "-100px"
-        }} transition={{
-          duration: 0.6
-        }} className="text-3xl sm:text-4xl font-bold text-center mb-12">
-            {t('Vad du får', 'What you get')}
-          </motion.h2>
+        <div className="container-wide section-padding relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              {t('Vad ingår i din webbplats', 'What\'s included in your website')}
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {t('En komplett lösning som är redo att ta emot kunder från dag ett.', 'A complete solution ready to receive customers from day one.')}
+            </p>
+          </motion.div>
 
-          <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {[{
-            title: t('Tydlig design', 'Clear design'),
-            desc: t('Modern, professionell och fokuserad på konvertering.', 'Modern, professional and focused on conversion.')
-          }, {
-            title: t('Snabb leverans', 'Fast delivery'),
-            desc: t('Första koncept inom 72 timmar, garanterat.', 'First concept within 72 hours, guaranteed.')
-          }, {
-            title: t('Fler bokningar', 'More bookings'),
-            desc: t('Optimerad för att få kunder att boka eller kontakta dig.', 'Optimized to get customers to book or contact you.')
-          }, {
-            title: t('Fast pris', 'Fixed price'),
-            desc: t('Inga dolda avgifter eller överraskningar.', 'No hidden fees or surprises.')
-          }].map((item, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} viewport={{
-            once: true
-          }} transition={{
-            duration: 0.5,
-            delay: index * 0.1
-          }} className="p-6 rounded-xl border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300">
-                <div className="flex items-start gap-4">
-                  <CheckCircle2 className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
-                    <p className="text-muted-foreground text-sm">{item.desc}</p>
-                  </div>
-                </div>
-              </motion.div>)}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                title: t('Responsiv design', 'Responsive design'),
+                desc: t('Ser perfekt ut på mobil, surfplatta och dator.', 'Looks perfect on mobile, tablet, and desktop.'),
+                icon: '📱'
+              },
+              {
+                title: t('Snabb leverans', 'Fast delivery'),
+                desc: t('7-14 dagars leverans beroende på paket.', '7-14 day delivery depending on package.'),
+                icon: '⚡'
+              },
+              {
+                title: t('SEO-optimerad', 'SEO optimized'),
+                desc: t('Grundläggande sökmotoroptimering för bättre synlighet.', 'Basic search engine optimization for better visibility.'),
+                icon: '🔍'
+              },
+              {
+                title: t('Kontaktformulär', 'Contact form'),
+                desc: t('Få leads direkt till din inbox.', 'Get leads directly to your inbox.'),
+                icon: '✉️'
+              },
+              {
+                title: t('Revisioner ingår', 'Revisions included'),
+                desc: t('1-3 revideringsrundor beroende på paket.', '1-3 revision rounds depending on package.'),
+                icon: '🔄'
+              },
+              {
+                title: t('Fast pris', 'Fixed price'),
+                desc: t('Inga dolda kostnader eller överraskningar.', 'No hidden costs or surprises.'),
+                icon: '💰'
+              },
+              {
+                title: t('Flerspråksstöd', 'Multi-language'),
+                desc: t('Svenska + engelska (Standard & Pro).', 'Swedish + English (Standard & Pro).'),
+                icon: '🌐'
+              },
+              {
+                title: t('Bokningssystem', 'Booking system'),
+                desc: t('Låt kunder boka direkt online (Pro).', 'Let customers book directly online (Pro).'),
+                icon: '📅'
+              },
+              {
+                title: t('Google Analytics', 'Google Analytics'),
+                desc: t('Se exakt hur besökare använder din sida (Pro).', 'See exactly how visitors use your site (Pro).'),
+                icon: '📊'
+              },
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                className="p-5 rounded-xl border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 group"
+              >
+                <span className="text-2xl mb-3 block">{item.icon}</span>
+                <h3 className="font-semibold text-lg mb-1 group-hover:text-accent transition-colors">{item.title}</h3>
+                <p className="text-muted-foreground text-sm">{item.desc}</p>
+              </motion.div>
+            ))}
           </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-center mt-12"
+          >
+            <Button asChild variant="outline" className="group">
+              <Link to="/priser">
+                {t('Se alla paket och priser', 'See all packages and prices')}
+                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
 
