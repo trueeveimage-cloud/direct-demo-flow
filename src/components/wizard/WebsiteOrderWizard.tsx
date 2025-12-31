@@ -13,11 +13,10 @@ import { OrderSummary } from './OrderSummary';
 import { WizardBackground } from './WizardBackground';
 import { Step1Contact } from './steps/Step1Contact';
 import { Step2Package } from './steps/Step2Package';
-import { Step5ProjectDetails } from './steps/Step5ProjectDetails';
-import { Step6Payment } from './steps/Step6Payment';
 import { Step3Pages } from './steps/Step3Pages';
 import { Step4CarePlan } from './steps/Step4CarePlan';
-import { Step5Payment } from './steps/Step5Payment';
+import { Step5ProjectDetails } from './steps/Step5ProjectDetails';
+import { Step6Payment } from './steps/Step6Payment';
 import { CustomerTypeData, initialCustomerTypeData, validateCustomerType } from './steps/CustomerTypeSelection';
 import { 
   WizardFormData, 
@@ -85,12 +84,18 @@ function WebsiteOrderWizardComponent({
 
   // Debounced auto-save
   const saveData = useCallback(() => {
-    const toSave = { ...formData, step, lastSaved: Date.now() };
+    const toSave = { 
+      ...formData, 
+      step, 
+      customerTypeData,
+      addedAdminPanel,
+      lastSaved: Date.now() 
+    };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-  }, [formData, step]);
+  }, [formData, step, customerTypeData, addedAdminPanel]);
 
   useEffect(() => {
-    const timer = setTimeout(saveData, 1000); // Increased debounce
+    const timer = setTimeout(saveData, 1000);
     return () => clearTimeout(timer);
   }, [formData, step, saveData]);
 
@@ -100,6 +105,8 @@ function WebsiteOrderWizardComponent({
       const parsed = JSON.parse(stored);
       setFormData({ ...parsed, conceptLink: conceptLink || parsed.conceptLink });
       setStep(parsed.step || 1);
+      if (parsed.customerTypeData) setCustomerTypeData(parsed.customerTypeData);
+      if (parsed.addedAdminPanel) setAddedAdminPanel(parsed.addedAdminPanel);
     }
     setShowResumeBanner(false);
   }, [conceptLink]);
@@ -108,6 +115,8 @@ function WebsiteOrderWizardComponent({
     localStorage.removeItem(STORAGE_KEY);
     setFormData({ ...initialFormData, conceptLink });
     setStep(1);
+    setCustomerTypeData(initialCustomerTypeData);
+    setAddedAdminPanel(false);
     setShowResumeBanner(false);
   }, [conceptLink]);
 
@@ -154,7 +163,7 @@ function WebsiteOrderWizardComponent({
       return;
     }
     setDirection(1);
-    setStep((s) => Math.min(s + 1, 5) as FormStep);
+    setStep((s) => Math.min(s + 1, 6) as FormStep);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [step, formData, t]);
 
@@ -195,7 +204,7 @@ function WebsiteOrderWizardComponent({
       formDataPayload.append('accent_color', formData.noColorPreference ? 'No preference' : formData.accentColor);
       formDataPayload.append('selected_language', formData.selectedLanguage === 'custom' ? formData.customLanguages : formData.selectedLanguage);
       formDataPayload.append('wants_booking', String(formData.wantsBooking));
-      formDataPayload.append('booking_addon_cost', bookingAddonCost > 0 ? `+${bookingAddonCost} kr` : 'Included');
+      formDataPayload.append('booking_addon_cost', bookingAddonCost > 0 ? `+€${bookingAddonCost}` : 'Included');
       formDataPayload.append('selected_pages', formData.selectedPages.join(', '));
       formDataPayload.append('custom_pages', formData.customPages.filter(p => p.trim()).join(', '));
       formDataPayload.append('services', formData.services);
@@ -227,6 +236,7 @@ function WebsiteOrderWizardComponent({
       formDataPayload.append('legal_pages', formData.legalPages.join(', '));
       formDataPayload.append('terms_explanation', formData.termsExplanation);
       formDataPayload.append('extra_notes', formData.extraNotes);
+      formDataPayload.append('admin_panel', String(addedAdminPanel));
       if (isPostDemoFlow) {
         formDataPayload.append('concept_link', formData.conceptLink || conceptLink);
         formDataPayload.append('verification_fee_paid', formatPrice(VERIFICATION_FEE));
@@ -349,14 +359,19 @@ function WebsiteOrderWizardComponent({
     );
   }
 
+  const totalPrice = (pkg?.price || 0) + 
+    (formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0) +
+    (addedAdminPanel ? ADMIN_PANEL_PRICE : 0) -
+    (isPostDemoFlow ? VERIFICATION_FEE : 0);
+
   return (
-    <div className="min-h-screen section-padding py-12 relative overflow-hidden">
+    <div className="min-h-screen section-padding py-8 sm:py-12 relative overflow-hidden">
       <WizardBackground />
       
       <PackageCompareModal open={showPackageCompare} onOpenChange={setShowPackageCompare} />
       <CarePlansCompareModal open={showCarePlanCompare} onOpenChange={setShowCarePlanCompare} isYearly={formData.isYearlyCarePlan} />
 
-      <div className="container-wide relative z-10">
+      <div className="container-wide relative z-10 max-w-6xl mx-auto">
         {/* Resume Banner */}
         <AnimatePresence>
           {showResumeBanner && (
@@ -364,20 +379,20 @@ function WebsiteOrderWizardComponent({
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="max-w-2xl mx-auto mb-6 p-4 bg-accent/10 border border-accent/20 rounded-xl flex items-center justify-between gap-4"
+              className="max-w-2xl mx-auto mb-4 sm:mb-6 p-3 sm:p-4 bg-accent/10 border border-accent/20 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4"
             >
               <div className="flex items-center gap-3">
-                <RotateCcw className="w-5 h-5 text-accent" />
+                <RotateCcw className="w-5 h-5 text-accent flex-shrink-0" />
                 <div>
                   <p className="font-medium text-sm">{t('Fortsätt där du slutade?', 'Continue where you left off?')}</p>
                   <p className="text-xs text-muted-foreground">{t('Vi har sparat dina svar.', 'We\'ve saved your answers.')}</p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={clearSavedData}>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button variant="ghost" size="sm" onClick={clearSavedData} className="flex-1 sm:flex-initial">
                   {t('Börja om', 'Start over')}
                 </Button>
-                <Button size="sm" onClick={loadSavedData}>
+                <Button size="sm" onClick={loadSavedData} className="flex-1 sm:flex-initial">
                   {t('Fortsätt', 'Continue')}
                 </Button>
               </div>
@@ -389,16 +404,16 @@ function WebsiteOrderWizardComponent({
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-6 sm:mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
-            <Zap className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-accent/10 text-accent text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+            <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
             {isPostDemoFlow ? t('Slutför din beställning', 'Complete your order') : t('Beställ direkt', 'Order directly')}
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4">
             {t('Beställ din webbplats', 'Order your website')}
           </h1>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+          <p className="text-sm sm:text-lg text-muted-foreground max-w-xl mx-auto px-4 sm:px-0">
             {isPostDemoFlow 
               ? t('Komplettera din beställning med mer information.', 'Complete your order with more details.')
               : t('Fyll i formuläret så börjar vi bygga din webbplats direkt.', 'Fill out the form and we\'ll start building your website right away.')
@@ -410,7 +425,7 @@ function WebsiteOrderWizardComponent({
         <WizardStepper currentStep={step} />
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-[1fr,320px] gap-8 max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-[1fr,320px] gap-6 lg:gap-8">
           {/* Form Steps */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -420,6 +435,7 @@ function WebsiteOrderWizardComponent({
               animate="center"
               exit="exit"
               transition={{ duration: 0.15 }}
+              className="min-w-0"
             >
               {step === 1 && (
                 <Step1Contact formData={formData} setFormData={setFormData} errors={errors} showConceptOption={!isPostDemoFlow} />
@@ -443,7 +459,13 @@ function WebsiteOrderWizardComponent({
                 />
               )}
               {step === 5 && (
-                <Step5Payment 
+                <Step5ProjectDetails 
+                  formData={formData} 
+                  setFormData={setFormData}
+                />
+              )}
+              {step === 6 && (
+                <Step6Payment 
                   formData={formData} 
                   setFormData={setFormData} 
                   isPostDemoFlow={isPostDemoFlow}
@@ -455,7 +477,7 @@ function WebsiteOrderWizardComponent({
               )}
 
               {/* Navigation Buttons */}
-              <div className="flex justify-between mt-8">
+              <div className="flex justify-between mt-6 sm:mt-8 gap-3">
                 <Button 
                   variant="outline" 
                   onClick={handlePrevStep}
@@ -463,11 +485,11 @@ function WebsiteOrderWizardComponent({
                   className="group"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
-                  {t('Tillbaka', 'Back')}
+                  <span className="hidden sm:inline">{t('Tillbaka', 'Back')}</span>
                 </Button>
                 
-                {step < 5 ? (
-                  <Button size="lg" onClick={handleNextStep} className="group">
+                {step < 6 ? (
+                  <Button size="lg" onClick={handleNextStep} className="group flex-1 sm:flex-initial sm:min-w-[160px]">
                     {t('Fortsätt', 'Continue')}
                     <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                   </Button>
@@ -476,7 +498,7 @@ function WebsiteOrderWizardComponent({
                     size="lg" 
                     onClick={handleSubmit}
                     disabled={isLoading}
-                    className="min-w-[200px]"
+                    className="flex-1 sm:flex-initial sm:min-w-[200px]"
                   >
                     {isLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -497,14 +519,14 @@ function WebsiteOrderWizardComponent({
               formData={formData} 
               isPostDemoFlow={isPostDemoFlow}
               currentStep={step}
-              onCheckout={step === 5 ? handleSubmit : undefined}
+              onCheckout={step === 6 ? handleSubmit : undefined}
               isLoading={isLoading}
               addedAdminPanel={addedAdminPanel}
             />
           </div>
         </div>
 
-        {/* Mobile: Show minimal info only on final step */}
+        {/* Mobile: Fixed bottom bar */}
         <div className="lg:hidden h-20" />
         <motion.div 
           initial={{ y: 100 }}
@@ -512,29 +534,20 @@ function WebsiteOrderWizardComponent({
           className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur-md border-t z-50"
         >
           <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
-            {step === 5 && pkg ? (
-              // Final step: show total
+            {step === 6 && pkg ? (
               <>
                 <div className="flex-shrink-0">
                   <p className="text-xs text-muted-foreground">{t('Totalt', 'Total')}</p>
-                  <p className="text-lg font-bold">
-                    {formatPrice(
-                      (pkg?.price || 0) + 
-                      (formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0) +
-                      (addedAdminPanel ? ADMIN_PANEL_PRICE : 0) -
-                      (isPostDemoFlow ? VERIFICATION_FEE : 0)
-                    )}
-                  </p>
+                  <p className="text-lg font-bold">{formatPrice(totalPrice)}</p>
                 </div>
                 <Button size="lg" onClick={handleSubmit} disabled={isLoading} className="flex-1 max-w-[160px]">
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('Betala', 'Pay')}
                 </Button>
               </>
             ) : (
-              // Other steps: just continue button
               <>
                 <div className="flex-shrink-0 text-sm text-muted-foreground">
-                  {t('Steg', 'Step')} {step}/5
+                  {t('Steg', 'Step')} {step}/6
                 </div>
                 <Button size="lg" onClick={handleNextStep} className="flex-1 max-w-[180px]">
                   {t('Fortsätt', 'Continue')} <ArrowRight className="w-4 h-4 ml-2" />
