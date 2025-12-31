@@ -1,13 +1,98 @@
 import { Link, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
+import { useEffect, useState, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function PaymentSuccessPage() {
   const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const hasSentEmail = useRef(false);
+
+  // Send order confirmation email when page loads
+  useEffect(() => {
+    const sendConfirmationEmail = async () => {
+      // Prevent duplicate sends
+      if (hasSentEmail.current || !sessionId) return;
+      hasSentEmail.current = true;
+      
+      // Get order details from URL params or localStorage
+      const conceptLink = searchParams.get('concept');
+      const carePlan = searchParams.get('care_plan');
+      const isYearly = searchParams.get('care_yearly') === 'true';
+      
+      // Try to get cached order data from sessionStorage
+      const cachedOrder = sessionStorage.getItem('pending_order');
+      if (!cachedOrder) {
+        console.log('No cached order data found for email confirmation');
+        return;
+      }
+
+      try {
+        const orderData = JSON.parse(cachedOrder);
+        
+        // Build addons list
+        const addons: string[] = [];
+        if (orderData.wantsBooking && orderData.packageId !== 'pro') {
+          addons.push('Booking System (€200)');
+        }
+        if (orderData.addedAdminPanel) {
+          addons.push('Admin Panel (€100)');
+        }
+
+        // Map package name
+        const packageNames: Record<string, string> = {
+          starter: 'Starter',
+          standard: 'Standard',
+          pro: 'Pro',
+        };
+        const packagePrices: Record<string, string> = {
+          starter: '€490',
+          standard: '€790',
+          pro: '€1,290',
+        };
+        const deliveryDays: Record<string, number> = {
+          starter: 14,
+          standard: 10,
+          pro: 7,
+        };
+
+        const { data, error } = await supabase.functions.invoke('send-order-confirmation', {
+          body: {
+            email: orderData.email,
+            customerName: orderData.contactPerson || orderData.businessName || 'Customer',
+            packageName: packageNames[orderData.packageId] || orderData.packageId,
+            packagePrice: packagePrices[orderData.packageId] || 'N/A',
+            businessName: orderData.businessName,
+            conceptLink: conceptLink ? decodeURIComponent(conceptLink) : orderData.conceptLink,
+            addons,
+            carePlan: carePlan ? `${carePlan} (${isYearly ? 'Yearly' : 'Monthly'})` : undefined,
+            deliveryDays: deliveryDays[orderData.packageId] || 10,
+          },
+        });
+
+        if (error) {
+          console.error('Failed to send confirmation email:', error);
+          setEmailError(true);
+        } else {
+          console.log('Order confirmation email sent successfully');
+          setEmailSent(true);
+          // Clear cached order data
+          sessionStorage.removeItem('pending_order');
+        }
+      } catch (err) {
+        console.error('Error sending confirmation email:', err);
+        setEmailError(true);
+      }
+    };
+
+    sendConfirmationEmail();
+  }, [sessionId, searchParams]);
 
   return (
     <div className="section-padding py-20 min-h-[70vh] flex items-center">
@@ -27,6 +112,19 @@ export default function PaymentSuccessPage() {
               'We\'ve received your order and will start working right away.'
             )}
           </p>
+
+          {/* Email status indicator */}
+          {!emailSent && !emailError && sessionId && (
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              {t('Skickar bekräftelsemail...', 'Sending confirmation email...')}
+            </div>
+          )}
+          {emailSent && (
+            <div className="text-sm text-accent mb-4">
+              ✓ {t('Bekräftelsemail skickat!', 'Confirmation email sent!')}
+            </div>
+          )}
 
           <div className="bg-secondary/50 rounded-xl p-6 mb-8 max-w-md mx-auto">
             <h3 className="font-semibold mb-2">{t('Vad händer nu?', 'What happens next?')}</h3>

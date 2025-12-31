@@ -277,6 +277,20 @@ function WebsiteOrderWizardComponent({
       }
 
       if (data.url) {
+        // Cache order data for confirmation email
+        const orderDataForEmail = {
+          email: formData.email,
+          contactPerson: formData.contactPerson,
+          businessName: formData.businessName,
+          packageId: formData.selectedPackage,
+          conceptLink: formData.conceptLink || conceptLink,
+          wantsBooking: formData.wantsBooking,
+          addedAdminPanel,
+          selectedCarePlan: formData.selectedCarePlan,
+          isYearlyCarePlan: formData.isYearlyCarePlan,
+        };
+        sessionStorage.setItem('pending_order', JSON.stringify(orderDataForEmail));
+        
         window.open(data.url, '_blank');
         toast({ 
           title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
