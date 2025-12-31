@@ -90,8 +90,8 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
   const { t, lang } = useLanguage();
 
   const InfoIcon = ({ tooltipKey }: { tooltipKey: keyof typeof tooltips }) => (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
+    <TooltipProvider delayDuration={300}>
+      <Tooltip defaultOpen={false}>
         <TooltipTrigger asChild>
           <button type="button" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors ml-1">
             <Info className="w-3 h-3 text-muted-foreground" />
