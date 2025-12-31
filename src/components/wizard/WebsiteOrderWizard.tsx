@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { PackageCompareModal } from '@/components/PackageCompareModal';
 import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
+import { AdminPanelUpsellModal } from '@/components/AdminPanelUpsellModal';
 
 import { WizardStepper } from './WizardStepper';
 import { OrderSummary } from './OrderSummary';
@@ -60,6 +61,8 @@ function WebsiteOrderWizardComponent({
   const [showPackageCompare, setShowPackageCompare] = useState(false);
   const [showCarePlanCompare, setShowCarePlanCompare] = useState(false);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const [showAdminPanelModal, setShowAdminPanelModal] = useState(false);
+  const [adminPanelDecision, setAdminPanelDecision] = useState(false);
 
   // Check for saved data on mount
   useEffect(() => {
