@@ -6,6 +6,7 @@ import { Testimonials } from '@/components/Testimonials';
 import { TrustBadges } from '@/components/TrustBadges';
 import { ROICalculator } from '@/components/ROICalculator';
 import { motion } from 'framer-motion';
+import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -21,6 +22,7 @@ export default function Index() {
     t
   } = useLanguage();
   const navigate = useNavigate();
+  const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
   return <div className="overflow-hidden">
       {/* Gold Blur Background - Static on mobile, animated on desktop for performance */}
       <div className="fixed top-0 left-0 right-0 h-[600px] pointer-events-none z-0 overflow-hidden">
@@ -82,7 +84,13 @@ export default function Index() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20"
           >
             <Clock className="w-4 h-4" />
-            {t('Endast 10 platser/vecka', 'Only 10 spots/week')}
+            {spotsLoading ? (
+              <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
+            ) : remainingSpots > 0 ? (
+              <span>{t(`Endast ${remainingSpots} platser kvar`, `Only ${remainingSpots} spots left`)}</span>
+            ) : (
+              <span className="text-orange-400">{t('Fullbokat denna vecka', 'Fully booked this week')}</span>
+            )}
           </motion.div>
 
           {/* Main Headline */}
@@ -307,8 +315,8 @@ export default function Index() {
                 <span className="bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full">
                   {t('Rekommenderas', 'Recommended')}
                 </span>
-                <span className="bg-orange-500/90 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
-                  {t('10 platser/vecka', '10 spots/week')}
+                <span className="bg-orange-500/90 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  {spotsLoading ? '...' : remainingSpots > 0 ? t(`${remainingSpots} kvar`, `${remainingSpots} left`) : t('Fullbokat', 'Full')}
                 </span>
               </div>
               <h3 className="text-2xl font-bold mb-4 mt-2">{t('Gratis koncept', 'Free Concept')}</h3>

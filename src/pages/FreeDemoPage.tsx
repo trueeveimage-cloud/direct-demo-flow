@@ -16,6 +16,7 @@ import { InfoTooltip } from '@/components/InfoTooltip';
 import { setVerificationPaid } from '@/config/stripe';
 import { useTheme } from 'next-themes';
 import { PhotoUpload } from '@/components/PhotoUpload';
+import { useRemainingSpots, recordConceptRequest } from '@/hooks/useRemainingSpots';
 
 type FormStep = 1 | 2;
 
@@ -67,6 +68,7 @@ export default function FreeDemoPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
 
   // Set dark mode on mount
   useEffect(() => {
@@ -297,6 +299,9 @@ export default function FreeDemoPage() {
         headers: { 'Accept': 'application/json' },
       });
 
+      // Record the concept request in Supabase for tracking
+      await recordConceptRequest(email, businessName);
+
       // Use edge function for Stripe checkout
       const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
       if (!SUPABASE_URL) {
@@ -442,9 +447,15 @@ export default function FreeDemoPage() {
 
         {/* Header */}
         <AnimatedSection animation="fade-up" className="text-center mb-8 sm:mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/20 text-orange-400 text-sm font-medium mb-4 backdrop-blur-sm border border-orange-500/30 animate-pulse">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/20 text-orange-400 text-sm font-medium mb-4 backdrop-blur-sm border border-orange-500/30">
             <Clock className="w-4 h-4" />
-            {t('Endast 10 platser per vecka', 'Only 10 spots per week')}
+            {spotsLoading ? (
+              <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
+            ) : remainingSpots > 0 ? (
+              <span className="font-bold">{t(`Endast ${remainingSpots} platser kvar`, `Only ${remainingSpots} spots left`)}</span>
+            ) : (
+              <span className="font-bold text-red-400">{t('Fullbokat denna vecka', 'Fully booked this week')}</span>
+            )}
           </div>
           <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2">
             {t('Se hur din framtida hemsida kan se ut gratis innan du betalar', 'See how your future website can look for free before you pay')}
