@@ -25,7 +25,6 @@ import DirectCheckoutPage from "./pages/DirectCheckoutPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelledPage from "./pages/PaymentCancelledPage";
 import AdminPage from "./pages/AdminPage";
-import GalleryPage from "./pages/GalleryPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -84,7 +83,6 @@ function AppContent() {
             <Route path="/betalning-klar" element={<PaymentSuccessPage />} />
             <Route path="/betalning-avbruten" element={<PaymentCancelledPage />} />
             <Route path="/admin" element={<AdminPage />} />
-            <Route path="/gallery" element={<GalleryPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
