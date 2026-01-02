@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle, Briefcase, Target, Calendar, Plus, Trash2, Image as ImageIcon, Check, X } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Loader2, CreditCard, User, Palette, Globe, FileText, AlertCircle, Briefcase, Target, Calendar, Plus, Trash2, Image as ImageIcon, Check, X, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -442,6 +442,10 @@ export default function FreeDemoPage() {
 
         {/* Header */}
         <AnimatedSection animation="fade-up" className="text-center mb-8 sm:mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/20 text-orange-400 text-sm font-medium mb-4 backdrop-blur-sm border border-orange-500/30 animate-pulse">
+            <Clock className="w-4 h-4" />
+            {t('Endast 10 platser per vecka', 'Only 10 spots per week')}
+          </div>
           <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2">
             {t('Se hur din framtida hemsida kan se ut gratis innan du betalar', 'See how your future website can look for free before you pay')}
           </h1>
