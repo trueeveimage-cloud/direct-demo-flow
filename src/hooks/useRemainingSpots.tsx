@@ -1,63 +1,39 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+
+function calculateRemainingSpots(): number {
+  const MAX_SPOTS = 4;
+  const INTERVAL_HOURS = 12;
+  const CYCLE_HOURS = (MAX_SPOTS + 1) * INTERVAL_HOURS; // 60 hours for full cycle (4,3,2,1,0 then reset)
+  
+  // Fixed reference point
+  const EPOCH = new Date('2024-01-01T00:00:00Z').getTime();
+  
+  const now = Date.now();
+  const hoursSinceEpoch = (now - EPOCH) / (1000 * 60 * 60);
+  const hoursInCurrentCycle = hoursSinceEpoch % CYCLE_HOURS;
+  const periodsElapsed = Math.floor(hoursInCurrentCycle / INTERVAL_HOURS);
+  
+  return MAX_SPOTS - periodsElapsed;
+}
 
 export function useRemainingSpots() {
-  const [remainingSpots, setRemainingSpots] = useState<number>(10);
-  const [isLoading, setIsLoading] = useState(true);
+  const [remainingSpots, setRemainingSpots] = useState<number>(() => calculateRemainingSpots());
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchRemainingSpots = async () => {
-      try {
-        const { data, error } = await supabase.rpc('get_remaining_spots');
-        
-        if (error) {
-          console.error('Error fetching remaining spots:', error);
-          return;
-        }
-        
-        setRemainingSpots(data ?? 10);
-      } catch (err) {
-        console.error('Error fetching remaining spots:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // Update every minute to keep it fresh
+    const interval = setInterval(() => {
+      setRemainingSpots(calculateRemainingSpots());
+    }, 60 * 1000);
 
-    fetchRemainingSpots();
-
-    // Subscribe to realtime changes
-    const channel = supabase
-      .channel('concept_requests_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'concept_requests'
-        },
-        () => {
-          // Refetch when a new request is added
-          fetchRemainingSpots();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => clearInterval(interval);
   }, []);
 
   return { remainingSpots, isLoading };
 }
 
 export async function recordConceptRequest(email: string, businessName: string) {
-  const { error } = await supabase
-    .from('concept_requests')
-    .insert({ email, business_name: businessName });
-  
-  if (error) {
-    console.error('Error recording concept request:', error);
-  }
-  
-  return { error };
+  // No longer tracking in database - just a no-op for compatibility
+  console.log('Concept request:', email, businessName);
+  return { error: null };
 }
