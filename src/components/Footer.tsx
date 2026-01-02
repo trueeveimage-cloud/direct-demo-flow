@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-
 export function Footer() {
   const { t } = useLanguage();
 
@@ -55,6 +54,15 @@ export function Footer() {
           <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Nomia</p>
             <div className="flex items-center gap-4">
+              <a 
+                href="https://www.instagram.com/nomia.se/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
               <button 
                 onClick={() => (window as any).__nomiaReplayIntro?.()}
                 className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
