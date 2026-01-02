@@ -4,7 +4,7 @@ import {
   BarChart3, Users, Clock, Globe, Smartphone, Monitor, 
   TrendingUp, ArrowDown, AlertCircle, Calendar, RefreshCw,
   Eye, MousePointer, CreditCard, CheckCircle, ShoppingCart,
-  Gift, Trash2
+  Gift, Trash2, LogOut
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
@@ -14,8 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAnalytics, FunnelEvents } from '@/lib/posthog';
-
-const ADMIN_PASSWORD = 'nomia2024';
+import type { User } from '@supabase/supabase-js';
 
 interface StoredEvent {
   event: string;
@@ -43,7 +42,6 @@ interface AnalyticsData {
 
 // Process real events from localStorage
 function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsData {
-  const now = new Date();
   const filterDate = new Date();
   
   if (dateRange === 'today') {
@@ -198,7 +196,9 @@ interface ConceptRequest {
 }
 
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [dateRange, setDateRange] = useState<'today' | '7days' | '30days'>('7days');
@@ -208,15 +208,27 @@ export default function AdminPage() {
   const [loadingConcepts, setLoadingConcepts] = useState(false);
   const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
 
+  // Set up auth state listener
   useEffect(() => {
-    const auth = sessionStorage.getItem('admin_auth');
-    if (auth === 'true') {
-      setIsAuthenticated(true);
-    }
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (user) {
       // Get real events from analytics tracker
       const analytics = getAnalytics();
       const storedEvents = analytics.getStoredEvents();
@@ -225,7 +237,7 @@ export default function AdminPage() {
       // Fetch concept requests
       fetchConceptRequests();
     }
-  }, [isAuthenticated, refreshKey]);
+  }, [user, refreshKey]);
 
   const fetchConceptRequests = async () => {
     setLoadingConcepts(true);
@@ -270,22 +282,44 @@ export default function AdminPage() {
     return processRealEvents(events, dateRange);
   }, [events, dateRange]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('admin_auth', 'true');
-      setError('');
-    } else {
-      setError('Incorrect password');
+    setError('');
+    
+    // Basic validation
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter both email and password');
+      return;
     }
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password: password,
+    });
+    
+    if (authError) {
+      setError(authError.message);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
   };
 
   const handleRefresh = () => {
     setRefreshKey(k => k + 1);
   };
 
-  if (!isAuthenticated) {
+  if (isLoading) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
         <motion.div
@@ -297,19 +331,28 @@ export default function AdminPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
+                className="h-12"
+                autoFocus
+              />
+            </div>
+            <div>
+              <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
+                placeholder="Password"
                 className="h-12"
-                autoFocus
               />
             </div>
             {error && (
               <p className="text-sm text-destructive text-center">{error}</p>
             )}
             <Button type="submit" className="w-full h-12">
-              Access Dashboard
+              Sign In
             </Button>
           </form>
         </motion.div>
@@ -338,10 +381,16 @@ export default function AdminPage() {
                 Real tracking data • {data.totalEvents} events recorded
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={handleRefresh}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handleRefresh}>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
         </motion.div>
 
