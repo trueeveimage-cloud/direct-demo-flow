@@ -24,6 +24,7 @@ export default function TermsPage() {
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Gratis koncept', 'Free Concept')}</h2>
               <p className="text-muted-foreground mb-2">{t('Vid gratis koncept betalar du en återbetalningsbar verifieringsavgift på €50. Du får ett skräddarsytt webbkoncept inom 72 timmar efter betalning.', 'For free concept, you pay a refundable verification fee of €50. You receive a custom website concept within 72 hours after payment.')}</p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-3">
+                <li><strong>{t('Endast 10 platser tillgängliga per vecka.', 'Only 10 spots available per week.')}</strong> {t('Begränsat antal för att säkerställa kvalitet.', 'Limited to ensure quality.')}</li>
                 <li>{t('Avgiften återbetalas helt om du avvisar konceptet inom 5 dagar efter leverans.', 'The fee is fully refunded if you reject the concept within 5 days after delivery.')}</li>
                 <li>{t('Om du går vidare dras avgiften från slutpriset.', 'If you proceed, the fee is deducted from the final price.')}</li>
                 <li>{t('Vid begäran om extra arbete utöver demo-omfattningen kan återbetalning ej garanteras.', 'If you request extra work beyond the demo scope, refund may not be guaranteed.')}</li>
