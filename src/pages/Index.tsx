@@ -82,7 +82,7 @@ export default function Index() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20"
           >
             <Clock className="w-4 h-4" />
-            {t('Begränsade platser', 'Limited spots')}
+            {t('Endast 10 platser/vecka', 'Only 10 spots/week')}
           </motion.div>
 
           {/* Main Headline */}
@@ -303,14 +303,17 @@ export default function Index() {
               transition={{ duration: 0.6 }}
               className="relative p-8 rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/5 to-transparent"
             >
-              <div className="absolute -top-3 left-6">
+              <div className="absolute -top-3 left-6 flex gap-2">
                 <span className="bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full">
                   {t('Rekommenderas', 'Recommended')}
+                </span>
+                <span className="bg-orange-500/90 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
+                  {t('10 platser/vecka', '10 spots/week')}
                 </span>
               </div>
               <h3 className="text-2xl font-bold mb-4 mt-2">{t('Gratis koncept', 'Free Concept')}</h3>
               <p className="text-muted-foreground mb-6">
-                {t('Se din framtida hemsida innan du bestämmer dig. Perfekt om du vill testa först.', 'See your future website before deciding. Perfect if you want to try first.')}
+                {t('Se din framtida hemsida innan du bestämmer dig. Endast 10 platser per vecka — perfekt om du vill testa först.', 'See your future website before deciding. Only 10 spots per week — perfect if you want to try first.')}
               </p>
               <div className="space-y-4">
                 {[
