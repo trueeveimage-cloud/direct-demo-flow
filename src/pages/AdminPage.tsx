@@ -4,10 +4,9 @@ import {
   BarChart3, Users, Clock, Globe, Smartphone, Monitor, 
   TrendingUp, ArrowDown, AlertCircle, Calendar, RefreshCw,
   Eye, MousePointer, CreditCard, CheckCircle, ShoppingCart,
-  Gift, Trash2, LogOut
+  Gift, LogOut
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -188,13 +187,6 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
   };
 }
 
-interface ConceptRequest {
-  id: string;
-  email: string;
-  business_name: string;
-  created_at: string;
-}
-
 export default function AdminPage() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -204,9 +196,6 @@ export default function AdminPage() {
   const [dateRange, setDateRange] = useState<'today' | '7days' | '30days'>('7days');
   const [events, setEvents] = useState<StoredEvent[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [conceptRequests, setConceptRequests] = useState<ConceptRequest[]>([]);
-  const [loadingConcepts, setLoadingConcepts] = useState(false);
-  const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
 
   // Set up auth state listener
   useEffect(() => {
@@ -233,50 +222,8 @@ export default function AdminPage() {
       const analytics = getAnalytics();
       const storedEvents = analytics.getStoredEvents();
       setEvents(storedEvents);
-      
-      // Fetch concept requests
-      fetchConceptRequests();
     }
   }, [user, refreshKey]);
-
-  const fetchConceptRequests = async () => {
-    setLoadingConcepts(true);
-    const { data, error } = await supabase
-      .from('concept_requests')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (!error && data) {
-      setConceptRequests(data);
-    }
-    setLoadingConcepts(false);
-  };
-
-  const deleteConceptRequest = async (id: string) => {
-    const { error } = await supabase
-      .from('concept_requests')
-      .delete()
-      .eq('id', id);
-    
-    if (!error) {
-      setConceptRequests(prev => prev.filter(r => r.id !== id));
-    }
-  };
-
-  const deleteAllThisWeek = async () => {
-    const startOfWeek = new Date();
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
-    
-    const { error } = await supabase
-      .from('concept_requests')
-      .delete()
-      .gte('created_at', startOfWeek.toISOString());
-    
-    if (!error) {
-      fetchConceptRequests();
-    }
-  };
 
   const data = useMemo(() => {
     return processRealEvents(events, dateRange);
@@ -476,12 +423,11 @@ export default function AdminPage() {
         )}
 
         <Tabs defaultValue="funnel" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
             <TabsTrigger value="funnel">Funnel</TabsTrigger>
             <TabsTrigger value="pages">Pages</TabsTrigger>
             <TabsTrigger value="sources">Sources</TabsTrigger>
             <TabsTrigger value="errors">Errors</TabsTrigger>
-            <TabsTrigger value="concepts">Concepts</TabsTrigger>
           </TabsList>
 
           {/* Funnel Tab */}
@@ -701,65 +647,6 @@ export default function AdminPage() {
             </Card>
           </TabsContent>
 
-          {/* Concepts Tab */}
-          <TabsContent value="concepts" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Gift className="w-5 h-5" />
-                      Free Concept Requests
-                    </CardTitle>
-                    <CardDescription>
-                      {spotsLoading ? 'Loading...' : `${remainingSpots} spots remaining this week`}
-                    </CardDescription>
-                  </div>
-                  <Button variant="destructive" size="sm" onClick={deleteAllThisWeek}>
-                    Reset Week
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {loadingConcepts ? (
-                  <p className="text-center py-8 text-muted-foreground">Loading...</p>
-                ) : conceptRequests.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Business</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead className="w-12"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {conceptRequests.map((req) => (
-                        <TableRow key={req.id}>
-                          <TableCell className="font-medium">{req.email}</TableCell>
-                          <TableCell>{req.business_name}</TableCell>
-                          <TableCell>{new Date(req.created_at).toLocaleDateString()}</TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => deleteConceptRequest(req.id)}
-                            >
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <p className="text-muted-foreground text-center py-8">
-                    No concept requests yet
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </div>
