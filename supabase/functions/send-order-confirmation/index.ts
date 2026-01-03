@@ -3,6 +3,27 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
+// HTML escape function to prevent XSS in email content
+function escapeHtml(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// URL validation function to prevent malicious links
+function isValidUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
   "https://nomia.se",
@@ -87,17 +108,27 @@ serve(async (req: Request): Promise<Response> => {
     
     logStep("Sending order confirmation", { email, packageName });
 
+    // Sanitize user inputs before embedding in HTML
+    const safeCustomerName = escapeHtml(customerName);
+    const safeEmail = escapeHtml(email);
+    const safePackageName = escapeHtml(packageName);
+    const safePackagePrice = escapeHtml(packagePrice);
+    const safeBusinessName = businessName ? escapeHtml(businessName) : '';
+    const safeAddons = addons.map(addon => escapeHtml(addon));
+    const safeCarePlan = carePlan ? escapeHtml(carePlan) : '';
+
     // Build addons HTML if any
-    const addonsHtml = addons.length > 0 
-      ? `<p style="margin: 8px 0;"><strong>Add-ons:</strong> ${addons.join(', ')}</p>` 
+    const addonsHtml = safeAddons.length > 0 
+      ? `<p style="margin: 8px 0;"><strong>Add-ons:</strong> ${safeAddons.join(', ')}</p>` 
       : '';
     
-    const carePlanHtml = carePlan 
-      ? `<p style="margin: 8px 0;"><strong>Care Plan:</strong> ${carePlan}</p>` 
+    const carePlanHtml = safeCarePlan 
+      ? `<p style="margin: 8px 0;"><strong>Care Plan:</strong> ${safeCarePlan}</p>` 
       : '';
 
-    const conceptHtml = conceptLink
-      ? `<p style="margin: 8px 0;"><strong>Concept Link:</strong> <a href="${conceptLink}" style="color: #f59e0b;">${conceptLink}</a></p>`
+    // Only create concept link if URL is valid
+    const conceptHtml = conceptLink && isValidUrl(conceptLink)
+      ? `<p style="margin: 8px 0;"><strong>Concept Link:</strong> <a href="${escapeHtml(conceptLink)}" style="color: #f59e0b;">${escapeHtml(conceptLink)}</a></p>`
       : '';
 
     // Send confirmation to customer
@@ -118,16 +149,16 @@ serve(async (req: Request): Promise<Response> => {
               </div>
             </div>
             
-            <h2 style="color: #1a1a1a; margin-top: 0;">Thank you for your order, ${customerName}!</h2>
+            <h2 style="color: #1a1a1a; margin-top: 0;">Thank you for your order, ${safeCustomerName}!</h2>
             <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
               We're excited to start working on your new website. Here's a summary of your order:
             </p>
             
             <div style="background: #f8f9fa; padding: 24px; border-radius: 12px; margin: 24px 0;">
               <h3 style="margin-top: 0; color: #1a1a1a; border-bottom: 2px solid #f59e0b; padding-bottom: 12px;">Order Details</h3>
-              ${businessName ? `<p style="margin: 8px 0;"><strong>Business:</strong> ${businessName}</p>` : ''}
-              <p style="margin: 8px 0;"><strong>Package:</strong> ${packageName}</p>
-              <p style="margin: 8px 0;"><strong>Price:</strong> ${packagePrice}</p>
+              ${safeBusinessName ? `<p style="margin: 8px 0;"><strong>Business:</strong> ${safeBusinessName}</p>` : ''}
+              <p style="margin: 8px 0;"><strong>Package:</strong> ${safePackageName}</p>
+              <p style="margin: 8px 0;"><strong>Price:</strong> ${safePackagePrice}</p>
               ${addonsHtml}
               ${carePlanHtml}
               ${conceptHtml}
@@ -178,18 +209,18 @@ serve(async (req: Request): Promise<Response> => {
           
           <div style="background: #f8f9fa; padding: 24px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin-top: 0;">Customer Details</h3>
-            <p><strong>Name:</strong> ${customerName}</p>
-            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-            ${businessName ? `<p><strong>Business:</strong> ${businessName}</p>` : ''}
+            <p><strong>Name:</strong> ${safeCustomerName}</p>
+            <p><strong>Email:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
+            ${safeBusinessName ? `<p><strong>Business:</strong> ${safeBusinessName}</p>` : ''}
           </div>
           
           <div style="background: #fff; border: 1px solid #e9ecef; padding: 24px; border-radius: 8px;">
             <h3 style="margin-top: 0;">Order Summary</h3>
-            <p><strong>Package:</strong> ${packageName}</p>
-            <p><strong>Price:</strong> ${packagePrice}</p>
-            ${addons.length > 0 ? `<p><strong>Add-ons:</strong> ${addons.join(', ')}</p>` : ''}
-            ${carePlan ? `<p><strong>Care Plan:</strong> ${carePlan}</p>` : ''}
-            ${conceptLink ? `<p><strong>Concept:</strong> <a href="${conceptLink}">${conceptLink}</a></p>` : ''}
+            <p><strong>Package:</strong> ${safePackageName}</p>
+            <p><strong>Price:</strong> ${safePackagePrice}</p>
+            ${safeAddons.length > 0 ? `<p><strong>Add-ons:</strong> ${safeAddons.join(', ')}</p>` : ''}
+            ${safeCarePlan ? `<p><strong>Care Plan:</strong> ${safeCarePlan}</p>` : ''}
+            ${conceptLink && isValidUrl(conceptLink) ? `<p><strong>Concept:</strong> <a href="${escapeHtml(conceptLink)}">${escapeHtml(conceptLink)}</a></p>` : ''}
           </div>
           
           <p style="color: #6c757d; font-size: 12px; margin-top: 20px; text-align: center;">

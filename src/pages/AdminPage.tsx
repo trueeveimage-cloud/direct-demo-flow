@@ -187,6 +187,18 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
   };
 }
 
+// Admin email allowlist - only these emails can access the dashboard
+// This provides server-side validation since auth state comes from Supabase server
+const ADMIN_EMAILS = [
+  'nordicsite.help@gmail.com',
+  // Add additional admin emails here as needed
+];
+
+function isAdminUser(user: User | null): boolean {
+  if (!user) return false;
+  return ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? '');
+}
+
 export default function AdminPage() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -196,6 +208,9 @@ export default function AdminPage() {
   const [dateRange, setDateRange] = useState<'today' | '7days' | '30days'>('7days');
   const [events, setEvents] = useState<StoredEvent[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Check if authenticated user is an admin
+  const isAdmin = isAdminUser(user);
 
   // Set up auth state listener
   useEffect(() => {
@@ -217,13 +232,14 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (user) {
+    // Only load analytics data if user is an admin
+    if (user && isAdmin) {
       // Get real events from analytics tracker
       const analytics = getAnalytics();
       const storedEvents = analytics.getStoredEvents();
       setEvents(storedEvents);
     }
-  }, [user, refreshKey]);
+  }, [user, isAdmin, refreshKey]);
 
   const data = useMemo(() => {
     return processRealEvents(events, dateRange);
@@ -239,13 +255,22 @@ export default function AdminPage() {
       return;
     }
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    const { error: authError, data: authData } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password: password,
     });
     
     if (authError) {
       setError(authError.message);
+      return;
+    }
+
+    // Check if the authenticated user is an admin
+    if (authData.user && !ADMIN_EMAILS.includes(authData.user.email?.toLowerCase() ?? '')) {
+      // Sign out non-admin users immediately
+      await supabase.auth.signOut();
+      setError('Access denied. You do not have admin privileges.');
+      return;
     }
   };
 
@@ -302,6 +327,29 @@ export default function AdminPage() {
               Sign In
             </Button>
           </form>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Show access denied for authenticated users who are not admins
+  if (!isAdmin) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-sm p-8 bg-secondary/50 rounded-2xl border border-border text-center"
+        >
+          <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
+          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+          <p className="text-muted-foreground mb-6">
+            You do not have permission to access the admin dashboard.
+          </p>
+          <Button variant="outline" onClick={handleLogout} className="w-full">
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
         </motion.div>
       </div>
     );
