@@ -106,10 +106,19 @@ function WebsiteOrderWizardComponent({
       }
     };
 
+    // 30-second timeout fallback - auto-redirect if user doesn't return
+    const timeoutId = setTimeout(() => {
+      const pendingOrder = sessionStorage.getItem('pending_order');
+      if (pendingOrder) {
+        window.location.href = '/payment-success';
+      }
+    }, 30000);
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleFocus);
 
     return () => {
+      clearTimeout(timeoutId);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
@@ -582,16 +591,19 @@ function WebsiteOrderWizardComponent({
             </motion.div>
           </AnimatePresence>
 
-          <div className="hidden lg:block">
-            <OrderSummary 
-              formData={formData} 
-              isPostDemoFlow={isPostDemoFlow}
-              currentStep={step}
-              onCheckout={step === 6 ? handleSubmit : undefined}
-              isLoading={isLoading}
-              addedAdminPanel={addedAdminPanel}
-            />
-          </div>
+          {/* Hide order summary sidebar on payment step */}
+          {step !== 6 && (
+            <div className="hidden lg:block">
+              <OrderSummary 
+                formData={formData} 
+                isPostDemoFlow={isPostDemoFlow}
+                currentStep={step}
+                onCheckout={undefined}
+                isLoading={isLoading}
+                addedAdminPanel={addedAdminPanel}
+              />
+            </div>
+          )}
         </div>
 
         {/* Mobile: Fixed bottom bar */}

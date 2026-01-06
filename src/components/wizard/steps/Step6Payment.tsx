@@ -143,9 +143,9 @@ export function Step6Payment({
           )}
 
           {isPostDemoFlow && (
-            <div className="flex justify-between items-center text-sm text-accent">
-              <span>{t('Verifieringsavgift betald', 'Verification fee paid')}</span>
-              <span>-{formatPrice(VERIFICATION_FEE)}</span>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-accent font-medium">{t('Konceptrabatt', 'Concept discount')}</span>
+              <span className="text-accent font-bold">-{formatPrice(VERIFICATION_FEE)}</span>
             </div>
           )}
 
