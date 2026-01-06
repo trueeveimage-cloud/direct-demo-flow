@@ -1,16 +1,16 @@
 project_id = "sqcituulcofjekcvyfme"
 
 [functions.create-package-checkout]
-verify_jwt = true
+verify_jwt = false
 
 [functions.create-care-plan-checkout]
-verify_jwt = true
+verify_jwt = false
 
 [functions.create-verification-checkout]
-verify_jwt = true
+verify_jwt = false
 
 [functions.verify-vat]
-verify_jwt = true
+verify_jwt = false
 
 [functions.send-contact-email]
 verify_jwt = true
