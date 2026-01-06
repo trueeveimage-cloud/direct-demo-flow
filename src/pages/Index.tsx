@@ -122,7 +122,7 @@ export default function Index() {
           >
             <Button asChild size="lg" className="group h-14 px-10 text-base font-medium hover:scale-[1.03] transition-all duration-300 shadow-lg shadow-accent/20">
               <Link to="/demo">
-                {t('Få ditt koncept', 'Get your concept')}
+                {t('Få ditt gratis koncept', 'Get your free concept')}
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>

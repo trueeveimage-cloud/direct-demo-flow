@@ -64,17 +64,16 @@ export function useAutoSave() {
   const [lastSaveTime, setLastSaveTime] = useState<number | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Check for saved data on mount - only show resume prompt if returning from a closed session
+  // Check for saved data on mount - show resume prompt if data exists regardless of session
   useEffect(() => {
-    const wasSessionActive = sessionStorage.getItem(SESSION_KEY);
     const stored = localStorage.getItem(STORAGE_KEY);
     
-    if (stored && !wasSessionActive) {
-      // User is returning from a closed session - show resume prompt
+    if (stored) {
       try {
         const parsed = JSON.parse(stored) as IntakeData;
-        // Check if data is less than 7 days old
-        if (Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
+        // Check if data is less than 7 days old and has meaningful content
+        const hasContent = parsed.businessName || parsed.email || parsed.step > 1;
+        if (hasContent && Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
           setSavedData(parsed);
           setHasSavedData(true);
         } else {
@@ -84,9 +83,6 @@ export function useAutoSave() {
         localStorage.removeItem(STORAGE_KEY);
       }
     }
-    
-    // Mark session as active
-    sessionStorage.setItem(SESSION_KEY, 'true');
     
     return () => {
       if (saveTimeoutRef.current) {

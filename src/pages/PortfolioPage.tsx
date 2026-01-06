@@ -24,6 +24,7 @@ export default function PortfolioPage() {
       tags: [t('Bokning', 'Booking'), t('Responsiv', 'Responsive'), 'SEO'],
       externalUrl: 'https://gailshairgallery.lovable.app/book',
       image: gailsHairImg,
+      resultBadge: t('+89% fler bokningar', '+89% more bookings'),
     },
     {
       slug: 'oh-my-coffee',
@@ -33,6 +34,7 @@ export default function PortfolioPage() {
       tags: [t('Meny', 'Menu'), t('Beställning', 'Order'), t('Karta', 'Map')],
       externalUrl: 'https://ohmycoffee-gbg-web.lovable.app/',
       image: ohMyCoffeeImg,
+      resultBadge: undefined,
     },
     {
       slug: 'bamba',
@@ -42,6 +44,7 @@ export default function PortfolioPage() {
       tags: [t('Bokning', 'Booking'), t('Meny', 'Menu'), t('Atmosfär', 'Atmosphere')],
       externalUrl: 'https://bamba.lovable.app/',
       image: bambaImg,
+      resultBadge: t('+177% bokningar/vecka', '+177% bookings/week'),
     },
     {
       slug: 'en-deli-haga',
@@ -51,6 +54,7 @@ export default function PortfolioPage() {
       tags: [t('Mobil-först', 'Mobile-first'), t('Meny', 'Menu'), t('Lokal', 'Local')],
       externalUrl: 'https://en-deli-cozy-vibes.lovable.app/',
       image: enDeliHagaImg,
+      resultBadge: undefined,
     },
     {
       slug: 'trueeve',
@@ -60,6 +64,7 @@ export default function PortfolioPage() {
       tags: [t('Lyxig', 'Luxury'), t('Landingpage', 'Landing page'), t('Coaching', 'Coaching')],
       externalUrl: 'https://trueeve.se/',
       image: trueEveImg,
+      resultBadge: undefined,
     },
     {
       slug: 'sweden-car',
@@ -69,6 +74,7 @@ export default function PortfolioPage() {
       tags: [t('Bilar', 'Cars'), t('Service', 'Service'), t('Finansiering', 'Financing')],
       externalUrl: 'https://premium-car-boutique.lovable.app/',
       image: swedenCarImg,
+      resultBadge: t('+62% fler förfrågningar', '+62% more inquiries'),
     },
   ];
 
@@ -93,6 +99,15 @@ export default function PortfolioPage() {
                 rel="noopener noreferrer"
                 className="group relative bg-background border border-border rounded-lg overflow-hidden hover:border-accent transition-all duration-300 block h-full"
               >
+                {/* Result Sticker */}
+                {project.resultBadge && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <span className="bg-accent text-accent-foreground text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                      {project.resultBadge}
+                    </span>
+                  </div>
+                )}
+
                 {/* Project Image */}
                 <div className="aspect-[4/3] overflow-hidden">
                   <img 
