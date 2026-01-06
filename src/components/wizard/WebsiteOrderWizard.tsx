@@ -64,7 +64,7 @@ function WebsiteOrderWizardComponent({
   const [showAdminPanelModal, setShowAdminPanelModal] = useState(false);
   const [adminPanelDecision, setAdminPanelDecision] = useState(false);
 
-  // Check for saved data on mount - show resume prompt if data exists
+// Check for saved data on mount - show resume prompt if data exists
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     
@@ -83,6 +83,37 @@ function WebsiteOrderWizardComponent({
       }
     }
   }, []);
+
+  // Detect when user returns from Stripe payment and redirect to success page
+  useEffect(() => {
+    if (!submitted) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // User returned to the tab - check if there's a pending order
+        const pendingOrder = sessionStorage.getItem('pending_order');
+        if (pendingOrder) {
+          // Redirect to success page - Stripe will add session_id via success_url
+          window.location.href = '/payment-success';
+        }
+      }
+    };
+
+    const handleFocus = () => {
+      const pendingOrder = sessionStorage.getItem('pending_order');
+      if (pendingOrder) {
+        window.location.href = '/payment-success';
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [submitted]);
 
   // Debounced auto-save
   const saveData = useCallback(() => {
