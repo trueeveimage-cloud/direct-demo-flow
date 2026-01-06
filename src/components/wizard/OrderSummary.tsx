@@ -71,16 +71,32 @@ function OrderSummaryComponent({
     );
   }
 
+  // On payment step (6), show "Order summary" title instead of "Your order"
+  const isPaymentStep = currentStep === 6;
+
   return (
     <motion.div
+      key={isPaymentStep ? 'order-summary' : 'your-order'}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
       className="bg-secondary/50 backdrop-blur-sm rounded-2xl p-6 border border-border/50 sticky top-24"
     >
-      <div className="flex items-center gap-2 mb-6">
-        <Sparkles className="w-5 h-5 text-accent" />
-        <h3 className="font-semibold text-lg">{t('Din beställning', 'Your order')}</h3>
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={isPaymentStep ? 'summary-title' : 'order-title'}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="flex items-center gap-2 mb-6"
+        >
+          <Sparkles className="w-5 h-5 text-accent" />
+          <h3 className="font-semibold text-lg">
+            {isPaymentStep ? t('Ordersammanfattning', 'Order summary') : t('Din beställning', 'Your order')}
+          </h3>
+        </motion.div>
+      </AnimatePresence>
 
       <div className="space-y-4">
         {/* Package */}

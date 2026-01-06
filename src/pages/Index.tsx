@@ -419,47 +419,38 @@ export default function Index() {
               {
                 title: t('Responsiv design', 'Responsive design'),
                 desc: t('Ser perfekt ut på mobil, surfplatta och dator.', 'Looks perfect on mobile, tablet, and desktop.'),
-                icon: '📱'
               },
               {
                 title: t('Snabb leverans', 'Fast delivery'),
                 desc: t('7-14 dagars leverans beroende på paket.', '7-14 day delivery depending on package.'),
-                icon: '⚡'
               },
               {
                 title: t('SEO-optimerad', 'SEO optimized'),
                 desc: t('Grundläggande sökmotoroptimering för bättre synlighet.', 'Basic search engine optimization for better visibility.'),
-                icon: '🔍'
               },
               {
                 title: t('Kontaktformulär', 'Contact form'),
                 desc: t('Få leads direkt till din inbox.', 'Get leads directly to your inbox.'),
-                icon: '✉️'
               },
               {
                 title: t('Revisioner ingår', 'Revisions included'),
                 desc: t('1-3 revideringsrundor beroende på paket.', '1-3 revision rounds depending on package.'),
-                icon: '🔄'
               },
               {
                 title: t('Fast pris', 'Fixed price'),
                 desc: t('Inga dolda kostnader eller överraskningar.', 'No hidden costs or surprises.'),
-                icon: '💰'
               },
               {
                 title: t('Flerspråksstöd', 'Multi-language'),
                 desc: t('Svenska + engelska (Standard & Pro).', 'Swedish + English (Standard & Pro).'),
-                icon: '🌐'
               },
               {
                 title: t('Bokningssystem', 'Booking system'),
                 desc: t('Låt kunder boka direkt online (Pro).', 'Let customers book directly online (Pro).'),
-                icon: '📅'
               },
               {
                 title: t('Google Analytics', 'Google Analytics'),
                 desc: t('Se exakt hur besökare använder din sida (Pro).', 'See exactly how visitors use your site (Pro).'),
-                icon: '📊'
               },
             ].map((item, index) => (
               <motion.div
@@ -470,7 +461,6 @@ export default function Index() {
                 transition={{ duration: 0.4, delay: index * 0.05 }}
                 className="p-5 rounded-xl border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 group"
               >
-                <span className="text-2xl mb-3 block">{item.icon}</span>
                 <h3 className="font-semibold text-lg mb-1 group-hover:text-accent transition-colors">{item.title}</h3>
                 <p className="text-muted-foreground text-sm">{item.desc}</p>
               </motion.div>

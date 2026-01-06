@@ -100,7 +100,7 @@ export function Header() {
             {/* CTA */}
             <Button asChild className="group">
               <Link to="/demo">
-                {t('Få ditt koncept', 'Get your concept')}
+                {t('Få ditt gratis koncept', 'Get your free concept')}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
@@ -146,7 +146,7 @@ export function Header() {
             <div className="pt-4">
               <Button asChild className="w-full group">
                 <Link to="/demo" onClick={() => setIsOpen(false)}>
-                  {t('Få ditt koncept (72h)', 'Get your concept (72h)')}
+                  {t('Få ditt gratis koncept', 'Get your free concept')}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
