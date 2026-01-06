@@ -64,15 +64,16 @@ function WebsiteOrderWizardComponent({
   const [showAdminPanelModal, setShowAdminPanelModal] = useState(false);
   const [adminPanelDecision, setAdminPanelDecision] = useState(false);
 
-  // Check for saved data on mount
+  // Check for saved data on mount - show resume prompt if data exists
   useEffect(() => {
-    const wasSessionActive = sessionStorage.getItem(SESSION_KEY);
     const stored = localStorage.getItem(STORAGE_KEY);
     
-    if (stored && !wasSessionActive) {
+    if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        if (Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
+        // Check if data is less than 7 days old and has meaningful content
+        const hasContent = parsed.businessName || parsed.email || parsed.step > 1;
+        if (hasContent && Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
           setShowResumeBanner(true);
         } else {
           localStorage.removeItem(STORAGE_KEY);
@@ -81,8 +82,6 @@ function WebsiteOrderWizardComponent({
         localStorage.removeItem(STORAGE_KEY);
       }
     }
-    
-    sessionStorage.setItem(SESSION_KEY, 'true');
   }, []);
 
   // Debounced auto-save
@@ -348,17 +347,24 @@ function WebsiteOrderWizardComponent({
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring" }}
             >
-              <CheckCircle2 className="w-10 h-10 text-accent" />
+              <Loader2 className="w-10 h-10 text-accent animate-spin" />
             </motion.div>
-            <h1 className="text-4xl font-bold mb-4">{t('Tack för din beställning!', 'Thank you for your order!')}</h1>
+            <h1 className="text-4xl font-bold mb-4">{t('Slutför betalningen', 'Complete your payment')}</h1>
             <p className="text-lg text-muted-foreground mb-6 max-w-md mx-auto">
-              {t('Vi har mottagit din beställning och börjar arbeta direkt.', 'We have received your order and will start working immediately.')}
+              {t('Stripe-kassan har öppnats i ett nytt fönster. Slutför betalningen där för att slutföra din beställning.', 'Stripe checkout has opened in a new window. Complete the payment there to finalize your order.')}
             </p>
             <div className="p-6 bg-accent/10 rounded-xl inline-block mb-8">
               <p className="text-xl font-bold">{pkg?.name} — {formatPrice((pkg?.price || 0) - (isPostDemoFlow ? VERIFICATION_FEE : 0))}</p>
               <p className="text-muted-foreground">{t('Leverans inom', 'Delivery within')} {pkg?.delivery} {t('dagar', 'days')}</p>
             </div>
-            <Button asChild><Link to="/">{t('Tillbaka till start', 'Back to home')}</Link></Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button variant="outline" onClick={() => setSubmitted(false)}>
+                {t('Tillbaka till beställningen', 'Back to order')}
+              </Button>
+              <Button asChild>
+                <Link to="/">{t('Tillbaka till start', 'Back to home')}</Link>
+              </Button>
+            </div>
           </motion.div>
         </div>
       </div>
