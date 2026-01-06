@@ -75,20 +75,20 @@ function OrderSummaryComponent({
   const isPaymentStep = currentStep === 6;
 
   return (
-    <motion.div
-      key={isPaymentStep ? 'order-summary' : 'your-order'}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="bg-secondary/50 backdrop-blur-sm rounded-2xl p-6 border border-border/50 sticky top-24"
-    >
-      <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={isPaymentStep ? 'order-summary' : 'your-order'}
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -10, scale: 0.98 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="bg-secondary/50 backdrop-blur-sm rounded-2xl p-6 border border-border/50 sticky top-24"
+      >
         <motion.div
           key={isPaymentStep ? 'summary-title' : 'order-title'}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
           className="flex items-center gap-2 mb-6"
         >
           <Sparkles className="w-5 h-5 text-accent" />
@@ -96,7 +96,6 @@ function OrderSummaryComponent({
             {isPaymentStep ? t('Ordersammanfattning', 'Order summary') : t('Din beställning', 'Your order')}
           </h3>
         </motion.div>
-      </AnimatePresence>
 
       <div className="space-y-4">
         {/* Package */}
@@ -285,12 +284,13 @@ function OrderSummaryComponent({
                 >
                   →
                 </motion.span>
-              </>
+          </>
             )}
           </Button>
         )}
       </div>
-    </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
