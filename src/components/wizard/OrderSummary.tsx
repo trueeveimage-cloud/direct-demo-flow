@@ -232,11 +232,11 @@ function OrderSummaryComponent({
         {/* Divider */}
         <div className="h-px bg-border my-4" />
 
-        {/* Verification fee deduction (post-demo only) */}
+        {/* Concept discount (post-demo only) */}
         {isPostDemoFlow && (
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>{t('Verifieringsavgift betald', 'Verification fee paid')}</span>
-            <span className="text-accent">-{formatPrice(VERIFICATION_FEE)}</span>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-accent font-medium">{t('Konceptrabatt', 'Concept discount')}</span>
+            <span className="text-accent font-bold">-{formatPrice(VERIFICATION_FEE)}</span>
           </div>
         )}
 

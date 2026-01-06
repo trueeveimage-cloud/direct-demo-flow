@@ -45,7 +45,15 @@ function sanitizeString(str: unknown, maxLength = 500): string {
 }
 
 // Package price IDs from Stripe (one-time payments in EUR) - NET prices (without VAT)
-const PACKAGE_PRICES: Record<string, string> = {
+// Full prices for DIRECT checkout (no deposit deducted)
+const PACKAGE_PRICES_FULL: Record<string, string> = {
+  starter: "price_1Shc7274JfaAfHsdL9VXCqBg",   // €490 full price
+  standard: "price_1Shc6g74JfaAfHsdN2rC6wSK", // €790 full price
+  pro: "price_1Shc6274JfaAfHsdY2vbFoNe",      // €1,290 full price
+};
+
+// Discounted prices for POST-DEMO checkout (€50 deposit already paid)
+const PACKAGE_PRICES_DISCOUNTED: Record<string, string> = {
   starter: "price_1Shc6N74JfaAfHsdaVZU5rQL",   // €440 (€490 - €50 deposit)
   standard: "price_1Shc6274JfaAfHsdSQEMwWZ0", // €740 (€790 - €50 deposit)
   pro: "price_1Shc5k74JfaAfHsdT7xzOxfA",      // €1,240 (€1,290 - €50 deposit)
@@ -71,6 +79,7 @@ interface CheckoutRequest {
   wantsBooking?: boolean;
   bookingAddonCost?: number;
   addedAdminPanel?: boolean;
+  isPostDemoFlow?: boolean; // NEW: determines which price set to use
   businessType?: string;
   websiteGoal?: string;
   primaryColor?: string;
@@ -177,6 +186,7 @@ serve(async (req) => {
     const wantsBooking = requestData.wantsBooking === true;
     const bookingAddonCost = typeof requestData.bookingAddonCost === "number" ? requestData.bookingAddonCost : 0;
     const addedAdminPanel = requestData.addedAdminPanel === true;
+    const isPostDemoFlow = requestData.isPostDemoFlow === true;
     
     // Customer type data
     const customerType = requestData.customerType === "private" || requestData.customerType === "business" 
@@ -206,12 +216,16 @@ serve(async (req) => {
       wantsBooking,
       bookingAddonCost,
       addedAdminPanel,
+      isPostDemoFlow,
       customerType,
       vatVerified,
       customerCountry
     });
 
-    const priceId = PACKAGE_PRICES[packageId];
+    // Use discounted prices for post-demo flow (€50 deposit already paid), full prices for direct checkout
+    const priceId = isPostDemoFlow 
+      ? PACKAGE_PRICES_DISCOUNTED[packageId] 
+      : PACKAGE_PRICES_FULL[packageId];
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
