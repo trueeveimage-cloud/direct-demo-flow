@@ -312,9 +312,6 @@ export default function Index() {
               className="relative p-8 rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/5 to-transparent"
             >
               <div className="absolute -top-3 left-6 flex gap-2">
-                <span className="bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full">
-                  {t('Rekommenderas', 'Recommended')}
-                </span>
                 <span className="bg-orange-500/90 text-white text-xs font-bold px-3 py-1 rounded-full">
                   {spotsLoading ? '...' : remainingSpots > 0 ? t(`${remainingSpots} kvar`, `${remainingSpots} left`) : t('Fullbokat', 'Full')}
                 </span>
