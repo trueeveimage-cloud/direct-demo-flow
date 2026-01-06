@@ -47,9 +47,9 @@ function sanitizeString(str: unknown, maxLength = 500): string {
 // Package price IDs from Stripe (one-time payments in EUR) - NET prices (without VAT)
 // Full prices for DIRECT checkout (no deposit deducted)
 const PACKAGE_PRICES_FULL: Record<string, string> = {
-  starter: "price_1Shc7274JfaAfHsdL9VXCqBg",   // €490 full price
-  standard: "price_1Shc6g74JfaAfHsdN2rC6wSK", // €790 full price
-  pro: "price_1Shc6274JfaAfHsdY2vbFoNe",      // €1,290 full price
+  starter: "price_1SmXpy74JfaAfHsddlqED2cw",   // €490 full price
+  standard: "price_1SmXpz74JfaAfHsdvEqVaKSi", // €790 full price
+  pro: "price_1SmXq074JfaAfHsdjKigI9Qr",      // €1,290 full price
 };
 
 // Discounted prices for POST-DEMO checkout (€50 deposit already paid)
