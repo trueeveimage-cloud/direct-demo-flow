@@ -91,7 +91,7 @@ export default function ContactPage() {
               <Button 
                 asChild
                 size="lg" 
-                className="group text-lg px-8 py-6 h-auto"
+                className="group text-lg px-8 py-6 h-auto w-full sm:w-auto"
               >
                 <Link to="/efter-demo">
                   {t('Ja, jag vill prata om mitt koncept', 'Yes, I want to discuss my concept')}
