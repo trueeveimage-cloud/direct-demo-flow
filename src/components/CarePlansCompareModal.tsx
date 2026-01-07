@@ -30,11 +30,15 @@ const carePlans = [
         'Performance/security check 1x/month'
       ]
     },
-    domain: false,
+    domain: true,
     email: false,
     editHours: 0,
     prioritySupport: false,
-    seoCheck: false
+    seoCheck: false,
+    speedOptimization: false,
+    uptimeMonitoring: false,
+    malwareCleanup: false,
+    rollbackRestore: false
   },
   { 
     id: 'standard', 
@@ -45,14 +49,12 @@ const carePlans = [
     features: {
       sv: [
         'Allt i Basic',
-        'Domän inkluderad',
         'Företagsmail (1–3 adresser)',
         '1 timme ändringar/mån',
         'Support inom 24–48h vardagar'
       ],
       en: [
         'Everything in Basic',
-        'Domain included',
         'Business email (1-3 addresses)',
         '1 hour edits/month',
         'Support within 24-48h weekdays'
@@ -62,7 +64,11 @@ const carePlans = [
     email: true,
     editHours: 1,
     prioritySupport: false,
-    seoCheck: false
+    seoCheck: false,
+    speedOptimization: true,
+    uptimeMonitoring: false,
+    malwareCleanup: true,
+    rollbackRestore: false
   },
   { 
     id: 'pro', 
@@ -89,7 +95,11 @@ const carePlans = [
     email: true,
     editHours: 3,
     prioritySupport: true,
-    seoCheck: true
+    seoCheck: true,
+    speedOptimization: true,
+    uptimeMonitoring: true,
+    malwareCleanup: true,
+    rollbackRestore: true
   },
 ];
 
@@ -126,6 +136,11 @@ export function CarePlansCompareModal({ open, onOpenChange, isYearly }: CarePlan
                       <span className="inline-block text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded mt-1">
                         {t('Rekommenderas', 'Recommended')}
                       </span>
+                    )}
+                    {plan.id === 'basic' && (
+                      <p className="text-xs text-muted-foreground mt-2 italic">
+                        {t('De flesta på Basic uppgraderar inom 60 dagar.', 'Most clients on Basic upgrade within 60 days.')}
+                      </p>
                     )}
                   </th>
                 ))}
@@ -164,6 +179,54 @@ export function CarePlansCompareModal({ open, onOpenChange, isYearly }: CarePlan
                       <X className="w-5 h-5 text-muted-foreground mx-auto" />
                     ) : (
                       `${plan.editHours} ${t('timmar', 'hours')}`
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-3 font-medium">{t('Hastighetsoptimering', 'Speed optimization')}</td>
+                {carePlans.map(plan => (
+                  <td key={plan.id} className={`text-center p-3 ${plan.popular ? 'bg-accent/5' : ''}`}>
+                    {plan.speedOptimization ? (
+                      <Check className="w-5 h-5 text-accent mx-auto" />
+                    ) : (
+                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-3 font-medium">{t('Uptime-övervakning', 'Uptime monitoring')}</td>
+                {carePlans.map(plan => (
+                  <td key={plan.id} className={`text-center p-3 ${plan.popular ? 'bg-accent/5' : ''}`}>
+                    {plan.uptimeMonitoring ? (
+                      <Check className="w-5 h-5 text-accent mx-auto" />
+                    ) : (
+                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-3 font-medium">{t('Skadedjursrensning', 'Malware cleanup')}</td>
+                {carePlans.map(plan => (
+                  <td key={plan.id} className={`text-center p-3 ${plan.popular ? 'bg-accent/5' : ''}`}>
+                    {plan.malwareCleanup ? (
+                      <Check className="w-5 h-5 text-accent mx-auto" />
+                    ) : (
+                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-3 font-medium">{t('Rollback / återställ', 'Rollback / restore')}</td>
+                {carePlans.map(plan => (
+                  <td key={plan.id} className={`text-center p-3 ${plan.popular ? 'bg-accent/5' : ''}`}>
+                    {plan.rollbackRestore ? (
+                      <Check className="w-5 h-5 text-accent mx-auto" />
+                    ) : (
+                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
                     )}
                   </td>
                 ))}
