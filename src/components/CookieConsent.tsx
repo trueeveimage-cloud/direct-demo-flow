@@ -16,7 +16,7 @@ export function CookieConsent() {
     const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
     if (!consent) {
       // Small delay before showing for better UX
-      const timer = setTimeout(() => setIsVisible(true), 1500);
+      const timer = setTimeout(() => setIsVisible(true), 10000);
       return () => clearTimeout(timer);
     }
   }, []);
