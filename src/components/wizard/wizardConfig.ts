@@ -345,9 +345,9 @@ export const languages = [
 ];
 
 export const carePlans = [
-  { id: 'basic', name: 'Basic', monthlyPrice: 25, yearlyPrice: 20, features: { sv: ['Hosting', 'Uppdateringar', 'Säkerhetskopiering'], en: ['Hosting', 'Updates', 'Backups'] } },
-  { id: 'standard', name: 'Standard', monthlyPrice: 45, yearlyPrice: 36, popular: true, features: { sv: ['Allt i Basic', 'Domän ingår', 'Företagsmail', '1h ändringar/mån'], en: ['Everything in Basic', 'Domain included', 'Business email', '1h edits/month'] } },
-  { id: 'pro', name: 'Pro', monthlyPrice: 75, yearlyPrice: 60, features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Prioriterad support'], en: ['Everything in Standard', '3h edits/month', 'Priority support'] } },
+  { id: 'basic', name: 'Basic', monthlyPrice: 25, yearlyPrice: 20, note: { sv: 'De flesta uppgraderar inom 60 dagar.', en: 'Most clients upgrade within 60 days.' }, features: { sv: ['Domän ingår', 'Hosting (snabb + SSL)', 'Säkerhetsuppdateringar', 'Dagliga/veckovisa backups'], en: ['Domain included', 'Hosting (fast + SSL)', 'Security updates', 'Daily/weekly backups'] } },
+  { id: 'standard', name: 'Standard', monthlyPrice: 45, yearlyPrice: 36, popular: true, features: { sv: ['Allt i Basic', 'Företagsmail', '1h ändringar/mån', 'Hastighetsoptimering', 'Skadedjursrensning'], en: ['Everything in Basic', 'Business email', '1h edits/month', 'Speed optimization', 'Malware cleanup'] } },
+  { id: 'pro', name: 'Pro', monthlyPrice: 75, yearlyPrice: 60, features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Uptime-övervakning', 'Rollback / återställ', 'Prioriterad support', 'SEO-check'], en: ['Everything in Standard', '3h edits/month', 'Uptime monitoring', 'Rollback / restore', 'Priority support', 'SEO check'] } },
 ];
 
 export const businessTypes = [

@@ -134,6 +134,11 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans }: Ste
                   </span>
                 )}
               </div>
+              {'note' in c && c.note && (
+                <p className="text-xs text-muted-foreground/70 italic mb-3">
+                  {lang === 'sv' ? c.note.sv : c.note.en}
+                </p>
+              )}
               <ul className="space-y-2">
                 {(lang === 'sv' ? c.features.sv : c.features.en).map((f, idx) => (
                   <motion.li 

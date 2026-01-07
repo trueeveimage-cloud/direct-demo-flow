@@ -44,8 +44,10 @@ export default function PricingPage() {
         { text: t('2 revisionsrundor', '2 revision rounds'), key: '2 revisionsrundor' },
         { text: t('Bildgalleri/sektioner', 'Image gallery/sections'), key: 'Bildgalleri/sektioner' },
         { text: t('Sociala länkar + klickbar telefon/mail', 'Social links + clickable phone/email'), key: 'Sociala' },
+        { text: t('Google Analytics', 'Google Analytics'), key: 'Google Analytics' },
+        { text: t('Nyhetsbrev setup', 'Newsletter setup'), key: 'Nyhetsbrev setup' },
         { text: t('Flerspråkig', 'Multi-language'), key: 'Flerspråkig' }
-      ] 
+      ]
     },
     { 
       name: 'Pro', 
@@ -70,11 +72,12 @@ export default function PricingPage() {
       monthlyPrice: 25,
       yearlyPrice: 20,
       description: t('Du behöver inte tänka på teknik.', 'You don\'t need to think about tech.'),
+      note: t('De flesta på Basic uppgraderar inom 60 dagar.', 'Most clients on Basic upgrade within 60 days.'),
       features: [
+        t('Domän ingår', 'Domain included'),
         t('Hosting (snabb + SSL)', 'Hosting (fast + SSL)'), 
         t('Säkerhetsuppdateringar', 'Security updates'), 
         t('Dagliga/veckovisa backups', 'Daily/weekly backups'), 
-        t('Uptime monitoring + alert', 'Uptime monitoring + alerts'),
         t('Prestanda/säkerhetscheck 1x/mån', 'Performance/security check 1x/month')
       ] 
     },
@@ -86,9 +89,10 @@ export default function PricingPage() {
       popular: true, 
       features: [
         t('Allt i Basic', 'Everything in Basic'), 
-        t('Domän inkluderad', 'Domain included'), 
         t('Företagsmail (1–3 adresser)', 'Business email (1-3 addresses)'), 
         t('1 timme ändringar/mån', '1 hour edits/month'),
+        t('Hastighetsoptimering', 'Speed optimization'),
+        t('Skadedjursrensning', 'Malware cleanup'),
         t('Support inom 24–48h', 'Support within 24-48h')
       ] 
     },
@@ -100,8 +104,9 @@ export default function PricingPage() {
       features: [
         t('Allt i Standard', 'Everything in Standard'), 
         t('3 timmar ändringar/mån', '3 hours edits/month'), 
+        t('Uptime-övervakning', 'Uptime monitoring'),
+        t('Rollback / återställ', 'Rollback / restore'),
         t('Prioriterad support', 'Priority support'), 
-        t('Prestandaoptimering 1x/mån', 'Performance optimization 1x/month'),
         t('Basic SEO-check 1x/mån', 'Basic SEO check 1x/month')
       ] 
     },
@@ -246,7 +251,10 @@ export default function PricingPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
+                  <p className="text-sm text-muted-foreground mb-2">{plan.description}</p>
+                  {'note' in plan && plan.note && (
+                    <p className="text-xs text-muted-foreground/70 italic mb-4">{plan.note}</p>
+                  )}
                   <ul className="space-y-2 sm:space-y-3 flex-grow">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2 sm:gap-3 text-sm">
