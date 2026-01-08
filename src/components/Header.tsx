@@ -172,8 +172,8 @@ export function Header() {
                       onClick={() => setProjectDropdownOpen(false)}
                       className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/50 transition-colors group"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                        <Sparkles className="w-5 h-5 text-accent" />
+                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-sm">{t('Gratis koncept', 'Free concept')}</div>
@@ -187,8 +187,8 @@ export function Header() {
                       onClick={() => setProjectDropdownOpen(false)}
                       className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/50 transition-colors group"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <ShoppingCart className="w-5 h-5 text-primary" />
+                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                        <ShoppingCart className="w-5 h-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-sm">{t('Beställ direkt', 'Order directly')}</div>
@@ -261,7 +261,7 @@ export function Header() {
               ))}
               
               <div className="pt-3 mt-3 border-t border-border space-y-2">
-                <Button asChild className="w-full rounded-xl group">
+                <Button asChild variant="outline" className="w-full rounded-xl group">
                   <Link to="/demo" onClick={() => setIsOpen(false)}>
                     <Sparkles className="w-4 h-4 mr-2" />
                     {t('Gratis koncept', 'Free concept')}

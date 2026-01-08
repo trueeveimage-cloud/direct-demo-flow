@@ -121,27 +121,18 @@ export default function Index() {
             transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
-            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium hover:scale-[1.03] transition-all duration-300 shadow-lg shadow-accent/20">
+            <Button asChild variant="outline" size="lg" className="group h-14 px-10 text-base font-medium hover:scale-[1.03] transition-all duration-300 border-border/50 hover:border-accent/50 hover:bg-accent/5">
               <Link to="/demo">
                 {t('Få ditt gratis koncept', 'Get your free concept')}
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="group h-14 px-10 text-base font-medium hover:scale-[1.03] transition-all duration-300 border-border/60 hover:border-accent/50 hover:bg-accent/5">
+            <Button asChild variant="outline" size="lg" className="group h-14 px-10 text-base font-medium hover:scale-[1.03] transition-all duration-300 border-border/50 hover:border-accent/50 hover:bg-accent/5">
               <Link to="/bestall">
                 {t('Beställ direkt', 'Order directly')}
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground"
-          >
-            <span className="font-bold">Klarna</span>
-            <span>{t('Delbetala enkelt', 'Easy installments')}</span>
           </motion.div>
           
           {/* ROI Calculator Button */}

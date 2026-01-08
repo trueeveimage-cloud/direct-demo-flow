@@ -47,17 +47,7 @@ const PricingCard = ({
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.15),transparent_60%)] pointer-events-none" />
         )}
 
-        {/* Popular badge */}
-        {pkg.popular && (
-          <motion.span 
-            initial={{ scale: 0 }}
-            animate={isInView ? { scale: 1 } : {}}
-            transition={{ type: "spring", delay: 0.3 }}
-            className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap shadow-lg"
-          >
-            {t('Populärast', 'Most Popular')}
-          </motion.span>
-        )}
+        {/* Popular badge - removed for equal treatment */}
 
         {/* Icon */}
         <motion.div
@@ -375,11 +365,7 @@ export default function PricingPage() {
                       : 'border-border bg-background hover:border-accent/50'
                   }`}
                 >
-{plan.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">
-                      {t('Populärast', 'Most Popular')}
-                    </span>
-                  )}
+{/* Popular badge removed for equal treatment */}
                   <h3 className="font-heading font-bold text-2xl mb-2">{plan.name}</h3>
                   <div className="mb-2">
                     <span className="text-3xl font-bold text-accent">{getCarePlanPrice(plan)}</span>
