@@ -16,7 +16,7 @@ const organizationSchema = {
   name: 'Nomia',
   url: 'https://nomia.se',
   logo: 'https://nomia.se/og-image.png',
-  description: 'Professional web design for small businesses. Get a free website concept in 72 hours.',
+  description: 'Professional web design for businesses. Get a free website concept in 72 hours.',
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Gothenburg',
@@ -37,7 +37,7 @@ const localBusinessSchema = {
   name: 'Nomia',
   url: 'https://nomia.se',
   image: 'https://nomia.se/og-image.png',
-  description: 'Web design agency specializing in fast, beautiful websites for small businesses.',
+  description: 'Web design agency specializing in fast, beautiful websites for growing businesses.',
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Gothenburg',
@@ -115,7 +115,7 @@ export function SEOHead({ title, description, type = 'website', image }: SEOHead
   const { lang } = useLanguage();
   
   const defaultTitle = 'Nomia | Web Design in 72 Hours';
-  const defaultDescription = 'Get a free website concept in 72 hours. Professional websites for small businesses. €50 verification, 100% refund if you don\'t like the demo.';
+  const defaultDescription = 'Get a free website concept in 72 hours. Professional websites for ambitious businesses. €50 verification, 100% refund if you don\'t like the demo.';
   const defaultImage = 'https://nomia.se/og-image.png';
   
   const pageTitle = title ? `${title} | Nomia` : defaultTitle;

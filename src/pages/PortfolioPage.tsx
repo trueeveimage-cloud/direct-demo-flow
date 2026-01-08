@@ -481,7 +481,7 @@ export default function PortfolioPage() {
             {t('Våra arbeten', 'Our Work')}
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto text-lg">
-            {t('Webbplatser som levererar resultat för småföretag.', 'Websites that deliver results for small businesses.')}
+            {t('Webbplatser som levererar mätbara resultat.', 'Websites that deliver measurable results.')}
           </p>
         </AnimatedSection>
 
