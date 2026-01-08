@@ -31,18 +31,31 @@ const BritishFlag = () => (
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const { lang, setLang, t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const currentScrollY = window.scrollY;
+      
+      // Show header when at top or scrolling up, hide when scrolling down
+      if (currentScrollY < 50) {
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        setVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
     };
-    window.addEventListener('scroll', handleScroll);
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -57,24 +70,23 @@ export function Header() {
   const navItems = [
     { path: '/portfolio', label: t('Arbeten', 'Work') },
     { path: '/priser', label: t('Tjänster', 'Services') },
-    { path: '/faq', label: t('Metod', 'Method') },
-    { path: '/kontakt', label: t('Kontakt', 'Contact') },
   ];
 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4">
+    <motion.header 
+      initial={{ y: 0 }}
+      animate={{ y: visible ? 0 : -100 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4"
+    >
       {/* Floating pill navigation */}
       <motion.nav
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full border transition-all duration-300 ${
-          scrolled 
-            ? 'bg-secondary/95 backdrop-blur-md border-border/80 shadow-lg' 
-            : 'bg-secondary/80 backdrop-blur-sm border-border/50'
-        }`}
+        className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full border bg-secondary/95 backdrop-blur-md border-border/80 shadow-lg"
       >
         {/* Logo */}
         <a 
@@ -184,6 +196,6 @@ export function Header() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }
