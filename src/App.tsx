@@ -3,13 +3,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Layout } from "@/components/Layout";
 import { NomiaIntro, useNomiaIntro } from "@/components/NomiaIntro";
 import { CookieConsent } from "@/components/CookieConsent";
 import { SEOHead } from "@/components/SEOHead";
+import { PageTransition } from "@/components/PageTransition";
 import { getAnalytics } from "@/lib/posthog";
 import { useKonamiCode } from "@/hooks/useKonamiCode";
 import Index from "./pages/Index";
@@ -33,6 +34,36 @@ import IndustrySalonsPage from "./pages/IndustrySalonsPage";
 import IndustryEcommercePage from "./pages/IndustryEcommercePage";
 
 const queryClient = new QueryClient();
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  
+  return (
+    <PageTransition>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Index />} />
+        <Route path="/demo" element={<FreeDemoPage />} />
+        <Route path="/priser" element={<PricingPage />} />
+        <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/hur-det-fungerar" element={<HowItWorksPage />} />
+        <Route path="/portfolio/:slug" element={<CaseStudyPage />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/villkor" element={<TermsPage />} />
+        <Route path="/integritet" element={<PrivacyPage />} />
+        <Route path="/kontakt" element={<ContactPage />} />
+        <Route path="/efter-demo" element={<PostDemoPage />} />
+        <Route path="/bestall" element={<DirectCheckoutPage />} />
+        <Route path="/betalning-klar" element={<PaymentSuccessPage />} />
+        <Route path="/betalning-avbruten" element={<PaymentCancelledPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/tjanster/restauranger" element={<IndustryRestaurantsPage />} />
+        <Route path="/tjanster/salonger" element={<IndustrySalonsPage />} />
+        <Route path="/tjanster/e-handel" element={<IndustryEcommercePage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </PageTransition>
+  );
+}
 
 function AppContent() {
   const { showIntro, isLoading, markIntroSeen, replayIntro } = useNomiaIntro();
@@ -76,27 +107,7 @@ function AppContent() {
       <BrowserRouter>
         <SEOHead />
         <Layout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/demo" element={<FreeDemoPage />} />
-            <Route path="/priser" element={<PricingPage />} />
-            <Route path="/portfolio" element={<PortfolioPage />} />
-            <Route path="/hur-det-fungerar" element={<HowItWorksPage />} />
-            <Route path="/portfolio/:slug" element={<CaseStudyPage />} />
-            <Route path="/faq" element={<FAQPage />} />
-            <Route path="/villkor" element={<TermsPage />} />
-            <Route path="/integritet" element={<PrivacyPage />} />
-            <Route path="/kontakt" element={<ContactPage />} />
-            <Route path="/efter-demo" element={<PostDemoPage />} />
-            <Route path="/bestall" element={<DirectCheckoutPage />} />
-            <Route path="/betalning-klar" element={<PaymentSuccessPage />} />
-            <Route path="/betalning-avbruten" element={<PaymentCancelledPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/tjanster/restauranger" element={<IndustryRestaurantsPage />} />
-            <Route path="/tjanster/salonger" element={<IndustrySalonsPage />} />
-            <Route path="/tjanster/e-handel" element={<IndustryEcommercePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AnimatedRoutes />
         </Layout>
         <CookieConsent />
       </BrowserRouter>
