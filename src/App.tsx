@@ -11,6 +11,7 @@ import { NomiaIntro, useNomiaIntro } from "@/components/NomiaIntro";
 import { CookieConsent } from "@/components/CookieConsent";
 import { SEOHead } from "@/components/SEOHead";
 import { getAnalytics } from "@/lib/posthog";
+import { useKonamiCode } from "@/hooks/useKonamiCode";
 import Index from "./pages/Index";
 import FreeDemoPage from "./pages/FreeDemoPage";
 import PricingPage from "./pages/PricingPage";
@@ -33,6 +34,9 @@ const queryClient = new QueryClient();
 function AppContent() {
   const { showIntro, isLoading, markIntroSeen, replayIntro } = useNomiaIntro();
   const [introComplete, setIntroComplete] = useState(false);
+  
+  // Konami code easter egg
+  useKonamiCode();
 
   // Initialize analytics on mount
   useEffect(() => {
