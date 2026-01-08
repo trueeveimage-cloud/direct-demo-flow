@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, ChevronDown, Sparkles, ShoppingCart, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ThemeToggle } from './ThemeToggle';
@@ -33,6 +33,8 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { lang, setLang, t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
@@ -57,6 +59,18 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setProjectDropdownOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (location.pathname === '/') {
@@ -68,7 +82,8 @@ export function Header() {
   };
 
   const navItems = [
-    { path: '/portfolio', label: t('Arbeten', 'Work') },
+    { path: '/portfolio', label: t('Portfolio', 'Portfolio') },
+    { path: '/hur-det-fungerar', label: t('Hur det fungerar', 'How it works') },
     { path: '/priser', label: t('Tjänster', 'Services') },
   ];
 
@@ -131,12 +146,72 @@ export function Header() {
             {lang === 'sv' ? <BritishFlag /> : <SwedishFlag />}
           </button>
 
-          {/* CTA Button */}
-          <Button asChild size="sm" className="rounded-full ml-1 group">
-            <Link to="/demo">
+          {/* CTA Dropdown Button */}
+          <div className="relative" ref={dropdownRef}>
+            <Button 
+              size="sm" 
+              className="rounded-full ml-1 group"
+              onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
+            >
               {t('Starta ditt projekt', 'Start your project')}
-            </Link>
-          </Button>
+              <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${projectDropdownOpen ? 'rotate-180' : ''}`} />
+            </Button>
+
+            <AnimatePresence>
+              {projectDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 mt-3 w-64 bg-secondary/95 backdrop-blur-md border border-border rounded-2xl shadow-xl overflow-hidden z-50"
+                >
+                  <div className="p-3 space-y-2">
+                    <Link
+                      to="/demo"
+                      onClick={() => setProjectDropdownOpen(false)}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/50 transition-colors group"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-accent" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">{t('Gratis koncept', 'Free concept')}</div>
+                        <div className="text-xs text-muted-foreground">{t('Inom 72 timmar', 'Within 72 hours')}</div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
+                    </Link>
+                    
+                    <Link
+                      to="/bestall"
+                      onClick={() => setProjectDropdownOpen(false)}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/50 transition-colors group"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <ShoppingCart className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">{t('Beställ direkt', 'Order directly')}</div>
+                        <div className="text-xs text-muted-foreground">{t('Hoppa över demo', 'Skip demo')}</div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
+                    </Link>
+                    
+                    <div className="border-t border-border/50 pt-2 mt-2">
+                      <Link
+                        to="/efter-demo"
+                        onClick={() => setProjectDropdownOpen(false)}
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-background/30 transition-colors text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        {t('Fått ditt koncept?', 'Received your concept?')}
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Mobile controls */}
@@ -184,13 +259,28 @@ export function Header() {
                   {item.label}
                 </Link>
               ))}
-              <div className="pt-3 mt-3 border-t border-border">
+              
+              <div className="pt-3 mt-3 border-t border-border space-y-2">
                 <Button asChild className="w-full rounded-xl group">
                   <Link to="/demo" onClick={() => setIsOpen(false)}>
-                    {t('Starta ditt projekt', 'Start your project')}
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    {t('Gratis koncept', 'Free concept')}
                   </Link>
                 </Button>
+                <Button asChild variant="outline" className="w-full rounded-xl group">
+                  <Link to="/bestall" onClick={() => setIsOpen(false)}>
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    {t('Beställ direkt', 'Order directly')}
+                  </Link>
+                </Button>
+                <Link
+                  to="/efter-demo"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  {t('Fått ditt koncept?', 'Received your concept?')}
+                </Link>
               </div>
             </nav>
           </motion.div>
