@@ -228,7 +228,7 @@ export default function Index() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
-            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium">
+            <Button asChild variant="outline" size="lg" className="group h-14 px-10 text-base font-medium border-border/50 hover:border-accent/50 hover:bg-accent/5">
               <Link to="/demo">
                 {t('Få ditt gratis koncept', 'Get your free concept')}
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
@@ -589,7 +589,7 @@ export default function Index() {
                   </div>
                 ))}
               </div>
-              <Button asChild className="w-full group">
+              <Button asChild variant="outline" className="w-full group">
                 <Link to="/demo">
                   {t('Få gratis koncept', 'Get free concept')}
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />

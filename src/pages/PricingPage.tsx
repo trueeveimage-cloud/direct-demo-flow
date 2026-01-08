@@ -401,7 +401,7 @@ export default function PricingPage() {
           >
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-accent/20 rounded-full blur-xl" />
-              <Button asChild size="lg" className="relative rounded-full text-lg px-10 group">
+              <Button asChild variant="outline" size="lg" className="relative rounded-full text-lg px-10 group">
                 <Link to="/demo">
                   {t('Få ditt koncept (72h)', 'Get your concept (72h)')}
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

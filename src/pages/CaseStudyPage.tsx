@@ -293,7 +293,7 @@ export default function CaseStudyPage() {
                 'Get a free demo and see what your website could look like.'
               )}
             </p>
-            <Button asChild size="lg">
+            <Button asChild variant="outline" size="lg">
               <Link to="/demo">
                 {t('Få en gratis demo', 'Get a free demo')}
                 <ArrowRight className="w-4 h-4" />

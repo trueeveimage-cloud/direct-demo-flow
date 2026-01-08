@@ -532,7 +532,7 @@ export default function PortfolioPage() {
               <p className="text-muted-foreground mb-8 max-w-md mx-auto">
                 {t('Få ett gratis koncept och se hur din webbplats kan se ut.', 'Get a free concept and see what your website could look like.')}
               </p>
-              <Button asChild size="lg" className="group">
+              <Button asChild variant="outline" size="lg" className="group">
                 <Link to="/demo">
                   {t('Starta ditt projekt', 'Start your project')}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
