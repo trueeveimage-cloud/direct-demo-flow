@@ -1,142 +1,211 @@
-import { useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
-import { ArrowRight, Sparkles, Palette, Code, Rocket, CheckCircle2, Zap, Clock, MessageSquare } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useScroll, useTransform, useSpring, useInView, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Sparkles, Palette, Code, Rocket, CheckCircle2, Zap, MessageSquare, Play, MousePointer, Eye, Layers, Send, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const FloatingOrb = ({ delay = 0, size = 200, color = 'accent' }: { delay?: number; size?: number; color?: string }) => (
+// Floating 3D-like cards component
+const FloatingCard = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
   <motion.div
-    className={`absolute rounded-full blur-3xl opacity-20 bg-${color}`}
-    style={{ width: size, height: size }}
-    animate={{
-      y: [0, -30, 0],
-      x: [0, 20, 0],
-      scale: [1, 1.1, 1],
-    }}
-    transition={{
-      duration: 8,
-      delay,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }}
-  />
+    initial={{ opacity: 0, y: 50, rotateX: 15 }}
+    whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+    viewport={{ once: true, margin: "-50px" }}
+    transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
+    whileHover={{ y: -8, scale: 1.02 }}
+    className={`relative bg-gradient-to-br from-secondary/90 to-secondary/50 backdrop-blur-xl rounded-2xl border border-border/50 overflow-hidden ${className}`}
+    style={{ transformStyle: 'preserve-3d' }}
+  >
+    {/* Shine effect */}
+    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+    {children}
+  </motion.div>
 );
 
-const ProcessStep = ({ 
+// Animated timeline connector
+const TimelineConnector = ({ progress }: { progress: number }) => (
+  <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border/30 hidden lg:block">
+    <motion.div 
+      className="w-full bg-gradient-to-b from-accent via-accent to-accent/50 origin-top"
+      style={{ height: `${progress * 100}%` }}
+    />
+  </div>
+);
+
+// Interactive step component with hover effects
+const InteractiveStep = ({ 
   number, 
   title, 
   description, 
   icon: Icon, 
   features,
-  reverse = false 
+  accent = "accent",
+  delay = 0
 }: { 
   number: string; 
   title: string; 
   description: string; 
   icon: any;
   features: string[];
-  reverse?: boolean;
+  accent?: string;
+  delay?: number;
 }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 100 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className={`flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-12 lg:gap-20`}
+      initial={{ opacity: 0, x: -50 }}
+      animate={isInView ? { opacity: 1, x: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="relative pl-0 lg:pl-20"
     >
-      {/* Visual Side */}
-      <div className="flex-1 relative">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={isInView ? { scale: 1, opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative aspect-square max-w-md mx-auto"
-        >
-          {/* Glowing background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-primary/10 to-transparent rounded-3xl blur-2xl" />
-          
-          {/* Main card */}
-          <div className="relative h-full bg-gradient-to-br from-secondary/80 to-secondary/40 backdrop-blur-xl rounded-3xl border border-border/50 p-8 flex flex-col items-center justify-center overflow-hidden">
-            {/* Animated lines */}
-            <div className="absolute inset-0 overflow-hidden">
-              {[...Array(5)].map((_, i) => (
+      {/* Step number badge - positioned on timeline */}
+      <motion.div 
+        className="hidden lg:flex absolute left-0 top-8 w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 items-center justify-center z-10"
+        animate={{ scale: isHovered ? 1.1 : 1, rotate: isHovered ? 5 : 0 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        <span className="text-2xl font-bold text-accent">{number}</span>
+      </motion.div>
+
+      {/* Main card */}
+      <FloatingCard className="p-8 lg:p-10">
+        {/* Mobile step number */}
+        <div className="lg:hidden flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+            <span className="text-lg font-bold text-accent">{number}</span>
+          </div>
+          <div className="h-px flex-1 bg-gradient-to-r from-accent/30 to-transparent" />
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
+          {/* Icon section */}
+          <motion.div 
+            className="shrink-0"
+            animate={{ rotate: isHovered ? [0, -5, 5, 0] : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20">
+              <Icon className="w-8 h-8 lg:w-10 lg:h-10 text-accent" />
+            </div>
+          </motion.div>
+
+          {/* Content */}
+          <div className="flex-1">
+            <h3 className="text-2xl lg:text-3xl font-bold mb-3">{title}</h3>
+            <p className="text-muted-foreground mb-6 leading-relaxed">
+              {description}
+            </p>
+            
+            {/* Features with staggered animation */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {features.map((feature, i) => (
                 <motion.div
                   key={i}
-                  className="absolute h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent w-full"
-                  style={{ top: `${20 + i * 15}%` }}
-                  animate={{ x: ['-100%', '100%'] }}
-                  transition={{ duration: 3 + i, repeat: Infinity, ease: "linear", delay: i * 0.5 }}
-                />
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.3, delay: delay + 0.3 + i * 0.1 }}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
+                  <span className="text-muted-foreground">{feature}</span>
+                </motion.div>
               ))}
             </div>
-            
-            {/* Step number */}
-            <motion.span
-              initial={{ scale: 0 }}
-              animate={isInView ? { scale: 1 } : {}}
-              transition={{ duration: 0.5, delay: 0.4, type: "spring" }}
-              className="text-8xl lg:text-9xl font-bold text-accent/20 absolute -top-4 -left-4"
-            >
-              {number}
-            </motion.span>
-            
-            {/* Icon */}
-            <motion.div
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="relative z-10"
-            >
-              <div className="w-24 h-24 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20">
-                <Icon className="w-12 h-12 text-accent" />
-              </div>
-            </motion.div>
           </div>
-        </motion.div>
-      </div>
+        </div>
 
-      {/* Content Side */}
-      <div className="flex-1 text-center lg:text-left">
+        {/* Animated corner accent */}
         <motion.div
-          initial={{ opacity: 0, x: reverse ? -50 : 50 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <span className="text-accent text-sm font-semibold tracking-widest uppercase mb-4 block">
-            Step {number}
-          </span>
-          <h3 className="text-3xl lg:text-4xl font-bold mb-6">{title}</h3>
-          <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-            {description}
-          </p>
-          
-          {/* Features */}
-          <div className="space-y-3">
-            {features.map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.4, delay: 0.5 + i * 0.1 }}
-                className="flex items-center gap-3"
-              >
-                <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />
-                <span className="text-muted-foreground">{feature}</span>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+          className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/10 to-transparent rounded-bl-full"
+          animate={{ opacity: isHovered ? 1 : 0.5 }}
+        />
+      </FloatingCard>
     </motion.div>
   );
 };
 
+// Floating elements for visual interest
+const FloatingElement = ({ children, delay = 0, duration = 6 }: { children: React.ReactNode; delay?: number; duration?: number }) => (
+  <motion.div
+    animate={{
+      y: [0, -20, 0],
+      rotate: [0, 5, -5, 0],
+    }}
+    transition={{
+      duration,
+      delay,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }}
+  >
+    {children}
+  </motion.div>
+);
+
+// Comparison cards for the two paths
+const PathCard = ({ 
+  title, 
+  description, 
+  steps, 
+  icon: Icon, 
+  buttonText, 
+  buttonLink,
+  delay = 0
+}: { 
+  title: string; 
+  description: string; 
+  steps: string[];
+  icon: any;
+  buttonText: string;
+  buttonLink: string;
+  delay?: number;
+}) => (
+  <FloatingCard delay={delay} className="p-8 h-full">
+    <div className="flex items-start gap-4 mb-6">
+      <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0">
+        <Icon className="w-7 h-7 text-accent" />
+      </div>
+      <div>
+        <h3 className="text-2xl font-bold mb-1">{title}</h3>
+        <p className="text-muted-foreground text-sm">{description}</p>
+      </div>
+    </div>
+    
+    <div className="space-y-4 mb-8">
+      {steps.map((step, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: delay + 0.2 + i * 0.1 }}
+          className="flex items-start gap-3"
+        >
+          <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
+            <span className="text-xs font-semibold text-accent">{i + 1}</span>
+          </div>
+          <span className="text-muted-foreground">{step}</span>
+        </motion.div>
+      ))}
+    </div>
+    
+    <Button asChild className="w-full rounded-xl group">
+      <Link to={buttonLink}>
+        {buttonText}
+        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+      </Link>
+    </Button>
+  </FloatingCard>
+);
+
 export default function HowItWorksPage() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -144,8 +213,8 @@ export default function HowItWorksPage() {
   });
   
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const backgroundY = useTransform(smoothProgress, [0, 1], ['0%', '50%']);
-  const scale = useTransform(smoothProgress, [0, 0.5], [1, 1.1]);
+  const heroScale = useTransform(smoothProgress, [0, 0.1], [1, 0.95]);
+  const heroOpacity = useTransform(smoothProgress, [0, 0.15], [1, 0]);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -154,16 +223,19 @@ export default function HowItWorksPage() {
   const steps = [
     {
       number: "01",
-      title: t("Berätta om ditt projekt", "Tell us about your project"),
+      title: t("Berätta om ditt projekt", "Share your vision"),
       description: t(
         "Fyll i vårt enkla formulär med dina önskemål. Vi behöver veta vad du gör, vad du vill uppnå och hur din drömwebbplats ser ut.",
-        "Fill out our simple form with your requirements. We need to know what you do, what you want to achieve, and what your dream website looks like."
+        "Fill out our quick form with your requirements. Tell us about your business, your goals, and your dream website aesthetic."
       ),
       icon: MessageSquare,
       features: [
         t("5-minuters formulär", "5-minute form"),
-        t("Ladda upp inspiration & logotyp", "Upload inspiration & logo"),
-        t("Beskriv din målgrupp", "Describe your target audience"),
+        t("Ladda upp inspiration", "Upload inspiration"),
+        t("Beskriv din målgrupp", "Define your audience"),
+        t("Välj färger & stil", "Choose colors & style"),
+        t("Dela din logotyp", "Share your logo"),
+        t("Inga krav", "No commitment"),
       ]
     },
     {
@@ -171,13 +243,16 @@ export default function HowItWorksPage() {
       title: t("Vi designar ditt koncept", "We design your concept"),
       description: t(
         "Inom 72 timmar får du ett komplett designkoncept. Vi skapar mockups, väljer färger, typografi och layout som passar ditt varumärke.",
-        "Within 72 hours, you'll receive a complete design concept. We create mockups, choose colors, typography, and layout that fits your brand."
+        "Within 72 hours, you'll receive a complete design concept. We create mockups with colors, typography, and layouts tailored to your brand."
       ),
       icon: Palette,
       features: [
-        t("Komplett designförslag", "Complete design proposal"),
-        t("Mobiloptimerad preview", "Mobile-optimized preview"),
-        t("Obegränsade revisioner", "Unlimited revisions"),
+        t("Komplett design", "Complete design"),
+        t("Mobiloptimerat", "Mobile-optimized"),
+        t("Interaktiv preview", "Interactive preview"),
+        t("Färgpalett", "Color palette"),
+        t("Typografival", "Typography"),
+        t("Revisioner", "Revisions"),
       ]
     },
     {
@@ -185,13 +260,16 @@ export default function HowItWorksPage() {
       title: t("Vi bygger din webbplats", "We build your website"),
       description: t(
         "När du godkänner konceptet börjar vi koda. Modern teknik, snabb laddning, SEO-optimerat – allt inkluderat.",
-        "Once you approve the concept, we start coding. Modern technology, fast loading, SEO-optimized – everything included."
+        "Once you approve the concept, we start building. Modern technology, lightning-fast loading, SEO-optimized – everything included."
       ),
       icon: Code,
       features: [
         t("Responsiv design", "Responsive design"),
         t("SEO-optimerad", "SEO-optimized"),
-        t("SSL-certifikat & säkerhet", "SSL certificate & security"),
+        t("SSL-certifikat", "SSL certificate"),
+        t("Snabb laddtid", "Fast loading"),
+        t("Tillgänglighet", "Accessibility"),
+        t("Analytics-ready", "Analytics-ready"),
       ]
     },
     {
@@ -199,209 +277,331 @@ export default function HowItWorksPage() {
       title: t("Lansering & support", "Launch & support"),
       description: t(
         "Vi publicerar din webbplats och ser till att allt fungerar perfekt. Du får full support och vi hanterar all teknisk underhåll.",
-        "We publish your website and make sure everything works perfectly. You get full support and we handle all technical maintenance."
+        "We publish your website and ensure everything works perfectly. You get full support and we handle all technical maintenance."
       ),
       icon: Rocket,
       features: [
-        t("Gratis domän första året", "Free domain first year"),
+        t("Gratis domän", "Free domain"),
         t("Hosting inkluderat", "Hosting included"),
         t("Löpande support", "Ongoing support"),
+        t("Säkerhetsuppdateringar", "Security updates"),
+        t("Prestanda", "Performance"),
+        t("Backup", "Backup"),
       ]
     }
   ];
 
-  const stats = [
-    { value: "72h", label: t("Koncept levererat", "Concept delivered") },
-    { value: "100%", label: t("Nöjda kunder", "Satisfied clients") },
-    { value: "24/7", label: t("Support tillgängligt", "Support available") },
-    { value: "0kr", label: t("Dolda avgifter", "Hidden fees") },
-  ];
-
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative overflow-hidden">
       {/* Hero Section with Parallax */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated background */}
-        <motion.div 
-          className="absolute inset-0"
-          style={{ y: backgroundY, scale }}
-        >
+      <motion.section 
+        className="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
+        style={{ scale: heroScale }}
+      >
+        {/* Animated gradient background */}
+        <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent" />
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
-        </motion.div>
+          <motion.div 
+            className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[150px]"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px]"
+            animate={{ scale: [1.2, 1, 1.2], opacity: [0.4, 0.2, 0.4] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          />
+        </div>
 
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px]" />
+        {/* Floating decorative elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <FloatingElement delay={0} duration={7}>
+            <div className="absolute top-[15%] left-[10%] w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+              <Eye className="w-8 h-8 text-accent/50" />
+            </div>
+          </FloatingElement>
+          <FloatingElement delay={1} duration={8}>
+            <div className="absolute top-[25%] right-[15%] w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Layers className="w-6 h-6 text-primary/50" />
+            </div>
+          </FloatingElement>
+          <FloatingElement delay={2} duration={6}>
+            <div className="absolute bottom-[30%] left-[15%] w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+              <Send className="w-7 h-7 text-accent/50" />
+            </div>
+          </FloatingElement>
+          <FloatingElement delay={3} duration={9}>
+            <div className="absolute bottom-[20%] right-[10%] w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Gift className="w-5 h-5 text-primary/50" />
+            </div>
+          </FloatingElement>
+        </div>
 
-        {/* Floating orbs */}
-        <FloatingOrb delay={0} size={300} />
-        <FloatingOrb delay={2} size={200} />
-        <FloatingOrb delay={4} size={250} />
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           >
+            {/* Badge */}
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-8"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 border border-accent/20 mb-10"
             >
-              <Zap className="w-4 h-4 text-accent" />
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              >
+                <Zap className="w-4 h-4 text-accent" />
+              </motion.div>
               <span className="text-sm font-medium text-accent">
-                {t("Från idé till lansering", "From idea to launch")}
+                {t("Från idé till lansering på dagar", "From idea to launch in days")}
               </span>
             </motion.div>
 
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight">
-              <span className="block">{t("Så fungerar", "How it")}</span>
-              <span className="block bg-gradient-to-r from-accent via-primary to-accent bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
+            {/* Main headline */}
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tight">
+              <motion.span 
+                className="block"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                {t("Så fungerar", "How it")}
+              </motion.span>
+              <motion.span 
+                className="block bg-gradient-to-r from-accent via-orange-400 to-accent bg-clip-text text-transparent bg-[length:200%_auto]"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                style={{
+                  animation: 'gradient 3s ease infinite',
+                }}
+              >
                 {t("det", "works")}
-              </span>
+              </motion.span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-14"
+            >
               {t(
                 "En smidig process i fyra steg. Från första kontakt till färdig webbplats.",
                 "A smooth process in four steps. From first contact to finished website."
               )}
-            </p>
+            </motion.p>
 
+            {/* Scroll hint */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2 }}
+              className="flex flex-col items-center gap-2"
             >
-              <Button asChild size="lg" className="rounded-full text-lg px-8 group">
-                <Link to="/demo">
-                  {t("Starta idag", "Start today")}
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
+              <span className="text-sm text-muted-foreground">{t("Scrolla för att utforska", "Scroll to explore")}</span>
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <MousePointer className="w-5 h-5 text-accent" />
+              </motion.div>
             </motion.div>
           </motion.div>
+        </div>
+      </motion.section>
 
-          {/* Scroll indicator */}
+      {/* Two Paths Section */}
+      <section className="py-24 relative">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              {t("Välj din väg", "Choose your path")}
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {t(
+                "Två sätt att komma igång – välj det som passar dig bäst.",
+                "Two ways to get started – choose what suits you best."
+              )}
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <PathCard
+              title={t("Gratis koncept", "Free Concept")}
+              description={t(
+                "Se din framtida webbplats innan du bestämmer dig.",
+                "See your future website before you decide."
+              )}
+              steps={[
+                t("Berätta om ditt företag och välj stil", "Tell us about your business and choose style"),
+                t("Betala €50 verifieringsavgift (återbetalbar)", "Pay €50 verification fee (refundable)"),
+                t("Få ett custom koncept inom 72h", "Get a custom concept within 72h"),
+                t("Gillar du det? Avgiften dras från priset. Gillar inte? Full återbetalning.", "Like it? Fee deducted from price. Don't like it? Full refund."),
+              ]}
+              icon={Sparkles}
+              buttonText={t("Få gratis koncept", "Get free concept")}
+              buttonLink="/demo"
+              delay={0.1}
+            />
+            
+            <PathCard
+              title={t("Direktbeställning", "Direct Order")}
+              description={t(
+                "Vet du redan vad du vill ha? Hoppa direkt till beställning.",
+                "Already know what you want? Skip straight to ordering."
+              )}
+              steps={[
+                t("Välj paket och anpassa din beställning", "Choose package and customize your order"),
+                t("Ladda upp material och beskriv dina önskemål", "Upload materials and describe your wishes"),
+                t("Betala och vi börjar bygga direkt", "Pay and we start building immediately"),
+                t("Din webbplats levererad inom 7-14 dagar", "Your website delivered within 7-14 days"),
+              ]}
+              icon={Rocket}
+              buttonText={t("Beställ direkt", "Order directly")}
+              buttonLink="/bestall"
+              delay={0.2}
+            />
+          </div>
+
+          {/* Already received concept link */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="absolute bottom-12 left-1/2 -translate-x-1/2"
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="text-center mt-8"
           >
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center pt-2"
+            <Link 
+              to="/efter-demo" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2"
             >
-              <motion.div
-                animate={{ opacity: [1, 0], y: [0, 12] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-1 h-2 bg-accent rounded-full"
-              />
-            </motion.div>
+              {t("Har du redan fått ditt koncept?", "Already received your concept?")}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </motion.div>
         </div>
       </section>
 
-      {/* Stats Section with Parallax */}
-      <section className="relative py-24 overflow-hidden">
-        <motion.div
-          style={{ y: useTransform(smoothProgress, [0, 0.3], ['0%', '-10%']) }}
-          className="container mx-auto px-4"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-4xl md:text-5xl font-bold text-accent mb-2">{stat.value}</div>
-                <div className="text-muted-foreground">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Process Steps with Advanced Parallax */}
-      <section className="relative py-24 lg:py-40">
-        {/* Connecting line */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-accent/20 to-transparent hidden lg:block" />
+      {/* Process Steps with Timeline */}
+      <section className="py-24 lg:py-32 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none" />
         
         <div className="container mx-auto px-4">
-          <div className="space-y-32 lg:space-y-48">
-            {steps.map((step, i) => (
-              <ProcessStep key={i} {...step} reverse={i % 2 === 1} />
-            ))}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <span className="text-accent text-sm font-semibold tracking-widest uppercase mb-4 block">
+              {t("Processen", "The Process")}
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              {t("Steg för steg", "Step by step")}
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {t(
+                "Så här skapar vi din perfekta webbplats.",
+                "This is how we create your perfect website."
+              )}
+            </p>
+          </motion.div>
+
+          <div className="relative max-w-4xl mx-auto">
+            {/* Timeline line */}
+            <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-accent/50 via-accent/20 to-transparent hidden lg:block" />
+            
+            <div className="space-y-12">
+              {steps.map((step, i) => (
+                <InteractiveStep key={i} {...step} delay={i * 0.15} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-32 overflow-hidden">
-        <motion.div
-          style={{ scale: useTransform(smoothProgress, [0.8, 1], [0.95, 1]) }}
-          className="container mx-auto px-4"
-        >
+      <section className="py-32 relative overflow-hidden">
+        <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative bg-gradient-to-br from-secondary via-secondary/80 to-secondary rounded-3xl p-12 lg:p-20 text-center overflow-hidden"
+            className="relative max-w-4xl mx-auto"
           >
-            {/* Background effects */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(var(--accent-rgb),0.1),transparent_70%)]" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
-            
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute -top-20 -right-20 w-40 h-40 border border-accent/10 rounded-full"
-            />
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-              className="absolute -bottom-20 -left-20 w-60 h-60 border border-accent/10 rounded-full"
-            />
-
-            <div className="relative z-10">
-              <Sparkles className="w-12 h-12 text-accent mx-auto mb-6" />
-              <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-                {t("Redo att börja?", "Ready to start?")}
-              </h2>
-              <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-                {t(
-                  "Få ett gratis designkoncept inom 72 timmar. Ingen betalning krävs.",
-                  "Get a free design concept within 72 hours. No payment required."
-                )}
-              </p>
+            <FloatingCard className="p-12 lg:p-20 text-center">
+              {/* Background effects */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--accent)/0.1),transparent_70%)]" />
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="rounded-full text-lg px-8 group">
-                  <Link to="/demo">
-                    {t("Få gratis koncept", "Get free concept")}
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full text-lg px-8">
-                  <Link to="/portfolio">
-                    {t("Se vårt arbete", "See our work")}
-                  </Link>
-                </Button>
+              {/* Animated rings */}
+              <motion.div
+                animate={{ rotate: 360, scale: [1, 1.05, 1] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute -top-20 -right-20 w-40 h-40 border border-accent/10 rounded-full"
+              />
+              <motion.div
+                animate={{ rotate: -360, scale: [1.05, 1, 1.05] }}
+                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                className="absolute -bottom-20 -left-20 w-60 h-60 border border-accent/10 rounded-full"
+              />
+
+              <div className="relative z-10">
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  <Sparkles className="w-14 h-14 text-accent mx-auto mb-8" />
+                </motion.div>
+                
+                <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+                  {t("Redo att börja?", "Ready to start?")}
+                </h2>
+                <p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
+                  {t(
+                    "Få ett gratis designkoncept inom 72 timmar. Ingen betalning krävs.",
+                    "Get a free design concept within 72 hours. No payment required."
+                  )}
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button asChild size="lg" className="rounded-full text-lg px-10 group">
+                    <Link to="/demo">
+                      {t("Få gratis koncept", "Get free concept")}
+                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="rounded-full text-lg px-10">
+                    <Link to="/portfolio">
+                      {t("Se vårt arbete", "See our work")}
+                    </Link>
+                  </Button>
+                </div>
               </div>
-            </div>
+            </FloatingCard>
           </motion.div>
-        </motion.div>
+        </div>
       </section>
+
+      {/* Gradient animation keyframe */}
+      <style>{`
+        @keyframes gradient {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+      `}</style>
     </div>
   );
 }

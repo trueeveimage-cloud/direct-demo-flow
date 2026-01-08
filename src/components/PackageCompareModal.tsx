@@ -62,9 +62,9 @@ const packages = [
       en: ['Everything in Starter', 'Image gallery/sections', 'Social links', 'Clickable phone/email', 'Fast loading']
     },
     booking: false,
-    analytics: false,
-    newsletter: false,
-    prioritySupport: false,
+    analytics: true,
+    newsletter: true,
+    prioritySupport: true,
     multiLanguage: true
   },
   { 
@@ -75,8 +75,8 @@ const packages = [
     delivery: 7,
     revisions: 3,
     features: {
-      sv: ['Allt i Standard', 'Bokningssystem', 'Google Analytics', 'Nyhetsbrev setup', 'Prioriterad support'],
-      en: ['Everything in Standard', 'Booking system', 'Google Analytics', 'Newsletter setup', 'Priority support']
+      sv: ['Allt i Standard', 'Bokningssystem', 'Avancerad SEO', 'Custom integrationer', 'Dedicerad support'],
+      en: ['Everything in Standard', 'Booking system', 'Advanced SEO', 'Custom integrations', 'Dedicated support']
     },
     booking: true,
     analytics: true,
@@ -85,6 +85,11 @@ const packages = [
     multiLanguage: true
   },
 ];
+
+const freeInclusions = {
+  sv: ['Mobilanpassad design', 'Kontaktformulär', 'Google Maps', 'SSL-certifikat', 'Grundläggande SEO', 'Lansering + genomgång'],
+  en: ['Mobile-responsive design', 'Contact form', 'Google Maps', 'SSL certificate', 'Basic SEO', 'Launch + walkthrough']
+};
 
 export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalProps) {
   const { t, lang } = useLanguage();
@@ -227,6 +232,20 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                     )}
                   </td>
                 ))}
+              </tr>
+
+              {/* Free inclusions section */}
+              <tr className="border-b border-border bg-accent/5">
+                <td colSpan={4} className="p-3 pt-6">
+                  <div className="font-semibold text-sm text-accent mb-2">{t('Alltid inkluderat (gratis)', 'Always included (free)')}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {freeInclusions[lang].map((item, i) => (
+                      <span key={i} className="text-xs bg-background/50 px-2 py-1 rounded-full text-muted-foreground">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
