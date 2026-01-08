@@ -187,21 +187,20 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
   };
 }
 
-// Admin email allowlist - only these emails can access the dashboard
-// This provides server-side validation since auth state comes from Supabase server
-const ADMIN_EMAILS = [
-  'nordicsite.help@gmail.com',
-  // Add additional admin emails here as needed
-];
-
-function isAdminUser(user: User | null): boolean {
-  if (!user) return false;
-  return ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? '');
+// Server-side admin check using database function
+async function checkIsAdminUser(): Promise<boolean> {
+  const { data, error } = await supabase.rpc('is_admin_user');
+  if (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+  return data === true;
 }
 
 export default function AdminPage() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -209,23 +208,40 @@ export default function AdminPage() {
   const [events, setEvents] = useState<StoredEvent[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Check if authenticated user is an admin
-  const isAdmin = isAdminUser(user);
-
-  // Set up auth state listener
+  // Set up auth state listener and check admin status server-side
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null);
-        setIsLoading(false);
+        if (!session?.user) {
+          setIsAdmin(false);
+          setIsLoading(false);
+        } else {
+          // Check admin status server-side
+          setTimeout(() => {
+            checkIsAdminUser().then(isAdminResult => {
+              setIsAdmin(isAdminResult);
+              setIsLoading(false);
+            });
+          }, 0);
+        }
       }
     );
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      setIsLoading(false);
+      if (!session?.user) {
+        setIsAdmin(false);
+        setIsLoading(false);
+      } else {
+        // Check admin status server-side
+        checkIsAdminUser().then(isAdminResult => {
+          setIsAdmin(isAdminResult);
+          setIsLoading(false);
+        });
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -265,12 +281,16 @@ export default function AdminPage() {
       return;
     }
 
-    // Check if the authenticated user is an admin
-    if (authData.user && !ADMIN_EMAILS.includes(authData.user.email?.toLowerCase() ?? '')) {
-      // Sign out non-admin users immediately
-      await supabase.auth.signOut();
-      setError('Access denied. You do not have admin privileges.');
-      return;
+    // Check if the authenticated user is an admin using server-side function
+    if (authData.user) {
+      const adminCheck = await checkIsAdminUser();
+      if (!adminCheck) {
+        // Sign out non-admin users immediately
+        await supabase.auth.signOut();
+        setError('Access denied. You do not have admin privileges.');
+        return;
+      }
+      setIsAdmin(true);
     }
   };
 
