@@ -24,13 +24,25 @@ export function ScrollProgress() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed top-16 left-0 right-0 h-0.5 bg-border/30 z-40"
+      className="fixed right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:block"
     >
+      {/* Vertical progress bar */}
+      <div className="relative h-32 w-1 bg-border/30 rounded-full overflow-hidden">
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 bg-accent rounded-full"
+          style={{ height: `${progress}%` }}
+          transition={{ duration: 0.1 }}
+        />
+      </div>
+      
+      {/* Percentage indicator */}
       <motion.div
-        className="h-full bg-accent"
-        style={{ width: `${progress}%` }}
-        transition={{ duration: 0.1 }}
-      />
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="absolute -left-10 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium"
+      >
+        {Math.round(progress)}%
+      </motion.div>
     </motion.div>
   );
 }
