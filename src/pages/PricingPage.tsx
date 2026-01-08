@@ -375,9 +375,9 @@ export default function PricingPage() {
                       : 'border-border bg-background hover:border-accent/50'
                   }`}
                 >
-                  {plan.popular && (
+{plan.popular && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">
-                      {t('Rekommenderas', 'Recommended')}
+                      {t('Populärast', 'Most Popular')}
                     </span>
                   )}
                   <h3 className="font-heading font-bold text-2xl mb-2">{plan.name}</h3>
