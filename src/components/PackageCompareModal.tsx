@@ -10,8 +10,8 @@ interface PackageCompareModalProps {
 
 const tooltips: Record<string, { sv: string; en: string }> = {
   booking: {
-    sv: 'Integration med Bokadirekt, Calendly eller liknande.',
-    en: 'Integration with Bokadirekt, Calendly or similar.'
+    sv: 'Vi bygger ditt helt egna bokningssystem – inga tredjepartsavgifter.',
+    en: 'We build your very own booking system – no third-party fees.'
   },
   analytics: {
     sv: 'Spåra besökare och konverteringar.',
@@ -160,21 +160,6 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
               </tr>
               <tr className="border-b border-border">
                 <td className="p-3 font-medium flex items-center">
-                  {t('Flerspråkig', 'Multi-language')}
-                  <InfoIcon tooltipKey="multiLanguage" />
-                </td>
-                {packages.map(pkg => (
-                  <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
-                    {pkg.multiLanguage ? (
-                      <Check className="w-5 h-5 text-accent mx-auto" />
-                    ) : (
-                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
-                    )}
-                  </td>
-                ))}
-              </tr>
-              <tr className="border-b border-border">
-                <td className="p-3 font-medium flex items-center">
                   {t('Bokningssystem', 'Booking system')}
                   <InfoIcon tooltipKey="booking" />
                 </td>
@@ -226,6 +211,21 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
                     {pkg.prioritySupport ? (
+                      <Check className="w-5 h-5 text-accent mx-auto" />
+                    ) : (
+                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-3 font-medium flex items-center">
+                  {t('Flerspråkig', 'Multi-language')}
+                  <InfoIcon tooltipKey="multiLanguage" />
+                </td>
+                {packages.map(pkg => (
+                  <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
+                    {pkg.multiLanguage ? (
                       <Check className="w-5 h-5 text-accent mx-auto" />
                     ) : (
                       <X className="w-5 h-5 text-muted-foreground mx-auto" />

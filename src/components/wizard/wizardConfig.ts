@@ -340,8 +340,7 @@ export const styles = [
 export const languages = [
   { id: 'sv', label: { sv: 'Svenska', en: 'Swedish' } },
   { id: 'en', label: { sv: 'Engelska', en: 'English' } },
-  { id: 'both', label: { sv: 'Svenska + Engelska', en: 'Swedish + English' } },
-  { id: 'custom', label: { sv: 'Annat/Flera språk', en: 'Other/Multiple languages' } },
+  { id: 'custom', label: { sv: 'Valfria språk', en: 'Custom languages' } },
 ];
 
 export const carePlans = [

@@ -74,8 +74,10 @@ export default function Index() {
         </span>
       </motion.div>
 
-      {/* Hero Section - Clean, premium */}
+      {/* Hero Section - Angled shape */}
       <section className="min-h-[50vh] flex items-center relative overflow-hidden">
+        {/* Angled bottom shape */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-background" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }} />
         <div className="container-narrow text-center relative z-10 section-padding py-12">
           {/* Badge */}
           <motion.div 

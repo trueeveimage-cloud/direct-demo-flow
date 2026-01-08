@@ -28,6 +28,9 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelledPage from "./pages/PaymentCancelledPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
+import IndustryRestaurantsPage from "./pages/IndustryRestaurantsPage";
+import IndustrySalonsPage from "./pages/IndustrySalonsPage";
+import IndustryEcommercePage from "./pages/IndustryEcommercePage";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +92,9 @@ function AppContent() {
             <Route path="/betalning-klar" element={<PaymentSuccessPage />} />
             <Route path="/betalning-avbruten" element={<PaymentCancelledPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/tjanster/restauranger" element={<IndustryRestaurantsPage />} />
+            <Route path="/tjanster/salonger" element={<IndustrySalonsPage />} />
+            <Route path="/tjanster/e-handel" element={<IndustryEcommercePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
