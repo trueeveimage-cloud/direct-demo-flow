@@ -74,29 +74,6 @@ export default function IndustrySalonsPage() {
           </div>
         </section>
 
-        {/* Stats */}
-        <section className="py-16 border-y border-border/50">
-          <div className="container-wide section-padding">
-            <div className="grid grid-cols-3 gap-8 text-center">
-              {[
-                { value: '+89%', label: t('bokningar', 'bookings') },
-                { value: '€0', label: t('tredjepartsavgifter', 'third-party fees') },
-                { value: '24/7', label: t('online-bokning', 'online booking') },
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <div className="text-3xl sm:text-4xl font-bold text-accent">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Features */}
         <section className="py-24">

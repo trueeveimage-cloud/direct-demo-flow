@@ -162,7 +162,7 @@ export default function IndustryEcommercePage() {
                   <div className="flex justify-between"><span>{t('Månadsavgift', 'Monthly fee')}</span><span>~€30/mån</span></div>
                   <div className="flex justify-between"><span>{t('Transaktionsavgift', 'Transaction fee')}</span><span>2%+</span></div>
                   <div className="flex justify-between"><span>{t('Appar & plugins', 'Apps & plugins')}</span><span>~€50/mån</span></div>
-                  <div className="flex justify-between font-bold pt-2 border-t border-border"><span>{t('År 1 totalt', 'Year 1 total')}</span><span>~€1,000+</span></div>
+                  <div className="flex justify-between font-bold pt-2 border-t border-border"><span>{t('3 år totalt', '3 year total')}</span><span>~€3,000+</span></div>
                 </div>
               </motion.div>
               
@@ -178,7 +178,7 @@ export default function IndustryEcommercePage() {
                   <div className="flex justify-between"><span>{t('Engångspris', 'One-time price')}</span><span>€790-€1,290</span></div>
                   <div className="flex justify-between"><span>{t('Månadsavgift', 'Monthly fee')}</span><span>€25-€75</span></div>
                   <div className="flex justify-between"><span>{t('Transaktionsavgift', 'Transaction fee')}</span><span>€0</span></div>
-                  <div className="flex justify-between font-bold pt-2 border-t border-accent/30"><span>{t('År 1 totalt', 'Year 1 total')}</span><span>~€1,100</span></div>
+                  <div className="flex justify-between font-bold pt-2 border-t border-accent/30"><span>{t('3 år totalt', '3 year total')}</span><span>~€2,000-€4,000</span></div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-4">{t('+ du äger allt, ingen inlåsning', '+ you own everything, no lock-in')}</p>
               </motion.div>
