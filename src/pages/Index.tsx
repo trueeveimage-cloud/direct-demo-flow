@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield, Info } from 'lucide-react';
+import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield, Info, Sparkles } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -282,8 +282,8 @@ export default function Index() {
         </div>
       </section>
 
-      {/* How We Work - Full service explanation */}
-      <section className="py-32 relative">
+      {/* How We Work - Link to dedicated page */}
+      <section className="py-24 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent pointer-events-none" />
         
         <div className="container-wide section-padding relative">
@@ -292,102 +292,41 @@ export default function Index() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center"
           >
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               {t('Så här fungerar det', 'How it works')}
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              {t('Två sätt att komma igång — välj det som passar dig bäst.', 'Two ways to get started — choose what suits you best.')}
+            <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+              {t('En smidig process i fyra steg. Från första kontakt till färdig webbplats.', 'A smooth process in four steps. From first contact to finished website.')}
             </p>
+            <Button asChild variant="outline" className="group">
+              <Link to="/hur-det-fungerar">
+                {t('Läs mer om processen', 'Learn more about the process')}
+                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
           </motion.div>
+        </div>
+      </section>
 
-          {/* Two Paths */}
-          <div className="grid lg:grid-cols-2 gap-8 mb-16">
-            {/* Free Concept Path */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="relative p-8 rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/5 to-transparent"
-            >
-              <div className="absolute -top-3 left-6 flex gap-2">
-                <span className="bg-orange-500/90 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  {spotsLoading ? '...' : remainingSpots > 0 ? t(`${remainingSpots} kvar`, `${remainingSpots} left`) : t('Fullbokat', 'Full')}
-                </span>
-              </div>
-              <h3 className="text-2xl font-bold mb-4 mt-2">{t('Gratis koncept', 'Free Concept')}</h3>
-              <p className="text-muted-foreground mb-6">
-                {t('Se din framtida hemsida innan du bestämmer dig. Endast 10 platser per vecka — perfekt om du vill testa först.', 'See your future website before deciding. Only 10 spots per week — perfect if you want to try first.')}
-              </p>
-              <div className="space-y-4">
-                {[
-                  { step: '1', text: t('Berätta om ditt företag och välj stil', 'Tell us about your business and choose style') },
-                  { step: '2', text: t('Betala €50 verifieringsavgift (återbetalningsbar)', 'Pay €50 verification fee (refundable)') },
-                  { step: '3', text: t('Få ett skräddarsytt koncept inom 72h', 'Get a custom concept within 72h') },
-                  { step: '4', text: t('Gillar du det? Avgiften dras från priset. Gillar du det inte? Full återbetalning.', 'Like it? Fee is deducted from price. Don\'t like it? Full refund.') },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-sm font-bold text-accent flex-shrink-0">
-                      {item.step}
-                    </span>
-                    <span className="text-sm">{item.text}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Direct Order Path */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="relative p-8 rounded-2xl border border-border/50 bg-secondary/30"
-            >
-              <h3 className="text-2xl font-bold mb-4">{t('Direktbeställning', 'Direct Order')}</h3>
-              <p className="text-muted-foreground mb-6">
-                {t('Vet du redan vad du vill ha? Hoppa över demo och beställ direkt.', 'Already know what you want? Skip the demo and order directly.')}
-              </p>
-              <div className="space-y-4">
-                {[
-                  { step: '1', text: t('Välj paket och anpassa din beställning', 'Choose package and customize your order') },
-                  { step: '2', text: t('Ladda upp material och beskriv dina önskemål', 'Upload materials and describe your wishes') },
-                  { step: '3', text: t('Betala och vi börjar bygga direkt', 'Pay and we start building immediately') },
-                  { step: '4', text: t('Din webbplats levereras inom 7-14 dagar', 'Your website delivered within 7-14 days') },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground flex-shrink-0">
-                      {item.step}
-                    </span>
-                    <span className="text-sm">{item.text}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-
-          {/* CTA Buttons */}
+      {/* ROI Calculator CTA Section */}
+      <section className="py-16 relative">
+        <div className="container-narrow section-padding">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="text-center p-8 rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent"
           >
-            <Button asChild size="lg" className="group">
-              <Link to="/demo">
-                {t('Få gratis koncept', 'Get free concept')}
-                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="group">
-              <Link to="/bestall">
-                {t('Beställ direkt', 'Order directly')}
-                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
+            <h3 className="text-2xl font-bold mb-3">
+              {t('Hur mycket intäkter förlorar du?', 'How much revenue are you losing?')}
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              {t('Räkna ut vad en föråldrad webbplats kostar dig varje månad.', 'Calculate what an outdated website costs you every month.')}
+            </p>
+            <ROICalculator />
           </motion.div>
         </div>
       </section>
@@ -609,7 +548,7 @@ export default function Index() {
         </motion.div>
       </section>
 
-      {/* FAQ Preview */}
+      {/* FAQ Preview - Expanded */}
       <section className="py-24">
         <div className="container-narrow section-padding">
           <motion.div initial={{
@@ -635,10 +574,22 @@ export default function Index() {
           <div className="space-y-4">
             {[{
             q: t('Är konceptet gratis?', 'Is the concept free?'),
-            a: t('Ja, du betalar endast en återbetalningsbar verifieringsavgift.', 'Yes, you only pay a refundable verification fee.')
+            a: t('Ja, du betalar endast en återbetalningsbar verifieringsavgift på €50.', 'Yes, you only pay a refundable verification fee of €50.')
           }, {
             q: t('Varför verifieringsavgift?', 'Why the verification fee?'),
-            a: t('Det visar att du är seriös och bokar din plats.', 'It shows you\'re serious and books your slot.')
+            a: t('Det visar att du är seriös och bokar din plats. Vi har begränsat antal platser per vecka.', 'It shows you\'re serious and books your slot. We have limited spots per week.')
+          }, {
+            q: t('Hur lång tid tar leveransen?', 'How long does delivery take?'),
+            a: t('Beroende på paket: Starter 14 dagar, Standard 10 dagar, Pro 7 dagar.', 'Depending on package: Starter 14 days, Standard 10 days, Pro 7 days.')
+          }, {
+            q: t('Kan jag redigera webbplatsen själv?', 'Can I edit the website myself?'),
+            a: t('Med en Care Plan får du ändringar inkluderade varje månad. Vi sköter allt tekniskt åt dig.', 'With a Care Plan you get edits included every month. We handle all technical aspects for you.')
+          }, {
+            q: t('Vad kostar hosting?', 'What does hosting cost?'),
+            a: t('Hosting ingår i våra Care Plans från €25/månad. Domän ingår också.', 'Hosting is included in our Care Plans from €25/month. Domain included too.')
+          }, {
+            q: t('Erbjuder ni Klarna?', 'Do you offer Klarna?'),
+            a: t('Ja! Du kan delbetala med Klarna – välj att betala senare eller dela upp i 3 delbetalningar.', 'Yes! You can pay in installments with Klarna – choose to pay later or split into 3 payments.')
           }].map((faq, index) => <motion.div key={index} initial={{
             opacity: 0,
             y: 20
@@ -660,34 +611,127 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Final CTA - Minimal */}
-      <section className="py-32 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none" />
+      {/* Choose Your Path - Bottom CTA */}
+      <section className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent pointer-events-none" />
         
-        <motion.div initial={{
-        opacity: 0,
-        scale: 0.95
-      }} whileInView={{
-        opacity: 1,
-        scale: 1
-      }} viewport={{
-        once: true
-      }} transition={{
-        duration: 0.6
-      }} className="container-narrow section-padding text-center relative">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-            {t('Få ditt koncept', 'Get your concept')}
-          </h2>
-          <p className="text-muted-foreground mb-10">
-            {t('Inom 72 timmar.', 'Within 72 hours.')}
-          </p>
-          <Button asChild size="lg" className="group h-14 px-10 text-base hover:scale-105 transition-transform">
-            <Link to="/demo">
-              {t('Börja här', 'Start here')}
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+        <div className="container-wide section-padding relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              {t('Välj din väg', 'Choose your path')}
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {t('Två sätt att komma igång – välj det som passar dig bäst.', 'Two ways to get started – choose what suits you best.')}
+            </p>
+          </motion.div>
+
+          {/* Two Paths - Equal styling */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-8 max-w-5xl mx-auto">
+            {/* Free Concept Path */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              whileHover={{ y: -5 }}
+              className="relative p-8 rounded-2xl border border-border/50 bg-secondary/30 hover:border-accent/30 transition-all duration-300"
+            >
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0">
+                  <Sparkles className="w-6 h-6 text-accent" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">{t('Gratis koncept', 'Free Concept')}</h3>
+                  <p className="text-muted-foreground text-sm">{t('Se din framtida webbplats innan du bestämmer dig.', 'See your future website before you decide.')}</p>
+                </div>
+              </div>
+              <div className="space-y-4 mb-8">
+                {[
+                  t('Berätta om ditt företag och välj stil', 'Tell us about your business and choose style'),
+                  t('Betala €50 verifieringsavgift (återbetalbar)', 'Pay €50 verification fee (refundable)'),
+                  t('Få ett custom koncept inom 72h', 'Get a custom concept within 72h'),
+                  t('Gillar du det? Avgiften dras från priset. Gillar inte? Full återbetalning.', 'Like it? Fee deducted from price. Don\'t like it? Full refund.'),
+                ].map((step, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-sm font-bold text-accent flex-shrink-0">
+                      {i + 1}
+                    </span>
+                    <span className="text-muted-foreground">{step}</span>
+                  </div>
+                ))}
+              </div>
+              <Button asChild className="w-full group">
+                <Link to="/demo">
+                  {t('Få gratis koncept', 'Get free concept')}
+                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </motion.div>
+
+            {/* Direct Order Path */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              whileHover={{ y: -5 }}
+              className="relative p-8 rounded-2xl border border-border/50 bg-secondary/30 hover:border-accent/30 transition-all duration-300"
+            >
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0">
+                  <Zap className="w-6 h-6 text-accent" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">{t('Direktbeställning', 'Direct Order')}</h3>
+                  <p className="text-muted-foreground text-sm">{t('Vet du redan vad du vill ha? Hoppa direkt till beställning.', 'Already know what you want? Skip straight to ordering.')}</p>
+                </div>
+              </div>
+              <div className="space-y-4 mb-8">
+                {[
+                  t('Välj paket och anpassa din beställning', 'Choose package and customize your order'),
+                  t('Ladda upp material och beskriv dina önskemål', 'Upload materials and describe your wishes'),
+                  t('Betala och vi börjar bygga direkt', 'Pay and we start building immediately'),
+                  t('Din webbplats levererad inom 7-14 dagar', 'Your website delivered within 7-14 days'),
+                ].map((step, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-sm font-bold text-accent flex-shrink-0">
+                      {i + 1}
+                    </span>
+                    <span className="text-muted-foreground">{step}</span>
+                  </div>
+                ))}
+              </div>
+              <Button asChild variant="outline" className="w-full group">
+                <Link to="/bestall">
+                  {t('Beställ direkt', 'Order directly')}
+                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </motion.div>
+          </div>
+
+          {/* Already received concept link */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="text-center"
+          >
+            <Link 
+              to="/efter-demo" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2"
+            >
+              {t('Har du redan fått ditt koncept?', 'Already received your concept?')}
+              <ArrowRight className="w-4 h-4" />
             </Link>
-          </Button>
-        </motion.div>
+          </motion.div>
+        </div>
       </section>
     </div>;
 }

@@ -418,7 +418,46 @@ export default function HowItWorksPage() {
         </div>
       </motion.section>
 
-      {/* Two Paths Section */}
+
+      {/* Process Steps with Timeline */}
+      <section className="py-24 lg:py-32 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none" />
+        
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <span className="text-accent text-sm font-semibold tracking-widest uppercase mb-4 block">
+              {t("Processen", "The Process")}
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              {t("Steg för steg", "Step by step")}
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {t(
+                "Så här skapar vi din perfekta webbplats.",
+                "This is how we create your perfect website."
+              )}
+            </p>
+          </motion.div>
+
+          <div className="relative max-w-4xl mx-auto">
+            {/* Timeline line */}
+            <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-accent/50 via-accent/20 to-transparent hidden lg:block" />
+            
+            <div className="space-y-12">
+              {steps.map((step, i) => (
+                <InteractiveStep key={i} {...step} delay={i * 0.15} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Choose Your Path - Bottom Section */}
       <section className="py-24 relative">
         <div className="container mx-auto px-4">
           <motion.div
@@ -491,106 +530,6 @@ export default function HowItWorksPage() {
               {t("Har du redan fått ditt koncept?", "Already received your concept?")}
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Process Steps with Timeline */}
-      <section className="py-24 lg:py-32 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none" />
-        
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <span className="text-accent text-sm font-semibold tracking-widest uppercase mb-4 block">
-              {t("Processen", "The Process")}
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              {t("Steg för steg", "Step by step")}
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              {t(
-                "Så här skapar vi din perfekta webbplats.",
-                "This is how we create your perfect website."
-              )}
-            </p>
-          </motion.div>
-
-          <div className="relative max-w-4xl mx-auto">
-            {/* Timeline line */}
-            <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-accent/50 via-accent/20 to-transparent hidden lg:block" />
-            
-            <div className="space-y-12">
-              {steps.map((step, i) => (
-                <InteractiveStep key={i} {...step} delay={i * 0.15} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative max-w-4xl mx-auto"
-          >
-            <FloatingCard className="p-12 lg:p-20 text-center">
-              {/* Background effects */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--accent)/0.1),transparent_70%)]" />
-              
-              {/* Animated rings */}
-              <motion.div
-                animate={{ rotate: 360, scale: [1, 1.05, 1] }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute -top-20 -right-20 w-40 h-40 border border-accent/10 rounded-full"
-              />
-              <motion.div
-                animate={{ rotate: -360, scale: [1.05, 1, 1.05] }}
-                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                className="absolute -bottom-20 -left-20 w-60 h-60 border border-accent/10 rounded-full"
-              />
-
-              <div className="relative z-10">
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                >
-                  <Sparkles className="w-14 h-14 text-accent mx-auto mb-8" />
-                </motion.div>
-                
-                <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-                  {t("Redo att börja?", "Ready to start?")}
-                </h2>
-                <p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
-                  {t(
-                    "Få ett gratis designkoncept inom 72 timmar. Ingen betalning krävs.",
-                    "Get a free design concept within 72 hours. No payment required."
-                  )}
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button asChild size="lg" className="rounded-full text-lg px-10 group">
-                    <Link to="/demo">
-                      {t("Få gratis koncept", "Get free concept")}
-                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                  <Button asChild size="lg" variant="outline" className="rounded-full text-lg px-10">
-                    <Link to="/portfolio">
-                      {t("Se vårt arbete", "See our work")}
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </FloatingCard>
           </motion.div>
         </div>
       </section>
