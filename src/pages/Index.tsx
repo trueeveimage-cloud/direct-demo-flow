@@ -6,8 +6,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Testimonials } from '@/components/Testimonials';
 import { TrustBadges } from '@/components/TrustBadges';
 import { ROICalculator } from '@/components/ROICalculator';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
+import { useRef } from 'react';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -18,6 +19,126 @@ import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
 // Before/After images
 import beforeSwedenCarImg from '@/assets/before-swedencar.png';
 import afterSwedenCarImg from '@/assets/after-swedencar.png';
+
+// Before/After Section with Parallax Effect
+function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: string) => string; beforeImg: string; afterImg: string }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  });
+  
+  // Parallax transforms - before moves slower, after moves faster
+  const beforeY = useTransform(scrollYProgress, [0, 1], [60, -60]);
+  const afterY = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  
+  return (
+    <section ref={sectionRef} className="py-32 relative overflow-hidden">
+      {/* Asymmetric background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-accent/5 to-transparent" />
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+      
+      <div className="container-wide section-padding relative">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left: Text content */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6">
+              <Eye className="w-4 h-4" />
+              {t('Transformation', 'Transformation')}
+            </div>
+            
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+              {t('Från föråldrad till professionell', 'From outdated to professional')}
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              {t('Vi förvandlar webbplatser som skrämmer bort kunder till webbplatser som konverterar besökare till bokningar.', 'We transform websites that scare away customers into websites that convert visitors into bookings.')}
+            </p>
+            
+            <div className="mb-8">
+              <p className="text-muted-foreground mb-2">
+                <span className="font-semibold text-foreground">Sweden Car AB</span>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t('Från gammaldags design till modernt och professionellt intryck.', 'From outdated design to a modern, professional impression.')}
+              </p>
+            </div>
+            
+            <Button asChild variant="outline" className="group">
+              <Link to="/portfolio">
+                {t('Se fler transformationer', 'See more transformations')}
+                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </motion.div>
+          
+          {/* Right: Before/After Images with Parallax */}
+          <div className="relative">
+            {/* Before - positioned back and left, slower parallax */}
+            <motion.div 
+              style={{ y: beforeY }} 
+              className="relative z-10 hidden md:block"
+            >
+              <div className="absolute -top-3 left-4 z-20">
+                <span className="bg-muted-foreground/80 text-background px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
+                  {t('Före', 'Before')}
+                </span>
+              </div>
+              <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-border/50 shadow-xl">
+                <img src={beforeImg} alt={t('Före transformation', 'Before transformation')} className="w-full h-full object-cover object-top" />
+              </div>
+            </motion.div>
+            
+            {/* Mobile: Static before image */}
+            <div className="relative z-10 md:hidden">
+              <div className="absolute -top-3 left-4 z-20">
+                <span className="bg-muted-foreground/80 text-background px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
+                  {t('Före', 'Before')}
+                </span>
+              </div>
+              <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-border/50 shadow-xl">
+                <img src={beforeImg} alt={t('Före transformation', 'Before transformation')} className="w-full h-full object-cover object-top" />
+              </div>
+            </div>
+            
+            {/* After - overlapping, faster parallax */}
+            <motion.div 
+              style={{ y: afterY }} 
+              className="relative z-20 -mt-24 ml-12 lg:ml-20 hidden md:block"
+            >
+              <div className="absolute -top-3 left-4 z-20">
+                <span className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
+                  {t('Efter', 'After')}
+                </span>
+              </div>
+              <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-accent/50 shadow-2xl shadow-accent/20">
+                <img src={afterImg} alt={t('Efter transformation', 'After transformation')} className="w-full h-full object-cover object-top" />
+              </div>
+            </motion.div>
+            
+            {/* Mobile: Static after image */}
+            <div className="relative z-20 -mt-16 ml-8 md:hidden">
+              <div className="absolute -top-3 left-4 z-20">
+                <span className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
+                  {t('Efter', 'After')}
+                </span>
+              </div>
+              <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-accent/50 shadow-2xl shadow-accent/20">
+                <img src={afterImg} alt={t('Efter transformation', 'After transformation')} className="w-full h-full object-cover object-top" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Index() {
   const { t } = useLanguage();
@@ -173,88 +294,9 @@ export default function Index() {
 
 
       {/* ═══════════════════════════════════════════════════════════════════
-          3. THE SOLUTION - Before/After Transformation
+          3. THE SOLUTION - Before/After Transformation with Parallax
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative overflow-hidden">
-        {/* Asymmetric background */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-accent/5 to-transparent" />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        
-        <div className="container-wide section-padding relative">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left: Text content */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6">
-                <Eye className="w-4 h-4" />
-                {t('Transformation', 'Transformation')}
-              </div>
-              
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-                {t('Från föråldrad till professionell', 'From outdated to professional')}
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8">
-                {t('Vi förvandlar webbplatser som skrämmer bort kunder till webbplatser som konverterar besökare till bokningar.', 'We transform websites that scare away customers into websites that convert visitors into bookings.')}
-              </p>
-              
-              <div className="mb-8">
-                <p className="text-muted-foreground mb-2">
-                  <span className="font-semibold text-foreground">Sweden Car AB</span>
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t('Från gammaldags design till modernt och professionellt intryck.', 'From outdated design to a modern, professional impression.')}
-                </p>
-              </div>
-              
-              <Button asChild variant="outline" className="group">
-                <Link to="/portfolio">
-                  {t('Se fler transformationer', 'See more transformations')}
-                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </motion.div>
-            
-            {/* Right: Before/After Images - Stacked asymmetric */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="relative"
-            >
-              {/* Before - positioned back and left */}
-              <div className="relative z-10">
-                <div className="absolute -top-3 left-4 z-20">
-                  <span className="bg-muted-foreground/80 text-background px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
-                    {t('Före', 'Before')}
-                  </span>
-                </div>
-                <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-border/50 shadow-xl">
-                  <img src={beforeSwedenCarImg} alt={t('Före transformation', 'Before transformation')} className="w-full h-full object-cover object-top" />
-                </div>
-              </div>
-              
-              {/* After - overlapping, positioned front and right */}
-              <div className="relative z-20 -mt-24 ml-12 lg:ml-20">
-                <div className="absolute -top-3 left-4 z-20">
-                  <span className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
-                    {t('Efter', 'After')}
-                  </span>
-                </div>
-                <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-accent/50 shadow-2xl shadow-accent/20">
-                  <img src={afterSwedenCarImg} alt={t('Efter transformation', 'After transformation')} className="w-full h-full object-cover object-top" />
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <BeforeAfterSection t={t} beforeImg={beforeSwedenCarImg} afterImg={afterSwedenCarImg} />
 
 
       {/* ═══════════════════════════════════════════════════════════════════

@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
+import { AnimatedCurrency } from '@/hooks/useAnimatedCounter';
 
 // Industry-specific data with average customer values and website importance multipliers
 const industryData: Record<string, {
@@ -840,7 +841,19 @@ export function ROICalculator() {
                   
                   <div className="text-center py-2">
                     <p className="text-3xl sm:text-4xl font-bold text-foreground">
-                      {formatCurrency(result.lowYearly)} – {formatCurrency(result.highYearly)}
+                      <AnimatedCurrency 
+                        value={result.lowYearly} 
+                        isActive={step === 'result'} 
+                        duration={1800}
+                        delay={200}
+                      />
+                      {' – '}
+                      <AnimatedCurrency 
+                        value={result.highYearly} 
+                        isActive={step === 'result'} 
+                        duration={2200}
+                        delay={400}
+                      />
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
                       {t('per år', 'per year')}
