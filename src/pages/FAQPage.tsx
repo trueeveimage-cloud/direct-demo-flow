@@ -258,7 +258,7 @@ export default function FAQPage() {
                 <Button asChild variant="outline" size="lg" className="rounded-full px-8">
                   <Link to="/kontakt">{t('Kontakta oss', 'Contact us')}</Link>
                 </Button>
-                <Button asChild size="lg" className="rounded-full px-8 group">
+                <Button asChild variant="outline" size="lg" className="rounded-full px-8 group">
                   <Link to="/demo">
                     {t('Få ditt gratis koncept', 'Get your free concept')}
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />

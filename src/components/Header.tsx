@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowRight, ChevronDown, Sparkles, ShoppingCart, MessageSquare, Utensils, Scissors, Store } from 'lucide-react';
+import { ArrowRight, ChevronDown, Sparkles, ShoppingCart, MessageSquare, Utensils, Scissors, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ThemeToggle } from './ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
+import { hapticFeedback } from '@/lib/haptics';
 
 // SVG Flag components for consistent rendering
 const SwedishFlag = () => (
@@ -29,6 +30,36 @@ const BritishFlag = () => (
   </svg>
 );
 
+// Animated hamburger icon that morphs to X
+const AnimatedMenuIcon = ({ isOpen }: { isOpen: boolean }) => (
+  <div className="w-5 h-5 relative flex flex-col justify-center items-center">
+    <motion.span
+      className="absolute w-5 h-0.5 bg-current rounded-full"
+      animate={{
+        rotate: isOpen ? 45 : 0,
+        y: isOpen ? 0 : -4,
+      }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+    />
+    <motion.span
+      className="absolute w-5 h-0.5 bg-current rounded-full"
+      animate={{
+        opacity: isOpen ? 0 : 1,
+        scaleX: isOpen ? 0 : 1,
+      }}
+      transition={{ duration: 0.2 }}
+    />
+    <motion.span
+      className="absolute w-5 h-0.5 bg-current rounded-full"
+      animate={{
+        rotate: isOpen ? -45 : 0,
+        y: isOpen ? 0 : 4,
+      }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+    />
+  </div>
+);
+
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -45,7 +76,6 @@ export function Header() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // Show header when at top or scrolling up, hide when scrolling down
       if (currentScrollY < 50) {
         setVisible(true);
       } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
@@ -61,7 +91,6 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -78,12 +107,33 @@ export function Header() {
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    hapticFeedback('click');
     if (location.pathname === '/') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       navigate('/');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
     }
+  };
+
+  const handleLanguageToggle = () => {
+    hapticFeedback('toggle');
+    setLang(lang === 'sv' ? 'en' : 'sv');
+  };
+
+  const handleMenuToggle = () => {
+    hapticFeedback('click');
+    setIsOpen(!isOpen);
+  };
+
+  const handleDropdownClick = (setter: React.Dispatch<React.SetStateAction<boolean>>, current: boolean) => {
+    hapticFeedback('click');
+    setter(!current);
+  };
+
+  const handleLinkClick = () => {
+    hapticFeedback('click');
+    setIsOpen(false);
   };
 
   const navItems = [
@@ -106,7 +156,6 @@ export function Header() {
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4"
     >
-      {/* Floating pill navigation */}
       <motion.nav
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -128,6 +177,7 @@ export function Header() {
             <Link
               key={item.path}
               to={item.path}
+              onClick={() => hapticFeedback('click')}
               className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all ${
                 isActive(item.path) 
                   ? 'text-foreground bg-background/50' 
@@ -141,7 +191,7 @@ export function Header() {
           {/* Services Dropdown */}
           <div className="relative" ref={servicesDropdownRef}>
             <button
-              onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
+              onClick={() => handleDropdownClick(setServicesDropdownOpen, servicesDropdownOpen)}
               className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all flex items-center gap-1 ${
                 location.pathname.startsWith('/tjanster')
                   ? 'text-foreground bg-background/50'
@@ -159,14 +209,14 @@ export function Header() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute left-0 mt-3 w-56 bg-secondary/95 backdrop-blur-md border border-border rounded-xl shadow-xl overflow-hidden z-50"
+                  className="absolute left-0 mt-3 w-56 bg-secondary border border-border rounded-xl shadow-xl overflow-hidden z-50"
                 >
                   <div className="p-2 space-y-1">
                     {servicePages.map((item) => (
                       <Link
                         key={item.path}
                         to={item.path}
-                        onClick={() => setServicesDropdownOpen(false)}
+                        onClick={() => { hapticFeedback('click'); setServicesDropdownOpen(false); }}
                         className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-background/50 transition-colors group"
                       >
                         <item.icon className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
@@ -176,7 +226,7 @@ export function Header() {
                     <div className="border-t border-border/50 pt-1 mt-1">
                       <Link
                         to="/priser"
-                        onClick={() => setServicesDropdownOpen(false)}
+                        onClick={() => { hapticFeedback('click'); setServicesDropdownOpen(false); }}
                         className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-background/50 transition-colors text-muted-foreground hover:text-foreground"
                       >
                         <span className="text-sm">{t('Alla priser', 'All pricing')}</span>
@@ -197,22 +247,33 @@ export function Header() {
         <div className="hidden md:flex items-center gap-1">
           <ThemeToggle />
           
-          {/* Language Toggle */}
+          {/* Language Toggle with fade animation */}
           <button
-            onClick={() => setLang(lang === 'sv' ? 'en' : 'sv')}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-background/50 transition-all"
+            onClick={handleLanguageToggle}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-background/50 transition-all overflow-hidden"
             aria-label={lang === 'sv' ? 'Switch to English' : 'Byt till svenska'}
             title={lang === 'sv' ? 'Switch to English' : 'Byt till svenska'}
           >
-            {lang === 'sv' ? <BritishFlag /> : <SwedishFlag />}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={lang}
+                initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {lang === 'sv' ? <BritishFlag /> : <SwedishFlag />}
+              </motion.div>
+            </AnimatePresence>
           </button>
 
           {/* CTA Dropdown Button */}
           <div className="relative" ref={dropdownRef}>
             <Button 
+              variant="outline"
               size="sm" 
               className="rounded-full ml-1 group"
-              onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
+              onClick={() => handleDropdownClick(setProjectDropdownOpen, projectDropdownOpen)}
             >
               {t('Starta ditt projekt', 'Start your project')}
               <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${projectDropdownOpen ? 'rotate-180' : ''}`} />
@@ -225,12 +286,12 @@ export function Header() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-3 w-64 bg-secondary/95 backdrop-blur-md border border-border rounded-2xl shadow-xl overflow-hidden z-50"
+                  className="absolute right-0 mt-3 w-64 bg-secondary border border-border rounded-2xl shadow-xl overflow-hidden z-50"
                 >
                   <div className="p-3 space-y-2">
                     <Link
                       to="/demo"
-                      onClick={() => setProjectDropdownOpen(false)}
+                      onClick={() => { hapticFeedback('click'); setProjectDropdownOpen(false); }}
                       className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/50 transition-colors group"
                     >
                       <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
@@ -245,7 +306,7 @@ export function Header() {
                     
                     <Link
                       to="/bestall"
-                      onClick={() => setProjectDropdownOpen(false)}
+                      onClick={() => { hapticFeedback('click'); setProjectDropdownOpen(false); }}
                       className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/50 transition-colors group"
                     >
                       <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
@@ -261,7 +322,7 @@ export function Header() {
                     <div className="border-t border-border/50 pt-2 mt-2">
                       <Link
                         to="/efter-demo"
-                        onClick={() => setProjectDropdownOpen(false)}
+                        onClick={() => { hapticFeedback('click'); setProjectDropdownOpen(false); }}
                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-background/30 transition-colors text-sm text-muted-foreground hover:text-foreground"
                       >
                         <MessageSquare className="w-4 h-4" />
@@ -278,19 +339,33 @@ export function Header() {
         {/* Mobile controls */}
         <div className="flex md:hidden items-center gap-1 ml-auto">
           <ThemeToggle />
+          
+          {/* Mobile Language Toggle with fade animation */}
           <button
-            onClick={() => setLang(lang === 'sv' ? 'en' : 'sv')}
-            className="w-8 h-8 flex items-center justify-center rounded-full transition-all"
+            onClick={handleLanguageToggle}
+            className="w-8 h-8 flex items-center justify-center rounded-full transition-all overflow-hidden"
             aria-label={lang === 'sv' ? 'Switch to English' : 'Byt till svenska'}
           >
-            {lang === 'sv' ? <BritishFlag /> : <SwedishFlag />}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={lang}
+                initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {lang === 'sv' ? <BritishFlag /> : <SwedishFlag />}
+              </motion.div>
+            </AnimatePresence>
           </button>
+          
+          {/* Animated hamburger menu */}
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={handleMenuToggle}
             className="p-2 rounded-full hover:bg-background/50 transition-colors"
             aria-label="Toggle menu"
           >
-            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <AnimatedMenuIcon isOpen={isOpen} />
           </button>
         </div>
       </motion.nav>
@@ -303,14 +378,14 @@ export function Header() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-20 left-4 right-4 md:hidden bg-secondary/95 backdrop-blur-md border border-border rounded-2xl shadow-xl overflow-hidden z-50"
+            className="fixed top-20 left-4 right-4 md:hidden bg-secondary border border-border rounded-2xl shadow-xl overflow-hidden z-50"
           >
             <nav className="p-4 space-y-1">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleLinkClick}
                   className={`block py-3 px-4 rounded-xl text-sm font-medium transition-colors ${
                     isActive(item.path) 
                       ? 'text-foreground bg-background/50' 
@@ -323,20 +398,20 @@ export function Header() {
               
               <div className="pt-3 mt-3 border-t border-border space-y-2">
                 <Button asChild variant="outline" className="w-full rounded-xl group">
-                  <Link to="/demo" onClick={() => setIsOpen(false)}>
+                  <Link to="/demo" onClick={handleLinkClick}>
                     <Sparkles className="w-4 h-4 mr-2" />
                     {t('Gratis koncept', 'Free concept')}
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full rounded-xl group">
-                  <Link to="/bestall" onClick={() => setIsOpen(false)}>
+                  <Link to="/bestall" onClick={handleLinkClick}>
                     <ShoppingCart className="w-4 h-4 mr-2" />
                     {t('Beställ direkt', 'Order directly')}
                   </Link>
                 </Button>
                 <Link
                   to="/efter-demo"
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleLinkClick}
                   className="flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <MessageSquare className="w-4 h-4" />

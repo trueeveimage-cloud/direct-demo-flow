@@ -61,7 +61,7 @@ export default function IndustrySalonsPage() {
               transition={{ delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <Button asChild size="lg" className="group">
+              <Button asChild variant="outline" size="lg" className="group">
                 <Link to="/demo">
                   {t('Få gratis koncept', 'Get free concept')}
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -168,7 +168,7 @@ export default function IndustrySalonsPage() {
             >
               {t('Få ett gratis koncept inom 72 timmar.', 'Get a free concept within 72 hours.')}
             </motion.p>
-            <Button asChild size="lg" className="group">
+            <Button asChild variant="outline" size="lg" className="group">
               <Link to="/demo">
                 {t('Kom igång gratis', 'Get started free')}
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
