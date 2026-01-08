@@ -136,7 +136,7 @@ export default function PricingPage() {
       name: 'Starter', 
       price: '€490',
       delivery: t('14 dagar', '14 days'),
-      description: t('För små företag som bara behöver något snyggt och tydligt.', 'For small businesses that just need something nice and clear.'),
+      description: t('Perfekt för dig som behöver en tydlig och professionell närvaro online.', 'Perfect for those who need a clear and professional online presence.'),
       pages: t('Upp till 3 sidor', 'Up to 3 pages'), 
       features: [
         { text: t('Mobilanpassad design', 'Mobile-responsive design'), key: 'Mobilanpassad design' },

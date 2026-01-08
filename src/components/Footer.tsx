@@ -41,7 +41,7 @@ export function Footer() {
                 Nomia<span className="text-accent">.</span>
               </Link>
               <p className="mt-3 text-sm text-muted-foreground max-w-sm">
-                {t('Snabba, snygga webbplatser för småföretag. Vi gör det enkelt att synas online.', 'Fast, beautiful websites for small businesses. We make it easy to stand out online.')}
+                {t('Snabba, snygga webbplatser som konverterar. Vi gör det enkelt att växa online.', 'Fast, beautiful websites that convert. We make it easy to grow online.')}
               </p>
               <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />

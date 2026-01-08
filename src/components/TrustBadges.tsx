@@ -19,7 +19,7 @@ export function TrustBadges() {
     {
       icon: Users,
       title: t('50+ nöjda kunder', '50+ happy customers'),
-      desc: t('Småföretag som oss litar på', 'Small businesses trust us')
+      desc: t('Företag som litar på oss', 'Businesses that trust us')
     },
     {
       icon: RefreshCcw,

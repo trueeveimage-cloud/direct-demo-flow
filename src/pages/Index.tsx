@@ -430,7 +430,7 @@ export default function Index() {
 
 
 
-      {/* Portfolio Preview - Full width, layered */}
+      {/* Portfolio Preview - Premium showcase */}
       <section className="py-24 bg-secondary/30 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
@@ -447,96 +447,88 @@ export default function Index() {
         }} transition={{
           duration: 0.6
         }} className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold">Portfolio</h2>
-            <Button asChild variant="ghost" className="group">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-bold">{t('Våra projekt', 'Our Work')}</h2>
+              <p className="text-muted-foreground mt-2">{t('Utvalda projekt från olika branscher', 'Selected projects across industries')}</p>
+            </div>
+            <Button asChild variant="outline" className="group hidden sm:flex">
               <Link to="/portfolio">
-                {t('Se alla', 'View all')}
+                {t('Se alla projekt', 'View all projects')}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </motion.div>
 
-          {/* Real portfolio items with images */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Portfolio grid with stats badges */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[{
             name: "Gail's Hair",
             type: t('Frisörsalong', 'Hair Salon'),
+            stat: '+89%',
+            statLabel: t('bokningar', 'bookings'),
             url: 'https://gailshairgallery.lovable.app/book',
             image: gailsHairImg
           }, {
             name: 'Oh My Coffee',
-            type: t('Café', 'Café'),
+            type: t('Café & Restaurang', 'Café & Restaurant'),
+            stat: null,
             url: 'https://ohmycoffee-gbg-web.lovable.app/',
             image: ohMyCoffeeImg
           }, {
             name: 'Bamba',
             type: t('Restaurang', 'Restaurant'),
+            stat: '+177%',
+            statLabel: t('bokningar/vecka', 'bookings/week'),
             url: 'https://bamba.lovable.app/',
             image: bambaImg
           }, {
             name: 'En Deli Haga',
-            type: t('Delikatess', 'Deli'),
+            type: t('Delikatess & Café', 'Deli & Café'),
+            stat: null,
             url: 'https://en-deli-cozy-vibes.lovable.app/',
             image: enDeliHagaImg
           }].map((project, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            scale: 0.9
-          }} whileInView={{
-            opacity: 1,
-            scale: 1
-          }} viewport={{
-            once: true
-          }} transition={{
-            duration: 0.5,
-            delay: index * 0.1
-          }}>
-                <a href={project.url} target="_blank" rel="noopener noreferrer" className="group relative aspect-[4/3] rounded-xl overflow-hidden border border-border/50 hover:border-accent/50 transition-all duration-500 block">
-                  <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <p className="text-primary-foreground font-heading font-semibold text-sm sm:text-lg">{project.name}</p>
-                    <p className="text-primary-foreground/70 text-xs sm:text-sm">{project.type}</p>
+              opacity: 0,
+              y: 30
+            }} whileInView={{
+              opacity: 1,
+              y: 0
+            }} viewport={{
+              once: true
+            }} transition={{
+              duration: 0.5,
+              delay: index * 0.1
+            }}
+            whileHover={{ y: -8 }}
+            className="group"
+          >
+                <a href={project.url} target="_blank" rel="noopener noreferrer" className="relative aspect-[4/3] rounded-xl overflow-hidden border border-border/50 hover:border-accent/50 transition-all duration-500 block shadow-lg hover:shadow-xl hover:shadow-accent/10">
+                  {/* Stats badge */}
+                  {project.stat && (
+                    <div className="absolute top-3 right-3 z-10 bg-accent text-accent-foreground px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                      {project.stat} {project.statLabel}
+                    </div>
+                  )}
+                  <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/95 via-foreground/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-6 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                    <p className="text-primary-foreground font-heading font-bold text-lg">{project.name}</p>
+                    <p className="text-primary-foreground/70 text-sm">{project.type}</p>
                   </div>
                 </a>
               </motion.div>)}
           </div>
+          
+          {/* Mobile CTA */}
+          <div className="mt-8 text-center sm:hidden">
+            <Button asChild variant="outline" className="group">
+              <Link to="/portfolio">
+                {t('Se alla projekt', 'View all projects')}
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </div>
         </div>
-      </section>
-
-      {/* Monthly Care Teaser - Accent section */}
-      <section className="py-24 bg-background relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl" />
-        </div>
-        
-        <motion.div initial={{
-        opacity: 0,
-        y: 40
-      }} whileInView={{
-        opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} transition={{
-        duration: 0.7
-      }} className="container-narrow section-padding text-center relative z-10">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-            {t('Månatlig webbvård', 'Monthly Care')}
-          </h2>
-          <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-            {t('Håll din webbplats snabb, uppdaterad och redigerbar.', 'Keep your site fast, updated, and editable.')}
-          </p>
-          <p className="text-muted-foreground/70 text-sm mb-8">
-            {t('Avsluta när du vill.', 'Cancel anytime.')}
-          </p>
-          <Button asChild variant="secondary" className="group hover:scale-105 transition-transform">
-            <Link to="/priser">
-              {t('Se vårdplaner', 'See care plans')}
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </motion.div>
       </section>
 
       {/* FAQ Preview - Expanded */}
@@ -564,23 +556,14 @@ export default function Index() {
 
           <div className="space-y-4">
             {[{
-            q: t('Är konceptet gratis?', 'Is the concept free?'),
-            a: t('Ja, du betalar endast en återbetalningsbar verifieringsavgift på €50.', 'Yes, you only pay a refundable verification fee of €50.')
-          }, {
-            q: t('Varför verifieringsavgift?', 'Why the verification fee?'),
-            a: t('Det visar att du är seriös och bokar din plats. Vi har begränsat antal platser per vecka.', 'It shows you\'re serious and books your slot. We have limited spots per week.')
+            q: t('Är konceptet verkligen gratis?', 'Is the concept really free?'),
+            a: t('Ja! Du betalar endast €50 i verifieringsavgift som dras av från priset om du fortsätter, eller återbetalas helt om du tackar nej.', 'Yes! You only pay a €50 verification fee that\'s deducted from the price if you continue, or fully refunded if you decline.')
           }, {
             q: t('Hur lång tid tar leveransen?', 'How long does delivery take?'),
-            a: t('Beroende på paket: Starter 14 dagar, Standard 10 dagar, Pro 7 dagar.', 'Depending on package: Starter 14 days, Standard 10 days, Pro 7 days.')
-          }, {
-            q: t('Kan jag redigera webbplatsen själv?', 'Can I edit the website myself?'),
-            a: t('Med en Care Plan får du ändringar inkluderade varje månad. Vi sköter allt tekniskt åt dig.', 'With a Care Plan you get edits included every month. We handle all technical aspects for you.')
-          }, {
-            q: t('Vad kostar hosting?', 'What does hosting cost?'),
-            a: t('Hosting ingår i våra Care Plans från €25/månad. Domän ingår också.', 'Hosting is included in our Care Plans from €25/month. Domain included too.')
+            a: t('Beroende på paket: Starter 14 dagar, Standard 10 dagar, Pro 7 dagar. Koncept levereras inom 72h.', 'Depending on package: Starter 14 days, Standard 10 days, Pro 7 days. Concepts delivered within 72h.')
           }, {
             q: t('Erbjuder ni Klarna?', 'Do you offer Klarna?'),
-            a: t('Ja! Du kan delbetala med Klarna – välj att betala senare eller dela upp i 3 delbetalningar.', 'Yes! You can pay in installments with Klarna – choose to pay later or split into 3 payments.')
+            a: t('Ja! Delbetala med Klarna – betala senare eller dela upp i 3 delbetalningar.', 'Yes! Pay in installments with Klarna – pay later or split into 3 payments.')
           }].map((faq, index) => <motion.div key={index} initial={{
             opacity: 0,
             y: 20
