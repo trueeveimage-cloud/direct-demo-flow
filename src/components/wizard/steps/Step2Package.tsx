@@ -222,22 +222,25 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
               className="mt-4"
             >
               <Label className="text-sm font-medium">
-                {t('Vilka språk behöver du?', 'Which languages do you need?')} *
+                {t('Lista alla språk du behöver', 'List all languages you need')} *
               </Label>
               <Input 
                 value={formData.customLanguages}
                 onChange={(e) => updateField('customLanguages', e.target.value)}
-                placeholder={t('t.ex. Svenska, Arabiska, Franska', 'e.g. Swedish, Arabic, French')}
+                placeholder={t('t.ex. Svenska, Engelska, Arabiska, Franska...', 'e.g. Swedish, English, Arabic, French...')}
                 className="h-12 mt-1"
                 required
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('Du kan lägga till hur många språk du vill.', 'You can add as many languages as you want.')}
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
         
-        {formData.selectedLanguage === 'both' && formData.selectedPackage === 'starter' && (
+        {formData.selectedLanguage === 'custom' && formData.selectedPackage === 'starter' && (
           <p className="text-sm text-destructive mt-2">
-            {t('Flerspråk kräver Standard eller Pro.', 'Multi-language requires Standard or Pro.')}
+            {t('Flera språk kräver Standard eller Pro.', 'Multiple languages require Standard or Pro.')}
           </p>
         )}
       </motion.div>
@@ -373,11 +376,11 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
         <div className="flex items-center gap-2 mb-4">
           <Calendar className="w-5 h-5 text-accent" />
           <h2 className="font-semibold text-lg">{t('Vill du ha ett bokningssystem?', 'Do you want a booking system?')}</h2>
-          <InfoTooltip content={t('Vi skapar ditt helt egna bokningssystem integrerat med din webbplats.', 'We create your very own booking system integrated with your website.')} />
+          <InfoTooltip content={t('Vi bygger ditt helt egna bokningssystem – inga avgifter till tredjeparter som Bokadirekt.', 'We build your very own booking system – no fees to third parties like Bokadirekt.')} />
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          <span className="font-semibold text-accent">+2 000 kr</span>
-          <span className="ml-2">– {t('Tillval för bokningsfunktion', 'Add-on for booking functionality')}</span>
+          <span className="font-semibold text-accent">+€200</span>
+          <span className="ml-2">– {t('Eget bokningssystem, inga tredjepartsavgifter', 'Your own booking system, no third-party fees')}</span>
           <span className="block text-xs mt-1">{t('(Ingår GRATIS i Pro-paketet)', '(Included FREE in Pro package)')}</span>
         </p>
         <div className="flex gap-4">
