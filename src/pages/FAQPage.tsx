@@ -1,18 +1,122 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Plus, Minus } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight, Plus, Minus, HelpCircle, Sparkles, MessageSquare, Zap } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { AnimatedSection } from '@/components/AnimatedSection';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
+
+// Floating element component
+const FloatingIcon = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
+  <motion.div
+    className={`absolute pointer-events-none ${className}`}
+    animate={{ y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
+    transition={{ duration: 6, delay, repeat: Infinity, ease: "easeInOut" }}
+  >
+    {children}
+  </motion.div>
+);
+
+// FAQ Item component with smooth animations
+const FAQItem = ({ 
+  question, 
+  answer, 
+  isOpen, 
+  onClick, 
+  index 
+}: { 
+  question: string; 
+  answer: string; 
+  isOpen: boolean; 
+  onClick: () => void; 
+  index: number;
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <motion.div 
+        className={`relative border rounded-xl overflow-hidden transition-all duration-300 ${
+          isOpen 
+            ? 'border-accent/50 bg-accent/5 shadow-lg shadow-accent/5' 
+            : 'border-border hover:border-accent/30 bg-background'
+        }`}
+        layout
+      >
+        {/* Glow effect when open */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-gradient-to-r from-accent/5 via-transparent to-accent/5 pointer-events-none"
+            />
+          )}
+        </AnimatePresence>
+
+        <button 
+          onClick={onClick} 
+          className="w-full flex items-center justify-between p-5 sm:p-6 text-left group relative z-10"
+        >
+          <span className="font-semibold pr-4 text-base sm:text-lg group-hover:text-accent transition-colors">
+            {question}
+          </span>
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+              isOpen ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground group-hover:bg-accent/20 group-hover:text-accent'
+            }`}
+          >
+            {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+          </motion.div>
+        </button>
+        
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+                <motion.p 
+                  initial={{ y: -10 }}
+                  animate={{ y: 0 }}
+                  className="text-muted-foreground leading-relaxed"
+                >
+                  {answer}
+                </motion.p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
+  );
+};
 
 export default function FAQPage() {
   const { t } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const heroRef = useRef(null);
+  const heroInView = useInView(heroRef, { once: true });
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
 
   const faqs = [
     { 
       q: t('Hur fungerar "gratis koncept"?', 'How does "free concept" work?'), 
-      a: t('Du får ett gratis designkoncept för din webbplats. Du betalar en verifieringsavgift (10% av paketet) för att boka din plats. Om du inte gillar konceptet återbetalas avgiften helt. Om du går vidare dras den från slutpriset.', 'You get a free design concept for your website. You pay a verification fee (10% of package) to book your spot. If you don\'t like the concept, the fee is fully refunded. If you proceed, it\'s deducted from the final price.') 
+      a: t('Du får ett gratis designkoncept för din webbplats. Du betalar en verifieringsavgift (€50) för att boka din plats. Om du inte gillar konceptet återbetalas avgiften helt. Om du går vidare dras den från slutpriset.', 'You get a free design concept for your website. You pay a verification fee (€50) to book your spot. If you don\'t like the concept, the fee is fully refunded. If you proceed, it\'s deducted from the final price.') 
     },
     { 
       q: t('Kan jag beställa direkt utan koncept?', 'Can I order directly without a concept?'), 
@@ -49,38 +153,121 @@ export default function FAQPage() {
   ];
 
   return (
-    <div className="section-padding py-20">
-      <div className="container-narrow">
-        {/* Header */}
-        <AnimatedSection animation="fade-up" className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4">{t('Vanliga frågor', 'Frequently Asked Questions')}</h1>
-          <p className="text-muted-foreground">{t('Svar på de vanligaste frågorna om vår tjänst.', 'Answers to the most common questions about our service.')}</p>
-        </AnimatedSection>
+    <div className="relative overflow-hidden">
+      {/* Background elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-20 left-[10%] w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-20 right-[10%] w-[300px] h-[300px] bg-accent/5 rounded-full blur-[100px]" />
+      </div>
 
-        {/* FAQ List */}
-        <div className="space-y-3 mb-16">
-          {faqs.map((faq, index) => (
-            <AnimatedSection key={index} animation="fade-up" delay={index * 50}>
-              <div className="border border-border rounded-lg overflow-hidden">
-                <button onClick={() => setOpenIndex(openIndex === index ? null : index)} className="w-full flex items-center justify-between p-4 text-left hover:bg-secondary/50 transition-colors">
-                  <span className="font-heading font-semibold pr-4">{faq.q}</span>
-                  {openIndex === index ? <Minus className="w-5 h-5 flex-shrink-0 text-accent" /> : <Plus className="w-5 h-5 flex-shrink-0 text-muted-foreground" />}
-                </button>
-                {openIndex === index && <div className="px-4 pb-4 text-muted-foreground text-sm animate-fade-in">{faq.a}</div>}
-              </div>
-            </AnimatedSection>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <AnimatedSection animation="fade-up" className="text-center bg-secondary/50 rounded-lg p-8">
-          <h2 className="text-xl font-bold mb-3">{t('Har du fler frågor?', 'Have more questions?')}</h2>
-          <p className="text-muted-foreground mb-6">{t('Kontakta oss så svarar vi inom 24 timmar.', 'Contact us and we\'ll reply within 24 hours.')}</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button asChild variant="outline"><Link to="/kontakt">{t('Kontakta oss', 'Contact us')}</Link></Button>
-            <Button asChild><Link to="/demo">{t('Få ditt gratis koncept', 'Get your free concept')}<ArrowRight className="w-4 h-4" /></Link></Button>
+      {/* Floating decorative elements - hidden on mobile */}
+      <div className="hidden md:block">
+        <FloatingIcon delay={0} className="top-32 left-[8%]">
+          <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+            <HelpCircle className="w-6 h-6 text-accent/40" />
           </div>
-        </AnimatedSection>
+        </FloatingIcon>
+        <FloatingIcon delay={1} className="top-48 right-[12%]">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <MessageSquare className="w-5 h-5 text-primary/40" />
+          </div>
+        </FloatingIcon>
+        <FloatingIcon delay={2} className="bottom-40 left-[15%]">
+          <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+            <Zap className="w-4 h-4 text-accent/40" />
+          </div>
+        </FloatingIcon>
+      </div>
+
+      <div className="section-padding py-20 relative z-10">
+        <div className="container-narrow">
+          {/* Header */}
+          <motion.div 
+            ref={heroRef}
+            initial={{ opacity: 0, y: 40 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-16"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={heroInView ? { scale: 1, opacity: 1 } : {}}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6"
+            >
+              <HelpCircle className="w-4 h-4 text-accent" />
+              <span className="text-sm font-medium text-accent">
+                {t('Svar på vanliga frågor', 'Answers to common questions')}
+              </span>
+            </motion.div>
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+              {t('Vanliga ', 'Frequently Asked ')}
+              <span className="bg-gradient-to-r from-accent via-orange-400 to-accent bg-clip-text text-transparent">
+                {t('frågor', 'Questions')}
+              </span>
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              {t('Hitta svar på de vanligaste frågorna om vår tjänst.', 'Find answers to the most common questions about our service.')}
+            </p>
+          </motion.div>
+
+          {/* FAQ List */}
+          <div className="space-y-4 mb-20">
+            {faqs.map((faq, index) => (
+              <FAQItem
+                key={index}
+                question={faq.q}
+                answer={faq.a}
+                isOpen={openIndex === index}
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                index={index}
+              />
+            ))}
+          </div>
+
+          {/* CTA Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-accent/10 via-accent/5 to-accent/10 rounded-2xl blur-xl" />
+            <div className="relative bg-gradient-to-br from-secondary/80 to-secondary/40 backdrop-blur-xl rounded-2xl border border-border/50 p-8 sm:p-12 text-center overflow-hidden">
+              {/* Animated corner accents */}
+              <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-accent/20 rounded-tl-2xl" />
+              <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-accent/20 rounded-br-2xl" />
+              
+              <motion.div
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              >
+                <Sparkles className="w-10 h-10 text-accent mx-auto mb-4" />
+              </motion.div>
+              
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+                {t('Har du fler frågor?', 'Have more questions?')}
+              </h2>
+              <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                {t('Kontakta oss så svarar vi inom 24 timmar.', 'Contact us and we\'ll reply within 24 hours.')}
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button asChild variant="outline" size="lg" className="rounded-full px-8">
+                  <Link to="/kontakt">{t('Kontakta oss', 'Contact us')}</Link>
+                </Button>
+                <Button asChild size="lg" className="rounded-full px-8 group">
+                  <Link to="/demo">
+                    {t('Få ditt gratis koncept', 'Get your free concept')}
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
