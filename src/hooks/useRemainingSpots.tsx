@@ -2,18 +2,20 @@ import { useState, useEffect } from 'react';
 
 function calculateRemainingSpots(): number {
   const MAX_SPOTS = 4;
-  const INTERVAL_HOURS = 12;
-  const CYCLE_HOURS = (MAX_SPOTS + 1) * INTERVAL_HOURS; // 60 hours for full cycle (4,3,2,1,0 then reset)
+  const MIN_SPOTS = 1;
+  const CYCLE_DAYS = 4; // 4 days for full cycle (4,3,2,1 then reset to 4)
   
   // Fixed reference point
   const EPOCH = new Date('2024-01-01T00:00:00Z').getTime();
   
   const now = Date.now();
-  const hoursSinceEpoch = (now - EPOCH) / (1000 * 60 * 60);
-  const hoursInCurrentCycle = hoursSinceEpoch % CYCLE_HOURS;
-  const periodsElapsed = Math.floor(hoursInCurrentCycle / INTERVAL_HOURS);
+  const daysSinceEpoch = Math.floor((now - EPOCH) / (1000 * 60 * 60 * 24));
+  const daysInCurrentCycle = daysSinceEpoch % CYCLE_DAYS;
   
-  return MAX_SPOTS - periodsElapsed;
+  // Spots go: 4, 3, 2, 1, then back to 4
+  const spots = MAX_SPOTS - daysInCurrentCycle;
+  
+  return Math.max(spots, MIN_SPOTS);
 }
 
 export function useRemainingSpots() {
