@@ -14,7 +14,7 @@ import { toast } from '@/hooks/use-toast';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { setVerificationPaid } from '@/config/stripe';
-import { useTheme } from 'next-themes';
+
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { useRemainingSpots, recordConceptRequest } from '@/hooks/useRemainingSpots';
 
@@ -63,17 +63,11 @@ export default function FreeDemoPage() {
   const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { setTheme } = useTheme();
   const [step, setStep] = useState<FormStep>(1);
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
-
-  // Set dark mode on mount
-  useEffect(() => {
-    setTheme('dark');
-  }, [setTheme]);
   
   // Check for payment success from Stripe redirect
   useEffect(() => {

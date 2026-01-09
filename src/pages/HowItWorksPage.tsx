@@ -130,18 +130,22 @@ const InteractiveStep = ({
   );
 };
 
-// Floating elements for visual interest
+// Floating elements for visual interest - hidden on mobile for performance
 const FloatingElement = ({ children, delay = 0, duration = 6 }: { children: React.ReactNode; delay?: number; duration?: number }) => (
   <motion.div
+    className="hidden md:block"
+    initial={{ opacity: 1 }}
     animate={{
-      y: [0, -20, 0],
-      rotate: [0, 5, -5, 0],
+      y: [0, -15, 0],
+      rotate: [0, 3, -3, 0],
+      opacity: 1,
     }}
     transition={{
       duration,
       delay,
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: "easeInOut",
+      opacity: { duration: 0 }
     }}
   >
     {children}
@@ -313,8 +317,8 @@ export default function HowItWorksPage() {
           />
         </div>
 
-        {/* Floating decorative elements */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Floating decorative elements - hidden on mobile */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
           <FloatingElement delay={0} duration={7}>
             <div className="absolute top-[15%] left-[10%] w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center">
               <Eye className="w-8 h-8 text-accent/50" />
