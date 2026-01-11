@@ -25,9 +25,9 @@ import {
   initialFormData, 
   packages, 
   getBookingAddonPrice,
-  getVerificationFee,
-  getCurrencyFromLang 
+  getVerificationFee
 } from './wizardConfig';
+import { getCurrencyFromLang, getPackagePrice, getAddonPrice } from '@/config/currency';
 
 const STORAGE_KEY = 'nomia_wizard_data';
 const SESSION_KEY = 'nomia_wizard_session';
@@ -216,20 +216,29 @@ function WebsiteOrderWizardComponent({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const formatPrice = (price: number) => {
-    return '€' + price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const currency = getCurrencyFromLang(lang);
+  
+  const formatPriceLocal = (price: number) => {
+    if (currency === 'EUR') {
+      return '€' + price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    } else {
+      return price.toLocaleString('sv-SE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' kr';
+    }
   };
 
-  const ADMIN_PANEL_PRICE = 100;
+  const ADMIN_PANEL_PRICE = getAddonPrice('adminPanel', currency);
+  const BOOKING_ADDON_PRICE = getBookingAddonPrice(currency);
+  const VERIFICATION_FEE = getVerificationFee(currency);
 
   const handleSubmit = async () => {
     setIsLoading(true);
     
     try {
       const pkg = packages.find(p => p.id === formData.selectedPackage);
+      const pkgPrice = pkg ? getPackagePrice(pkg.id, currency) : 0;
       const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
       const adminPanelCost = addedAdminPanel ? ADMIN_PANEL_PRICE : 0;
-      const totalPackagePrice = (pkg?.price || 0) + bookingAddonCost + adminPanelCost;
+      const totalPackagePrice = pkgPrice + bookingAddonCost + adminPanelCost;
 
       // Submit form data for record keeping
       const formDataPayload = new FormData();
@@ -241,13 +250,13 @@ function WebsiteOrderWizardComponent({
       formDataPayload.append('business_type', formData.businessType === 'other' ? formData.businessTypeOther : formData.businessType);
       formDataPayload.append('website_goal', formData.websiteGoal);
       formDataPayload.append('selected_package', formData.selectedPackage);
-      formDataPayload.append('package_price', formatPrice(totalPackagePrice));
+      formDataPayload.append('package_price', formatPriceLocal(totalPackagePrice));
       formDataPayload.append('selected_style', formData.selectedStyle);
       formDataPayload.append('primary_color', formData.noColorPreference ? 'No preference' : formData.primaryColor);
       formDataPayload.append('accent_color', formData.noColorPreference ? 'No preference' : formData.accentColor);
       formDataPayload.append('selected_language', formData.selectedLanguage === 'custom' ? formData.customLanguages : formData.selectedLanguage);
       formDataPayload.append('wants_booking', String(formData.wantsBooking));
-      formDataPayload.append('booking_addon_cost', bookingAddonCost > 0 ? `+€${bookingAddonCost}` : 'Included');
+      formDataPayload.append('booking_addon_cost', bookingAddonCost > 0 ? `+${formatPriceLocal(bookingAddonCost)}` : 'Included');
       formDataPayload.append('selected_pages', formData.selectedPages.join(', '));
       formDataPayload.append('custom_pages', formData.customPages.filter(p => p.trim()).join(', '));
       formDataPayload.append('services', formData.services);
@@ -282,7 +291,7 @@ function WebsiteOrderWizardComponent({
       formDataPayload.append('admin_panel', String(addedAdminPanel));
       if (isPostDemoFlow) {
         formDataPayload.append('concept_link', formData.conceptLink || conceptLink);
-        formDataPayload.append('verification_fee_paid', formatPrice(VERIFICATION_FEE));
+        formDataPayload.append('verification_fee_paid', formatPriceLocal(VERIFICATION_FEE));
       }
 
       await fetch('https://getform.io/f/agdvpmpb', {
@@ -325,6 +334,8 @@ function WebsiteOrderWizardComponent({
           vatNumber: customerTypeData.vatNumber,
           vatVerified: customerTypeData.vatVerified,
           country: customerTypeData.country,
+          // Currency for Stripe
+          currency: currency,
         }),
       });
 
@@ -395,7 +406,7 @@ function WebsiteOrderWizardComponent({
               {t('Stripe-kassan har öppnats i ett nytt fönster. Slutför betalningen där för att slutföra din beställning.', 'Stripe checkout has opened in a new window. Complete the payment there to finalize your order.')}
             </p>
             <div className="p-6 bg-accent/10 rounded-xl inline-block mb-8">
-              <p className="text-xl font-bold">{pkg?.name} — {formatPrice((pkg?.price || 0) - (isPostDemoFlow ? VERIFICATION_FEE : 0))}</p>
+              <p className="text-xl font-bold">{pkg?.name} — {formatPriceLocal((pkg ? getPackagePrice(pkg.id, currency) : 0) - (isPostDemoFlow ? VERIFICATION_FEE : 0))}</p>
               <p className="text-muted-foreground">{t('Leverans inom', 'Delivery within')} {pkg?.delivery} {t('dagar', 'days')}</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -412,7 +423,7 @@ function WebsiteOrderWizardComponent({
     );
   }
 
-  const totalPrice = (pkg?.price || 0) + 
+  const totalPrice = (pkg ? getPackagePrice(pkg.id, currency) : 0) + 
     (formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0) +
     (addedAdminPanel ? ADMIN_PANEL_PRICE : 0) -
     (isPostDemoFlow ? VERIFICATION_FEE : 0);
@@ -619,7 +630,7 @@ function WebsiteOrderWizardComponent({
               <>
                 <div className="flex-shrink-0 min-w-0">
                   <p className="text-[10px] text-muted-foreground">{t('Totalt', 'Total')}</p>
-                  <p className="text-base font-bold truncate">{formatPrice(totalPrice)}</p>
+                  <p className="text-base font-bold truncate">{formatPriceLocal(totalPrice)}</p>
                 </div>
                 <Button 
                   onClick={() => {

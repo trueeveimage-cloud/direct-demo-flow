@@ -44,26 +44,41 @@ function sanitizeString(str: unknown, maxLength = 500): string {
   return str.slice(0, maxLength).replace(/[<>]/g, "");
 }
 
-// Package price IDs from Stripe (one-time payments in EUR) - NET prices (without VAT)
-// Full prices for DIRECT checkout (no deposit deducted)
-const PACKAGE_PRICES_FULL: Record<string, string> = {
+type Currency = 'SEK' | 'EUR';
+
+// EUR Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
+const PACKAGE_PRICES_EUR_FULL: Record<string, string> = {
   starter: "price_1SmXpy74JfaAfHsddlqED2cw",   // €490 full price
   standard: "price_1SmXpz74JfaAfHsdvEqVaKSi", // €790 full price
   pro: "price_1SmXq074JfaAfHsdjKigI9Qr",      // €1,290 full price
 };
 
-// Discounted prices for POST-DEMO checkout (€50 deposit already paid)
-const PACKAGE_PRICES_DISCOUNTED: Record<string, string> = {
+const PACKAGE_PRICES_EUR_DISCOUNTED: Record<string, string> = {
   starter: "price_1Shc6N74JfaAfHsdaVZU5rQL",   // €440 (€490 - €50 deposit)
   standard: "price_1Shc6274JfaAfHsdSQEMwWZ0", // €740 (€790 - €50 deposit)
   pro: "price_1Shc5k74JfaAfHsdT7xzOxfA",      // €1,240 (€1,290 - €50 deposit)
 };
 
-// Booking add-on price ID from Stripe (€200 one-time)
-const BOOKING_ADDON_PRICE_ID = "price_1Shhqd74JfaAfHsdN70mmlQ8"; // €200 booking add-on
+// SEK Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
+const PACKAGE_PRICES_SEK_FULL: Record<string, string> = {
+  starter: "price_starter_sek_full",   // 4900 kr full price
+  standard: "price_standard_sek_full", // 7900 kr full price
+  pro: "price_pro_sek_full",           // 12900 kr full price
+};
 
-// Admin panel add-on price ID from Stripe (€100 one-time)
-const ADMIN_PANEL_PRICE_ID = "price_1SjVDH74JfaAfHsdJ2bpHabL"; // €100 admin panel add-on
+const PACKAGE_PRICES_SEK_DISCOUNTED: Record<string, string> = {
+  starter: "price_starter_sek_discounted",   // 4401 kr (4900 - 499 deposit)
+  standard: "price_standard_sek_discounted", // 7401 kr (7900 - 499 deposit)
+  pro: "price_pro_sek_discounted",           // 12401 kr (12900 - 499 deposit)
+};
+
+// Booking add-on price IDs from Stripe
+const BOOKING_ADDON_PRICE_EUR = "price_1Shhqd74JfaAfHsdN70mmlQ8"; // €200 booking add-on
+const BOOKING_ADDON_PRICE_SEK = "price_booking_sek"; // 1990 kr booking add-on
+
+// Admin panel add-on price IDs from Stripe
+const ADMIN_PANEL_PRICE_EUR = "price_1SjVDH74JfaAfHsdJ2bpHabL"; // €100 admin panel add-on
+const ADMIN_PANEL_PRICE_SEK = "price_admin_panel_sek"; // 990 kr admin panel add-on
 
 interface CheckoutRequest {
   packageId: string;
@@ -79,24 +94,23 @@ interface CheckoutRequest {
   wantsBooking?: boolean;
   bookingAddonCost?: number;
   addedAdminPanel?: boolean;
-  isPostDemoFlow?: boolean; // NEW: determines which price set to use
+  isPostDemoFlow?: boolean;
   businessType?: string;
   websiteGoal?: string;
   primaryColor?: string;
   accentColor?: string;
   services?: string;
-  // Customer type data for VAT
   customerType?: 'private' | 'business' | null;
   companyName?: string;
   orgNumber?: string;
   vatNumber?: string;
   vatVerified?: boolean;
   country?: string;
+  currency?: 'SEK' | 'EUR';
 }
 
 // Helper to get or create a 25% VAT tax rate
 async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
-  // List existing tax rates to find a 25% VAT rate
   const existingRates = await stripe.taxRates.list({ limit: 100, active: true });
   const vatRate = existingRates.data.find(
     (rate: Stripe.TaxRate) => rate.percentage === 25 && rate.display_name.toLowerCase().includes("vat") && rate.inclusive === false
@@ -107,7 +121,6 @@ async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
     return vatRate.id;
   }
   
-  // Create a new 25% VAT tax rate
   const newRate = await stripe.taxRates.create({
     display_name: "VAT",
     description: "Swedish VAT 25%",
@@ -121,18 +134,32 @@ async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
   return newRate.id;
 }
 
+// Get correct price IDs based on currency
+function getPackagePriceId(packageId: string, currency: Currency, isPostDemoFlow: boolean): string {
+  if (currency === 'SEK') {
+    return isPostDemoFlow ? PACKAGE_PRICES_SEK_DISCOUNTED[packageId] : PACKAGE_PRICES_SEK_FULL[packageId];
+  }
+  return isPostDemoFlow ? PACKAGE_PRICES_EUR_DISCOUNTED[packageId] : PACKAGE_PRICES_EUR_FULL[packageId];
+}
+
+function getBookingAddonPriceId(currency: Currency): string {
+  return currency === 'SEK' ? BOOKING_ADDON_PRICE_SEK : BOOKING_ADDON_PRICE_EUR;
+}
+
+function getAdminPanelPriceId(currency: Currency): string {
+  return currency === 'SEK' ? ADMIN_PANEL_PRICE_SEK : ADMIN_PANEL_PRICE_EUR;
+}
+
 serve(async (req) => {
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
   
   console.log("[CREATE-PACKAGE-CHECKOUT] Function started", { origin });
 
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Only allow POST requests
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -140,7 +167,6 @@ serve(async (req) => {
     });
   }
 
-  // Validate origin
   if (!isAllowedOrigin(origin)) {
     console.error("[CREATE-PACKAGE-CHECKOUT] Invalid origin", { origin });
     return new Response(JSON.stringify({ error: "Forbidden" }), {
@@ -156,7 +182,6 @@ serve(async (req) => {
       throw new Error("STRIPE_SECRET_KEY is not set");
     }
 
-    // Parse and validate request body
     let body: unknown;
     try {
       body = await req.json();
@@ -169,7 +194,6 @@ serve(async (req) => {
 
     const requestData = body as Record<string, unknown>;
     
-    // Validate required fields
     if (!isValidPackageId(requestData.packageId)) {
       console.error("[CREATE-PACKAGE-CHECKOUT] Invalid package ID", { packageId: requestData.packageId });
       return new Response(JSON.stringify({ error: "Invalid package ID" }), {
@@ -181,14 +205,16 @@ serve(async (req) => {
     const packageId = requestData.packageId;
     const email = requestData.email && isValidEmail(requestData.email) ? requestData.email : undefined;
     const conceptLink = sanitizeString(requestData.conceptLink, 2000);
-    const carePlanId = sanitizeString(requestData.carePlanId, 20); // Store for metadata only, not billed here
+    const carePlanId = sanitizeString(requestData.carePlanId, 20);
     const isYearly = requestData.isYearly === true;
     const wantsBooking = requestData.wantsBooking === true;
     const bookingAddonCost = typeof requestData.bookingAddonCost === "number" ? requestData.bookingAddonCost : 0;
     const addedAdminPanel = requestData.addedAdminPanel === true;
     const isPostDemoFlow = requestData.isPostDemoFlow === true;
     
-    // Customer type data
+    // Currency - default to EUR if not specified
+    const currency: Currency = requestData.currency === "SEK" ? "SEK" : "EUR";
+    
     const customerType = requestData.customerType === "private" || requestData.customerType === "business" 
       ? requestData.customerType : null;
     const vatNumber = sanitizeString(requestData.vatNumber, 50);
@@ -196,7 +222,6 @@ serve(async (req) => {
     const customerCountry = sanitizeString(requestData.country, 5) || "SE";
     const orgNumber = sanitizeString(requestData.orgNumber, 50);
     
-    // Additional metadata fields
     const businessName = sanitizeString(requestData.businessName, 200);
     const contactPerson = sanitizeString(requestData.contactPerson, 200);
     const phone = sanitizeString(requestData.phone, 50);
@@ -219,23 +244,16 @@ serve(async (req) => {
       isPostDemoFlow,
       customerType,
       vatVerified,
-      customerCountry
+      customerCountry,
+      currency
     });
 
-    // Use discounted prices for post-demo flow (€50 deposit already paid), full prices for direct checkout
-    const priceId = isPostDemoFlow 
-      ? PACKAGE_PRICES_DISCOUNTED[packageId] 
-      : PACKAGE_PRICES_FULL[packageId];
+    // Get the correct price ID based on currency and flow type
+    const priceId = getPackagePriceId(packageId, currency, isPostDemoFlow);
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Determine if VAT should be applied
-    // Apply 25% VAT for:
-    // - Private customers (regardless of country, assuming EU)
-    // - Swedish businesses (with or without VAT number)
-    // - Non-EU businesses or businesses without valid VAT number
-    // Do NOT apply VAT for:
-    // - EU businesses with valid VAT number (reverse charge)
+    // VAT logic
     const shouldApplyVat = customerType === "private" || 
       (customerType === "business" && customerCountry === "SE") ||
       (customerType === "business" && !vatVerified);
@@ -248,7 +266,6 @@ serve(async (req) => {
       console.log("[CREATE-PACKAGE-CHECKOUT] No VAT (reverse charge for EU B2B)", { vatVerified, customerCountry });
     }
 
-    // Check for existing customer
     let customerId: string | undefined;
     if (email) {
       const customers = await stripe.customers.list({ email, limit: 1 });
@@ -260,7 +277,6 @@ serve(async (req) => {
 
     const safeOrigin = origin || "https://nomia.se";
     
-    // Build line items with tax rates - only one-time payments (NO care plan - that's billed separately)
     const lineItems: Array<{ price: string; quantity: number; tax_rates?: string[] }> = [
       {
         price: priceId,
@@ -269,30 +285,28 @@ serve(async (req) => {
       },
     ];
 
-    // Add booking add-on if selected and not Pro package (Pro includes booking)
+    // Add booking add-on if selected and not Pro package
     if (wantsBooking && packageId !== "pro" && bookingAddonCost > 0) {
       lineItems.push({
-        price: BOOKING_ADDON_PRICE_ID,
+        price: getBookingAddonPriceId(currency),
         quantity: 1,
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added booking add-on to checkout", { bookingAddonCost });
+      console.log("[CREATE-PACKAGE-CHECKOUT] Added booking add-on to checkout", { bookingAddonCost, currency });
     }
 
     // Add admin panel add-on if selected
     if (addedAdminPanel) {
       lineItems.push({
-        price: ADMIN_PANEL_PRICE_ID,
+        price: getAdminPanelPriceId(currency),
         quantity: 1,
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on to checkout");
+      console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on to checkout", { currency });
     }
 
-    // Always use payment mode - care plan is billed separately after
     const mode: "payment" = "payment";
     
-    // Build success URL with metadata for care plan follow-up
     const successUrl = new URL(`${safeOrigin}/betalning-klar`);
     successUrl.searchParams.set("session_id", "{CHECKOUT_SESSION_ID}");
     if (conceptLink) successUrl.searchParams.set("concept", encodeURIComponent(conceptLink));
@@ -305,7 +319,6 @@ serve(async (req) => {
       customer: customerId,
       customer_email: customerId ? undefined : email,
       customer_creation: customerId ? undefined : 'always',
-      // Fix: When using tax_id_collection with existing customer, must allow name update
       customer_update: customerId ? { name: 'auto', address: 'auto' } : undefined,
       billing_address_collection: 'required',
       line_items: lineItems,
@@ -316,7 +329,7 @@ serve(async (req) => {
       tax_id_collection: { enabled: true },
       metadata: {
         packageId,
-        conceptLink: (conceptLink || "").slice(0, 500), // Stripe metadata 500 char limit
+        conceptLink: (conceptLink || "").slice(0, 500),
         carePlanId: carePlanId || "",
         isYearly: String(isYearly),
         wantsBooking: String(wantsBooking),
@@ -338,6 +351,7 @@ serve(async (req) => {
         accentColor,
         services: services.slice(0, 500),
         vatApplied: String(shouldApplyVat),
+        currency: currency,
       },
     };
 
@@ -346,7 +360,8 @@ serve(async (req) => {
     console.log("[CREATE-PACKAGE-CHECKOUT] Checkout session created", { 
       sessionId: session.id,
       vatApplied: shouldApplyVat,
-      taxRateId 
+      taxRateId,
+      currency
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
