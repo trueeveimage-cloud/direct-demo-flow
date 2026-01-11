@@ -10,7 +10,7 @@ import { InfoTooltip } from '@/components/InfoTooltip';
 import { CheckoutUpsells } from '@/components/CheckoutUpsells';
 import { CustomerTypeSelection, CustomerTypeData, initialCustomerTypeData, validateCustomerType } from './CustomerTypeSelection';
 import { CheckoutTrustSection } from './CheckoutTrustSection';
-import { WizardFormData, packages, carePlans, BOOKING_ADDON_PRICE, VERIFICATION_FEE } from '../wizardConfig';
+import { WizardFormData, packages, carePlans, getBookingAddonPrice, getVerificationFee, getCurrencyFromLang, formatPrice as formatPriceFn, getPackagePrice, getCarePlanPrice, getAddonPrice } from '../wizardConfig';
 
 interface Step5PaymentProps {
   formData: WizardFormData;
@@ -22,7 +22,6 @@ interface Step5PaymentProps {
   onAddAdminPanel?: () => void;
 }
 
-const ADMIN_PANEL_PRICE = 100;
 const VAT_RATE = 0.25; // 25% VAT
 
 const sectionVariants = {
@@ -43,7 +42,8 @@ export function Step5Payment({
   addedAdminPanel = false,
   onAddAdminPanel
 }: Step5PaymentProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const currency = getCurrencyFromLang(lang);
   const [addedBooking, setAddedBooking] = useState(false);
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
@@ -70,11 +70,18 @@ export function Step5Payment({
 
   const pkg = packages.find(p => p.id === formData.selectedPackage);
   const carePlan = carePlans.find(c => c.id === formData.selectedCarePlan);
-  const carePlanPrice = carePlan ? (formData.isYearlyCarePlan ? carePlan.yearlyPrice : carePlan.monthlyPrice) : 0;
-  const bookingAddonCost = (formData.wantsBooking || addedBooking) && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
-  const adminPanelCost = addedAdminPanel ? ADMIN_PANEL_PRICE : 0;
-  const packageTotal = (pkg?.price || 0) + bookingAddonCost + adminPanelCost;
-  const totalToday = isPostDemoFlow ? packageTotal - VERIFICATION_FEE : packageTotal;
+  const carePlanPriceValue = carePlan ? getCarePlanPrice(carePlan.id, formData.isYearlyCarePlan, currency) : 0;
+  
+  // Get prices based on currency
+  const packagePrice = pkg ? getPackagePrice(pkg.id, currency) : 0;
+  const bookingAddonPrice = getBookingAddonPrice(currency);
+  const adminPanelPrice = getAddonPrice('adminPanel', currency);
+  const verificationFee = getVerificationFee(currency);
+  
+  const bookingAddonCost = (formData.wantsBooking || addedBooking) && formData.selectedPackage !== 'pro' ? bookingAddonPrice : 0;
+  const adminPanelCost = addedAdminPanel ? adminPanelPrice : 0;
+  const packageTotal = packagePrice + bookingAddonCost + adminPanelCost;
+  const totalToday = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
 
   // VAT calculations
   const isBusinessWithVat = customerTypeData.customerType === 'business' && customerTypeData.vatVerified;
@@ -86,9 +93,7 @@ export function Step5Payment({
   const vatAmount = showVatBreakdown ? totalToday * VAT_RATE : 0;
   const netAmount = showVatBreakdown ? totalToday - vatAmount : totalToday;
 
-  const formatPrice = (price: number) => {
-    return '€' + price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  };
+  const formatPrice = (price: number) => formatPriceFn(price, currency);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -118,7 +123,7 @@ export function Step5Payment({
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span>{pkg?.name} {t('paket', 'package')}</span>
-            <span className="font-medium">{formatPrice(pkg?.price || 0)}</span>
+            <span className="font-medium">{formatPrice(packagePrice)}</span>
           </div>
           
           {(formData.wantsBooking || addedBooking) && (
@@ -127,7 +132,7 @@ export function Step5Payment({
               <span className="font-medium">
                 {formData.selectedPackage === 'pro' 
                   ? <span className="text-accent">{t('Ingår', 'Included')}</span>
-                  : formatPrice(BOOKING_ADDON_PRICE)
+                  : formatPrice(bookingAddonPrice)
                 }
               </span>
             </div>
@@ -136,14 +141,14 @@ export function Step5Payment({
           {addedAdminPanel && (
             <div className="flex justify-between items-center text-sm">
               <span>{t('Adminpanel', 'Admin Panel')}</span>
-              <span className="font-medium">{formatPrice(ADMIN_PANEL_PRICE)}</span>
+              <span className="font-medium">{formatPrice(adminPanelPrice)}</span>
             </div>
           )}
 
           {isPostDemoFlow && (
             <div className="flex justify-between items-center text-sm text-accent">
               <span>{t('Verifieringsavgift betald', 'Verification fee paid')}</span>
-              <span>-{formatPrice(VERIFICATION_FEE)}</span>
+              <span>-{formatPrice(verificationFee)}</span>
             </div>
           )}
 
@@ -186,10 +191,7 @@ export function Step5Payment({
               <div className="flex justify-between items-center mt-1">
                 <span className="text-sm font-medium">{carePlan.name} {t('Webbvård', 'Web Care')}</span>
                 <span className="text-sm font-semibold">
-                  {formData.isYearlyCarePlan 
-                    ? `€${carePlanPrice}/${t('år', 'year')}`
-                    : `€${carePlanPrice}/${t('mån', 'month')}`
-                  }
+                  {formatPrice(carePlanPriceValue)}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'month')}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">

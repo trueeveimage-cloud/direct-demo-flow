@@ -1,8 +1,21 @@
 // Shared configuration for the Website Order Wizard
 // This is the SINGLE SOURCE OF TRUTH for both DirectCheckout and PostDemo flows
+import { getCurrencyFromLang, formatPrice, getPackagePrice, getCarePlanPrice, getAddonPrice, type Currency } from '@/config/currency';
 
-export const BOOKING_ADDON_PRICE = 200;
-export const VERIFICATION_FEE = 50;
+export const BOOKING_ADDON_PRICE_EUR = 200;
+export const BOOKING_ADDON_PRICE_SEK = 1990;
+export const VERIFICATION_FEE_EUR = 50;
+export const VERIFICATION_FEE_SEK = 499;
+
+// Helper to get booking addon price based on currency
+export function getBookingAddonPrice(currency: Currency): number {
+  return currency === 'EUR' ? BOOKING_ADDON_PRICE_EUR : BOOKING_ADDON_PRICE_SEK;
+}
+
+// Helper to get verification fee based on currency
+export function getVerificationFee(currency: Currency): number {
+  return currency === 'EUR' ? VERIFICATION_FEE_EUR : VERIFICATION_FEE_SEK;
+}
 
 export interface BookingService {
   name: string;
@@ -344,10 +357,20 @@ export const languages = [
 ];
 
 export const carePlans = [
-  { id: 'basic', name: 'Basic', monthlyPrice: 25, yearlyPrice: 20, note: { sv: 'De flesta uppgraderar inom 60 dagar.', en: 'Most clients upgrade within 60 days.' }, features: { sv: ['Domän ingår', 'Hosting (snabb + SSL)', 'Säkerhetsuppdateringar', 'Dagliga/veckovisa backups'], en: ['Domain included', 'Hosting (fast + SSL)', 'Security updates', 'Daily/weekly backups'] } },
-  { id: 'standard', name: 'Standard', monthlyPrice: 45, yearlyPrice: 36, popular: true, features: { sv: ['Allt i Basic', 'Företagsmail', '1h ändringar/mån', 'Hastighetsoptimering', 'Skadedjursrensning'], en: ['Everything in Basic', 'Business email', '1h edits/month', 'Speed optimization', 'Malware cleanup'] } },
-  { id: 'pro', name: 'Pro', monthlyPrice: 75, yearlyPrice: 60, features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Uptime-övervakning', 'Rollback / återställ', 'Prioriterad support', 'SEO-check'], en: ['Everything in Standard', '3h edits/month', 'Uptime monitoring', 'Rollback / restore', 'Priority support', 'SEO check'] } },
+  { id: 'basic', name: 'Basic', note: { sv: 'De flesta uppgraderar inom 60 dagar.', en: 'Most clients upgrade within 60 days.' }, features: { sv: ['Domän ingår', 'Hosting (snabb + SSL)', 'Säkerhetsuppdateringar', 'Dagliga/veckovisa backups'], en: ['Domain included', 'Hosting (fast + SSL)', 'Security updates', 'Daily/weekly backups'] } },
+  { id: 'standard', name: 'Standard', popular: true, features: { sv: ['Allt i Basic', 'Företagsmail', '1h ändringar/mån', 'Hastighetsoptimering', 'Skadedjursrensning'], en: ['Everything in Basic', 'Business email', '1h edits/month', 'Speed optimization', 'Malware cleanup'] } },
+  { id: 'pro', name: 'Pro', features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Uptime-övervakning', 'Rollback / återställ', 'Prioriterad support', 'SEO-check'], en: ['Everything in Standard', '3h edits/month', 'Uptime monitoring', 'Rollback / restore', 'Priority support', 'SEO check'] } },
 ];
+
+// Helper to get care plan price display for wizard
+export function getCarePlanPriceDisplayForWizard(planId: string, isYearly: boolean, currency: Currency): string {
+  const price = getCarePlanPrice(planId, isYearly, currency);
+  const suffix = currency === 'EUR' ? '/mo' : '/mån';
+  return formatPrice(price, currency) + suffix;
+}
+
+// Re-export currency utilities for convenience
+export { getCurrencyFromLang, formatPrice, getPackagePrice, getCarePlanPrice, getAddonPrice, type Currency };
 
 export const businessTypes = [
   { id: 'barber', label: { sv: 'Frisör / Barberare', en: 'Barber / Hair salon' } },
