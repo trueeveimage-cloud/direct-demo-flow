@@ -4,6 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { WizardFormData, carePlans } from '../wizardConfig';
+import { playSound } from '@/lib/haptics';
 
 interface Step4CarePlanProps {
   formData: WizardFormData;
@@ -88,11 +89,14 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans }: Ste
               whileHover="hover"
               whileTap="tap"
               variants={cardVariants}
-              onClick={() => updateField('selectedCarePlan', isSelected ? null : c.id)}
-              className={`p-6 rounded-xl border-2 text-left transition-all relative ${
+              onClick={() => {
+                updateField('selectedCarePlan', isSelected ? null : c.id);
+                if (!isSelected) playSound('successChime');
+              }}
+              className={`p-6 rounded-xl border-2 text-left transition-all relative border-accent bg-gradient-to-br from-accent/10 via-accent/5 to-transparent shadow-lg ${
                 isSelected 
-                  ? 'border-accent bg-accent/5 shadow-lg ring-2 ring-accent/20' 
-                  : 'border-border hover:border-accent/50'
+                  ? 'ring-2 ring-accent/40 shadow-accent/20' 
+                  : 'hover:shadow-xl'
               }`}
             >
               {c.popular && (

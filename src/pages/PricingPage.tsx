@@ -37,15 +37,9 @@ const PricingCard = ({
       whileHover={{ y: -8, transition: { duration: 0.3 } }}
       className="h-full"
     >
-      <div className={`relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col transition-all duration-300 overflow-hidden ${
-        pkg.popular 
-          ? 'border-accent bg-gradient-to-br from-accent/10 via-accent/5 to-transparent shadow-xl shadow-accent/10' 
-          : 'border-border bg-background hover:border-accent/50 hover:shadow-lg'
-      }`}>
-        {/* Glow effect for popular */}
-        {pkg.popular && (
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.15),transparent_60%)] pointer-events-none" />
-        )}
+      <div className={`relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col transition-all duration-300 overflow-hidden border-accent bg-gradient-to-br from-accent/10 via-accent/5 to-transparent shadow-xl shadow-accent/10`}>
+        {/* Glow effect for all cards */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.15),transparent_60%)] pointer-events-none" />
 
         {/* Popular badge - removed for equal treatment */}
 
@@ -53,11 +47,9 @@ const PricingCard = ({
         <motion.div
           animate={{ rotate: [0, 5, -5, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-            pkg.popular ? 'bg-accent/20' : 'bg-muted'
-          }`}
+          className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-accent/20"
         >
-          <Icon className={`w-6 h-6 ${pkg.popular ? 'text-accent' : 'text-muted-foreground'}`} />
+          <Icon className="w-6 h-6 text-accent" />
         </motion.div>
 
         <h3 className="font-heading font-bold text-2xl mb-2">{pkg.name}</h3>
@@ -80,7 +72,7 @@ const PricingCard = ({
                 transition={{ duration: 0.3, delay: 0.4 + i * 0.05 }}
                 className="flex items-start gap-3 text-sm"
               >
-                <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${pkg.popular ? 'text-accent' : 'text-muted-foreground'}`} />
+                <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-accent" />
                 <span className="leading-tight flex items-center gap-1 flex-wrap">
                   {feature.text}
                   {tooltip && (
@@ -104,7 +96,7 @@ const PricingCard = ({
         </ul>
         
         <div className="space-y-2 mt-auto">
-          <Button asChild variant={pkg.popular ? 'default' : 'outline'} className="w-full rounded-xl group">
+          <Button asChild variant="default" className="w-full rounded-xl group">
             <Link to="/demo">
               {t('Få koncept', 'Get concept')}
               <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -359,11 +351,7 @@ export default function PricingPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -5 }}
-                  className={`p-6 sm:p-8 rounded-2xl border-2 h-full relative flex flex-col transition-all duration-300 ${
-                    plan.popular 
-                      ? 'border-accent bg-gradient-to-br from-accent/10 to-transparent' 
-                      : 'border-border bg-background hover:border-accent/50'
-                  }`}
+                  className={`p-6 sm:p-8 rounded-2xl border-2 h-full relative flex flex-col transition-all duration-300 border-accent bg-gradient-to-br from-accent/10 to-transparent shadow-xl shadow-accent/10`}
                 >
 {/* Popular badge removed for equal treatment */}
                   <h3 className="font-heading font-bold text-2xl mb-2">{plan.name}</h3>
@@ -382,7 +370,7 @@ export default function PricingPage() {
                   <ul className="space-y-3 flex-grow">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-3 text-sm">
-                        <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-accent' : 'text-muted-foreground'}`} />
+                        <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-accent" />
                         <span className="leading-tight">{feature}</span>
                       </li>
                     ))}
