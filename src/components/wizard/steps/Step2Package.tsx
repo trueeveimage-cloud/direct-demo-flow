@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { WizardFormData, packages, styles, languages, businessTypeFollowUps } from '../wizardConfig';
+import { playSound } from '@/lib/haptics';
 
 interface Step2PackageProps {
   formData: WizardFormData;
@@ -60,13 +61,16 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
               whileHover="hover"
               whileTap="tap"
               variants={cardVariants}
-              onClick={() => updateField('selectedPackage', p.id)}
-              className={`p-6 rounded-xl border-2 text-left transition-all relative ${
+              onClick={() => {
+                updateField('selectedPackage', p.id);
+                playSound('successChime');
+              }}
+              className={`p-6 rounded-xl border-2 text-left transition-all relative border-accent bg-gradient-to-br from-accent/10 via-accent/5 to-transparent shadow-lg ${
                 formData.selectedPackage === p.id 
-                  ? 'border-accent bg-accent/5 shadow-lg ring-2 ring-accent/20' 
+                  ? 'ring-2 ring-accent/40 shadow-accent/20' 
                   : errors.package 
                     ? 'border-destructive' 
-                    : 'border-border hover:border-accent/50'
+                    : 'hover:shadow-xl'
               }`}
             >
               {p.popular && (
@@ -121,7 +125,10 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
               transition={{ delay: 0.25 + i * 0.05 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => updateField('selectedStyle', style.id)}
+              onClick={() => {
+                updateField('selectedStyle', style.id);
+                playSound('confirm');
+              }}
               className={`px-6 py-3 rounded-lg border-2 transition-all flex items-center gap-2 ${
                 formData.selectedStyle === style.id 
                   ? 'border-accent bg-accent/10 shadow-md' 
