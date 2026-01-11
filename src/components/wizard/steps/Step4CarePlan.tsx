@@ -3,7 +3,7 @@ import { Clock, Check } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { WizardFormData, carePlans } from '../wizardConfig';
+import { WizardFormData, carePlans, getCurrencyFromLang, formatPrice, getCarePlanPrice } from '../wizardConfig';
 import { playSound } from '@/lib/haptics';
 
 interface Step4CarePlanProps {
@@ -25,6 +25,7 @@ const cardVariants = {
 
 export function Step4CarePlan({ formData, setFormData, onCompareCarePlans }: Step4CarePlanProps) {
   const { t, lang } = useLanguage();
+  const currency = getCurrencyFromLang(lang);
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
     setFormData({ ...formData, [field]: value });
@@ -74,10 +75,10 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans }: Ste
         </span>
       </motion.div>
 
-      {/* Care Plan Cards */}
       <div className="grid md:grid-cols-3 gap-6">
         {carePlans.map((c, i) => {
-          const price = formData.isYearlyCarePlan ? c.yearlyPrice : c.monthlyPrice;
+          const price = getCarePlanPrice(c.id, formData.isYearlyCarePlan, currency);
+          const oldPrice = getCarePlanPrice(c.id, false, currency);
           const isSelected = formData.selectedCarePlan === c.id;
           
           return (
@@ -130,11 +131,11 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans }: Ste
               
               <h3 className="font-semibold text-xl mb-2">{c.name}</h3>
               <div className="mb-4">
-                <span className="text-2xl font-bold text-accent">€{price}</span>
-                <span className="text-muted-foreground">/{t('mån', 'mo')}</span>
+                <span className="text-2xl font-bold text-accent">{formatPrice(price, currency)}</span>
+                <span className="text-muted-foreground">/{lang === 'sv' ? 'mån' : 'mo'}</span>
                 {formData.isYearlyCarePlan && (
                   <span className="ml-2 text-xs text-muted-foreground line-through">
-                    €{c.monthlyPrice}/mo
+                    {formatPrice(oldPrice, currency)}/{lang === 'sv' ? 'mån' : 'mo'}
                   </span>
                 )}
               </div>

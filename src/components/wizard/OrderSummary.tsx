@@ -3,9 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Package, FileText, Calendar, CreditCard, Check, Sparkles, MapPin, Star, Image, ShoppingCart, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { packages, carePlans, BOOKING_ADDON_PRICE, VERIFICATION_FEE, type WizardFormData } from './wizardConfig';
-
-const ADMIN_PANEL_PRICE = 100;
+import { packages, carePlans, getBookingAddonPrice, getVerificationFee, getCurrencyFromLang, formatPrice as formatPriceFn, getPackagePrice, getCarePlanPrice, getAddonPrice, type WizardFormData } from './wizardConfig';
 
 interface OrderSummaryProps {
   formData: WizardFormData;
@@ -25,20 +23,25 @@ function OrderSummaryComponent({
   addedAdminPanel = false
 }: OrderSummaryProps) {
   const { t, lang } = useLanguage();
+  const currency = getCurrencyFromLang(lang);
   
   const pkg = packages.find(p => p.id === formData.selectedPackage);
   const carePlan = carePlans.find(c => c.id === formData.selectedCarePlan);
-  const carePlanPrice = carePlan ? (formData.isYearlyCarePlan ? carePlan.yearlyPrice : carePlan.monthlyPrice) : 0;
+  const carePlanPriceValue = carePlan ? getCarePlanPrice(carePlan.id, formData.isYearlyCarePlan, currency) : 0;
   
-  // Booking costs €200 except for Pro package where it's included
-  const bookingCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
-  const adminPanelCost = addedAdminPanel ? ADMIN_PANEL_PRICE : 0;
-  const packageTotal = (pkg?.price || 0) + bookingCost + adminPanelCost;
-  const totalToday = isPostDemoFlow ? packageTotal - VERIFICATION_FEE : packageTotal;
+  // Get prices based on currency
+  const packagePrice = pkg ? getPackagePrice(pkg.id, currency) : 0;
+  const bookingAddonPrice = getBookingAddonPrice(currency);
+  const adminPanelPrice = getAddonPrice('adminPanel', currency);
+  const verificationFee = getVerificationFee(currency);
+  
+  // Booking costs extra except for Pro package where it's included
+  const bookingCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? bookingAddonPrice : 0;
+  const adminPanelCost = addedAdminPanel ? adminPanelPrice : 0;
+  const packageTotal = packagePrice + bookingCost + adminPanelCost;
+  const totalToday = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
 
-  const formatPrice = (price: number) => {
-    return '€' + price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  };
+  const formatPrice = (price: number) => formatPriceFn(price, currency);
   
   // Count selected free features
   const freeFeatures = [
@@ -117,7 +120,7 @@ function OrderSummaryComponent({
                 <p className="text-xs text-muted-foreground">{lang === 'sv' ? pkg.pages.sv : pkg.pages.en}</p>
               </div>
             </div>
-            <p className="font-semibold">{formatPrice(pkg.price)}</p>
+            <p className="font-semibold">{formatPrice(packagePrice)}</p>
           </motion.div>
         </AnimatePresence>
 
@@ -152,7 +155,7 @@ function OrderSummaryComponent({
               <span className="text-sm font-medium text-accent">
                 {formData.selectedPackage === 'pro' 
                   ? t('INGÅR', 'INCLUDED')
-                  : `+${formatPrice(BOOKING_ADDON_PRICE)}`
+                  : `+${formatPrice(bookingAddonPrice)}`
                 }
               </span>
             </motion.div>
@@ -172,7 +175,7 @@ function OrderSummaryComponent({
                 <LayoutDashboard className="w-4 h-4 text-accent" />
                 <span>{t('Adminpanel', 'Admin Panel')}</span>
               </div>
-              <span className="text-sm font-medium">+{formatPrice(ADMIN_PANEL_PRICE)}</span>
+              <span className="text-sm font-medium">+{formatPrice(adminPanelPrice)}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -216,7 +219,7 @@ function OrderSummaryComponent({
                   <span className="text-sm font-medium">{carePlan.name} {t('Webbvård', 'Web Care')}</span>
                 </div>
                 <span className="text-sm font-medium">
-                  €{carePlanPrice}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'mo')}
+                  {formatPrice(carePlanPriceValue)}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'mo')}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -236,7 +239,7 @@ function OrderSummaryComponent({
         {isPostDemoFlow && (
           <div className="flex items-center justify-between text-sm">
             <span className="text-accent font-medium">{t('Konceptrabatt', 'Concept discount')}</span>
-            <span className="text-accent font-bold">-{formatPrice(VERIFICATION_FEE)}</span>
+            <span className="text-accent font-bold">-{formatPrice(verificationFee)}</span>
           </div>
         )}
 

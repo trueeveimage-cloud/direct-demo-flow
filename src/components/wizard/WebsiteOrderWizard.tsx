@@ -24,8 +24,9 @@ import {
   FormStep, 
   initialFormData, 
   packages, 
-  BOOKING_ADDON_PRICE,
-  VERIFICATION_FEE 
+  getBookingAddonPrice,
+  getVerificationFee,
+  getCurrencyFromLang 
 } from './wizardConfig';
 
 const STORAGE_KEY = 'nomia_wizard_data';

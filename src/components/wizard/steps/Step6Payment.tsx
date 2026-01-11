@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { CheckoutUpsells } from '@/components/CheckoutUpsells';
 import { CustomerTypeSelection, CustomerTypeData } from './CustomerTypeSelection';
 import { CheckoutTrustSection } from './CheckoutTrustSection';
-import { WizardFormData, packages, carePlans, BOOKING_ADDON_PRICE, VERIFICATION_FEE } from '../wizardConfig';
+import { WizardFormData, packages, carePlans, getBookingAddonPrice, getVerificationFee, getCurrencyFromLang, formatPrice as formatPriceFn, getPackagePrice, getCarePlanPrice, getAddonPrice } from '../wizardConfig';
 
 interface Step6PaymentProps {
   formData: WizardFormData;
@@ -16,7 +16,6 @@ interface Step6PaymentProps {
   onAddAdminPanel?: () => void;
 }
 
-const ADMIN_PANEL_PRICE = 100;
 const VAT_RATE = 0.25; // 25% VAT
 
 export function Step6Payment({ 
@@ -28,7 +27,8 @@ export function Step6Payment({
   addedAdminPanel = false,
   onAddAdminPanel
 }: Step6PaymentProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const currency = getCurrencyFromLang(lang);
 
   const handleAddBooking = () => {
     setFormData({ ...formData, wantsBooking: true });
@@ -42,11 +42,18 @@ export function Step6Payment({
 
   const pkg = packages.find(p => p.id === formData.selectedPackage);
   const carePlan = carePlans.find(c => c.id === formData.selectedCarePlan);
-  const carePlanPrice = carePlan ? (formData.isYearlyCarePlan ? carePlan.yearlyPrice : carePlan.monthlyPrice) : 0;
-  const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? BOOKING_ADDON_PRICE : 0;
-  const adminPanelCost = addedAdminPanel ? ADMIN_PANEL_PRICE : 0;
-  const packageTotal = (pkg?.price || 0) + bookingAddonCost + adminPanelCost;
-  const totalToday = isPostDemoFlow ? packageTotal - VERIFICATION_FEE : packageTotal;
+  const carePlanPriceValue = carePlan ? getCarePlanPrice(carePlan.id, formData.isYearlyCarePlan, currency) : 0;
+  
+  // Get prices based on currency
+  const packagePrice = pkg ? getPackagePrice(pkg.id, currency) : 0;
+  const bookingAddonPrice = getBookingAddonPrice(currency);
+  const adminPanelPrice = getAddonPrice('adminPanel', currency);
+  const verificationFee = getVerificationFee(currency);
+  
+  const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? bookingAddonPrice : 0;
+  const adminPanelCost = addedAdminPanel ? adminPanelPrice : 0;
+  const packageTotal = packagePrice + bookingAddonCost + adminPanelCost;
+  const totalToday = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
 
   // VAT calculations
   const isBusinessWithVat = customerTypeData.customerType === 'business' && customerTypeData.vatVerified;
@@ -58,9 +65,7 @@ export function Step6Payment({
   const vatAmount = showVatBreakdown ? totalToday * VAT_RATE : 0;
   const netAmount = showVatBreakdown ? totalToday : totalToday;
 
-  const formatPrice = (price: number) => {
-    return '€' + price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  };
+  const formatPrice = (price: number) => formatPriceFn(price, currency);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -81,7 +86,7 @@ export function Step6Payment({
                 {t('Hantera din webbplats själv - redigera texter, bilder och se besöksstatistik i realtid.', 'Manage your website yourself - edit texts, images and view visitor statistics in real-time.')}
               </p>
               <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-accent">+€100</span>
+                <span className="text-lg font-bold text-accent">+{formatPrice(adminPanelPrice)}</span>
                 <button
                   onClick={handleAddAdminPanel}
                   className="px-4 py-2 bg-accent text-accent-foreground rounded-lg font-medium hover:bg-accent/90 transition-colors"
@@ -120,7 +125,7 @@ export function Step6Payment({
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span>{pkg?.name} {t('paket', 'package')}</span>
-            <span className="font-medium">{formatPrice(pkg?.price || 0)}</span>
+            <span className="font-medium">{formatPrice(packagePrice)}</span>
           </div>
           
           {formData.wantsBooking && (
@@ -129,7 +134,7 @@ export function Step6Payment({
               <span className="font-medium">
                 {formData.selectedPackage === 'pro' 
                   ? <span className="text-accent">{t('Ingår', 'Included')}</span>
-                  : formatPrice(BOOKING_ADDON_PRICE)
+                  : formatPrice(bookingAddonPrice)
                 }
               </span>
             </div>
@@ -138,14 +143,14 @@ export function Step6Payment({
           {addedAdminPanel && (
             <div className="flex justify-between items-center text-sm">
               <span>{t('Adminpanel', 'Admin Panel')}</span>
-              <span className="font-medium">{formatPrice(ADMIN_PANEL_PRICE)}</span>
+              <span className="font-medium">{formatPrice(adminPanelPrice)}</span>
             </div>
           )}
 
           {isPostDemoFlow && (
             <div className="flex justify-between items-center text-sm">
               <span className="text-accent font-medium">{t('Konceptrabatt', 'Concept discount')}</span>
-              <span className="text-accent font-bold">-{formatPrice(VERIFICATION_FEE)}</span>
+              <span className="text-accent font-bold">-{formatPrice(verificationFee)}</span>
             </div>
           )}
 
@@ -190,10 +195,7 @@ export function Step6Payment({
               <div className="flex justify-between items-center mt-1">
                 <span className="text-sm font-medium">{carePlan.name} {t('Webbvård', 'Web Care')}</span>
                 <span className="text-sm font-semibold">
-                  {formData.isYearlyCarePlan 
-                    ? `€${carePlanPrice}/${t('år', 'year')}`
-                    : `€${carePlanPrice}/${t('mån', 'month')}`
-                  }
+                  {formatPrice(carePlanPriceValue)}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'month')}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">

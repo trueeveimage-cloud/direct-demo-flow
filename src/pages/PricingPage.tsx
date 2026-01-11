@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { getTooltip } from '@/components/PricingTooltips';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { motion, useInView } from 'framer-motion';
+import { getCurrencyFromLang, formatPrice, getPackagePrice, getCarePlanPrice } from '@/config/currency';
 
 // Floating card component
 const PricingCard = ({ 
@@ -123,10 +124,13 @@ export default function PricingPage() {
     window.scrollTo({ top: 0 });
   }, []);
 
+  const currency = getCurrencyFromLang(lang);
+
   const packages = [
     { 
+      id: 'starter',
       name: 'Starter', 
-      price: '€490',
+      price: formatPrice(getPackagePrice('starter', currency), currency),
       delivery: t('14 dagar', '14 days'),
       description: t('Perfekt för dig som behöver en tydlig och professionell närvaro online.', 'Perfect for those who need a clear and professional online presence.'),
       pages: t('Upp till 3 sidor', 'Up to 3 pages'), 
@@ -140,8 +144,9 @@ export default function PricingPage() {
       ] 
     },
     { 
+      id: 'standard',
       name: 'Standard', 
-      price: '€790',
+      price: formatPrice(getPackagePrice('standard', currency), currency),
       delivery: t('10 dagar', '10 days'),
       description: t('Bästa värdet för de flesta företag.', 'Best value for most businesses.'),
       pages: t('Upp till 5 sidor', 'Up to 5 pages'), 
@@ -157,8 +162,9 @@ export default function PricingPage() {
       ]
     },
     { 
+      id: 'pro',
       name: 'Pro', 
-      price: '€1,290',
+      price: formatPrice(getPackagePrice('pro', currency), currency),
       delivery: t('7 dagar', '7 days'),
       description: t('För företag som vill ha bokning + mer tillväxt.', 'For businesses wanting booking + more growth.'),
       pages: t('Upp till 8 sidor', 'Up to 8 pages'), 
@@ -173,11 +179,10 @@ export default function PricingPage() {
     },
   ];
 
-  const carePlans = [
+  const carePlansData = [
     { 
+      id: 'basic',
       name: 'Basic',
-      monthlyPrice: 25,
-      yearlyPrice: 20,
       description: t('Du behöver inte tänka på teknik.', 'You don\'t need to think about tech.'),
       note: t('De flesta på Basic uppgraderar inom 60 dagar.', 'Most clients on Basic upgrade within 60 days.'),
       features: [
@@ -189,9 +194,8 @@ export default function PricingPage() {
       ] 
     },
     { 
+      id: 'standard',
       name: 'Standard', 
-      monthlyPrice: 45,
-      yearlyPrice: 36,
       description: t('Allt i Basic + sidan kan alltid ändras utan krångel.', 'Everything in Basic + the site can always be changed without hassle.'),
       popular: true, 
       features: [
@@ -204,9 +208,8 @@ export default function PricingPage() {
       ] 
     },
     { 
+      id: 'pro',
       name: 'Pro',
-      monthlyPrice: 75,
-      yearlyPrice: 60,
       description: t('För företag som växer och vill ha mer fart + prioritet.', 'For growing businesses wanting more speed + priority.'),
       features: [
         t('Allt i Standard', 'Everything in Standard'), 
@@ -219,9 +222,16 @@ export default function PricingPage() {
     },
   ];
 
-  const getCarePlanPrice = (plan: typeof carePlans[0]) => {
-    const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-    return `€${price}/mo`;
+  const getCarePlanPriceFormatted = (planId: string) => {
+    const price = getCarePlanPrice(planId, isYearly, currency);
+    const suffix = lang === 'sv' ? '/mån' : '/mo';
+    return formatPrice(price, currency) + suffix;
+  };
+
+  const getCarePlanOldPrice = (planId: string) => {
+    const price = getCarePlanPrice(planId, false, currency);
+    const suffix = lang === 'sv' ? '/mån' : '/mo';
+    return formatPrice(price, currency) + suffix;
   };
 
   return (
@@ -343,7 +353,7 @@ export default function PricingPage() {
             </motion.div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-              {carePlans.map((plan, index) => (
+              {carePlansData.map((plan, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 50 }}
@@ -356,10 +366,10 @@ export default function PricingPage() {
 {/* Popular badge removed for equal treatment */}
                   <h3 className="font-heading font-bold text-2xl mb-2">{plan.name}</h3>
                   <div className="mb-2">
-                    <span className="text-3xl font-bold text-accent">{getCarePlanPrice(plan)}</span>
+                    <span className="text-3xl font-bold text-accent">{getCarePlanPriceFormatted(plan.id)}</span>
                     {isYearly && (
                       <span className="ml-2 text-sm text-muted-foreground line-through">
-                        €{plan.monthlyPrice}/mo
+                        {getCarePlanOldPrice(plan.id)}
                       </span>
                     )}
                   </div>
