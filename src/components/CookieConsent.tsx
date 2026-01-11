@@ -30,23 +30,18 @@ export function CookieConsent() {
   const [showParticles, setShowParticles] = useState(false);
 
   useEffect(() => {
-    // Check consent after a small delay to ensure component is mounted
-    const checkConsent = () => {
-      try {
-        const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
-        if (!consent) {
-          const timer = setTimeout(() => setIsVisible(true), 8000);
-          return () => clearTimeout(timer);
-        }
-      } catch (e) {
-        // localStorage not available, show banner anyway
-        const timer = setTimeout(() => setIsVisible(true), 8000);
+    // Check consent after 20 seconds exactly
+    try {
+      const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+      if (!consent) {
+        const timer = setTimeout(() => setIsVisible(true), 20000);
         return () => clearTimeout(timer);
       }
-    };
-    
-    const cleanup = checkConsent();
-    return cleanup;
+    } catch (e) {
+      // localStorage not available, show banner anyway after 20 seconds
+      const timer = setTimeout(() => setIsVisible(true), 20000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const handleAccept = () => {

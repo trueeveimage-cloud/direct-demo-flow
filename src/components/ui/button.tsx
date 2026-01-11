@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { hapticFeedback } from "@/lib/haptics";
+import { randomHoverSound, playSound, triggerHaptic } from "@/lib/haptics";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
@@ -43,12 +43,26 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     
     const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
-      hapticFeedback('hover');
+      // Random varied hover sounds for more interesting feedback
+      randomHoverSound();
       onMouseEnter?.(e);
     };
     
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      hapticFeedback('click');
+      // Different click sounds based on button variant
+      if (variant === 'glow' || variant === 'default') {
+        playSound('pop');
+        triggerHaptic('medium');
+      } else if (variant === 'destructive') {
+        playSound('clickDeep');
+        triggerHaptic('heavy');
+      } else if (variant === 'ghost' || variant === 'link') {
+        playSound('tap');
+        triggerHaptic('light');
+      } else {
+        playSound('click');
+        triggerHaptic('light');
+      }
       onClick?.(e);
     };
     

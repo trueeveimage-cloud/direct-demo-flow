@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ThemeToggle } from './ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
-import { hapticFeedback } from '@/lib/haptics';
+import { hapticFeedback, playSound } from '@/lib/haptics';
 
 // SVG Flag components for consistent rendering
 const SwedishFlag = () => (
@@ -117,22 +117,22 @@ export function Header() {
   };
 
   const handleLanguageToggle = () => {
-    hapticFeedback('toggle');
+    playSound('toggleOn');
     setLang(lang === 'sv' ? 'en' : 'sv');
   };
 
   const handleMenuToggle = () => {
-    hapticFeedback('click');
+    playSound(isOpen ? 'toggleOff' : 'toggleOn');
     setIsOpen(!isOpen);
   };
 
   const handleDropdownClick = (setter: React.Dispatch<React.SetStateAction<boolean>>, current: boolean) => {
-    hapticFeedback('click');
+    playSound(current ? 'clickSoft' : 'pop');
     setter(!current);
   };
 
   const handleLinkClick = () => {
-    hapticFeedback('click');
+    playSound('navigate');
     setIsOpen(false);
   };
 
@@ -177,7 +177,7 @@ export function Header() {
             <Link
               key={item.path}
               to={item.path}
-              onClick={() => hapticFeedback('click')}
+              onClick={() => playSound('navigate')}
               className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all ${
                 isActive(item.path) 
                   ? 'text-foreground bg-background/50' 
@@ -216,7 +216,7 @@ export function Header() {
                       <Link
                         key={item.path}
                         to={item.path}
-                        onClick={() => { hapticFeedback('click'); setServicesDropdownOpen(false); }}
+                        onClick={() => { playSound('navigate'); setServicesDropdownOpen(false); }}
                         className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-background/50 transition-colors group"
                       >
                         <item.icon className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
@@ -226,7 +226,7 @@ export function Header() {
                     <div className="border-t border-border/50 pt-1 mt-1">
                       <Link
                         to="/priser"
-                        onClick={() => { hapticFeedback('click'); setServicesDropdownOpen(false); }}
+                        onClick={() => { playSound('navigate'); setServicesDropdownOpen(false); }}
                         className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-background/50 transition-colors text-muted-foreground hover:text-foreground"
                       >
                         <span className="text-sm">{t('Alla priser', 'All pricing')}</span>
@@ -291,7 +291,7 @@ export function Header() {
                   <div className="p-3 space-y-2">
                     <Link
                       to="/demo"
-                      onClick={() => { hapticFeedback('click'); setProjectDropdownOpen(false); }}
+                      onClick={() => { playSound('successChime'); setProjectDropdownOpen(false); }}
                       className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/50 transition-colors group"
                     >
                       <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
@@ -306,7 +306,7 @@ export function Header() {
                     
                     <Link
                       to="/bestall"
-                      onClick={() => { hapticFeedback('click'); setProjectDropdownOpen(false); }}
+                      onClick={() => { playSound('successChime'); setProjectDropdownOpen(false); }}
                       className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/50 transition-colors group"
                     >
                       <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
@@ -322,7 +322,7 @@ export function Header() {
                     <div className="border-t border-border/50 pt-2 mt-2">
                       <Link
                         to="/efter-demo"
-                        onClick={() => { hapticFeedback('click'); setProjectDropdownOpen(false); }}
+                        onClick={() => { playSound('navigate'); setProjectDropdownOpen(false); }}
                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-background/30 transition-colors text-sm text-muted-foreground hover:text-foreground"
                       >
                         <MessageSquare className="w-4 h-4" />
