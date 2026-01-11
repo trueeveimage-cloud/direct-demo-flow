@@ -5,6 +5,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { playSound, triggerHaptic } from '@/lib/haptics';
+import confetti from 'canvas-confetti';
 
 export default function PaymentSuccessPage() {
   const { t } = useLanguage();
@@ -13,6 +15,46 @@ export default function PaymentSuccessPage() {
   const [emailSent, setEmailSent] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const hasSentEmail = useRef(false);
+  const hasPlayedSuccess = useRef(false);
+
+  // Play success sounds and confetti on mount
+  useEffect(() => {
+    if (hasPlayedSuccess.current) return;
+    hasPlayedSuccess.current = true;
+    
+    // Delay slightly for page load
+    const timer = setTimeout(() => {
+      // Play success chime
+      playSound('successChime');
+      triggerHaptic('heavy');
+      
+      // Fire confetti
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB'],
+      });
+      
+      // Second burst after a short delay
+      setTimeout(() => {
+        confetti({
+          particleCount: 50,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+        });
+        confetti({
+          particleCount: 50,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+        });
+      }, 250);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Send order confirmation email when page loads
   useEffect(() => {

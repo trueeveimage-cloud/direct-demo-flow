@@ -61,24 +61,24 @@ const PACKAGE_PRICES_EUR_DISCOUNTED: Record<string, string> = {
 
 // SEK Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
 const PACKAGE_PRICES_SEK_FULL: Record<string, string> = {
-  starter: "price_starter_sek_full",   // 4900 kr full price
-  standard: "price_standard_sek_full", // 7900 kr full price
-  pro: "price_pro_sek_full",           // 12900 kr full price
+  starter: "price_1SoVfq74JfaAfHsdNWWLIfGh",   // 4900 kr full price
+  standard: "price_1SoVfs74JfaAfHsdvR4tgHMF", // 7900 kr full price
+  pro: "price_1SoVft74JfaAfHsdMxKuptCm",      // 12900 kr full price
 };
 
 const PACKAGE_PRICES_SEK_DISCOUNTED: Record<string, string> = {
-  starter: "price_starter_sek_discounted",   // 4401 kr (4900 - 499 deposit)
-  standard: "price_standard_sek_discounted", // 7401 kr (7900 - 499 deposit)
-  pro: "price_pro_sek_discounted",           // 12401 kr (12900 - 499 deposit)
+  starter: "price_1SoVfv74JfaAfHsdqEKOpoDO",   // 4401 kr (4900 - 499 deposit)
+  standard: "price_1SoVfw74JfaAfHsdUP3t0xEK", // 7401 kr (7900 - 499 deposit)
+  pro: "price_1SoVfy74JfaAfHsdvxed2nJ0",      // 12401 kr (12900 - 499 deposit)
 };
 
 // Booking add-on price IDs from Stripe
 const BOOKING_ADDON_PRICE_EUR = "price_1Shhqd74JfaAfHsdN70mmlQ8"; // €200 booking add-on
-const BOOKING_ADDON_PRICE_SEK = "price_booking_sek"; // 1990 kr booking add-on
+const BOOKING_ADDON_PRICE_SEK = "price_1SoVfz74JfaAfHsdcM6g7gyq"; // 1990 kr booking add-on
 
 // Admin panel add-on price IDs from Stripe
 const ADMIN_PANEL_PRICE_EUR = "price_1SjVDH74JfaAfHsdJ2bpHabL"; // €100 admin panel add-on
-const ADMIN_PANEL_PRICE_SEK = "price_admin_panel_sek"; // 990 kr admin panel add-on
+const ADMIN_PANEL_PRICE_SEK = "price_1SoVg074JfaAfHsdCfjHTSR4"; // 990 kr admin panel add-on
 
 interface CheckoutRequest {
   packageId: string;
