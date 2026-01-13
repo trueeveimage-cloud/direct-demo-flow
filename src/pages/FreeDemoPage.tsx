@@ -14,6 +14,7 @@ import { toast } from '@/hooks/use-toast';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { setVerificationPaid } from '@/config/stripe';
+import { getCurrencyFromLang, getAddonPrice, formatPrice } from '@/config/currency';
 
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { useRemainingSpots, recordConceptRequest } from '@/hooks/useRemainingSpots';
@@ -117,7 +118,10 @@ export default function FreeDemoPage() {
   
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
-  const verificationFee = 500;
+  // Dynamic currency based on language
+  const currency = getCurrencyFromLang(lang);
+  const verificationFee = getAddonPrice('verification', currency);
+  const formattedVerificationFee = formatPrice(verificationFee, currency);
 
   // Check for saved data on mount
   useEffect(() => {
@@ -285,7 +289,7 @@ export default function FreeDemoPage() {
       }
       
       formData.append('extra_notes', extraNotes);
-      formData.append('verification_fee', '500 kr');
+      formData.append('verification_fee', formattedVerificationFee);
 
       await fetch('https://getform.io/f/agdvpmpb', {
         method: 'POST',
@@ -318,6 +322,7 @@ export default function FreeDemoPage() {
           websiteGoal,
           services,
           wantsBooking,
+          currency,
         }),
       });
 
@@ -376,7 +381,7 @@ export default function FreeDemoPage() {
                 </p>
                 <div className="p-3 bg-accent/10 rounded-lg">
                   <p className="text-sm font-medium">
-                    {verificationFee.toLocaleString()} kr
+                    {formattedVerificationFee}
                   </p>
                 </div>
               </CardContent>

@@ -80,6 +80,32 @@ const BOOKING_ADDON_PRICE_SEK = "price_1SoVfz74JfaAfHsdcM6g7gyq"; // 1990 kr boo
 const ADMIN_PANEL_PRICE_EUR = "price_1SjVDH74JfaAfHsdJ2bpHabL"; // €100 admin panel add-on
 const ADMIN_PANEL_PRICE_SEK = "price_1SoVg074JfaAfHsdCfjHTSR4"; // 990 kr admin panel add-on
 
+// Care plan price IDs from Stripe (monthly)
+const CARE_PLAN_MONTHLY_EUR: Record<string, string> = {
+  basic: "price_1SjVDL74JfaAfHsd1i1pFby6",    // €25/mo
+  standard: "price_1SjVDM74JfaAfHsdOemLHRqh", // €45/mo
+  pro: "price_1SjVDO74JfaAfHsdfwTpnk0Y",       // €75/mo
+};
+
+const CARE_PLAN_MONTHLY_SEK: Record<string, string> = {
+  basic: "price_1ShZ2W74JfaAfHsdZwoAI3AM",    // 249 kr/mo
+  standard: "price_1ShZ3974JfaAfHsdJRyNwKZF", // 449 kr/mo
+  pro: "price_1ShZ3V74JfaAfHsdFTHkwZfX",       // 749 kr/mo
+};
+
+// Care plan price IDs from Stripe (yearly)
+const CARE_PLAN_YEARLY_EUR: Record<string, string> = {
+  basic: "price_1SjVDP74JfaAfHsdsgUuSbuU",    // €240/yr (€20/mo)
+  standard: "price_1SjVDR74JfaAfHsduWagejHS", // €432/yr (€36/mo)
+  pro: "price_1SjVDS74JfaAfHsdwdQM3Seh",       // €720/yr (€60/mo)
+};
+
+const CARE_PLAN_YEARLY_SEK: Record<string, string> = {
+  basic: "price_1ShZ2074JfaAfHsdGOu9YrQQ",    // 2388 kr/yr (199 kr/mo)
+  standard: "price_1ShZ2g74JfaAfHsdD4t1jtDb", // 4308 kr/yr (359 kr/mo)
+  pro: "price_1ShZ3F74JfaAfHsdWNdB6gHU",       // 7188 kr/yr (599 kr/mo)
+};
+
 interface CheckoutRequest {
   packageId: string;
   email?: string;
@@ -148,6 +174,19 @@ function getBookingAddonPriceId(currency: Currency): string {
 
 function getAdminPanelPriceId(currency: Currency): string {
   return currency === 'SEK' ? ADMIN_PANEL_PRICE_SEK : ADMIN_PANEL_PRICE_EUR;
+}
+
+function getCarePlanPriceId(planId: string, isYearly: boolean, currency: Currency): string | null {
+  if (!planId || planId === 'skip') return null;
+  
+  if (isYearly) {
+    return currency === 'SEK' 
+      ? CARE_PLAN_YEARLY_SEK[planId] 
+      : CARE_PLAN_YEARLY_EUR[planId];
+  }
+  return currency === 'SEK' 
+    ? CARE_PLAN_MONTHLY_SEK[planId] 
+    : CARE_PLAN_MONTHLY_EUR[planId];
 }
 
 serve(async (req) => {
@@ -303,6 +342,17 @@ serve(async (req) => {
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
       console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on to checkout", { currency });
+    }
+
+    // Add care plan if selected (bundled into initial checkout)
+    const carePlanPriceId = getCarePlanPriceId(carePlanId, isYearly, currency);
+    if (carePlanPriceId) {
+      lineItems.push({
+        price: carePlanPriceId,
+        quantity: 1,
+        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+      });
+      console.log("[CREATE-PACKAGE-CHECKOUT] Added care plan to checkout", { carePlanId, isYearly, currency });
     }
 
     const mode: "payment" = "payment";
