@@ -998,22 +998,36 @@ export default function FreeDemoPage() {
               <AnimatedSection animation="fade-up" delay={50}>
                 <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
                   <CardContent className="p-6 sm:p-8">
-                    <div className="text-center mb-8">
+                    {/* Explanation first - why we verify */}
+                    <div className="text-center mb-6">
                       <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <CreditCard className="w-8 h-8 text-accent" />
+                        <CheckCircle2 className="w-8 h-8 text-accent" />
                       </div>
-                      <h2 className="text-2xl font-bold mb-2">
-                        {t('Verifieringsavgift', 'Verification fee')}
+                      <h2 className="text-2xl font-bold mb-3">
+                        {t('Nästan klar!', 'Almost there!')}
                       </h2>
-                      <p className="text-4xl font-bold text-accent mb-4">
-                        {verificationFee.toLocaleString()} kr
-                      </p>
-                      <p className="text-muted-foreground max-w-md mx-auto">
+                      <p className="text-muted-foreground max-w-md mx-auto mb-4">
                         {t(
-                          'Bekräftar att du är seriös. Helt återbetalningsbar om du avvisar konceptet.',
-                          'Confirms you\'re serious. Fully refundable if you reject the concept.'
+                          'Vi lägger tid och energi på att skapa ett unikt koncept för dig. För att säkerställa att vi arbetar med seriösa företag tar vi en liten verifieringsavgift.',
+                          'We invest time and energy creating a unique concept for you. To ensure we\'re working with serious businesses, we ask for a small verification fee.'
                         )}
                       </p>
+                    </div>
+
+                    {/* Fee details */}
+                    <div className="bg-secondary/50 rounded-xl p-5 mb-6 text-center">
+                      <p className="text-sm text-muted-foreground mb-2">{t('Verifieringsavgift', 'Verification fee')}</p>
+                      <p className="text-3xl font-bold text-accent mb-2">
+                        {verificationFee.toLocaleString()} kr
+                      </p>
+                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <span>{t('Dras av från slutpriset', 'Deducted from final price')}</span>
+                      </div>
+                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-1">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <span>{t('100% återbetalning om du avvisar', '100% refund if you reject')}</span>
+                      </div>
                     </div>
 
                     {/* Summary */}

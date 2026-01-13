@@ -196,14 +196,10 @@ export default function ContactPage() {
               <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-accent/30 rounded-br-2xl" />
               
               <div className="relative z-10 text-center">
-                <motion.div 
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 4, repeat: Infinity }}
-                  className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4"
-                >
+                <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">
                   <Sparkles className="w-4 h-4" />
                   {t('Fått ditt koncept?', 'Received your concept?')}
-                </motion.div>
+                </div>
                 <h2 className="text-2xl sm:text-3xl font-bold mb-3">
                   {t('Har du fått ditt gratis koncept?', 'Have you received your free concept?')}
                 </h2>
