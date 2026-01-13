@@ -37,8 +37,16 @@ function sanitizeString(str: unknown, maxLength = 500): string {
   return str.slice(0, maxLength).replace(/[<>]/g, "");
 }
 
-// Verification fee price ID (€50 one-time payment - "Downpayment" product)
-const VERIFICATION_PRICE_ID = "price_1SjVDJ74JfaAfHsdbZ0gBoeh"; // €50
+// Currency type
+type Currency = 'SEK' | 'EUR';
+
+// Verification fee price IDs (€50 / 499 kr one-time payment - "Downpayment" product)
+const VERIFICATION_PRICE_EUR = "price_1SjVDJ74JfaAfHsdbZ0gBoeh"; // €50
+const VERIFICATION_PRICE_SEK = "price_1SpHJu74JfaAfHsdl0Vp76On"; // 499 kr
+
+function getVerificationPriceId(currency: Currency): string {
+  return currency === 'SEK' ? VERIFICATION_PRICE_SEK : VERIFICATION_PRICE_EUR;
+}
 
 interface CheckoutRequest {
   email?: string;
@@ -46,6 +54,7 @@ interface CheckoutRequest {
   contactPerson?: string;
   phone?: string;
   selectedStyle?: string;
+  currency?: Currency;
 }
 
 serve(async (req) => {
@@ -97,8 +106,11 @@ serve(async (req) => {
     const contactPerson = sanitizeString(requestData.contactPerson, 200);
     const phone = sanitizeString(requestData.phone, 50);
     const selectedStyle = sanitizeString(requestData.selectedStyle, 50);
+    
+    // Currency - default to EUR if not specified
+    const currency: Currency = requestData.currency === "SEK" ? "SEK" : "EUR";
 
-    console.log("[CREATE-VERIFICATION-CHECKOUT] Request validated", { email: email ? "provided" : "none", businessName });
+    console.log("[CREATE-VERIFICATION-CHECKOUT] Request validated", { email: email ? "provided" : "none", businessName, currency });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -119,7 +131,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : email,
       line_items: [
         {
-          price: VERIFICATION_PRICE_ID,
+          price: getVerificationPriceId(currency),
           quantity: 1,
         },
       ],
@@ -133,6 +145,7 @@ serve(async (req) => {
         contactPerson,
         phone,
         selectedStyle,
+        currency,
       },
     });
 
