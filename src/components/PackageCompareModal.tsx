@@ -37,7 +37,7 @@ const packages = [
     name: 'Starter', 
     price: '€490',
     pages: 3,
-    delivery: 14,
+    delivery: 7,
     revisions: 1,
     features: {
       sv: ['Mobilanpassad design', 'Kontaktformulär', 'Google Maps', 'Grundläggande SEO', 'Lansering + genomgång'],
@@ -54,7 +54,7 @@ const packages = [
     name: 'Standard', 
     price: '€790',
     pages: 5,
-    delivery: 10,
+    delivery: 7,
     revisions: 2,
     popular: true,
     features: {

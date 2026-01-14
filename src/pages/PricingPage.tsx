@@ -131,7 +131,7 @@ export default function PricingPage() {
       id: 'starter',
       name: 'Starter', 
       price: formatPrice(getPackagePrice('starter', currency), currency),
-      delivery: t('14 dagar', '14 days'),
+      delivery: t('7 dagar', '7 days'),
       description: t('Perfekt för dig som behöver en tydlig och professionell närvaro online.', 'Perfect for those who need a clear and professional online presence.'),
       pages: t('Upp till 3 sidor', 'Up to 3 pages'), 
       features: [
@@ -147,7 +147,7 @@ export default function PricingPage() {
       id: 'standard',
       name: 'Standard', 
       price: formatPrice(getPackagePrice('standard', currency), currency),
-      delivery: t('10 dagar', '10 days'),
+      delivery: t('7 dagar', '7 days'),
       description: t('Bästa värdet för de flesta företag.', 'Best value for most businesses.'),
       pages: t('Upp till 5 sidor', 'Up to 5 pages'), 
       popular: true, 

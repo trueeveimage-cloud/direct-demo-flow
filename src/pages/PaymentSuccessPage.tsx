@@ -99,8 +99,8 @@ export default function PaymentSuccessPage() {
           pro: '€1,290',
         };
         const deliveryDays: Record<string, number> = {
-          starter: 14,
-          standard: 10,
+          starter: 7,
+          standard: 7,
           pro: 7,
         };
 

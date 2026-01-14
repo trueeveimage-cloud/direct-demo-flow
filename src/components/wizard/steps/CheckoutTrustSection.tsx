@@ -58,7 +58,7 @@ export function CheckoutTrustSection({ selectedPackage, isPostDemoFlow = false }
                 {t('Leverans inom', 'Delivery within')} {deliveryDays} {t('dagar', 'days')}
               </p>
               <p className="text-xs text-muted-foreground">
-                {pkg?.name} {t('paket', 'package')} — {t('Starter 14d / Standard 10d / Pro 7d', 'Starter 14d / Standard 10d / Pro 7d')}
+                {pkg?.name} {t('paket', 'package')} — {t('Alla paket levereras inom 7 dagar', 'All packages delivered within 7 days')}
               </p>
             </div>
           </li>
