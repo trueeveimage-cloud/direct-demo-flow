@@ -44,8 +44,8 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Webbpaket (EUR)', 'Website Packages (EUR)')}</h2>
               <ul className="space-y-3 text-muted-foreground">
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Starter:</strong> €490 — {t('Upp till 3 sidor, 14 dagars leverans, 1 revision', 'Up to 3 pages, 14-day delivery, 1 revision')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Standard:</strong> €790 — {t('Upp till 5 sidor, 10 dagars leverans, 2 revisioner, flerspråk', 'Up to 5 pages, 10-day delivery, 2 revisions, multi-language')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Starter:</strong> €490 — {t('Upp till 3 sidor, 7 dagars leverans, 1 revision', 'Up to 3 pages, 7-day delivery, 1 revision')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Standard:</strong> €790 — {t('Upp till 5 sidor, 7 dagars leverans, 2 revisioner, flerspråk', 'Up to 5 pages, 7-day delivery, 2 revisions, multi-language')}</li>
                 <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> €1,290 — {t('Upp till 8 sidor, 7 dagars leverans, 3 revisioner, flerspråk, bokningssystem, Google Analytics', 'Up to 8 pages, 7-day delivery, 3 revisions, multi-language, booking system, Google Analytics')}</li>
               </ul>
               <p className="text-muted-foreground mt-3">{t('Tillägg: Bokningssystem €200 (ingår i Pro), Adminpanel €100.', 'Add-ons: Booking system €200 (included in Pro), Admin panel €100.')}</p>
@@ -70,9 +70,7 @@ export default function TermsPage() {
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Leveranstider', 'Delivery Times')}</h2>
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Gratis koncept: 72 timmar efter betald verifieringsavgift (€50)', 'Free concept: 72 hours after paid verification fee (€50)')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Starter: 14 arbetsdagar', 'Starter: 14 business days')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Standard: 10 arbetsdagar', 'Standard: 10 business days')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Pro: 7 arbetsdagar', 'Pro: 7 business days')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Alla webbpaket: 7 arbetsdagar', 'All website packages: 7 business days')}</li>
               </ul>
             </section>
           </AnimatedSection>

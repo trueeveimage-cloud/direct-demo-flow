@@ -301,7 +301,7 @@ export const packages = [
     priceDisplay: '€490', 
     pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, 
     maxPages: 3, 
-    delivery: 14, 
+    delivery: 7, 
     booking: false, 
     features: { 
       sv: ['Responsiv design', 'Kontaktformulär', 'SEO-grundläggande', '1 revision'], 
@@ -317,7 +317,7 @@ export const packages = [
     pages: { sv: 'Upp till 5 sidor', en: 'Up to 5 pages' }, 
     popular: true, 
     maxPages: 5, 
-    delivery: 10, 
+    delivery: 7, 
     booking: false, 
     features: { 
       sv: ['Allt i Starter', '2 revisioner', 'Google Maps', 'Sociala medier', 'Bildgalleri', 'Flerspråkstöd'], 
