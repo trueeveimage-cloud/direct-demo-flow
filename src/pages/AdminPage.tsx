@@ -4,7 +4,7 @@ import {
   BarChart3, Users, Clock, Globe, Smartphone, Monitor, 
   TrendingUp, ArrowDown, AlertCircle, Calendar, RefreshCw,
   Eye, MousePointer, CreditCard, CheckCircle, ShoppingCart,
-  Gift, LogOut
+  Gift, LogOut, Mail, MessageSquare, ExternalLink, Check
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -12,8 +12,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { getAnalytics, FunnelEvents } from '@/lib/posthog';
 import type { User } from '@supabase/supabase-js';
+
+interface ContactSubmission {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  message: string;
+  contact_reason: string;
+  is_read: boolean;
+}
 
 interface StoredEvent {
   event: string;
@@ -207,6 +218,8 @@ export default function AdminPage() {
   const [dateRange, setDateRange] = useState<'today' | '7days' | '30days'>('7days');
   const [events, setEvents] = useState<StoredEvent[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
+  const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
 
   // Set up auth state listener and check admin status server-side
   useEffect(() => {
@@ -247,19 +260,54 @@ export default function AdminPage() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Load analytics and submissions when admin is authenticated
   useEffect(() => {
-    // Only load analytics data if user is an admin
     if (user && isAdmin) {
       // Get real events from analytics tracker
       const analytics = getAnalytics();
       const storedEvents = analytics.getStoredEvents();
       setEvents(storedEvents);
+      
+      // Fetch contact submissions from database
+      const fetchSubmissions = async () => {
+        const { data, error } = await supabase
+          .from('contact_submissions')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (!error && data) {
+          setSubmissions(data as ContactSubmission[]);
+        }
+      };
+      fetchSubmissions();
     }
   }, [user, isAdmin, refreshKey]);
 
   const data = useMemo(() => {
     return processRealEvents(events, dateRange);
   }, [events, dateRange]);
+
+  const unreadCount = submissions.filter(s => !s.is_read).length;
+
+  const markAsRead = async (id: string) => {
+    await supabase
+      .from('contact_submissions')
+      .update({ is_read: true })
+      .eq('id', id);
+    
+    setSubmissions(prev => 
+      prev.map(s => s.id === id ? { ...s, is_read: true } : s)
+    );
+  };
+
+  const reasonLabels: Record<string, string> = {
+    'concept-received': 'Received Concept',
+    'general-question': 'General Question',
+    'pricing': 'Pricing',
+    'support': 'Support',
+    'partnership': 'Partnership',
+    'other': 'Other',
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -490,13 +538,152 @@ export default function AdminPage() {
           </Card>
         )}
 
-        <Tabs defaultValue="funnel" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+        <Tabs defaultValue="submissions" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="submissions" className="relative">
+              Submissions
+              {unreadCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-destructive">
+                  {unreadCount}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="funnel">Funnel</TabsTrigger>
             <TabsTrigger value="pages">Pages</TabsTrigger>
             <TabsTrigger value="sources">Sources</TabsTrigger>
             <TabsTrigger value="errors">Errors</TabsTrigger>
           </TabsList>
+
+          {/* Submissions Tab */}
+          <TabsContent value="submissions" className="space-y-6">
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Submissions List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5" />
+                    Contact Submissions
+                  </CardTitle>
+                  <CardDescription>
+                    {submissions.length} total • {unreadCount} unread
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {submissions.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Mail className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>No submissions yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                      {submissions.map((submission) => (
+                        <div
+                          key={submission.id}
+                          onClick={() => {
+                            setSelectedSubmission(submission);
+                            if (!submission.is_read) {
+                              markAsRead(submission.id);
+                            }
+                          }}
+                          className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                            selectedSubmission?.id === submission.id
+                              ? 'border-accent bg-accent/10'
+                              : submission.is_read
+                              ? 'border-border bg-secondary/30 hover:bg-secondary/50'
+                              : 'border-accent/50 bg-accent/5 hover:bg-accent/10'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium truncate">{submission.name}</p>
+                                {!submission.is_read && (
+                                  <Badge variant="secondary" className="bg-accent text-accent-foreground text-xs">
+                                    New
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground truncate">{submission.email}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {new Date(submission.created_at).toLocaleDateString('sv-SE', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="shrink-0 text-xs">
+                              {reasonLabels[submission.contact_reason] || submission.contact_reason}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Selected Submission Detail */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="w-5 h-5" />
+                    Message Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedSubmission ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold">{selectedSubmission.name}</h3>
+                          <a 
+                            href={`mailto:${selectedSubmission.email}`}
+                            className="text-accent hover:underline flex items-center gap-1"
+                          >
+                            {selectedSubmission.email}
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                        <Badge>
+                          {reasonLabels[selectedSubmission.contact_reason] || selectedSubmission.contact_reason}
+                        </Badge>
+                      </div>
+                      
+                      <div className="text-sm text-muted-foreground">
+                        {new Date(selectedSubmission.created_at).toLocaleString('sv-SE')}
+                      </div>
+                      
+                      <div className="p-4 bg-secondary/50 rounded-lg">
+                        <p className="whitespace-pre-wrap">{selectedSubmission.message}</p>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button asChild className="flex-1">
+                          <a href={`mailto:${selectedSubmission.email}?subject=Re: Your message to Nomia`}>
+                            <Mail className="w-4 h-4 mr-2" />
+                            Reply via Email
+                          </a>
+                        </Button>
+                        {!selectedSubmission.is_read && (
+                          <Button variant="outline" onClick={() => markAsRead(selectedSubmission.id)}>
+                            <Check className="w-4 h-4 mr-2" />
+                            Mark Read
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Select a submission to view details</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           {/* Funnel Tab */}
           <TabsContent value="funnel" className="space-y-6">
