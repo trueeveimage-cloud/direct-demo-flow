@@ -24,7 +24,18 @@ interface ContactSubmission {
   message: string;
   contact_reason: string;
   is_read: boolean;
+  type: 'contact';
 }
+
+interface ConceptRequest {
+  id: string;
+  created_at: string;
+  email: string;
+  business_name: string;
+  type: 'concept';
+}
+
+type Submission = ContactSubmission | ConceptRequest;
 
 interface StoredEvent {
   event: string;
@@ -218,8 +229,8 @@ export default function AdminPage() {
   const [dateRange, setDateRange] = useState<'today' | '7days' | '30days'>('7days');
   const [events, setEvents] = useState<StoredEvent[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
-  const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
 
   // Set up auth state listener and check admin status server-side
   useEffect(() => {
@@ -268,18 +279,30 @@ export default function AdminPage() {
       const storedEvents = analytics.getStoredEvents();
       setEvents(storedEvents);
       
-      // Fetch contact submissions from database
-      const fetchSubmissions = async () => {
-        const { data, error } = await supabase
-          .from('contact_submissions')
-          .select('*')
-          .order('created_at', { ascending: false });
+      // Fetch both contact submissions and concept requests
+      const fetchAllSubmissions = async () => {
+        const [contactRes, conceptRes] = await Promise.all([
+          supabase.from('contact_submissions').select('*').order('created_at', { ascending: false }),
+          supabase.from('concept_requests').select('*').order('created_at', { ascending: false })
+        ]);
         
-        if (!error && data) {
-          setSubmissions(data as ContactSubmission[]);
-        }
+        const contactSubmissions: Submission[] = (contactRes.data || []).map(s => ({
+          ...s,
+          type: 'contact' as const
+        }));
+        
+        const conceptRequests: Submission[] = (conceptRes.data || []).map(c => ({
+          ...c,
+          type: 'concept' as const
+        }));
+        
+        // Combine and sort by date
+        const allSubmissions = [...contactSubmissions, ...conceptRequests]
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        
+        setSubmissions(allSubmissions);
       };
-      fetchSubmissions();
+      fetchAllSubmissions();
     }
   }, [user, isAdmin, refreshKey]);
 
@@ -287,7 +310,7 @@ export default function AdminPage() {
     return processRealEvents(events, dateRange);
   }, [events, dateRange]);
 
-  const unreadCount = submissions.filter(s => !s.is_read).length;
+  const unreadCount = submissions.filter(s => s.type === 'contact' && !(s as ContactSubmission).is_read).length;
 
   const markAsRead = async (id: string) => {
     await supabase
@@ -296,7 +319,7 @@ export default function AdminPage() {
       .eq('id', id);
     
     setSubmissions(prev => 
-      prev.map(s => s.id === id ? { ...s, is_read: true } : s)
+      prev.map(s => s.id === id && s.type === 'contact' ? { ...s, is_read: true } : s)
     );
   };
 
@@ -576,49 +599,60 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     <div className="space-y-2 max-h-[500px] overflow-y-auto">
-                      {submissions.map((submission) => (
-                        <div
-                          key={submission.id}
-                          onClick={() => {
-                            setSelectedSubmission(submission);
-                            if (!submission.is_read) {
-                              markAsRead(submission.id);
-                            }
-                          }}
-                          className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                            selectedSubmission?.id === submission.id
-                              ? 'border-accent bg-accent/10'
-                              : submission.is_read
-                              ? 'border-border bg-secondary/30 hover:bg-secondary/50'
-                              : 'border-accent/50 bg-accent/5 hover:bg-accent/10'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium truncate">{submission.name}</p>
-                                {!submission.is_read && (
-                                  <Badge variant="secondary" className="bg-accent text-accent-foreground text-xs">
-                                    New
-                                  </Badge>
-                                )}
+                      {submissions.map((submission) => {
+                        const isContact = submission.type === 'contact';
+                        const contactSub = isContact ? submission as ContactSubmission : null;
+                        const conceptSub = !isContact ? submission as ConceptRequest : null;
+                        const displayName = contactSub?.name || conceptSub?.business_name || 'Unknown';
+                        const isUnread = contactSub && !contactSub.is_read;
+                        
+                        return (
+                          <div
+                            key={submission.id}
+                            onClick={() => {
+                              setSelectedSubmission(submission);
+                              if (contactSub && !contactSub.is_read) {
+                                markAsRead(submission.id);
+                              }
+                            }}
+                            className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                              selectedSubmission?.id === submission.id
+                                ? 'border-accent bg-accent/10'
+                                : isUnread
+                                ? 'border-accent/50 bg-accent/5 hover:bg-accent/10'
+                                : 'border-border bg-secondary/30 hover:bg-secondary/50'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium truncate">{displayName}</p>
+                                  {isUnread && (
+                                    <Badge variant="secondary" className="bg-accent text-accent-foreground text-xs">
+                                      New
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-sm text-muted-foreground truncate">{submission.email}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {new Date(submission.created_at).toLocaleDateString('sv-SE', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </p>
                               </div>
-                              <p className="text-sm text-muted-foreground truncate">{submission.email}</p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {new Date(submission.created_at).toLocaleDateString('sv-SE', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </p>
+                              <Badge variant="outline" className={`shrink-0 text-xs ${!isContact ? 'bg-primary/10 border-primary' : ''}`}>
+                                {isContact 
+                                  ? (reasonLabels[contactSub!.contact_reason] || contactSub!.contact_reason)
+                                  : '🚀 Concept Request'
+                                }
+                              </Badge>
                             </div>
-                            <Badge variant="outline" className="shrink-0 text-xs">
-                              {reasonLabels[submission.contact_reason] || submission.contact_reason}
-                            </Badge>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </CardContent>
@@ -629,50 +663,90 @@ export default function AdminPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Mail className="w-5 h-5" />
-                    Message Details
+                    {selectedSubmission?.type === 'concept' ? 'Concept Request Details' : 'Message Details'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {selectedSubmission ? (
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-lg font-semibold">{selectedSubmission.name}</h3>
-                          <a 
-                            href={`mailto:${selectedSubmission.email}`}
-                            className="text-accent hover:underline flex items-center gap-1"
-                          >
-                            {selectedSubmission.email}
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </div>
-                        <Badge>
-                          {reasonLabels[selectedSubmission.contact_reason] || selectedSubmission.contact_reason}
-                        </Badge>
-                      </div>
-                      
-                      <div className="text-sm text-muted-foreground">
-                        {new Date(selectedSubmission.created_at).toLocaleString('sv-SE')}
-                      </div>
-                      
-                      <div className="p-4 bg-secondary/50 rounded-lg">
-                        <p className="whitespace-pre-wrap">{selectedSubmission.message}</p>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <Button asChild className="flex-1">
-                          <a href={`mailto:${selectedSubmission.email}?subject=Re: Your message to Nomia`}>
-                            <Mail className="w-4 h-4 mr-2" />
-                            Reply via Email
-                          </a>
-                        </Button>
-                        {!selectedSubmission.is_read && (
-                          <Button variant="outline" onClick={() => markAsRead(selectedSubmission.id)}>
-                            <Check className="w-4 h-4 mr-2" />
-                            Mark Read
+                      {selectedSubmission.type === 'contact' ? (
+                        // Contact submission detail
+                        <>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="text-lg font-semibold">{(selectedSubmission as ContactSubmission).name}</h3>
+                              <a 
+                                href={`mailto:${selectedSubmission.email}`}
+                                className="text-accent hover:underline flex items-center gap-1"
+                              >
+                                {selectedSubmission.email}
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                            <Badge>
+                              {reasonLabels[(selectedSubmission as ContactSubmission).contact_reason] || (selectedSubmission as ContactSubmission).contact_reason}
+                            </Badge>
+                          </div>
+                          
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(selectedSubmission.created_at).toLocaleString('sv-SE')}
+                          </div>
+                          
+                          <div className="p-4 bg-secondary/50 rounded-lg">
+                            <p className="whitespace-pre-wrap">{(selectedSubmission as ContactSubmission).message}</p>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Button asChild className="flex-1">
+                              <a href={`mailto:${selectedSubmission.email}?subject=Re: Your message to Nomia`}>
+                                <Mail className="w-4 h-4 mr-2" />
+                                Reply via Email
+                              </a>
+                            </Button>
+                            {!(selectedSubmission as ContactSubmission).is_read && (
+                              <Button variant="outline" onClick={() => markAsRead(selectedSubmission.id)}>
+                                <Check className="w-4 h-4 mr-2" />
+                                Mark Read
+                              </Button>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        // Concept request detail
+                        <>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="text-lg font-semibold">{(selectedSubmission as ConceptRequest).business_name}</h3>
+                              <a 
+                                href={`mailto:${selectedSubmission.email}`}
+                                className="text-accent hover:underline flex items-center gap-1"
+                              >
+                                {selectedSubmission.email}
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                            <Badge className="bg-primary/10 border-primary">
+                              🚀 Concept Request
+                            </Badge>
+                          </div>
+                          
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(selectedSubmission.created_at).toLocaleString('sv-SE')}
+                          </div>
+                          
+                          <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                            <p className="text-sm text-muted-foreground mb-2">Business requesting a free concept:</p>
+                            <p className="font-medium text-lg">{(selectedSubmission as ConceptRequest).business_name}</p>
+                          </div>
+                          
+                          <Button asChild className="w-full">
+                            <a href={`mailto:${selectedSubmission.email}?subject=Your Nomia Concept Request`}>
+                              <Mail className="w-4 h-4 mr-2" />
+                              Contact Customer
+                            </a>
                           </Button>
-                        )}
-                      </div>
+                        </>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
