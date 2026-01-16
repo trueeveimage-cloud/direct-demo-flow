@@ -333,11 +333,8 @@ export default function FreeDemoPage() {
       }
 
       if (data.url) {
-        window.open(data.url, '_blank');
-        toast({ 
-          title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
-          description: t('Slutför betalningen i det nya fönstret.', 'Complete payment in the new window.') 
-        });
+        // Use location.href on mobile for better compatibility
+        window.location.href = data.url;
       }
       
     } catch (error) {
@@ -1023,7 +1020,7 @@ export default function FreeDemoPage() {
                     <div className="bg-secondary/50 rounded-xl p-5 mb-6 text-center">
                       <p className="text-sm text-muted-foreground mb-2">{t('Verifieringsavgift', 'Verification fee')}</p>
                       <p className="text-3xl font-bold text-accent mb-2">
-                        {verificationFee.toLocaleString()} kr
+                        {formattedVerificationFee}
                       </p>
                       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                         <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -1068,7 +1065,7 @@ export default function FreeDemoPage() {
                         <div className="border-t border-border pt-3 mt-3">
                           <div className="flex justify-between text-lg font-bold">
                             <span>{t('Att betala', 'To pay')}</span>
-                            <span className="text-accent">{verificationFee.toLocaleString()} kr</span>
+                            <span className="text-accent">{formattedVerificationFee}</span>
                           </div>
                         </div>
                       </div>
