@@ -29,6 +29,7 @@ export default function TermsPage() {
                 <li>{t('Om du går vidare dras avgiften från slutpriset.', 'If you proceed, the fee is deducted from the final price.')}</li>
                 <li>{t('Vid begäran om extra arbete utöver demo-omfattningen kan återbetalning ej garanteras.', 'If you request extra work beyond the demo scope, refund may not be guaranteed.')}</li>
                 <li>{t('Om vi inte hör från dig på 14 dagar pausas projektet.', 'If we don\'t hear from you for 14 days, the project is paused.')}</li>
+                <li><strong>{t('Förhandsvisningen av konceptet försvinner efter 7 dagar.', 'The concept preview will disappear after 7 days.')}</strong> {t('Fatta beslut inom denna period.', 'Make your decision within this period.')}</li>
               </ul>
             </section>
           </AnimatedSection>
