@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, ChevronDown, Sparkles, ShoppingCart, MessageSquare, Utensils, Scissors, Store } from 'lucide-react';
+import { ArrowRight, ChevronDown, Sparkles, ShoppingCart, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ThemeToggle } from './ThemeToggle';
@@ -64,9 +64,7 @@ export function Header() {
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
-  const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const servicesDropdownRef = useRef<HTMLDivElement>(null);
   const { lang, setLang, t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
@@ -94,9 +92,6 @@ export function Header() {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setProjectDropdownOpen(false);
-      }
-      if (servicesDropdownRef.current && !servicesDropdownRef.current.contains(event.target as Node)) {
-        setServicesDropdownOpen(false);
       }
     };
     
@@ -133,12 +128,6 @@ export function Header() {
   const navItems = [
     { path: '/portfolio', label: t('Portfolio', 'Portfolio') },
     { path: '/hur-det-fungerar', label: t('Hur det fungerar', 'How it works') },
-  ];
-
-  const servicePages = [
-    { path: '/tjanster/restauranger', label: t('Restauranger & Caféer', 'Restaurants & Cafés'), icon: Utensils },
-    { path: '/tjanster/salonger', label: t('Frisörer & Salonger', 'Salons & Barbers'), icon: Scissors },
-    { path: '/tjanster/e-handel', label: t('E-handel', 'E-commerce'), icon: Store },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -181,56 +170,17 @@ export function Header() {
             </Link>
           ))}
           
-          {/* Services Dropdown */}
-          <div className="relative" ref={servicesDropdownRef}>
-            <button
-              onClick={() => handleDropdownClick(setServicesDropdownOpen, servicesDropdownOpen)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all flex items-center gap-1 ${
-                location.pathname.startsWith('/tjanster')
-                  ? 'text-foreground bg-background/50'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-background/30'
-              }`}
-            >
-              {t('Tjänster', 'Services')}
-              <ChevronDown className={`w-3 h-3 transition-transform ${servicesDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-            
-            <AnimatePresence>
-              {servicesDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute left-0 mt-3 w-56 bg-secondary border border-border rounded-xl shadow-xl overflow-hidden z-50"
-                >
-                  <div className="p-2 space-y-1">
-                    {servicePages.map((item) => (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => setServicesDropdownOpen(false)}
-                        className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-background/50 transition-colors group"
-                      >
-                        <item.icon className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
-                        <span className="text-sm font-medium">{item.label}</span>
-                      </Link>
-                    ))}
-                    <div className="border-t border-border/50 pt-1 mt-1">
-                      <Link
-                        to="/priser"
-                        onClick={() => setServicesDropdownOpen(false)}
-                        className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-background/50 transition-colors text-muted-foreground hover:text-foreground"
-                      >
-                        <span className="text-sm">{t('Alla priser', 'All pricing')}</span>
-                        <ArrowRight className="w-3 h-3 ml-auto" />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          {/* Pricing Link (renamed from Services) */}
+          <Link
+            to="/priser"
+            className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all ${
+              location.pathname === '/priser'
+                ? 'text-foreground bg-background/50'
+                : 'text-muted-foreground hover:text-foreground hover:bg-background/30'
+            }`}
+          >
+            {t('Priser', 'Pricing')}
+          </Link>
         </div>
 
         {/* Divider */}

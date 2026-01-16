@@ -20,15 +20,11 @@ const contactReasons = [
   { value: 'other', labelSv: 'Annat', labelEn: 'Other' },
 ];
 
-// Floating decorative element
-const FloatingIcon = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
-  <motion.div
-    className={`absolute pointer-events-none ${className}`}
-    animate={{ y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
-    transition={{ duration: 6, delay, repeat: Infinity, ease: "easeInOut" }}
-  >
+// Floating decorative element - simplified for performance
+const FloatingIcon = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div className={`absolute pointer-events-none ${className}`}>
     {children}
-  </motion.div>
+  </div>
 );
 
 // Contact info item component
@@ -124,19 +120,19 @@ export default function ContactPage() {
         <div className="absolute bottom-20 right-[10%] w-[300px] h-[300px] bg-accent/5 rounded-full blur-[100px]" />
       </div>
 
-      {/* Floating decorative elements - hidden on mobile */}
-      <div className="hidden md:block">
-        <FloatingIcon delay={0} className="top-32 left-[8%]">
+      {/* Floating decorative elements - hidden on mobile for performance */}
+      <div className="hidden lg:block">
+        <FloatingIcon className="top-32 left-[8%]">
           <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
             <MessageSquare className="w-6 h-6 text-accent/40" />
           </div>
         </FloatingIcon>
-        <FloatingIcon delay={1.5} className="top-48 right-[12%]">
+        <FloatingIcon className="top-48 right-[12%]">
           <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
             <Mail className="w-5 h-5 text-primary/40" />
           </div>
         </FloatingIcon>
-        <FloatingIcon delay={3} className="bottom-40 left-[15%]">
+        <FloatingIcon className="bottom-40 left-[15%]">
           <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
             <Zap className="w-4 h-4 text-accent/40" />
           </div>
@@ -206,7 +202,7 @@ export default function ContactPage() {
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                   {t('Berätta vad du tycker och ta nästa steg mot din nya hemsida.', 'Tell us what you think and take the next step towards your new website.')}
                 </p>
-                <Button asChild size="lg" className="rounded-full group text-lg px-8">
+                <Button asChild size="lg" className="rounded-full group text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto">
                   <Link to="/efter-demo">
                     {t('Ja, jag vill prata om mitt koncept', 'Yes, I want to discuss my concept')}
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
