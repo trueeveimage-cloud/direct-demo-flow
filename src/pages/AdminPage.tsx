@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { getAnalytics, FunnelEvents } from '@/lib/posthog';
-import type { User } from '@supabase/supabase-js';
+
 
 interface ContactSubmission {
   id: string;
@@ -219,10 +219,13 @@ async function checkIsAdminUser(): Promise<boolean> {
   return data === true;
 }
 
+// Hardcoded admin credentials
+const ADMIN_EMAIL = '38kqgt@gmail.com';
+const ADMIN_PASSWORD = 'Guemir1453';
+
 export default function AdminPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -232,48 +235,18 @@ export default function AdminPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
 
-  // Set up auth state listener and check admin status server-side
+  // Check if already logged in via localStorage
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        if (!session?.user) {
-          setIsAdmin(false);
-          setIsLoading(false);
-        } else {
-          // Check admin status server-side
-          setTimeout(() => {
-            checkIsAdminUser().then(isAdminResult => {
-              setIsAdmin(isAdminResult);
-              setIsLoading(false);
-            });
-          }, 0);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (!session?.user) {
-        setIsAdmin(false);
-        setIsLoading(false);
-      } else {
-        // Check admin status server-side
-        checkIsAdminUser().then(isAdminResult => {
-          setIsAdmin(isAdminResult);
-          setIsLoading(false);
-        });
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    const storedAuth = localStorage.getItem('nomia_admin_auth');
+    if (storedAuth === 'true') {
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
   }, []);
 
-  // Load analytics and submissions when admin is authenticated
+  // Load analytics and submissions when authenticated
   useEffect(() => {
-    if (user && isAdmin) {
+    if (isAuthenticated) {
       // Get real events from analytics tracker
       const analytics = getAnalytics();
       const storedEvents = analytics.getStoredEvents();
@@ -304,7 +277,7 @@ export default function AdminPage() {
       };
       fetchAllSubmissions();
     }
-  }, [user, isAdmin, refreshKey]);
+  }, [isAuthenticated, refreshKey]);
 
   const data = useMemo(() => {
     return processRealEvents(events, dateRange);
@@ -332,7 +305,7 @@ export default function AdminPage() {
     'other': 'Other',
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
@@ -342,32 +315,18 @@ export default function AdminPage() {
       return;
     }
 
-    const { error: authError, data: authData } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password: password,
-    });
-    
-    if (authError) {
-      setError(authError.message);
-      return;
-    }
-
-    // Check if the authenticated user is an admin using server-side function
-    if (authData.user) {
-      const adminCheck = await checkIsAdminUser();
-      if (!adminCheck) {
-        // Sign out non-admin users immediately
-        await supabase.auth.signOut();
-        setError('Access denied. You do not have admin privileges.');
-        return;
-      }
-      setIsAdmin(true);
+    // Check hardcoded credentials
+    if (email.trim() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      localStorage.setItem('nomia_admin_auth', 'true');
+      setIsAuthenticated(true);
+    } else {
+      setError('Invalid login credentials');
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+  const handleLogout = () => {
+    localStorage.removeItem('nomia_admin_auth');
+    setIsAuthenticated(false);
   };
 
   const handleRefresh = () => {
@@ -382,7 +341,7 @@ export default function AdminPage() {
     );
   }
 
-  if (!user) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
         <motion.div
@@ -418,29 +377,6 @@ export default function AdminPage() {
               Sign In
             </Button>
           </form>
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Show access denied for authenticated users who are not admins
-  if (!isAdmin) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm p-8 bg-secondary/50 rounded-2xl border border-border text-center"
-        >
-          <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-muted-foreground mb-6">
-            You do not have permission to access the admin dashboard.
-          </p>
-          <Button variant="outline" onClick={handleLogout} className="w-full">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
         </motion.div>
       </div>
     );

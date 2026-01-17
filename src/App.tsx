@@ -82,11 +82,11 @@ function AppContent() {
   const handleIntroComplete = () => {
     markIntroSeen();
     setShowBlurTransition(true);
-    // After blur transition, show the site
+    // After 1 second blur transition, show the site
     setTimeout(() => {
       setIntroComplete(true);
       setShowBlurTransition(false);
-    }, 600);
+    }, 1000);
   };
 
   // Store replayIntro in window for footer access
@@ -112,13 +112,19 @@ function AppContent() {
         <NomiaIntro onComplete={handleIntroComplete} />
       )}
       
-      {/* Blur transition overlay */}
-      {showBlurTransition && (
+      {/* Blur transition overlay - starts blurred during intro, then fades out over 1s */}
+      {(shouldShowIntro || showBlurTransition) && (
         <motion.div
-          initial={{ opacity: 1, backdropFilter: 'blur(20px)' }}
-          animate={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          className="fixed inset-0 z-[99998] bg-background/50 pointer-events-none"
+          initial={{ opacity: 1 }}
+          animate={{ 
+            opacity: showBlurTransition ? 0 : 1,
+          }}
+          transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] }}
+          style={{
+            backdropFilter: showBlurTransition ? 'blur(0px)' : 'blur(20px)',
+            transition: 'backdrop-filter 1s ease-out'
+          }}
+          className="fixed inset-0 z-[99998] bg-background/30 pointer-events-none"
         />
       )}
       
