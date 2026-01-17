@@ -297,15 +297,15 @@ export const packages = [
   { 
     id: 'starter', 
     name: 'Starter', 
-    price: 490, 
-    priceDisplay: '€490', 
+    price: 290, 
+    priceDisplay: '€290', 
     pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, 
     maxPages: 3, 
     delivery: 7, 
     booking: false, 
     features: { 
-      sv: ['Responsiv design', 'Kontaktformulär', 'SEO-grundläggande', '1 revision'], 
-      en: ['Responsive design', 'Contact form', 'Basic SEO', '1 revision'] 
+      sv: ['Responsiv design', 'Kontaktformulär', 'SEO-grundläggande', '10 revisioner'], 
+      en: ['Responsive design', 'Contact form', 'Basic SEO', '10 revisions'] 
     }, 
     bestFor: { sv: 'Nya företag', en: 'New businesses' } 
   },
@@ -320,8 +320,8 @@ export const packages = [
     delivery: 7, 
     booking: false, 
     features: { 
-      sv: ['Allt i Starter', '2 revisioner', 'Google Maps', 'Sociala medier', 'Bildgalleri', 'Flerspråkstöd'], 
-      en: ['Everything in Starter', '2 revisions', 'Google Maps', 'Social media', 'Image gallery', 'Multi-language'] 
+      sv: ['Allt i Starter', '20 revisioner', 'Google Maps', 'Sociala medier', 'Bildgalleri', 'Flerspråkstöd'], 
+      en: ['Everything in Starter', '20 revisions', 'Google Maps', 'Social media', 'Image gallery', 'Multi-language'] 
     }, 
     bestFor: { sv: 'Växande företag', en: 'Growing businesses' } 
   },
@@ -335,8 +335,8 @@ export const packages = [
     delivery: 7, 
     booking: true, 
     features: { 
-      sv: ['Allt i Standard', '3 revisioner', 'Bokningsintegration', 'Nyhetsbrev', 'Google Analytics', 'Prioriterad support', 'Flerspråkstöd'], 
-      en: ['Everything in Standard', '3 revisions', 'Booking integration', 'Newsletter', 'Google Analytics', 'Priority support', 'Multi-language'] 
+      sv: ['Allt i Standard', 'Obegränsade revisioner', 'Bokningsintegration', 'Nyhetsbrev', 'Google Analytics', 'Prioriterad support', 'Flerspråkstöd'], 
+      en: ['Everything in Standard', 'Unlimited revisions', 'Booking integration', 'Newsletter', 'Google Analytics', 'Priority support', 'Multi-language'] 
     }, 
     bestFor: { sv: 'Etablerade företag', en: 'Established businesses' } 
   },

@@ -339,6 +339,19 @@ export function Header() {
                 </Link>
               ))}
               
+              {/* Pricing link in mobile */}
+              <Link
+                to="/priser"
+                onClick={handleLinkClick}
+                className={`block py-3 px-4 rounded-xl text-sm font-medium transition-colors ${
+                  isActive('/priser') 
+                    ? 'text-foreground bg-background/50' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-background/30'
+                }`}
+              >
+                {t('Priser', 'Pricing')}
+              </Link>
+              
               <div className="pt-3 mt-3 border-t border-border space-y-2">
                 <Button asChild variant="outline" className="w-full rounded-xl group">
                   <Link to="/demo" onClick={handleLinkClick}>
