@@ -326,7 +326,7 @@ export default function Index() {
             </Button>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { name: "Gail's Hair", type: t('Frisörsalong', 'Hair Salon'), stat: '+89%', statLabel: t('bokningar', 'bookings'), url: 'https://gailshairgallery.lovable.app/book', image: gailsHairImg },
               { name: 'Oh My Coffee', type: t('Café & Restaurang', 'Café & Restaurant'), stat: null, url: 'https://ohmycoffee-gbg-web.lovable.app/', image: ohMyCoffeeImg },

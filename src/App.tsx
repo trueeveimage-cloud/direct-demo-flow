@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -68,6 +69,7 @@ function AnimatedRoutes() {
 function AppContent() {
   const { showIntro, isLoading, markIntroSeen, replayIntro } = useNomiaIntro();
   const [introComplete, setIntroComplete] = useState(false);
+  const [showBlurTransition, setShowBlurTransition] = useState(false);
   
   // Konami code easter egg
   useKonamiCode();
@@ -79,7 +81,12 @@ function AppContent() {
 
   const handleIntroComplete = () => {
     markIntroSeen();
-    setIntroComplete(true);
+    setShowBlurTransition(true);
+    // After blur transition, show the site
+    setTimeout(() => {
+      setIntroComplete(true);
+      setShowBlurTransition(false);
+    }, 600);
   };
 
   // Store replayIntro in window for footer access
@@ -104,6 +111,17 @@ function AppContent() {
       {shouldShowIntro && (
         <NomiaIntro onComplete={handleIntroComplete} />
       )}
+      
+      {/* Blur transition overlay */}
+      {showBlurTransition && (
+        <motion.div
+          initial={{ opacity: 1, backdropFilter: 'blur(20px)' }}
+          animate={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+          className="fixed inset-0 z-[99998] bg-background/50 pointer-events-none"
+        />
+      )}
+      
       <BrowserRouter>
         <SEOHead />
         <Layout>

@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Using Google Fonts: Inter - loaded via index.html */
+/* Using Outfit font - slimmer, minimalist */
+@import '@fontsource-variable/outfit';
 
 @layer base {
   :root {

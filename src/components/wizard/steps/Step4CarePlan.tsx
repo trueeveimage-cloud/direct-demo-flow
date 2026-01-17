@@ -163,32 +163,16 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans }: Ste
         })}
       </div>
 
-      {/* Skip option with click effect */}
+      {/* Mandatory notice - no skip option */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
         className="text-center mt-6"
       >
-        <motion.button
-          onClick={() => updateField('selectedCarePlan', null)}
-          whileTap={{ scale: 0.95 }}
-          className={`text-sm px-4 py-2 rounded-lg transition-all ${
-            formData.selectedCarePlan === null 
-              ? 'text-accent font-medium bg-accent/10 ring-2 ring-accent/30' 
-              : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-          }`}
-        >
-          <motion.span
-            key={formData.selectedCarePlan === null ? 'selected' : 'unselected'}
-            initial={{ scale: 1 }}
-            animate={formData.selectedCarePlan === null ? { scale: [1, 1.1, 1] } : {}}
-            transition={{ duration: 0.3 }}
-          >
-            {formData.selectedCarePlan === null && <Check className="w-3.5 h-3.5 inline mr-1.5" />}
-            {t('Hoppa över webbvård', 'Skip web care')}
-          </motion.span>
-        </motion.button>
+        <p className="text-sm text-muted-foreground">
+          {t('Webbvård krävs för att hålla din webbplats uppdaterad och säker.', 'Web care is required to keep your website updated and secure.')}
+        </p>
       </motion.div>
     </div>
   );

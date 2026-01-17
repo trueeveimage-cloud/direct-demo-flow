@@ -13,7 +13,7 @@ export interface PriceConfig {
 
 // Package prices
 export const packagePrices: Record<string, PriceConfig> = {
-  starter: { eur: 490, sek: 4900 },
+  starter: { eur: 290, sek: 2900 },
   standard: { eur: 790, sek: 7900 },
   pro: { eur: 1290, sek: 12900 },
 };

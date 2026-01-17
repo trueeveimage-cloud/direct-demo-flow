@@ -139,9 +139,9 @@ export default function PricingPage() {
         { text: t('Kontaktformulär', 'Contact form'), key: 'Kontaktformulär' },
         { text: t('Google Maps (om relevant)', 'Google Maps (if relevant)'), key: 'Google Maps' },
         { text: t('Grundläggande SEO', 'Basic SEO'), key: 'Grundläggande SEO' },
-        { text: t('1 revisionsrunda', '1 revision round'), key: '1 revisionsrunda' },
+        { text: t('10 revisionsrundor', '10 revision rounds'), key: '10 revisionsrunda' },
         { text: t('Lansering + genomgång', 'Launch + walkthrough'), key: 'Lansering' }
-      ] 
+      ]
     },
     { 
       id: 'standard',
@@ -153,7 +153,7 @@ export default function PricingPage() {
       popular: true, 
       features: [
         { text: t('Allt i Starter', 'Everything in Starter'), key: 'Allt i Starter' },
-        { text: t('2 revisionsrundor', '2 revision rounds'), key: '2 revisionsrundor' },
+        { text: t('20 revisionsrundor', '20 revision rounds'), key: '20 revisionsrundor' },
         { text: t('Bildgalleri/sektioner', 'Image gallery/sections'), key: 'Bildgalleri/sektioner' },
         { text: t('Sociala länkar + klickbar telefon/mail', 'Social links + clickable phone/email'), key: 'Sociala' },
         { text: t('Google Analytics', 'Google Analytics'), key: 'Google Analytics' },
@@ -170,7 +170,7 @@ export default function PricingPage() {
       pages: t('Upp till 8 sidor', 'Up to 8 pages'), 
       features: [
         { text: t('Allt i Standard', 'Everything in Standard'), key: 'Allt i Standard' },
-        { text: t('3 revisionsrundor', '3 revision rounds'), key: '3 revisionsrundor' },
+        { text: t('Obegränsade revisioner', 'Unlimited revisions'), key: 'Obegränsade revisioner' },
         { text: t('Bokningssystem', 'Booking system'), key: 'Bokningssystem' },
         { text: t('Avancerad SEO', 'Advanced SEO'), key: 'Avancerad SEO' },
         { text: t('Prioriterad support', 'Priority support'), key: 'Prioriterad support' },
