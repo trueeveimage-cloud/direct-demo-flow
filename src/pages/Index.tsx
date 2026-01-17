@@ -300,7 +300,39 @@ export default function Index() {
 
 
       {/* ═══════════════════════════════════════════════════════════════════
-          4. PROOF - Portfolio Showcase
+          4. HOW IT WORKS - Simple process (MOVED UP)
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section className="py-32 bg-secondary/20 relative">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+        
+        <div className="container-narrow section-padding">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+              {t('Så här fungerar det', 'How it works')}
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
+              {t('En smidig process i fyra steg. Från första kontakt till färdig webbplats.', 'A smooth process in four steps. From first contact to finished website.')}
+            </p>
+            <Button asChild variant="outline" className="group">
+              <Link to="/hur-det-fungerar">
+                {t('Läs mer om processen', 'Learn more about the process')}
+                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          5. PROOF - Portfolio Showcase
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="py-32 bg-secondary/30 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
@@ -372,7 +404,7 @@ export default function Index() {
 
 
       {/* ═══════════════════════════════════════════════════════════════════
-          5. SOCIAL PROOF - Testimonials
+          6. SOCIAL PROOF - Testimonials
       ═══════════════════════════════════════════════════════════════════ */}
       <Testimonials />
 
@@ -455,39 +487,6 @@ export default function Index() {
           </motion.div>
         </div>
       </section>
-
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          7. HOW IT WORKS - Simple process
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-32 bg-secondary/20 relative">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        
-        <div className="container-narrow section-padding">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-              {t('Så här fungerar det', 'How it works')}
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
-              {t('En smidig process i fyra steg. Från första kontakt till färdig webbplats.', 'A smooth process in four steps. From first contact to finished website.')}
-            </p>
-            <Button asChild variant="outline" className="group">
-              <Link to="/hur-det-fungerar">
-                {t('Läs mer om processen', 'Learn more about the process')}
-                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </motion.div>
-        </div>
-      </section>
-
 
       {/* ═══════════════════════════════════════════════════════════════════
           8. FAQ - Handle objections

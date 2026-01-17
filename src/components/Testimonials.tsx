@@ -52,13 +52,13 @@ export function Testimonials() {
           </div>
         </AnimatedSection>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           {testimonials.map((testimonial, index) => (
             <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-              <div className="bg-background p-6 rounded-lg border border-border h-full flex flex-col hover:border-accent hover:shadow-lg transition-all duration-300">
-                <Quote className="w-8 h-8 text-accent/30 mb-4" />
+              <div className="bg-background p-4 sm:p-6 rounded-lg border border-border h-full flex flex-col hover:border-accent hover:shadow-lg transition-all duration-300">
+                <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-accent/30 mb-3 sm:mb-4" />
                 
-                <p className="text-sm text-muted-foreground flex-grow mb-4 italic">
+                <p className="text-xs sm:text-sm text-muted-foreground flex-grow mb-3 sm:mb-4 italic leading-relaxed">
                   "{t(testimonial.quote.sv, testimonial.quote.en)}"
                 </p>
 
