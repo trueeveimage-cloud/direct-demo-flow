@@ -151,18 +151,28 @@ export default function Index() {
           1. HERO - Hook + Promise
       ═══════════════════════════════════════════════════════════════════ */}
       
-      {/* Gold Blur Background - Static on mobile, animated on desktop */}
-      <div className="fixed top-0 left-0 right-0 h-[600px] pointer-events-none z-0 overflow-hidden">
+      {/* Gold Blur Background - Enhanced with more animations on desktop */}
+      <div className="fixed top-0 left-0 right-0 h-[700px] pointer-events-none z-0 overflow-hidden">
         <div className="hidden md:block">
           <motion.div 
-            className="absolute top-[-100px] left-[10%] w-[400px] h-[400px] bg-accent/20 rounded-full blur-[120px] will-change-transform" 
+            className="absolute top-[-100px] left-[10%] w-[400px] h-[400px] bg-accent/25 rounded-full blur-[120px] will-change-transform" 
             animate={{ x: [0, 100, -50, 0], y: [0, 50, -30, 0] }} 
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }} 
           />
           <motion.div 
-            className="absolute top-[-50px] right-[15%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[100px] will-change-transform" 
+            className="absolute top-[-50px] right-[15%] w-[350px] h-[350px] bg-accent/20 rounded-full blur-[100px] will-change-transform" 
             animate={{ x: [0, -80, 60, 0], y: [0, 80, -40, 0] }} 
             transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 2 }} 
+          />
+          <motion.div 
+            className="absolute top-[200px] left-[40%] w-[250px] h-[250px] bg-accent/15 rounded-full blur-[80px] will-change-transform" 
+            animate={{ x: [0, 60, -40, 0], y: [0, -40, 30, 0], scale: [1, 1.1, 0.95, 1] }} 
+            transition={{ duration: 15, repeat: Infinity, ease: "linear", delay: 1 }} 
+          />
+          <motion.div 
+            className="absolute top-[100px] right-[30%] w-[180px] h-[180px] bg-accent/10 rounded-full blur-[60px] will-change-transform" 
+            animate={{ x: [0, -50, 40, 0], y: [0, 60, -20, 0] }} 
+            transition={{ duration: 22, repeat: Infinity, ease: "linear", delay: 3 }} 
           />
         </div>
         <div className="md:hidden">
@@ -185,7 +195,6 @@ export default function Index() {
 
       {/* Hero Content */}
       <section className="min-h-[50vh] flex items-center relative overflow-hidden">
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-background" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 0 100%)' }} />
         <div className="container-narrow text-center relative z-10 section-padding py-12">
           {/* Urgency Badge */}
           <motion.div 
@@ -198,7 +207,7 @@ export default function Index() {
             {spotsLoading ? (
               <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
             ) : remainingSpots > 0 ? (
-              <span>{t(`Endast ${remainingSpots} platser kvar`, `Only ${remainingSpots} spots left`)}</span>
+              <span>{t(`Endast ${remainingSpots} platser kvar för gratis koncept`, `Only ${remainingSpots} spots left for free concept`)}</span>
             ) : (
               <span className="text-orange-400">{t('Fullbokat denna vecka', 'Fully booked this week')}</span>
             )}
@@ -228,15 +237,18 @@ export default function Index() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
-            <Button asChild variant="outline" size="lg" className="group h-14 px-10 text-base font-medium border-border/50 hover:border-accent/50 hover:bg-accent/5">
+            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-accent text-accent-foreground hover:bg-accent/90">
               <Link to="/demo">
                 {t('Få ditt gratis koncept', 'Get your free concept')}
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="group h-14 px-10 text-base font-medium border-border/50 hover:border-accent/50 hover:bg-accent/5">
+            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-accent text-accent-foreground hover:bg-accent/90">
               <Link to="/bestall">
-                {t('Beställ direkt', 'Order directly')}
+                <span className="flex flex-col items-start leading-tight">
+                  <span>{t('Beställ direkt', 'Order directly')}</span>
+                  <span className="text-xs opacity-80">{t('Hemsida från €290', 'Website from €290')}</span>
+                </span>
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
@@ -260,67 +272,80 @@ export default function Index() {
 
 
       {/* ═══════════════════════════════════════════════════════════════════
-          2. THE PROBLEM - ROI Calculator (Show the pain)
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative">
-        {/* Full-width layered background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-destructive/5 to-background pointer-events-none" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        
-        <div className="container-narrow section-padding relative">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 text-destructive text-sm font-medium mb-6">
-              <TrendingDown className="w-4 h-4" />
-              {t('Varje dag utan hemsida kostar dig', 'Every day without a website costs you')}
-            </div>
-            
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-              {t('Hur mycket intäkter förlorar du?', 'How much revenue are you losing?')}
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
-              {t('En föråldrad eller saknad webbplats kostar mer än du tror.', 'An outdated or missing website costs more than you think.')}
-            </p>
-            
-            <ROICalculator />
-          </motion.div>
-        </div>
-      </section>
-
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          3. THE SOLUTION - Before/After Transformation with Parallax
+          2. THE SOLUTION - Before/After Transformation with Parallax
       ═══════════════════════════════════════════════════════════════════ */}
       <BeforeAfterSection t={t} beforeImg={beforeSwedenCarImg} afterImg={afterSwedenCarImg} />
 
 
       {/* ═══════════════════════════════════════════════════════════════════
-          4. HOW IT WORKS - Simple process (MOVED UP)
+          4. HOW IT WORKS - Simple process with steps preview
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-32 bg-secondary/20 relative">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+      <section className="py-32 bg-gradient-to-b from-secondary/20 via-secondary/30 to-secondary/20 relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
         
-        <div className="container-narrow section-padding">
+        {/* Background decorations */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-20 left-[5%] w-32 h-32 bg-accent/10 rounded-full blur-[60px]" />
+          <div className="absolute bottom-20 right-[10%] w-48 h-48 bg-accent/10 rounded-full blur-[80px]" />
+        </div>
+        
+        <div className="container-wide section-padding relative">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="text-center"
+            className="text-center mb-16"
           >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6">
+              <Zap className="w-4 h-4" />
+              {t('Snabb & enkel process', 'Fast & simple process')}
+            </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
               {t('Så här fungerar det', 'How it works')}
             </h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
-              {t('En smidig process i fyra steg. Från första kontakt till färdig webbplats.', 'A smooth process in four steps. From first contact to finished website.')}
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              {t('Från idé till färdig webbplats på några dagar.', 'From idea to finished website in just days.')}
             </p>
-            <Button asChild variant="outline" className="group">
+          </motion.div>
+
+          {/* Steps Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
+            {[
+              { num: '01', title: t('Beskriv', 'Describe'), desc: t('Berätta om ditt företag', 'Tell us about your business'), icon: FileText },
+              { num: '02', title: t('Granska', 'Review'), desc: t('Få ditt koncept inom 72h', 'Get your concept within 72h'), icon: Eye },
+              { num: '03', title: t('Finjustera', 'Refine'), desc: t('Vi anpassar efter dina önskemål', 'We adapt to your wishes'), icon: Sparkles },
+              { num: '04', title: t('Lansera', 'Launch'), desc: t('Din webbplats är live!', 'Your website is live!'), icon: CheckCircle2 },
+            ].map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="relative"
+              >
+                <div className="p-5 sm:p-6 rounded-xl border border-accent/30 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent hover:border-accent/50 transition-all duration-300 h-full">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-accent font-bold text-lg">{step.num}</span>
+                    <step.icon className="w-5 h-5 text-accent" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground">{step.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-center"
+          >
+            <Button asChild className="group bg-accent text-accent-foreground hover:bg-accent/90">
               <Link to="/hur-det-fungerar">
                 {t('Läs mer om processen', 'Learn more about the process')}
                 <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
@@ -399,6 +424,39 @@ export default function Index() {
               </Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          ROI CALCULATOR - Show the pain (Under Our Work)
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section className="py-32 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-destructive/5 to-background pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+        
+        <div className="container-narrow section-padding relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 text-destructive text-sm font-medium mb-6">
+              <TrendingDown className="w-4 h-4" />
+              {t('Varje dag utan hemsida kostar dig', 'Every day without a website costs you')}
+            </div>
+            
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+              {t('Hur mycket intäkter förlorar du?', 'How much revenue are you losing?')}
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
+              {t('En föråldrad eller saknad webbplats kostar mer än du tror.', 'An outdated or missing website costs more than you think.')}
+            </p>
+            
+            <ROICalculator />
+          </motion.div>
         </div>
       </section>
 

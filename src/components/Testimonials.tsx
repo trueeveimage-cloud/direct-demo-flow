@@ -52,31 +52,44 @@ export function Testimonials() {
           </div>
         </AnimatedSection>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-          {testimonials.map((testimonial, index) => (
-            <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-              <div className="bg-background p-4 sm:p-6 rounded-lg border border-border h-full flex flex-col hover:border-accent hover:shadow-lg transition-all duration-300">
-                <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-accent/30 mb-3 sm:mb-4" />
-                
-                <p className="text-xs sm:text-sm text-muted-foreground flex-grow mb-3 sm:mb-4 italic leading-relaxed">
-                  "{t(testimonial.quote.sv, testimonial.quote.en)}"
-                </p>
-
-                <div className="flex gap-0.5 mb-3">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-accent text-accent" />
-                  ))}
-                </div>
-
-                <div>
-                  <p className="font-heading font-semibold">{testimonial.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {t(testimonial.business.sv, testimonial.business.en)}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          {testimonials.map((testimonial, index) => {
+            // Sofia (index 2) gets special full-width treatment on mobile
+            const isSofia = index === 2;
+            return (
+              <AnimatedSection 
+                key={index} 
+                animation="fade-up" 
+                delay={index * 100}
+                className={isSofia ? 'md:col-span-1' : ''}
+              >
+                <div className={`bg-background p-4 sm:p-6 rounded-lg border border-border h-full flex flex-col hover:border-accent hover:shadow-lg transition-all duration-300 ${
+                  isSofia ? 'border-accent/30 bg-gradient-to-br from-accent/5 to-transparent' : ''
+                }`}>
+                  <Quote className={`mb-3 sm:mb-4 ${isSofia ? 'w-8 h-8 sm:w-10 sm:h-10 text-accent/50' : 'w-6 h-6 sm:w-8 sm:h-8 text-accent/30'}`} />
+                  
+                  <p className={`text-muted-foreground flex-grow mb-3 sm:mb-4 italic leading-relaxed ${
+                    isSofia ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'
+                  }`}>
+                    "{t(testimonial.quote.sv, testimonial.quote.en)}"
                   </p>
+
+                  <div className="flex gap-0.5 mb-3">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className={`fill-accent text-accent ${isSofia ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                    ))}
+                  </div>
+
+                  <div>
+                    <p className={`font-heading font-semibold ${isSofia ? 'text-lg' : ''}`}>{testimonial.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t(testimonial.business.sv, testimonial.business.en)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </AnimatedSection>
-          ))}
+              </AnimatedSection>
+            );
+          })}
         </div>
       </div>
     </section>

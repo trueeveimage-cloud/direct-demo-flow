@@ -358,8 +358,8 @@ export const languages = [
 
 export const carePlans = [
   { id: 'basic', name: 'Basic', note: { sv: 'De flesta uppgraderar inom 60 dagar.', en: 'Most clients upgrade within 60 days.' }, features: { sv: ['Domän ingår', 'Hosting (snabb + SSL)', 'Säkerhetsuppdateringar', 'Dagliga/veckovisa backups'], en: ['Domain included', 'Hosting (fast + SSL)', 'Security updates', 'Daily/weekly backups'] } },
-  { id: 'standard', name: 'Standard', popular: true, features: { sv: ['Allt i Basic', 'Företagsmail', '1h ändringar/mån', 'Hastighetsoptimering', 'Skadedjursrensning'], en: ['Everything in Basic', 'Business email', '1h edits/month', 'Speed optimization', 'Malware cleanup'] } },
-  { id: 'pro', name: 'Pro', features: { sv: ['Allt i Standard', '3h ändringar/mån', 'Uptime-övervakning', 'Rollback / återställ', 'Prioriterad support', 'SEO-check'], en: ['Everything in Standard', '3h edits/month', 'Uptime monitoring', 'Rollback / restore', 'Priority support', 'SEO check'] } },
+  { id: 'standard', name: 'Standard', popular: true, features: { sv: ['Allt i Basic', 'Företagsmail', 'Hastighetsoptimering', 'Skadedjursrensning'], en: ['Everything in Basic', 'Business email', 'Speed optimization', 'Malware cleanup'] } },
+  { id: 'pro', name: 'Pro', features: { sv: ['Allt i Standard', 'Uptime-övervakning', 'Rollback / återställ', 'Prioriterad support', 'SEO-check'], en: ['Everything in Standard', 'Uptime monitoring', 'Rollback / restore', 'Priority support', 'SEO check'] } },
 ];
 
 // Helper to get care plan price display for wizard
