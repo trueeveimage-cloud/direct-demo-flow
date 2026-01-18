@@ -201,7 +201,6 @@ export default function PricingPage() {
       features: [
         t('Allt i Basic', 'Everything in Basic'), 
         t('Företagsmail (1–3 adresser)', 'Business email (1-3 addresses)'), 
-        t('1 timme ändringar/mån', '1 hour edits/month'),
         t('Hastighetsoptimering', 'Speed optimization'),
         t('Skadedjursrensning', 'Malware cleanup'),
         t('Support inom 24–48h', 'Support within 24-48h')
@@ -213,7 +212,6 @@ export default function PricingPage() {
       description: t('För företag som växer och vill ha mer fart + prioritet.', 'For growing businesses wanting more speed + priority.'),
       features: [
         t('Allt i Standard', 'Everything in Standard'), 
-        t('3 timmar ändringar/mån', '3 hours edits/month'), 
         t('Uptime-övervakning', 'Uptime monitoring'),
         t('Rollback / återställ', 'Rollback / restore'),
         t('Prioriterad support', 'Priority support'), 

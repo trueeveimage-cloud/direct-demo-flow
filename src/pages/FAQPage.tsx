@@ -5,15 +5,11 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 
-// Floating element component
-const FloatingIcon = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
-  <motion.div
-    className={`absolute pointer-events-none ${className}`}
-    animate={{ y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
-    transition={{ duration: 6, delay, repeat: Infinity, ease: "easeInOut" }}
-  >
+// Static floating element component - no animation for performance
+const FloatingIcon = ({ children, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
+  <div className={`absolute pointer-events-none ${className}`}>
     {children}
-  </motion.div>
+  </div>
 );
 
 // FAQ Item component with smooth animations
@@ -21,8 +17,7 @@ const FAQItem = ({
   question, 
   answer, 
   isOpen, 
-  onClick, 
-  index 
+  onClick
 }: { 
   question: string; 
   answer: string; 
@@ -30,76 +25,45 @@ const FAQItem = ({
   onClick: () => void; 
   index: number;
 }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+    <div
+      className={`relative border rounded-xl overflow-hidden transition-all duration-300 ${
+        isOpen 
+          ? 'border-accent/50 bg-accent/5 shadow-lg shadow-accent/5' 
+          : 'border-border hover:border-accent/30 bg-background'
+      }`}
     >
-      <motion.div 
-        className={`relative border rounded-xl overflow-hidden transition-all duration-300 ${
-          isOpen 
-            ? 'border-accent/50 bg-accent/5 shadow-lg shadow-accent/5' 
-            : 'border-border hover:border-accent/30 bg-background'
-        }`}
-        layout
-      >
-        {/* Glow effect when open */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-gradient-to-r from-accent/5 via-transparent to-accent/5 pointer-events-none"
-            />
-          )}
-        </AnimatePresence>
+      {/* Glow effect when open */}
+      {isOpen && (
+        <div className="absolute inset-0 bg-gradient-to-r from-accent/5 via-transparent to-accent/5 pointer-events-none" />
+      )}
 
-        <button 
-          onClick={onClick} 
-          className="w-full flex items-center justify-between p-5 sm:p-6 text-left group relative z-10"
+      <button 
+        onClick={onClick} 
+        className="w-full flex items-center justify-between p-5 sm:p-6 text-left group relative z-10"
+      >
+        <span className="font-semibold pr-4 text-base sm:text-lg group-hover:text-accent transition-colors">
+          {question}
+        </span>
+        <div
+          className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
+            isOpen ? 'bg-accent text-accent-foreground rotate-180' : 'bg-muted text-muted-foreground group-hover:bg-accent/20 group-hover:text-accent'
+          }`}
         >
-          <span className="font-semibold pr-4 text-base sm:text-lg group-hover:text-accent transition-colors">
-            {question}
-          </span>
-          <motion.div
-            animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-              isOpen ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground group-hover:bg-accent/20 group-hover:text-accent'
-            }`}
-          >
-            {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          </motion.div>
-        </button>
-        
-        <AnimatePresence initial={false}>
-          {isOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
-                <motion.p 
-                  initial={{ y: -10 }}
-                  animate={{ y: 0 }}
-                  className="text-muted-foreground leading-relaxed"
-                >
-                  {answer}
-                </motion.p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </motion.div>
+          {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+        </div>
+      </button>
+      
+      <div
+        className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96' : 'max-h-0'}`}
+      >
+        <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+          <p className="text-muted-foreground leading-relaxed">
+            {answer}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
