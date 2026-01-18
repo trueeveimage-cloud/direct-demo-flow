@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, ArrowRight, Info, Sparkles, Zap, Crown, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,11 +7,10 @@ import { PackageCompareModal } from '@/components/PackageCompareModal';
 import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
 import { Switch } from '@/components/ui/switch';
 import { getTooltip } from '@/components/PricingTooltips';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { motion, useInView } from 'framer-motion';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getCurrencyFromLang, formatPrice, getPackagePrice, getCarePlanPrice } from '@/config/currency';
 
-// Floating card component
+// Simplified pricing card without heavy animations
 const PricingCard = ({ 
   pkg, 
   index, 
@@ -23,35 +22,19 @@ const PricingCard = ({
   t: (sv: string, en: string) => string;
   lang: 'en' | 'sv';
 }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-
   const icons = [Zap, Crown, Star];
   const Icon = icons[index];
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -8, transition: { duration: 0.3 } }}
-      className="h-full"
-    >
-      <div className={`relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col transition-all duration-300 overflow-hidden border-accent bg-gradient-to-br from-accent/10 via-accent/5 to-transparent shadow-xl shadow-accent/10`}>
+    <div className="h-full">
+      <div className={`relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col transition-all duration-300 overflow-hidden border-accent bg-gradient-to-br from-accent/10 via-accent/5 to-transparent shadow-xl shadow-accent/10 hover:-translate-y-2`}>
         {/* Glow effect for all cards */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.15),transparent_60%)] pointer-events-none" />
 
-        {/* Popular badge - removed for equal treatment */}
-
         {/* Icon */}
-        <motion.div
-          animate={{ rotate: [0, 5, -5, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-accent/20"
-        >
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-accent/20">
           <Icon className="w-6 h-6 text-accent" />
-        </motion.div>
+        </div>
 
         <h3 className="font-heading font-bold text-2xl mb-2">{pkg.name}</h3>
         
@@ -66,32 +49,24 @@ const PricingCard = ({
           {pkg.features.map((feature: any, i: number) => {
             const tooltip = getTooltip(feature.key, lang);
             return (
-              <motion.li 
-                key={i} 
-                initial={{ opacity: 0, x: -10 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.3, delay: 0.4 + i * 0.05 }}
-                className="flex items-start gap-3 text-sm"
-              >
+              <li key={i} className="flex items-start gap-3 text-sm">
                 <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-accent" />
                 <span className="leading-tight flex items-center gap-1 flex-wrap">
                   {feature.text}
                   {tooltip && (
-                    <TooltipProvider delayDuration={0}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button type="button" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors">
-                            <Info className="w-3 h-3 text-muted-foreground" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-xs p-2">
-                          <p className="text-xs">{tooltip}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button type="button" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors">
+                          <Info className="w-3 h-3 text-muted-foreground" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent side="top" className="max-w-xs p-2">
+                        <p className="text-xs">{tooltip}</p>
+                      </PopoverContent>
+                    </Popover>
                   )}
                 </span>
-              </motion.li>
+              </li>
             );
           })}
         </ul>
@@ -108,7 +83,7 @@ const PricingCard = ({
           </Button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -117,8 +92,6 @@ export default function PricingPage() {
   const [compareOpen, setCompareOpen] = useState(false);
   const [carePlansCompareOpen, setCarePlansCompareOpen] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
-  const heroRef = useRef(null);
-  const heroInView = useInView(heroRef, { once: true });
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -243,24 +216,13 @@ export default function PricingPage() {
       <div className="section-padding py-20 relative z-10">
         <div className="container-wide">
           {/* Hero */}
-          <motion.div 
-            ref={heroRef}
-            initial={{ opacity: 0, y: 40 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center mb-20"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={heroInView ? { scale: 1, opacity: 1 } : {}}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6"
-            >
+          <div className="text-center mb-20 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
               <Sparkles className="w-4 h-4 text-accent" />
               <span className="text-sm font-medium text-accent">
                 {t('Transparent prissättning', 'Transparent pricing')}
               </span>
-            </motion.div>
+            </div>
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
               {t('Välj ditt ', 'Choose your ')}
@@ -271,21 +233,16 @@ export default function PricingPage() {
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
               {t('Inga dolda avgifter. Fast pris. Resultat garanterat.', 'No hidden fees. Fixed price. Results guaranteed.')}
             </p>
-          </motion.div>
+          </div>
 
           {/* Website Packages */}
           <div className="mb-24">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
-            >
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <h2 className="text-2xl sm:text-3xl font-bold">{t('Webbpaket', 'Website Packages')}</h2>
               <Button variant="outline" size="sm" onClick={() => setCompareOpen(true)} className="rounded-full">
                 {t('Jämför paket', 'Compare packages')}
               </Button>
-            </motion.div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
               {packages.map((pkg, index) => (
@@ -294,30 +251,19 @@ export default function PricingPage() {
             </div>
             
             {/* Klarna banner */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="mt-10"
-            >
+            <div className="mt-10">
               <div className="flex items-center justify-center gap-4 p-5 rounded-xl bg-secondary/50 border border-border/50 backdrop-blur-sm">
                 <span className="font-bold text-xl tracking-tight">Klarna</span>
                 <span className="text-sm text-muted-foreground">
                   {t('Delbetala enkelt – välj att betala senare eller dela upp i 3 delbetalningar', 'Easily pay in installments – choose to pay later or split into 3 payments')}
                 </span>
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Care Plans */}
           <div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
+            <div className="text-center mb-12">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
                 <h2 className="text-2xl sm:text-3xl font-bold">{t('Månatlig webbvård', 'Monthly Care Plans')}</h2>
                 <Button variant="outline" size="sm" onClick={() => setCarePlansCompareOpen(true)} className="rounded-full">
@@ -348,20 +294,14 @@ export default function PricingPage() {
               <p className="text-sm text-muted-foreground mt-2">
                 {t('Avsluta när du vill.', 'Cancel anytime.')}
               </p>
-            </motion.div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
               {carePlansData.map((plan, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className={`p-6 sm:p-8 rounded-2xl border-2 h-full relative flex flex-col transition-all duration-300 border-accent bg-gradient-to-br from-accent/10 to-transparent shadow-xl shadow-accent/10`}
+                  className={`p-6 sm:p-8 rounded-2xl border-2 h-full relative flex flex-col transition-all duration-300 border-accent bg-gradient-to-br from-accent/10 to-transparent shadow-xl shadow-accent/10 hover:-translate-y-1`}
                 >
-{/* Popular badge removed for equal treatment */}
                   <h3 className="font-heading font-bold text-2xl mb-2">{plan.name}</h3>
                   <div className="mb-2">
                     <span className="text-3xl font-bold text-accent">{getCarePlanPriceFormatted(plan.id)}</span>
@@ -383,18 +323,13 @@ export default function PricingPage() {
                       </li>
                     ))}
                   </ul>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
 
           {/* Final CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-20 text-center"
-          >
+          <div className="mt-20 text-center">
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-accent/20 rounded-full blur-xl" />
               <Button asChild variant="outline" size="lg" className="relative rounded-full text-lg px-10 group">
@@ -404,7 +339,7 @@ export default function PricingPage() {
                 </Link>
               </Button>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 

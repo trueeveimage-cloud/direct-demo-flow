@@ -1,7 +1,7 @@
 import { Check, X, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface PackageCompareModalProps {
   open: boolean;
@@ -95,18 +95,16 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
   const { t, lang } = useLanguage();
 
   const InfoIcon = ({ tooltipKey }: { tooltipKey: keyof typeof tooltips }) => (
-    <TooltipProvider delayDuration={300}>
-      <Tooltip defaultOpen={false}>
-        <TooltipTrigger asChild>
-          <button type="button" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors ml-1">
-            <Info className="w-3 h-3 text-muted-foreground" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs p-2">
-          <p className="text-xs">{tooltips[tooltipKey][lang]}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors ml-1">
+          <Info className="w-3 h-3 text-muted-foreground" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="max-w-xs p-2">
+        <p className="text-xs">{tooltips[tooltipKey][lang]}</p>
+      </PopoverContent>
+    </Popover>
   );
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
