@@ -237,13 +237,13 @@ export default function Index() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
-            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-accent text-accent-foreground hover:bg-accent/90">
+            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-black hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
               <Link to="/demo">
                 {t('Få ditt gratis koncept', 'Get your free concept')}
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-accent text-accent-foreground hover:bg-accent/90">
+            <Button asChild size="lg" variant="outline" className="group h-14 px-10 text-base font-medium border-amber-500/50 text-amber-400 hover:bg-amber-500/10 hover:border-amber-400">
               <Link to="/bestall">
                 <span className="flex flex-col items-start leading-tight">
                   <span>{t('Beställ direkt', 'Order directly')}</span>
