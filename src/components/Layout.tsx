@@ -4,6 +4,7 @@ import { Footer } from './Footer';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { BackToTop } from './BackToTop';
 import { ScrollProgress } from './ScrollProgress';
+import { FloatingContactButton } from './FloatingContactButton';
 
 interface LayoutProps {
   children: ReactNode;
@@ -21,6 +22,7 @@ export function Layout({ children }: LayoutProps) {
       </main>
       <Footer />
       <BackToTop />
+      <FloatingContactButton />
     </div>
   );
 }

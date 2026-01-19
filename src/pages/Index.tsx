@@ -151,29 +151,12 @@ export default function Index() {
           1. HERO - Hook + Promise
       ═══════════════════════════════════════════════════════════════════ */}
       
-      {/* Gold Blur Background - Enhanced with more animations on desktop */}
+      {/* Gold Blur Background - Static on mobile, animated on desktop */}
       <div className="fixed top-0 left-0 right-0 h-[700px] pointer-events-none z-0 overflow-hidden">
         <div className="hidden md:block">
-          <motion.div 
-            className="absolute top-[-100px] left-[10%] w-[400px] h-[400px] bg-accent/25 rounded-full blur-[120px] will-change-transform" 
-            animate={{ x: [0, 100, -50, 0], y: [0, 50, -30, 0] }} 
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }} 
-          />
-          <motion.div 
-            className="absolute top-[-50px] right-[15%] w-[350px] h-[350px] bg-accent/20 rounded-full blur-[100px] will-change-transform" 
-            animate={{ x: [0, -80, 60, 0], y: [0, 80, -40, 0] }} 
-            transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 2 }} 
-          />
-          <motion.div 
-            className="absolute top-[200px] left-[40%] w-[250px] h-[250px] bg-accent/15 rounded-full blur-[80px] will-change-transform" 
-            animate={{ x: [0, 60, -40, 0], y: [0, -40, 30, 0], scale: [1, 1.1, 0.95, 1] }} 
-            transition={{ duration: 15, repeat: Infinity, ease: "linear", delay: 1 }} 
-          />
-          <motion.div 
-            className="absolute top-[100px] right-[30%] w-[180px] h-[180px] bg-accent/10 rounded-full blur-[60px] will-change-transform" 
-            animate={{ x: [0, -50, 40, 0], y: [0, 60, -20, 0] }} 
-            transition={{ duration: 22, repeat: Infinity, ease: "linear", delay: 3 }} 
-          />
+          <div className="absolute top-[-100px] left-[10%] w-[400px] h-[400px] bg-accent/20 rounded-full blur-[120px] animate-float-slow" />
+          <div className="absolute top-[-50px] right-[15%] w-[350px] h-[350px] bg-accent/15 rounded-full blur-[100px] animate-float-medium" />
+          <div className="absolute top-[200px] left-[40%] w-[250px] h-[250px] bg-accent/10 rounded-full blur-[80px] animate-float-fast" />
         </div>
         <div className="md:hidden">
           <div className="absolute top-[-100px] left-[10%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[80px]" />
@@ -181,28 +164,18 @@ export default function Index() {
         </div>
       </div>
 
-      {/* Hero Logo */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="pt-12 pb-6 text-center relative z-10"
-      >
-        <span className="font-heading font-extrabold text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tighter">
-          Nomia<span className="text-accent">.</span>
-        </span>
-      </motion.div>
-
-      {/* Hero Content */}
-      <section className="min-h-[50vh] flex items-center relative overflow-hidden">
+      {/* Hero Content - CSS animations instead of framer-motion */}
+      <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-8">
         <div className="container-narrow text-center relative z-10 section-padding py-12">
+          {/* Hero Logo */}
+          <div className="animate-hero-fade-in pb-6">
+            <span className="font-heading font-extrabold text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tighter">
+              Nomia<span className="text-accent">.</span>
+            </span>
+          </div>
+
           {/* Urgency Badge */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20"
-          >
+          <div className="animate-hero-fade-in animation-delay-100 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20">
             <Clock className="w-4 h-4" />
             {spotsLoading ? (
               <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
@@ -211,32 +184,17 @@ export default function Index() {
             ) : (
               <span className="text-orange-400">{t('Fullbokat denna vecka', 'Fully booked this week')}</span>
             )}
-          </motion.div>
+          </div>
 
-          <motion.h1 
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4"
-          >
-            {t('Webbdesign, gjord på rätt sätt.', 'Web design, done properly.')}
-          </motion.h1>
+          <h1 className="animate-hero-fade-in animation-delay-200 text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4">
+            {t('Webbdesign som funkar.', 'Web design that works.')}
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-xl sm:text-2xl text-muted-foreground max-w-xl mx-auto"
-          >
-            {t('Få ett gratis webbkoncept inom 72h.', 'Get a free website concept in 72h.')}
-          </motion.p>
+          <p className="animate-hero-fade-in animation-delay-300 text-xl sm:text-2xl text-muted-foreground max-w-xl mx-auto">
+            {t('Få ett gratis designkoncept inom 72 timmar.', 'Get a free design concept in 72 hours.')}
+          </p>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
-          >
+          <div className="animate-hero-fade-in animation-delay-400 mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-black hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
               <Link to="/demo">
                 {t('Få ditt gratis koncept', 'Get your free concept')}
@@ -252,18 +210,13 @@ export default function Index() {
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-          </motion.div>
+          </div>
           
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            transition={{ duration: 0.6, delay: 0.5 }} 
-            className="mt-6"
-          >
+          <div className="animate-hero-fade-in animation-delay-500 mt-6">
             <Link to="/efter-demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               {t('Har du fått ditt koncept?', 'Have you received your concept?')}
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
