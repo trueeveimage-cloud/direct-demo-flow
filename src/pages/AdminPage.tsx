@@ -102,7 +102,7 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
   const sessionSet = new Set<string>();
   
   filteredEvents.forEach(e => {
-    if (e.event === FunnelEvents.PAGE_VIEW) {
+    if (e.event === 'page_view' || e.event === FunnelEvents.LANDING_VIEW) {
       const path = (e.properties.path as string) || '/';
       const sessionId = (e.properties.session_id as string) || 'unknown';
       sessionSet.add(sessionId);
@@ -131,7 +131,7 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
   // Referrer tracking
   const referrerMap = new Map<string, Set<string>>();
   filteredEvents.forEach(e => {
-    if (e.event === FunnelEvents.PAGE_VIEW && e.properties.referrer) {
+    if ((e.event === 'page_view' || e.event === FunnelEvents.LANDING_VIEW) && e.properties.referrer) {
       const source = String(e.properties.referrer) || 'direct';
       const sessionId = String(e.properties.session_id) || 'unknown';
       if (!referrerMap.has(source)) {
@@ -149,7 +149,7 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
   // Device detection
   let desktop = 0, mobile = 0, tablet = 0;
   filteredEvents.forEach(e => {
-    if (e.event === FunnelEvents.PAGE_VIEW) {
+    if (e.event === 'page_view' || e.event === FunnelEvents.LANDING_VIEW) {
       const width = e.properties.screen_width as number || 1920;
       if (width <= 768) mobile++;
       else if (width <= 1024) tablet++;
@@ -168,7 +168,7 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
     landingView: filteredEvents.filter(e => e.event === FunnelEvents.LANDING_VIEW).length,
     startWizard: filteredEvents.filter(e => e.event === FunnelEvents.WIZARD_START).length,
     completeWizard: filteredEvents.filter(e => e.event === FunnelEvents.WIZARD_COMPLETE).length,
-    checkoutStarted: filteredEvents.filter(e => e.event === FunnelEvents.CHECKOUT_STARTED).length,
+    checkoutStarted: filteredEvents.filter(e => e.event === FunnelEvents.CHECKOUT_START).length,
     paymentSuccess: filteredEvents.filter(e => e.event === FunnelEvents.PAYMENT_SUCCESS).length,
     carePlanSelected: filteredEvents.filter(e => e.event === FunnelEvents.CARE_PLAN_SELECTED).length,
   };
@@ -183,7 +183,7 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
   ];
   
   filteredEvents.forEach(e => {
-    if (e.event === FunnelEvents.WIZARD_STEP_VIEW) {
+    if (e.event === FunnelEvents.WIZARD_STEP) {
       const step = e.properties.step as number;
       if (step >= 1 && step <= 5) {
         wizardSteps[step - 1].views++;
@@ -198,7 +198,7 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
   });
 
   // Checkout errors
-  const errorEvents = filteredEvents.filter(e => e.event === FunnelEvents.CHECKOUT_ERROR);
+  const errorEvents = filteredEvents.filter(e => e.event === FunnelEvents.PAYMENT_FAILED);
   const checkoutErrors = {
     count: errorEvents.length,
     lastErrors: errorEvents.slice(-5).map(e => ({
