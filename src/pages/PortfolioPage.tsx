@@ -359,7 +359,7 @@ export default function PortfolioPage() {
     );
   };
 
-  // AUTOMOTIVE - Bold industrial look
+  // AUTOMOTIVE - Same layout as lifestyle for consistent mobile experience
   const renderAutomotiveLayout = () => {
     const autoProjects = projects.filter(p => p.category === 'automotive');
     
@@ -381,41 +381,38 @@ export default function PortfolioPage() {
             href={project.externalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             className="group block"
           >
-            <div className="relative rounded-2xl overflow-hidden border-2 border-border hover:border-blue-500/50 transition-all bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
-              {/* Full width image with overlay */}
-              <div className="aspect-[21/9] relative overflow-hidden">
-                <img src={project.image} alt={project.name} className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
-                
-                {/* Content overlay */}
-                <div className="absolute inset-0 p-8 flex items-center">
-                  <div className="max-w-xl">
-                    {project.resultBadge && (
-                      <span className="inline-block bg-blue-500 text-white text-sm font-bold px-4 py-1.5 rounded mb-4">
-                        {project.resultBadge}
-                      </span>
-                    )}
-                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-3">{project.name}</h3>
-                    <p className="text-white/80 text-lg mb-6">{project.description}</p>
-                    
-                    {/* Stats row */}
-                    <div className="flex gap-6 mb-6">
-                      {project.stats && Object.entries(project.stats).slice(0, 3).map(([key, value]) => (
-                        <div key={key}>
-                          <p className="text-2xl font-bold text-blue-400">{value}</p>
-                          <p className="text-xs text-white/60 uppercase tracking-wider">{key}</p>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-none px-8">
-                      {t('Utforska', 'Explore')} <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
+            <div className="relative rounded-3xl overflow-hidden border border-border hover:border-blue-500/50 transition-all bg-gradient-to-br from-blue-500/5 to-cyan-500/5">
+              <div className="grid md:grid-cols-2 gap-0">
+                <div className="aspect-[4/3] md:aspect-auto overflow-hidden">
+                  <img src={project.image} alt={project.name} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" />
+                </div>
+                <div className="p-8 flex flex-col justify-center">
+                  {project.resultBadge && (
+                    <span className="inline-block w-fit bg-blue-500 text-white text-sm font-bold px-4 py-1.5 rounded-full mb-4">
+                      {project.resultBadge}
+                    </span>
+                  )}
+                  <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-500 transition-colors">{project.name}</h3>
+                  <p className="text-muted-foreground mb-6">{project.description}</p>
+                  
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    {project.stats && Object.entries(project.stats).slice(0, 3).map(([key, value]) => (
+                      <div key={key} className="text-center p-3 rounded-xl bg-background/50">
+                        <p className="text-lg font-bold text-blue-500">{value}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{key}</p>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-blue-500 transition-colors">
+                    <span>{t('Se projektet', 'View project')}</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </div>

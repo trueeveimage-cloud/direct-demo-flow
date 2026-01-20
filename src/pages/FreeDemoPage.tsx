@@ -126,14 +126,17 @@ export default function FreeDemoPage() {
 
   // Check for saved data on mount
   useEffect(() => {
-    const wasSessionActive = sessionStorage.getItem(DEMO_SESSION_KEY);
     const stored = localStorage.getItem(DEMO_STORAGE_KEY);
     
-    if (stored && !wasSessionActive) {
+    // Always check for saved data and show resume banner if there's meaningful progress
+    if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        if (Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
+        const hasProgress = parsed.step > 1 || parsed.businessName || parsed.email;
+        if (hasProgress && Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
           setShowResumeBanner(true);
+        } else if (!hasProgress) {
+          // Don't show banner for minimal progress
         } else {
           localStorage.removeItem(DEMO_STORAGE_KEY);
         }
@@ -141,8 +144,6 @@ export default function FreeDemoPage() {
         localStorage.removeItem(DEMO_STORAGE_KEY);
       }
     }
-    
-    sessionStorage.setItem(DEMO_SESSION_KEY, 'true');
   }, []);
 
   // Auto-save data

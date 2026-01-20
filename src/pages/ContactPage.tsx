@@ -89,50 +89,6 @@ export default function ContactPage() {
             </p>
           </div>
 
-          {/* Prominent Concept CTA */}
-          <div className="animate-hero-fade-in animation-delay-100 mb-10">
-            <div className="relative overflow-hidden bg-gradient-to-br from-accent/15 via-accent/5 to-transparent rounded-2xl border border-accent/30 p-8 sm:p-10">
-              <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-accent/30 rounded-tl-2xl" />
-              <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-accent/30 rounded-br-2xl" />
-              
-              <div className="relative z-10 text-center">
-                <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">
-                  <Sparkles className="w-4 h-4" />
-                  {t('Fått ditt koncept?', 'Received your concept?')}
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-                  {t('Har du fått ditt gratis koncept?', 'Have you received your free concept?')}
-                </h2>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  {t('Berätta vad du tycker och ta nästa steg.', 'Tell us what you think and take the next step.')}
-                </p>
-                <Button asChild size="lg" className="rounded-full group text-base px-8 w-full sm:w-auto">
-                  <Link to="/efter-demo">
-                    {t('Ja, jag vill prata om mitt koncept', 'Yes, I want to discuss my concept')}
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Secondary CTA */}
-          <div className="animate-hero-fade-in animation-delay-200 mb-12">
-            <div className="bg-secondary/30 rounded-xl p-6 text-center border border-border/50">
-              <h3 className="font-semibold text-lg mb-2">
-                {t('Inte fått ditt koncept än?', 'Haven\'t received your concept yet?')}
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                {t('Få ett gratis koncept inom 72 timmar.', 'Get a free concept within 72 hours.')}
-              </p>
-              <Button asChild variant="outline" className="rounded-full group">
-                <Link to="/demo">
-                  {t('Få ditt gratis koncept', 'Get your free concept')}
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-            </div>
-          </div>
 
           <div className="grid md:grid-cols-2 gap-12">
             {/* Contact Info */}
