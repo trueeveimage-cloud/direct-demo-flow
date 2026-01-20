@@ -35,7 +35,28 @@ interface ConceptRequest {
   type: 'concept';
 }
 
-type Submission = ContactSubmission | ConceptRequest;
+interface OrderSubmission {
+  id: string;
+  created_at: string;
+  email: string;
+  business_name: string;
+  contact_person?: string;
+  phone?: string;
+  submission_type: string;
+  selected_package?: string;
+  selected_style?: string;
+  payment_status: string;
+  payment_amount?: string;
+  wants_booking?: boolean;
+  wants_admin_panel?: boolean;
+  selected_care_plan?: string;
+  services?: string;
+  extra_notes?: string;
+  is_read: boolean;
+  type: 'order';
+}
+
+type Submission = ContactSubmission | ConceptRequest | OrderSubmission;
 
 interface StoredEvent {
   event: string;
@@ -282,24 +303,29 @@ export default function AdminPage() {
     return processRealEvents(events, dateRange);
   }, [events, dateRange]);
 
-  const unreadCount = submissions.filter(s => s.type === 'contact' && !(s as ContactSubmission).is_read).length;
-
-  const markAsRead = async (id: string) => {
+  const markAsRead = async (id: string, submissionType: string) => {
     try {
       const storedEmail = localStorage.getItem('nomia_admin_email') || ADMIN_EMAIL;
       const storedPassword = localStorage.getItem('nomia_admin_password') || ADMIN_PASSWORD;
       
       await supabase.functions.invoke('admin-mark-read', {
-        body: { email: storedEmail, password: storedPassword, submissionId: id }
+        body: { email: storedEmail, password: storedPassword, submissionId: id, submissionType }
       });
       
       setSubmissions(prev => 
-        prev.map(s => s.id === id && s.type === 'contact' ? { ...s, is_read: true } : s)
+        prev.map(s => s.id === id ? { ...s, is_read: true } : s)
       );
     } catch (err) {
       console.error('Failed to mark as read:', err);
     }
   };
+
+  const unreadCount = submissions.filter(s => {
+    if (s.type === 'contact') return !(s as ContactSubmission).is_read;
+    if (s.type === 'order') return !(s as OrderSubmission).is_read;
+    return false;
+  }).length;
+  const pendingPayments = submissions.filter(s => s.type === 'order' && (s as OrderSubmission).payment_status === 'pending').length;
 
   const reasonLabels: Record<string, string> = {
     'concept-received': 'Received Concept',

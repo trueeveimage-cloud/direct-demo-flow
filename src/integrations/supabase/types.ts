@@ -83,6 +83,183 @@ export type Database = {
         }
         Relationships: []
       }
+      order_submissions: {
+        Row: {
+          accent_color: string | null
+          advance_booking_days: string | null
+          appointment_lengths: string[] | null
+          booking_services: Json | null
+          brand_preferences: string | null
+          buffer_time: string | null
+          business_followups: Json | null
+          business_name: string
+          business_type: string | null
+          company_name: string | null
+          competitors: string | null
+          concept_link: string | null
+          contact_person: string | null
+          country: string | null
+          created_at: string
+          current_website: string | null
+          custom_pages: string[] | null
+          customer_type: string | null
+          email: string
+          extra_notes: string | null
+          google_business_link: string | null
+          google_maps_address: string | null
+          id: string
+          is_read: boolean
+          is_yearly_care_plan: boolean | null
+          legal_pages: string[] | null
+          max_bookings_per_day: string | null
+          opening_hours: string | null
+          org_number: string | null
+          page_notes: string | null
+          paid_at: string | null
+          payment_amount: string | null
+          payment_status: string
+          phone: string | null
+          primary_color: string | null
+          selected_care_plan: string | null
+          selected_language: string | null
+          selected_package: string | null
+          selected_pages: string[] | null
+          selected_style: string | null
+          seo_keywords: string | null
+          services: string | null
+          stripe_session_id: string | null
+          submission_type: string
+          terms_explanation: string | null
+          updated_at: string
+          uploaded_photos: string[] | null
+          vat_number: string | null
+          vat_verified: boolean | null
+          wants_admin_panel: boolean | null
+          wants_before_after: boolean | null
+          wants_booking: boolean | null
+          wants_checkout_system: boolean | null
+          wants_google_maps: boolean | null
+          wants_google_reviews: boolean | null
+          website_goal: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          advance_booking_days?: string | null
+          appointment_lengths?: string[] | null
+          booking_services?: Json | null
+          brand_preferences?: string | null
+          buffer_time?: string | null
+          business_followups?: Json | null
+          business_name: string
+          business_type?: string | null
+          company_name?: string | null
+          competitors?: string | null
+          concept_link?: string | null
+          contact_person?: string | null
+          country?: string | null
+          created_at?: string
+          current_website?: string | null
+          custom_pages?: string[] | null
+          customer_type?: string | null
+          email: string
+          extra_notes?: string | null
+          google_business_link?: string | null
+          google_maps_address?: string | null
+          id?: string
+          is_read?: boolean
+          is_yearly_care_plan?: boolean | null
+          legal_pages?: string[] | null
+          max_bookings_per_day?: string | null
+          opening_hours?: string | null
+          org_number?: string | null
+          page_notes?: string | null
+          paid_at?: string | null
+          payment_amount?: string | null
+          payment_status?: string
+          phone?: string | null
+          primary_color?: string | null
+          selected_care_plan?: string | null
+          selected_language?: string | null
+          selected_package?: string | null
+          selected_pages?: string[] | null
+          selected_style?: string | null
+          seo_keywords?: string | null
+          services?: string | null
+          stripe_session_id?: string | null
+          submission_type: string
+          terms_explanation?: string | null
+          updated_at?: string
+          uploaded_photos?: string[] | null
+          vat_number?: string | null
+          vat_verified?: boolean | null
+          wants_admin_panel?: boolean | null
+          wants_before_after?: boolean | null
+          wants_booking?: boolean | null
+          wants_checkout_system?: boolean | null
+          wants_google_maps?: boolean | null
+          wants_google_reviews?: boolean | null
+          website_goal?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          advance_booking_days?: string | null
+          appointment_lengths?: string[] | null
+          booking_services?: Json | null
+          brand_preferences?: string | null
+          buffer_time?: string | null
+          business_followups?: Json | null
+          business_name?: string
+          business_type?: string | null
+          company_name?: string | null
+          competitors?: string | null
+          concept_link?: string | null
+          contact_person?: string | null
+          country?: string | null
+          created_at?: string
+          current_website?: string | null
+          custom_pages?: string[] | null
+          customer_type?: string | null
+          email?: string
+          extra_notes?: string | null
+          google_business_link?: string | null
+          google_maps_address?: string | null
+          id?: string
+          is_read?: boolean
+          is_yearly_care_plan?: boolean | null
+          legal_pages?: string[] | null
+          max_bookings_per_day?: string | null
+          opening_hours?: string | null
+          org_number?: string | null
+          page_notes?: string | null
+          paid_at?: string | null
+          payment_amount?: string | null
+          payment_status?: string
+          phone?: string | null
+          primary_color?: string | null
+          selected_care_plan?: string | null
+          selected_language?: string | null
+          selected_package?: string | null
+          selected_pages?: string[] | null
+          selected_style?: string | null
+          seo_keywords?: string | null
+          services?: string | null
+          stripe_session_id?: string | null
+          submission_type?: string
+          terms_explanation?: string | null
+          updated_at?: string
+          uploaded_photos?: string[] | null
+          vat_number?: string | null
+          vat_verified?: boolean | null
+          wants_admin_panel?: boolean | null
+          wants_before_after?: boolean | null
+          wants_booking?: boolean | null
+          wants_checkout_system?: boolean | null
+          wants_google_maps?: boolean | null
+          wants_google_reviews?: boolean | null
+          website_goal?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
