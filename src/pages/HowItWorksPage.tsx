@@ -226,7 +226,7 @@ export default function HowItWorksPage() {
   return (
     <div className="relative overflow-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-8">
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-24">
         {/* Background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent" />

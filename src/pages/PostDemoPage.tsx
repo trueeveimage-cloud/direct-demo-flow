@@ -304,7 +304,7 @@ export default function PostDemoPage() {
 
   // Initial page - concept link input
   return (
-    <div className="section-padding py-12 sm:py-20">
+    <div className="section-padding pt-24 pb-12 sm:pb-20">
       <div className="container-narrow text-center px-4">
         {/* Resume Banner */}
         <AnimatePresence>

@@ -133,17 +133,11 @@ export function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <motion.header 
-      initial={{ y: 0 }}
-      animate={{ y: visible ? 0 : -100 }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4"
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4 transition-transform duration-300 ease-in-out ${visible ? 'translate-y-0' : '-translate-y-full'}`}
     >
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full border bg-secondary/95 backdrop-blur-md border-border/80 shadow-lg"
+      <nav
+        className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full border bg-secondary/95 backdrop-blur-md border-border/80 shadow-lg animate-hero-fade-in"
       >
         {/* Logo */}
         <a 
@@ -311,7 +305,7 @@ export function Header() {
             <AnimatedMenuIcon isOpen={isOpen} />
           </button>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* Mobile menu dropdown */}
       <AnimatePresence>
@@ -378,6 +372,6 @@ export function Header() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }

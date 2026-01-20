@@ -67,7 +67,7 @@ export default function ContactPage() {
         <div className="absolute bottom-20 right-[10%] w-[300px] h-[300px] bg-accent/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="section-padding py-20 relative z-10">
+      <div className="section-padding pt-28 pb-20 relative z-10">
         <div className="container-narrow">
           {/* Header */}
           <div className="animate-hero-fade-in text-center mb-16">
