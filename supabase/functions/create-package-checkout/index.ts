@@ -344,15 +344,13 @@ serve(async (req) => {
       console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on to checkout", { currency });
     }
 
-    // Add care plan if selected (bundled into initial checkout)
+    // IMPORTANT: Care plans are billed separately as subscriptions, NOT included in the package checkout
+    // This is because care plans have recurring prices which require mode: "subscription"
+    // The care plan should be handled in a separate checkout flow after the initial package purchase
     const carePlanPriceId = getCarePlanPriceId(carePlanId, isYearly, currency);
     if (carePlanPriceId) {
-      lineItems.push({
-        price: carePlanPriceId,
-        quantity: 1,
-        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
-      });
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added care plan to checkout", { carePlanId, isYearly, currency });
+      // Log that care plan was selected but will be handled separately
+      console.log("[CREATE-PACKAGE-CHECKOUT] Care plan selected but will be billed separately", { carePlanId, isYearly, currency });
     }
 
     const mode: "payment" = "payment";

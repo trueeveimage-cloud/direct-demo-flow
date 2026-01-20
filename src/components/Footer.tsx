@@ -21,7 +21,7 @@ export function Footer() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <h3 className="font-heading font-bold text-lg mb-1">
-                {t('Hur mycket förlorar du?', 'How much are you losing?')}
+                {t('Hur mycket pengar förlorar du?', 'How much money are you losing?')}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {t('Räkna ut vad en föråldrad webbplats kostar dig.', 'Calculate what an outdated website costs you.')}
@@ -124,7 +124,7 @@ export function Footer() {
                 <TikTokIcon />
               </a>
               <a 
-                href="mailto:hej@nomia.se"
+                href="mailto:nordicsite.help@gmail.com"
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Email"
               >

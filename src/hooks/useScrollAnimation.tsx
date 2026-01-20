@@ -7,11 +7,25 @@ interface UseScrollAnimationOptions {
 }
 
 export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
-  const { threshold = 0.1, rootMargin = '0px', triggerOnce = true } = options;
+  const { threshold = 0.1, rootMargin = '50px', triggerOnce = true } = options;
   const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  // Start as visible to prevent flash on initial render, then set to false after mount
+  const [isVisible, setIsVisible] = useState(true);
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
+    // Small delay to prevent initial flash - element starts visible, then we track intersection
+    const mountTimer = setTimeout(() => {
+      setHasMounted(true);
+      setIsVisible(false);
+    }, 50);
+
+    return () => clearTimeout(mountTimer);
+  }, []);
+
+  useEffect(() => {
+    if (!hasMounted) return;
+    
     const element = ref.current;
     if (!element) return;
 
@@ -32,7 +46,7 @@ export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, [threshold, rootMargin, triggerOnce]);
+  }, [threshold, rootMargin, triggerOnce, hasMounted]);
 
   return { ref, isVisible };
 };
