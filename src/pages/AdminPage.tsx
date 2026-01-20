@@ -550,30 +550,112 @@ export default function AdminPage() {
 
           {/* Submissions Tab */}
           <TabsContent value="submissions" className="space-y-6">
+            {/* Orders Section - Most Important */}
+            <Card className="border-accent/30 bg-gradient-to-r from-accent/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingCart className="w-5 h-5 text-accent" />
+                  Order Submissions
+                </CardTitle>
+                <CardDescription>
+                  {submissions.filter(s => s.type === 'order').length} total • {pendingPayments} pending payment
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {submissions.filter(s => s.type === 'order').length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <ShoppingCart className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No orders submitted yet</p>
+                    <p className="text-xs mt-2">Orders from the wizard and checkout will appear here</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                    {submissions.filter(s => s.type === 'order').map((submission) => {
+                      const order = submission as OrderSubmission;
+                      const isUnread = !order.is_read;
+                      
+                      return (
+                        <div
+                          key={order.id}
+                          onClick={() => {
+                            setSelectedSubmission(submission);
+                            if (isUnread) markAsRead(order.id, 'order');
+                          }}
+                          className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                            selectedSubmission?.id === order.id
+                              ? 'border-accent bg-accent/10'
+                              : isUnread
+                              ? 'border-accent/50 bg-accent/5 hover:bg-accent/10'
+                              : 'border-border bg-secondary/30 hover:bg-secondary/50'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="font-medium">{order.business_name}</p>
+                                {isUnread && (
+                                  <Badge variant="secondary" className="bg-accent text-accent-foreground text-xs">New</Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground truncate">{order.email}</p>
+                              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(order.created_at).toLocaleDateString('sv-SE', {
+                                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                                  })}
+                                </span>
+                                {order.selected_package && (
+                                  <Badge variant="outline" className="text-xs">{order.selected_package}</Badge>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              <Badge className={`shrink-0 text-xs ${
+                                order.payment_status === 'paid' 
+                                  ? 'bg-green-500/20 text-green-400 border-green-500/50' 
+                                  : order.payment_status === 'pending'
+                                  ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50'
+                                  : 'bg-red-500/20 text-red-400 border-red-500/50'
+                              }`}>
+                                {order.payment_status === 'paid' ? '✓ Paid' : order.payment_status === 'pending' ? '⏳ Pending' : '✗ ' + order.payment_status}
+                              </Badge>
+                              {order.payment_amount && (
+                                <span className="text-xs font-medium text-muted-foreground">{order.payment_amount}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             <div className="grid lg:grid-cols-2 gap-6">
-              {/* Submissions List */}
+              {/* Contact Submissions List */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MessageSquare className="w-5 h-5" />
-                    Contact Submissions
+                    Contact & Concept Requests
                   </CardTitle>
                   <CardDescription>
-                    {submissions.length} total • {unreadCount} unread
+                    {submissions.filter(s => s.type !== 'order').length} total
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {submissions.length === 0 ? (
+                  {submissions.filter(s => s.type !== 'order').length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <Mail className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>No submissions yet</p>
+                      <p>No contact submissions yet</p>
                     </div>
                   ) : (
-                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
-                      {submissions.map((submission) => {
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {submissions.filter(s => s.type !== 'order').map((submission) => {
                         const isContact = submission.type === 'contact';
                         const contactSub = isContact ? submission as ContactSubmission : null;
-                        const conceptSub = !isContact ? submission as ConceptRequest : null;
+                        const conceptSub = submission.type === 'concept' ? submission as ConceptRequest : null;
                         const displayName = contactSub?.name || conceptSub?.business_name || 'Unknown';
                         const isUnread = contactSub && !contactSub.is_read;
                         
@@ -599,22 +681,17 @@ export default function AdminPage() {
                                 <div className="flex items-center gap-2">
                                   <p className="font-medium truncate">{displayName}</p>
                                   {isUnread && (
-                                    <Badge variant="secondary" className="bg-accent text-accent-foreground text-xs">
-                                      New
-                                    </Badge>
+                                    <Badge variant="secondary" className="bg-accent text-accent-foreground text-xs">New</Badge>
                                   )}
                                 </div>
                                 <p className="text-sm text-muted-foreground truncate">{submission.email}</p>
                                 <p className="text-xs text-muted-foreground mt-1">
                                   {new Date(submission.created_at).toLocaleDateString('sv-SE', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
+                                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                                   })}
                                 </p>
                               </div>
-                              <Badge variant="outline" className={`shrink-0 text-xs ${!isContact ? 'bg-primary/10 border-primary' : ''}`}>
+                              <Badge variant="outline" className={`shrink-0 text-xs ${submission.type === 'concept' ? 'bg-primary/10 border-primary' : ''}`}>
                                 {isContact 
                                   ? (reasonLabels[contactSub!.contact_reason] || contactSub!.contact_reason)
                                   : '🚀 Concept Request'
@@ -634,22 +711,105 @@ export default function AdminPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Mail className="w-5 h-5" />
-                    {selectedSubmission?.type === 'concept' ? 'Concept Request Details' : 'Message Details'}
+                    {selectedSubmission?.type === 'order' ? 'Order Details' : selectedSubmission?.type === 'concept' ? 'Concept Request' : 'Message Details'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {selectedSubmission ? (
-                    <div className="space-y-4">
-                      {selectedSubmission.type === 'contact' ? (
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                      {selectedSubmission.type === 'order' ? (
+                        // Order submission detail
+                        <>
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                              <h3 className="text-lg font-semibold">{(selectedSubmission as OrderSubmission).business_name}</h3>
+                              <a href={`mailto:${selectedSubmission.email}`} className="text-accent hover:underline flex items-center gap-1">
+                                {selectedSubmission.email}
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                            <Badge className={`${
+                              (selectedSubmission as OrderSubmission).payment_status === 'paid' 
+                                ? 'bg-green-500/20 text-green-400 border-green-500/50' 
+                                : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50'
+                            }`}>
+                              {(selectedSubmission as OrderSubmission).payment_status === 'paid' ? '✓ Paid' : '⏳ Pending'}
+                            </Badge>
+                          </div>
+                          
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(selectedSubmission.created_at).toLocaleString('sv-SE')}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            {(selectedSubmission as OrderSubmission).contact_person && (
+                              <div className="p-3 bg-secondary/50 rounded-lg">
+                                <p className="text-xs text-muted-foreground">Contact</p>
+                                <p className="font-medium text-sm">{(selectedSubmission as OrderSubmission).contact_person}</p>
+                              </div>
+                            )}
+                            {(selectedSubmission as OrderSubmission).phone && (
+                              <div className="p-3 bg-secondary/50 rounded-lg">
+                                <p className="text-xs text-muted-foreground">Phone</p>
+                                <p className="font-medium text-sm">{(selectedSubmission as OrderSubmission).phone}</p>
+                              </div>
+                            )}
+                            {(selectedSubmission as OrderSubmission).selected_package && (
+                              <div className="p-3 bg-accent/10 rounded-lg border border-accent/30">
+                                <p className="text-xs text-muted-foreground">Package</p>
+                                <p className="font-medium text-sm">{(selectedSubmission as OrderSubmission).selected_package}</p>
+                              </div>
+                            )}
+                            {(selectedSubmission as OrderSubmission).payment_amount && (
+                              <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/30">
+                                <p className="text-xs text-muted-foreground">Amount</p>
+                                <p className="font-bold text-sm">{(selectedSubmission as OrderSubmission).payment_amount}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            {(selectedSubmission as OrderSubmission).wants_booking && <Badge variant="outline">📅 Booking</Badge>}
+                            {(selectedSubmission as OrderSubmission).wants_admin_panel && <Badge variant="outline">🔧 Admin Panel</Badge>}
+                            {(selectedSubmission as OrderSubmission).selected_care_plan && <Badge variant="outline">🛡️ {(selectedSubmission as OrderSubmission).selected_care_plan}</Badge>}
+                          </div>
+
+                          {(selectedSubmission as OrderSubmission).services && (
+                            <div className="p-3 bg-secondary/50 rounded-lg">
+                              <p className="text-xs text-muted-foreground mb-1">Services</p>
+                              <p className="text-sm">{(selectedSubmission as OrderSubmission).services}</p>
+                            </div>
+                          )}
+
+                          {(selectedSubmission as OrderSubmission).extra_notes && (
+                            <div className="p-3 bg-secondary/50 rounded-lg">
+                              <p className="text-xs text-muted-foreground mb-1">Extra Notes</p>
+                              <p className="text-sm whitespace-pre-wrap">{(selectedSubmission as OrderSubmission).extra_notes}</p>
+                            </div>
+                          )}
+                          
+                          <div className="flex gap-2">
+                            <Button asChild className="flex-1">
+                              <a href={`mailto:${selectedSubmission.email}?subject=Your Nomia Order - ${(selectedSubmission as OrderSubmission).business_name}`}>
+                                <Mail className="w-4 h-4 mr-2" />
+                                Contact Customer
+                              </a>
+                            </Button>
+                            {!(selectedSubmission as OrderSubmission).is_read && (
+                              <Button variant="outline" onClick={() => markAsRead(selectedSubmission.id, 'order')}>
+                                <Check className="w-4 h-4 mr-2" />
+                                Mark Read
+                              </Button>
+                            )}
+                          </div>
+                        </>
+                      ) : selectedSubmission.type === 'contact' ? (
                         // Contact submission detail
                         <>
                           <div className="flex items-center justify-between">
                             <div>
                               <h3 className="text-lg font-semibold">{(selectedSubmission as ContactSubmission).name}</h3>
-                              <a 
-                                href={`mailto:${selectedSubmission.email}`}
-                                className="text-accent hover:underline flex items-center gap-1"
-                              >
+                              <a href={`mailto:${selectedSubmission.email}`} className="text-accent hover:underline flex items-center gap-1">
                                 {selectedSubmission.email}
                                 <ExternalLink className="w-3 h-3" />
                               </a>
@@ -675,7 +835,7 @@ export default function AdminPage() {
                               </a>
                             </Button>
                             {!(selectedSubmission as ContactSubmission).is_read && (
-                              <Button variant="outline" onClick={() => markAsRead(selectedSubmission.id, selectedSubmission.type)}>
+                              <Button variant="outline" onClick={() => markAsRead(selectedSubmission.id, 'contact')}>
                                 <Check className="w-4 h-4 mr-2" />
                                 Mark Read
                               </Button>
@@ -688,17 +848,12 @@ export default function AdminPage() {
                           <div className="flex items-center justify-between">
                             <div>
                               <h3 className="text-lg font-semibold">{(selectedSubmission as ConceptRequest).business_name}</h3>
-                              <a 
-                                href={`mailto:${selectedSubmission.email}`}
-                                className="text-accent hover:underline flex items-center gap-1"
-                              >
+                              <a href={`mailto:${selectedSubmission.email}`} className="text-accent hover:underline flex items-center gap-1">
                                 {selectedSubmission.email}
                                 <ExternalLink className="w-3 h-3" />
                               </a>
                             </div>
-                            <Badge className="bg-primary/10 border-primary">
-                              🚀 Concept Request
-                            </Badge>
+                            <Badge className="bg-primary/10 border-primary">🚀 Concept Request</Badge>
                           </div>
                           
                           <div className="text-sm text-muted-foreground">
