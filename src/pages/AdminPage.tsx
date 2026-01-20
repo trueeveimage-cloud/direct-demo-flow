@@ -252,28 +252,27 @@ export default function AdminPage() {
       const storedEvents = analytics.getStoredEvents();
       setEvents(storedEvents);
       
-      // Fetch both contact submissions and concept requests
+      // Fetch submissions via edge function (bypasses RLS)
       const fetchAllSubmissions = async () => {
-        const [contactRes, conceptRes] = await Promise.all([
-          supabase.from('contact_submissions').select('*').order('created_at', { ascending: false }),
-          supabase.from('concept_requests').select('*').order('created_at', { ascending: false })
-        ]);
-        
-        const contactSubmissions: Submission[] = (contactRes.data || []).map(s => ({
-          ...s,
-          type: 'contact' as const
-        }));
-        
-        const conceptRequests: Submission[] = (conceptRes.data || []).map(c => ({
-          ...c,
-          type: 'concept' as const
-        }));
-        
-        // Combine and sort by date
-        const allSubmissions = [...contactSubmissions, ...conceptRequests]
-          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        
-        setSubmissions(allSubmissions);
+        try {
+          const storedEmail = localStorage.getItem('nomia_admin_email') || ADMIN_EMAIL;
+          const storedPassword = localStorage.getItem('nomia_admin_password') || ADMIN_PASSWORD;
+          
+          const { data, error } = await supabase.functions.invoke('admin-get-submissions', {
+            body: { email: storedEmail, password: storedPassword }
+          });
+          
+          if (error) {
+            console.error('Error fetching submissions:', error);
+            return;
+          }
+          
+          if (data?.submissions) {
+            setSubmissions(data.submissions);
+          }
+        } catch (err) {
+          console.error('Failed to fetch submissions:', err);
+        }
       };
       fetchAllSubmissions();
     }
@@ -286,14 +285,20 @@ export default function AdminPage() {
   const unreadCount = submissions.filter(s => s.type === 'contact' && !(s as ContactSubmission).is_read).length;
 
   const markAsRead = async (id: string) => {
-    await supabase
-      .from('contact_submissions')
-      .update({ is_read: true })
-      .eq('id', id);
-    
-    setSubmissions(prev => 
-      prev.map(s => s.id === id && s.type === 'contact' ? { ...s, is_read: true } : s)
-    );
+    try {
+      const storedEmail = localStorage.getItem('nomia_admin_email') || ADMIN_EMAIL;
+      const storedPassword = localStorage.getItem('nomia_admin_password') || ADMIN_PASSWORD;
+      
+      await supabase.functions.invoke('admin-mark-read', {
+        body: { email: storedEmail, password: storedPassword, submissionId: id }
+      });
+      
+      setSubmissions(prev => 
+        prev.map(s => s.id === id && s.type === 'contact' ? { ...s, is_read: true } : s)
+      );
+    } catch (err) {
+      console.error('Failed to mark as read:', err);
+    }
   };
 
   const reasonLabels: Record<string, string> = {
@@ -318,6 +323,8 @@ export default function AdminPage() {
     // Check hardcoded credentials
     if (email.trim() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       localStorage.setItem('nomia_admin_auth', 'true');
+      localStorage.setItem('nomia_admin_email', email.trim());
+      localStorage.setItem('nomia_admin_password', password);
       setIsAuthenticated(true);
     } else {
       setError('Invalid login credentials');
@@ -326,6 +333,8 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     localStorage.removeItem('nomia_admin_auth');
+    localStorage.removeItem('nomia_admin_email');
+    localStorage.removeItem('nomia_admin_password');
     setIsAuthenticated(false);
   };
 
