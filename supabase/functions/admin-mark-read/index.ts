@@ -6,10 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Hardcoded admin credentials (same as frontend)
-const ADMIN_EMAIL = "38kqgt@gmail.com";
-const ADMIN_PASSWORD = "Guemir1453";
-
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[ADMIN-MARK-READ] ${step}${detailsStr}`);
@@ -24,18 +20,48 @@ serve(async (req: Request): Promise<Response> => {
   try {
     logStep("Function started");
 
-    const { email, password, submissionId } = await req.json();
-    
-    logStep("Checking credentials", { email, submissionId });
-
-    // Verify admin credentials
-    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-      logStep("Invalid credentials");
+    // Get authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      logStep("Missing or invalid authorization header");
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    // Create Supabase client with user's token
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      logStep("Auth error or no user", { error: authError?.message });
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    logStep("User authenticated", { email: user.email });
+
+    // Check if user is admin via database function
+    const { data: isAdmin, error: adminError } = await supabase.rpc('is_admin_user');
+    if (adminError || isAdmin !== true) {
+      logStep("Not an admin", { isAdmin, error: adminError?.message });
+      return new Response(
+        JSON.stringify({ error: "Forbidden - admin access required" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const { submissionId, submissionType } = await req.json();
+    
+    logStep("Marking as read", { submissionId, submissionType });
 
     if (!submissionId) {
       return new Response(
@@ -45,12 +71,14 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // Use service role key to bypass RLS
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseService = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { error } = await supabase
-      .from('contact_submissions')
+    // Determine which table to update based on submission type
+    const tableName = submissionType === 'order' ? 'order_submissions' : 'contact_submissions';
+
+    const { error } = await supabaseService
+      .from(tableName)
       .update({ is_read: true })
       .eq('id', submissionId);
 
@@ -59,7 +87,7 @@ serve(async (req: Request): Promise<Response> => {
       throw error;
     }
 
-    logStep("Marked as read successfully", { submissionId });
+    logStep("Marked as read successfully", { submissionId, tableName });
 
     return new Response(
       JSON.stringify({ success: true }),
