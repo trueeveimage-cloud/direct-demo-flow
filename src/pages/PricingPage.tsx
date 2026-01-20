@@ -213,7 +213,7 @@ export default function PricingPage() {
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" />
       </div>
 
-      <div className="section-padding py-20 relative z-10">
+      <div className="section-padding pt-28 pb-20 relative z-10">
         <div className="container-wide">
           {/* Hero */}
           <div className="text-center mb-20 animate-fade-in">

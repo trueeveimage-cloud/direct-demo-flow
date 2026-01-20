@@ -406,7 +406,7 @@ export default function FreeDemoPage() {
 
 
   return (
-    <div className="min-h-screen section-padding py-8 sm:py-12 relative overflow-hidden">
+    <div className="min-h-screen section-padding pt-24 pb-8 sm:pb-12 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-20 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />

@@ -165,7 +165,7 @@ export default function Index() {
       </div>
 
       {/* Hero Content - CSS animations instead of framer-motion */}
-      <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-8">
+      <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24">
         <div className="container-narrow text-center relative z-10 section-padding py-12">
           {/* Hero Logo */}
           <div className="animate-hero-fade-in pb-6">

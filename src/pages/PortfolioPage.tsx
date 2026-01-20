@@ -473,7 +473,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="section-padding py-20">
+    <div className="section-padding pt-28 pb-20">
       <div className="container-wide">
         {/* Header */}
         <AnimatedSection animation="fade-up" className="text-center mb-12">

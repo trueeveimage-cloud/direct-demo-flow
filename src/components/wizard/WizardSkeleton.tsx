@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function WizardSkeleton() {
   return (
-    <div className="min-h-screen pt-8 pb-32">
+    <div className="min-h-screen pt-24 pb-32">
       <div className="container-narrow section-padding">
         {/* Header skeleton */}
         <div className="text-center mb-8">

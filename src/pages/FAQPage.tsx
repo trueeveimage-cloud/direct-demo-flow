@@ -143,7 +143,7 @@ export default function FAQPage() {
         </FloatingIcon>
       </div>
 
-      <div className="section-padding py-20 relative z-10">
+      <div className="section-padding pt-28 pb-20 relative z-10">
         <div className="container-narrow">
           {/* Header */}
           <motion.div 
