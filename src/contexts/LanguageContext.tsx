@@ -11,8 +11,8 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  // Default to English as requested
-  const [lang, setLang] = useState<Language>('en');
+  // Default to Swedish
+  const [lang, setLang] = useState<Language>('sv');
 
   const t = (sv: string, en: string) => (lang === 'sv' ? sv : en);
 

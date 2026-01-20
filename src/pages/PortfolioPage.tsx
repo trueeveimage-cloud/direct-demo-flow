@@ -121,48 +121,97 @@ export default function PortfolioPage() {
     }
   };
 
-  // ALL - Standard grid
-  const renderAllLayout = () => (
-    <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-      {filteredProjects.map((project, index) => (
-        <motion.div
-          key={project.slug}
-          layout
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: index * 0.05 }}
-        >
-          <a
-            href={project.externalUrl}
+  // ALL - Premium masonry with featured hero
+  const renderAllLayout = () => {
+    const featured = filteredProjects.find(p => p.featured) || filteredProjects[0];
+    const rest = filteredProjects.filter(p => p.slug !== featured?.slug);
+    
+    return (
+      <div className="space-y-8">
+        {/* Featured Hero Project */}
+        {featured && (
+          <motion.a
+            href={featured.externalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative bg-background border border-border rounded-2xl overflow-hidden hover:border-accent/50 transition-all duration-500 block h-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="group block relative rounded-3xl overflow-hidden border border-border hover:border-accent/50 transition-all"
           >
-            {project.resultBadge && (
-              <div className="absolute top-4 right-4 z-10">
-                <span className="bg-accent text-accent-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                  {project.resultBadge}
-                </span>
-              </div>
-            )}
-            <div className="aspect-[16/10] overflow-hidden">
-              <img src={project.image} alt={project.name} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" />
+            <div className="aspect-[21/9] md:aspect-[21/8] overflow-hidden">
+              <img src={featured.image} alt={featured.name} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" />
             </div>
-            <div className="p-6">
-              <h3 className="font-heading font-semibold text-xl mb-1 group-hover:text-accent transition-colors">{project.name}</h3>
-              <p className="text-sm text-muted-foreground mb-3">{project.type}</p>
-              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{project.description}</p>
-              <div className="flex flex-wrap gap-2">
-                {project.tags.map((tag, i) => (
-                  <span key={i} className="text-xs px-2.5 py-1 bg-secondary/80 rounded-full">{tag}</span>
-                ))}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div>
+                  {featured.resultBadge && (
+                    <span className="inline-block bg-accent text-accent-foreground text-sm font-bold px-4 py-1.5 rounded-full mb-3 shadow-lg">
+                      {featured.resultBadge}
+                    </span>
+                  )}
+                  <h3 className="text-2xl md:text-4xl font-bold text-white mb-2">{featured.name}</h3>
+                  <p className="text-white/70 text-sm md:text-base max-w-lg">{featured.description}</p>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {featured.tags.map((tag, i) => (
+                      <span key={i} className="text-xs px-3 py-1 bg-white/10 text-white/80 rounded-full backdrop-blur-sm">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
+                  <span className="text-sm font-medium">{t('Besök sidan', 'Visit site')}</span>
+                  <ExternalLink className="w-4 h-4" />
+                </div>
               </div>
             </div>
-          </a>
+          </motion.a>
+        )}
+
+        {/* Remaining projects in responsive grid */}
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {rest.map((project, index) => (
+            <motion.div
+              key={project.slug}
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+            >
+              <a
+                href={project.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative bg-background border border-border rounded-2xl overflow-hidden hover:border-accent/50 hover:shadow-xl hover:shadow-accent/5 transition-all duration-500 block h-full"
+              >
+                {project.resultBadge && (
+                  <div className="absolute top-3 right-3 z-10">
+                    <span className="bg-accent text-accent-foreground text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg">
+                      {project.resultBadge}
+                    </span>
+                  </div>
+                )}
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img src={project.image} alt={project.name} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" />
+                </div>
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="font-heading font-semibold text-lg group-hover:text-accent transition-colors line-clamp-1">{project.name}</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">{project.type}</p>
+                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{project.description}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {project.tags.slice(0, 3).map((tag, i) => (
+                      <span key={i} className="text-[10px] px-2 py-0.5 bg-secondary/80 rounded-full">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </a>
+            </motion.div>
+          ))}
         </motion.div>
-      ))}
-    </motion.div>
-  );
+      </div>
+    );
+  };
 
   // FOOD & DRINK - Magazine style with featured hero
   const renderFoodLayout = () => {
