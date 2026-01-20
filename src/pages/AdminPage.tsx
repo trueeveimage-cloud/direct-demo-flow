@@ -583,7 +583,7 @@ export default function AdminPage() {
                             onClick={() => {
                               setSelectedSubmission(submission);
                               if (contactSub && !contactSub.is_read) {
-                                markAsRead(submission.id);
+                                markAsRead(submission.id, submission.type);
                               }
                             }}
                             className={`p-4 rounded-lg border cursor-pointer transition-colors ${
@@ -675,7 +675,7 @@ export default function AdminPage() {
                               </a>
                             </Button>
                             {!(selectedSubmission as ContactSubmission).is_read && (
-                              <Button variant="outline" onClick={() => markAsRead(selectedSubmission.id)}>
+                              <Button variant="outline" onClick={() => markAsRead(selectedSubmission.id, selectedSubmission.type)}>
                                 <Check className="w-4 h-4 mr-2" />
                                 Mark Read
                               </Button>
