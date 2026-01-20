@@ -15,6 +15,7 @@ import { AnimatedSection } from '@/components/AnimatedSection';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { setVerificationPaid } from '@/config/stripe';
 import { getCurrencyFromLang, getAddonPrice, formatPrice } from '@/config/currency';
+import { supabase } from '@/integrations/supabase/client';
 
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { useRemainingSpots, recordConceptRequest } from '@/hooks/useRemainingSpots';
@@ -263,39 +264,47 @@ export default function FreeDemoPage() {
     setIsLoading(true);
     
     try {
-      // Submit form data to getform for record keeping
-      const formData = new FormData();
-      formData.append('form_type', 'Concept Request - 500kr');
-      formData.append('business_name', businessName);
-      formData.append('contact_person', contactPerson);
-      formData.append('email', email);
-      formData.append('phone', phone);
-      formData.append('current_website', currentWebsite);
-      formData.append('business_type', businessType === 'other' ? businessTypeOther : businessType);
-      formData.append('website_goal', websiteGoal);
-      formData.append('selected_style', selectedStyle);
-      formData.append('primary_color', noColorPreference ? 'No preference' : primaryColor);
-      formData.append('accent_color', noColorPreference ? 'No preference' : accentColor);
-      formData.append('services', services);
-      formData.append('wants_booking', String(wantsBooking));
-      
-      if (wantsBooking) {
-        formData.append('opening_hours', openingHours);
-        formData.append('appointment_lengths', appointmentLengths.join(', ') + (customAppointmentLength ? `, ${customAppointmentLength}` : ''));
-        formData.append('booking_services', JSON.stringify(bookingServices.filter(s => s.name.trim())));
-        formData.append('buffer_time', bufferTime);
-        formData.append('max_bookings_per_day', maxBookingsPerDay);
-        formData.append('advance_booking_days', advanceBookingDays);
-      }
-      
-      formData.append('extra_notes', extraNotes);
-      formData.append('verification_fee', formattedVerificationFee);
+      // Save submission to database BEFORE payment redirect
+      const orderSubmission = {
+        submission_type: 'demo_request',
+        email,
+        business_name: businessName,
+        contact_person: contactPerson,
+        phone,
+        current_website: currentWebsite || null,
+        business_type: businessType === 'other' ? businessTypeOther : businessType,
+        website_goal: websiteGoal,
+        selected_style: selectedStyle,
+        primary_color: noColorPreference ? 'No preference' : primaryColor,
+        accent_color: noColorPreference ? 'No preference' : accentColor,
+        services,
+        wants_booking: wantsBooking || false,
+        opening_hours: openingHours || null,
+        appointment_lengths: appointmentLengths.length > 0 ? appointmentLengths : null,
+        booking_services: JSON.parse(JSON.stringify(bookingServices.filter(s => s.name.trim()))),
+        buffer_time: bufferTime || null,
+        max_bookings_per_day: maxBookingsPerDay || null,
+        advance_booking_days: advanceBookingDays || null,
+        extra_notes: extraNotes || null,
+        payment_status: 'pending',
+        payment_amount: formattedVerificationFee,
+      };
 
-      await fetch('https://getform.io/f/agdvpmpb', {
-        method: 'POST',
-        body: formData,
-        headers: { 'Accept': 'application/json' },
-      });
+      const { data: insertedOrder, error: dbError } = await supabase
+        .from('order_submissions')
+        .insert([orderSubmission])
+        .select('id')
+        .maybeSingle();
+
+      if (dbError) {
+        console.error('Failed to save demo request:', dbError);
+        // Continue anyway - don't block payment
+      }
+
+      // Store order ID for later payment status update
+      if (insertedOrder?.id) {
+        sessionStorage.setItem('pending_order_id', insertedOrder.id);
+      }
 
       // Record the concept request in Supabase for tracking
       await recordConceptRequest(email, businessName);

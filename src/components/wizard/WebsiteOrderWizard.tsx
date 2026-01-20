@@ -8,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { PackageCompareModal } from '@/components/PackageCompareModal';
 import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
 import { AdminPanelUpsellModal } from '@/components/AdminPanelUpsellModal';
+import { supabase } from '@/integrations/supabase/client';
 
 import { WizardStepper } from './WizardStepper';
 import { OrderSummary } from './OrderSummary';
@@ -240,65 +241,73 @@ function WebsiteOrderWizardComponent({
       const adminPanelCost = addedAdminPanel ? ADMIN_PANEL_PRICE : 0;
       const totalPackagePrice = pkgPrice + bookingAddonCost + adminPanelCost;
 
-      // Submit form data for record keeping
-      const formDataPayload = new FormData();
-      formDataPayload.append('form_type', isPostDemoFlow ? 'Post-Demo Order' : 'Direct Checkout Order');
-      formDataPayload.append('business_name', formData.businessName);
-      formDataPayload.append('contact_person', formData.contactPerson);
-      formDataPayload.append('email', formData.email);
-      formDataPayload.append('phone', formData.phone);
-      formDataPayload.append('business_type', formData.businessType === 'other' ? formData.businessTypeOther : formData.businessType);
-      formDataPayload.append('website_goal', formData.websiteGoal);
-      formDataPayload.append('selected_package', formData.selectedPackage);
-      formDataPayload.append('package_price', formatPriceLocal(totalPackagePrice));
-      formDataPayload.append('selected_style', formData.selectedStyle);
-      formDataPayload.append('primary_color', formData.noColorPreference ? 'No preference' : formData.primaryColor);
-      formDataPayload.append('accent_color', formData.noColorPreference ? 'No preference' : formData.accentColor);
-      formDataPayload.append('selected_language', formData.selectedLanguage === 'custom' ? formData.customLanguages : formData.selectedLanguage);
-      formDataPayload.append('wants_booking', String(formData.wantsBooking));
-      formDataPayload.append('booking_addon_cost', bookingAddonCost > 0 ? `+${formatPriceLocal(bookingAddonCost)}` : 'Included');
-      formDataPayload.append('selected_pages', formData.selectedPages.join(', '));
-      formDataPayload.append('custom_pages', formData.customPages.filter(p => p.trim()).join(', '));
-      formDataPayload.append('services', formData.services);
-      formDataPayload.append('no_logo', String(formData.noLogo));
-      formDataPayload.append('use_stock', String(formData.useStock));
-      formDataPayload.append('business_followups', JSON.stringify(formData.businessFollowUps));
-      formDataPayload.append('wants_google_maps', String(formData.wantsGoogleMaps));
-      formDataPayload.append('google_maps_address', formData.googleMapsAddress);
-      formDataPayload.append('wants_google_reviews', String(formData.wantsGoogleReviews));
-      formDataPayload.append('google_business_link', formData.googleBusinessLink);
-      formDataPayload.append('wants_before_after', String(formData.wantsBeforeAfter));
-      formDataPayload.append('wants_checkout_system', String(formData.wantsCheckoutSystem));
-      
-      if (formData.wantsBooking) {
-        formDataPayload.append('opening_hours', formData.openingHours);
-        formDataPayload.append('appointment_lengths', formData.appointmentLengths.join(', ') + (formData.customAppointmentLength ? `, ${formData.customAppointmentLength}` : ''));
-        formDataPayload.append('booking_services', JSON.stringify(formData.bookingServices.filter(s => s.name.trim())));
-        formDataPayload.append('buffer_time', formData.bufferTime);
-        formDataPayload.append('max_bookings_per_day', formData.maxBookingsPerDay);
-        formDataPayload.append('advance_booking_days', formData.advanceBookingDays);
-      }
-      
-      formDataPayload.append('selected_care_plan', formData.selectedCarePlan || 'none');
-      formDataPayload.append('care_plan_billing', formData.isYearlyCarePlan ? 'yearly' : 'monthly');
-      formDataPayload.append('page_notes', formData.pageNotes);
-      formDataPayload.append('brand_preferences', formData.brandPreferences);
-      formDataPayload.append('competitors', formData.competitors);
-      formDataPayload.append('seo_keywords', formData.seoKeywords);
-      formDataPayload.append('legal_pages', formData.legalPages.join(', '));
-      formDataPayload.append('terms_explanation', formData.termsExplanation);
-      formDataPayload.append('extra_notes', formData.extraNotes);
-      formDataPayload.append('admin_panel', String(addedAdminPanel));
-      if (isPostDemoFlow) {
-        formDataPayload.append('concept_link', formData.conceptLink || conceptLink);
-        formDataPayload.append('verification_fee_paid', formatPriceLocal(VERIFICATION_FEE));
+      // Save submission to database BEFORE payment redirect
+      const orderSubmission = {
+        submission_type: isPostDemoFlow ? 'post_demo_order' : 'direct_order',
+        email: formData.email,
+        business_name: formData.businessName,
+        contact_person: formData.contactPerson,
+        phone: formData.phone,
+        business_type: formData.businessType === 'other' ? formData.businessTypeOther : formData.businessType,
+        website_goal: formData.websiteGoal,
+        selected_package: formData.selectedPackage,
+        selected_style: formData.selectedStyle,
+        selected_language: formData.selectedLanguage === 'custom' ? formData.customLanguages : formData.selectedLanguage,
+        primary_color: formData.noColorPreference ? 'No preference' : formData.primaryColor,
+        accent_color: formData.noColorPreference ? 'No preference' : formData.accentColor,
+        selected_pages: formData.selectedPages,
+        custom_pages: formData.customPages.filter(p => p.trim()),
+        services: formData.services,
+        wants_booking: formData.wantsBooking,
+        opening_hours: formData.openingHours || null,
+        appointment_lengths: formData.appointmentLengths.length > 0 ? formData.appointmentLengths : null,
+        booking_services: JSON.parse(JSON.stringify(formData.bookingServices.filter(s => s.name.trim()))),
+        buffer_time: formData.bufferTime || null,
+        max_bookings_per_day: formData.maxBookingsPerDay || null,
+        advance_booking_days: formData.advanceBookingDays || null,
+        selected_care_plan: formData.selectedCarePlan || null,
+        is_yearly_care_plan: formData.isYearlyCarePlan,
+        legal_pages: formData.legalPages,
+        terms_explanation: formData.termsExplanation || null,
+        page_notes: formData.pageNotes || null,
+        brand_preferences: formData.brandPreferences || null,
+        competitors: formData.competitors || null,
+        seo_keywords: formData.seoKeywords || null,
+        extra_notes: formData.extraNotes || null,
+        customer_type: customerTypeData.customerType || null,
+        company_name: customerTypeData.companyName || null,
+        org_number: customerTypeData.orgNumber || null,
+        vat_number: customerTypeData.vatNumber || null,
+        vat_verified: customerTypeData.vatVerified,
+        country: customerTypeData.country || null,
+        wants_admin_panel: addedAdminPanel,
+        wants_google_maps: formData.wantsGoogleMaps,
+        google_maps_address: formData.googleMapsAddress || null,
+        wants_google_reviews: formData.wantsGoogleReviews,
+        google_business_link: formData.googleBusinessLink || null,
+        wants_before_after: formData.wantsBeforeAfter,
+        wants_checkout_system: formData.wantsCheckoutSystem,
+        concept_link: isPostDemoFlow ? (formData.conceptLink || conceptLink) : null,
+        payment_status: 'pending',
+        payment_amount: formatPriceLocal(totalPackagePrice),
+        business_followups: JSON.parse(JSON.stringify(formData.businessFollowUps)),
+      };
+
+      const { data: insertedOrder, error: dbError } = await supabase
+        .from('order_submissions')
+        .insert([orderSubmission])
+        .select('id')
+        .maybeSingle();
+
+      if (dbError) {
+        console.error('Failed to save order:', dbError);
+        // Continue anyway - don't block payment
       }
 
-      await fetch('https://getform.io/f/agdvpmpb', {
-        method: 'POST',
-        body: formDataPayload,
-        headers: { 'Accept': 'application/json' },
-      });
+      // Store order ID for later payment status update
+      if (insertedOrder?.id) {
+        sessionStorage.setItem('pending_order_id', insertedOrder.id);
+      }
 
       // Use edge function for Stripe checkout
       const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
