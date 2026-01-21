@@ -304,7 +304,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
       case 3:
         return <Step3Pages formData={formData} setFormData={setFormData} errors={errors} />;
       case 4:
-        return <Step4CarePlan formData={formData} setFormData={setFormData} onCompareCarePlans={() => setShowCarePlanCompare(true)} />;
+        return <Step4CarePlan formData={formData} setFormData={setFormData} onCompareCarePlans={() => setShowCarePlanCompare(true)} errors={errors} />;
       case 5:
         return <Step5ProjectDetails formData={formData} setFormData={setFormData} />;
       case 6:
@@ -337,7 +337,11 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
 
   return (
     <div className="min-h-screen py-8 sm:py-12 relative overflow-hidden">
-      <WizardBackground />
+      {/* Background Effects - matching demo page style */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+      </div>
       
       {/* Header Section */}
       <div className="text-center mb-6 sm:mb-8 px-4">
