@@ -10,6 +10,7 @@ interface Step4CarePlanProps {
   formData: WizardFormData;
   setFormData: (data: WizardFormData) => void;
   onCompareCarePlans: () => void;
+  errors?: Record<string, boolean>;
 }
 
 const cardVariants = {
@@ -23,9 +24,10 @@ const cardVariants = {
   tap: { scale: 0.98 }
 };
 
-export function Step4CarePlan({ formData, setFormData, onCompareCarePlans }: Step4CarePlanProps) {
+export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, errors = {} }: Step4CarePlanProps) {
   const { t, lang } = useLanguage();
   const currency = getCurrencyFromLang(lang);
+  const hasError = errors.selectedCarePlan && !formData.selectedCarePlan;
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
     setFormData({ ...formData, [field]: value });
@@ -75,7 +77,20 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans }: Ste
         </span>
       </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      {/* Error message */}
+      {hasError && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-4"
+        >
+          <p className="text-sm text-destructive font-medium">
+            {t('Vänligen välj en vårdplan för att fortsätta', 'Please select a care plan to continue')}
+          </p>
+        </motion.div>
+      )}
+
+      <div className={`grid md:grid-cols-3 gap-6 ${hasError ? 'animate-shake' : ''}`}>
         {carePlans.map((c, i) => {
           const price = getCarePlanPrice(c.id, formData.isYearlyCarePlan, currency);
           const oldPrice = getCarePlanPrice(c.id, false, currency);
