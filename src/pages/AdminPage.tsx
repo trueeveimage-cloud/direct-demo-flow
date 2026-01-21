@@ -7,7 +7,7 @@ import {
   LogOut, Mail, MessageSquare, ExternalLink, Check, Trash2,
   LayoutDashboard, Inbox, LineChart, Settings, ChevronLeft,
   ChevronRight, X, Server, Database, Zap, Activity,
-  FileText, ChevronDown, ChevronUp
+  FileText, ChevronDown, ChevronUp, Sparkles
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -143,7 +143,7 @@ interface AnalyticsData {
   totalEvents: number;
 }
 
-type NavItem = 'overview' | 'orders' | 'messages' | 'analytics' | 'system';
+type NavItem = 'overview' | 'orders' | 'demos' | 'messages' | 'analytics' | 'system';
 
 // Process real events from localStorage
 function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsData {
@@ -579,9 +579,11 @@ export default function AdminPage() {
   };
 
   const orders = submissions.filter(s => s.type === 'order') as OrderSubmission[];
-  const messages = submissions.filter(s => s.type !== 'order');
+  const demos = submissions.filter(s => s.type === 'concept') as ConceptRequest[];
+  const messages = submissions.filter(s => s.type === 'contact') as ContactSubmission[];
   
   const filteredOrders = orders;
+  const filteredDemos = demos;
   const filteredMessages = messages;
 
   const toggleAllOrders = () => {
@@ -760,6 +762,7 @@ export default function AdminPage() {
   const navItems: { id: NavItem; label: string; icon: React.ElementType; badge?: number }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'orders', label: 'Orders', icon: ShoppingCart, badge: pendingPayments > 0 ? pendingPayments : undefined },
+    { id: 'demos', label: 'Demos', icon: Sparkles, badge: demos.length > 0 ? demos.length : undefined },
     { id: 'messages', label: 'Messages', icon: Inbox, badge: unreadCount > 0 ? unreadCount : undefined },
     { id: 'analytics', label: 'Analytics', icon: LineChart },
     { id: 'system', label: 'System', icon: Server },
@@ -828,6 +831,7 @@ export default function AdminPage() {
               <p className="text-sm text-muted-foreground">
                 {activeNav === 'overview' && `${data.totalEvents} events tracked`}
                 {activeNav === 'orders' && `${orders.length} total orders`}
+                {activeNav === 'demos' && `${demos.length} demo requests`}
                 {activeNav === 'messages' && `${messages.length} messages`}
                 {activeNav === 'analytics' && 'Conversion funnel & page performance'}
                 {activeNav === 'system' && 'System information & quick actions'}
@@ -1099,6 +1103,126 @@ export default function AdminPage() {
             </div>
           )}
 
+          {/* Demos Section */}
+          {activeNav === 'demos' && (
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Demos List */}
+              <Card className="lg:col-span-1">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-accent" />
+                        Demo Requests
+                      </CardTitle>
+                      <CardDescription>{filteredDemos.length} demo requests</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 max-h-[calc(100vh-380px)] overflow-y-auto">
+                    {filteredDemos.length === 0 ? (
+                      <p className="text-center py-8 text-muted-foreground">No demo requests found</p>
+                    ) : (
+                      filteredDemos.map((demo) => (
+                        <div
+                          key={demo.id}
+                          onClick={() => setSelectedSubmission(demo)}
+                          className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                            selectedSubmission?.id === demo.id
+                              ? 'border-accent bg-accent/10'
+                              : 'border-border hover:bg-secondary/50'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-accent" />
+                                <p className="font-medium truncate">{demo.business_name}</p>
+                              </div>
+                              <p className="text-sm text-muted-foreground truncate">{demo.email}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {new Date(demo.created_at).toLocaleDateString('sv-SE', {
+                                  day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                            <Badge className="bg-accent/20 text-accent border-accent/30">
+                              Demo
+                            </Badge>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Demo Details */}
+              <Card className="lg:col-span-1">
+                <CardHeader>
+                  <CardTitle>Demo Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedSubmission && selectedSubmission.type === 'concept' ? (
+                    <div className="space-y-4">
+                      <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sparkles className="w-5 h-5 text-accent" />
+                          <h3 className="font-semibold text-lg">{(selectedSubmission as ConceptRequest).business_name}</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Demo concept request</p>
+                      </div>
+                      
+                      <div className="grid gap-3">
+                        <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                          <span className="text-sm text-muted-foreground">Email</span>
+                          <a 
+                            href={`mailto:${selectedSubmission.email}`}
+                            className="text-sm font-medium text-accent hover:underline"
+                          >
+                            {selectedSubmission.email}
+                          </a>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                          <span className="text-sm text-muted-foreground">Requested</span>
+                          <span className="text-sm font-medium">
+                            {new Date(selectedSubmission.created_at).toLocaleDateString('sv-SE', {
+                              year: 'numeric', month: 'long', day: 'numeric', 
+                              hour: '2-digit', minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-4">
+                        <Button 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={() => window.open(`mailto:${selectedSubmission.email}`, '_blank')}
+                        >
+                          <Mail className="w-4 h-4 mr-2" />
+                          Email
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          onClick={() => confirmDelete(selectedSubmission)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Select a demo request to view details</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Messages Section */}
           {activeNav === 'messages' && (
             <div className="grid lg:grid-cols-2 gap-6">
@@ -1141,11 +1265,7 @@ export default function AdminPage() {
                       <p className="text-center py-8 text-muted-foreground">No messages found</p>
                     ) : (
                       filteredMessages.map((message) => {
-                        const isContact = message.type === 'contact';
-                        const contact = isContact ? message as ContactSubmission : null;
-                        const concept = message.type === 'concept' ? message as ConceptRequest : null;
-                        const displayName = contact?.name || concept?.business_name || 'Unknown';
-                        const isUnread = contact && !contact.is_read;
+                        const isUnread = !message.is_read;
                         
                         return (
                           <div
@@ -1169,7 +1289,7 @@ export default function AdminPage() {
                               className="flex-1 min-w-0"
                               onClick={() => {
                                 setSelectedSubmission(message);
-                                if (contact && !contact.is_read) {
+                                if (!message.is_read) {
                                   markAsRead(message.id, message.type);
                                 }
                               }}
@@ -1177,7 +1297,7 @@ export default function AdminPage() {
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <p className="font-medium truncate">{displayName}</p>
+                                    <p className="font-medium truncate">{message.name}</p>
                                     {isUnread && <Badge className="bg-accent text-xs">New</Badge>}
                                   </div>
                                   <p className="text-sm text-muted-foreground truncate">{message.email}</p>
@@ -1187,11 +1307,8 @@ export default function AdminPage() {
                                     })}
                                   </p>
                                 </div>
-                                <Badge variant="outline" className={`text-xs ${message.type === 'concept' ? 'bg-primary/10 border-primary' : ''}`}>
-                                  {isContact 
-                                    ? (reasonLabels[contact!.contact_reason] || contact!.contact_reason)
-                                    : '🚀 Concept'
-                                  }
+                                <Badge variant="outline" className="text-xs">
+                                  {reasonLabels[message.contact_reason] || message.contact_reason}
                                 </Badge>
                               </div>
                             </div>
@@ -1445,11 +1562,11 @@ export default function AdminPage() {
                       </div>
                       <div className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg">
                         <span>contact_submissions</span>
-                        <Badge>{messages.filter(m => m.type === 'contact').length} rows</Badge>
+                        <Badge>{messages.length} rows</Badge>
                       </div>
                       <div className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg">
                         <span>concept_requests</span>
-                        <Badge>{messages.filter(m => m.type === 'concept').length} rows</Badge>
+                        <Badge>{demos.length} rows</Badge>
                       </div>
                     </div>
                   </CardContent>

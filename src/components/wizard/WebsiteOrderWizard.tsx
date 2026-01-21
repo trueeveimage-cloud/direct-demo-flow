@@ -402,8 +402,11 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
             isPostDemoFlow={isPostDemoFlow}
             customerTypeData={customerTypeData}
             onCustomerTypeChange={setCustomerTypeData}
-            addedAdminPanel={addedAdminPanel}
-            onAddAdminPanel={() => setFormData(prev => ({ ...prev, wantsAdminPanel: true }))}
+            addedAdminPanel={addedAdminPanel || formData.wantsAdminPanel}
+            onAddAdminPanel={() => {
+              setFormData(prev => ({ ...prev, wantsAdminPanel: true }));
+              setAddedAdminPanel(true);
+            }}
           />
         );
       default:
@@ -521,7 +524,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
               formData={formData}
               isPostDemoFlow={isPostDemoFlow}
               currentStep={step}
-              addedAdminPanel={addedAdminPanel}
+              addedAdminPanel={addedAdminPanel || formData.wantsAdminPanel}
             />
           </div>
         </div>
