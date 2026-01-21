@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { packages, carePlans, getBookingAddonPrice, getVerificationFee, getCurrencyFromLang, formatPrice as formatPriceFn, getPackagePrice, getCarePlanPrice, getAddonPrice, type WizardFormData } from './wizardConfig';
 
+const VAT_RATE = 0.25; // 25% VAT
+
 interface OrderSummaryProps {
   formData: WizardFormData;
   isPostDemoFlow?: boolean;
@@ -243,6 +245,18 @@ function OrderSummaryComponent({
           </div>
         )}
 
+        {/* VAT breakdown */}
+        <div className="space-y-1 text-sm text-muted-foreground">
+          <div className="flex items-center justify-between">
+            <span>{t('Netto', 'Net')}</span>
+            <span>{formatPrice(Math.round(totalToday))}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>{t('Moms (25%)', 'VAT (25%)')}</span>
+            <span>{formatPrice(Math.round(totalToday * VAT_RATE))}</span>
+          </div>
+        </div>
+
         {/* Total */}
         <motion.div
           layout
@@ -250,7 +264,7 @@ function OrderSummaryComponent({
         >
           <div>
             <p className="text-sm text-muted-foreground">{t('Totalt idag', 'Total today')}</p>
-            <p className="text-2xl font-bold">{formatPrice(totalToday)}</p>
+            <p className="text-2xl font-bold">{formatPrice(Math.round(totalToday * (1 + VAT_RATE)))}</p>
           </div>
           <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
             <CreditCard className="w-6 h-6 text-accent" />
