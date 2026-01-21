@@ -1425,6 +1425,9 @@ export default function AdminPage() {
                 </Card>
               </div>
 
+              {/* Spots Configuration */}
+              <SpotsConfigCard />
+
               {/* System Info */}
               <div className="grid md:grid-cols-2 gap-6">
                 <Card>
@@ -2021,5 +2024,186 @@ function MessageDetails({ message, reasonLabels, onDelete }: {
         </a>
       </Button>
     </div>
+  );
+}
+
+// Spots Configuration Card for Admin
+function SpotsConfigCard() {
+  const [currentSpots, setCurrentSpots] = useState<number>(4);
+  const [maxSpots, setMaxSpots] = useState<number>(7);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastReset, setLastReset] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSpotsConfig = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('spots_config')
+          .select('*')
+          .single();
+
+        if (error) {
+          console.error('Error fetching spots config:', error);
+          return;
+        }
+
+        if (data) {
+          setCurrentSpots(data.current_spots);
+          setMaxSpots(data.max_spots);
+          setLastReset(data.last_reset_at);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSpotsConfig();
+  }, []);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const { data: config } = await supabase
+        .from('spots_config')
+        .select('id')
+        .single();
+
+      if (config) {
+        const { error } = await supabase
+          .from('spots_config')
+          .update({
+            current_spots: currentSpots,
+            max_spots: maxSpots,
+            last_reset_at: new Date().toISOString(),
+          })
+          .eq('id', config.id);
+
+        if (error) {
+          console.error('Error updating spots config:', error);
+        } else {
+          setLastReset(new Date().toISOString());
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <p className="text-muted-foreground">Loading spots configuration...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-accent" />
+          Weekly Spots Configuration
+        </CardTitle>
+        <CardDescription>
+          Control the scarcity spots shown to users. Spots drop by 1 every 24 hours.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Current Spots Available</label>
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => setCurrentSpots(Math.max(1, currentSpots - 1))}
+              >
+                <span className="text-lg">−</span>
+              </Button>
+              <span className="text-4xl font-bold text-accent w-16 text-center">{currentSpots}</span>
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => setCurrentSpots(Math.min(maxSpots, currentSpots + 1))}
+              >
+                <span className="text-lg">+</span>
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              This is what users see as "X spots left"
+            </p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Max Spots Per Week</label>
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => setMaxSpots(Math.max(1, maxSpots - 1))}
+              >
+                <span className="text-lg">−</span>
+              </Button>
+              <span className="text-4xl font-bold text-foreground w-16 text-center">{maxSpots}</span>
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => setMaxSpots(maxSpots + 1)}
+              >
+                <span className="text-lg">+</span>
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Maximum spots that can be available
+            </p>
+          </div>
+        </div>
+
+        {lastReset && (
+          <div className="p-3 bg-secondary/30 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium">Last updated:</span>{' '}
+              {new Date(lastReset).toLocaleString('sv-SE')}
+            </p>
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <Button 
+            onClick={handleSave} 
+            disabled={isSaving}
+            className="flex-1"
+          >
+            {isSaving ? 'Saving...' : 'Save Configuration'}
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={() => {
+              setCurrentSpots(maxSpots);
+              handleSave();
+            }}
+            disabled={isSaving}
+          >
+            Reset to Max
+          </Button>
+        </div>
+
+        <div className="text-xs text-muted-foreground p-3 bg-secondary/20 rounded-lg">
+          <p className="font-medium mb-1">How it works:</p>
+          <ul className="space-y-1 list-disc pl-4">
+            <li>Current spots decrease by 1 every 24 hours automatically</li>
+            <li>Minimum spots is always 1 (never shows 0)</li>
+            <li>Use "Reset to Max" to start a new week cycle</li>
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

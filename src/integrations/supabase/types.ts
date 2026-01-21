@@ -444,6 +444,30 @@ export type Database = {
         }
         Relationships: []
       }
+      spots_config: {
+        Row: {
+          current_spots: number
+          id: string
+          last_reset_at: string
+          max_spots: number
+          updated_at: string
+        }
+        Insert: {
+          current_spots?: number
+          id?: string
+          last_reset_at?: string
+          max_spots?: number
+          updated_at?: string
+        }
+        Update: {
+          current_spots?: number
+          id?: string
+          last_reset_at?: string
+          max_spots?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

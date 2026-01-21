@@ -354,7 +354,7 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
             </div>
           )}
           
-          {/* Checkout System */}
+          {/* Checkout System - €50 addon, free with Standard/Pro */}
           <div className="flex items-start gap-3">
             <Checkbox 
               checked={formData.wantsCheckoutSystem} 
@@ -365,9 +365,18 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
               <div className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4 text-accent" />
                 <span className="font-medium text-sm">{t('Kassasystem', 'Checkout system')}</span>
-                <span className="text-xs text-accent font-medium">GRATIS</span>
+                {formData.selectedPackage === 'starter' ? (
+                  <span className="text-xs text-accent font-medium">+€50</span>
+                ) : (
+                  <span className="text-xs text-green-500 font-medium">{t('INGÅR', 'INCLUDED')}</span>
+                )}
                 <InfoTooltip content={t('Enkelt betalningsformulär för produkter/tjänster.', 'Simple payment form for products/services.')} />
               </div>
+              {formData.selectedPackage === 'starter' && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('Gratis med Standard & Pro', 'Free with Standard & Pro')}
+                </p>
+              )}
             </div>
           </div>
         </div>

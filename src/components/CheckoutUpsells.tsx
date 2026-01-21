@@ -131,7 +131,6 @@ export function FreeInclusions() {
   const freeFeatures = [
     { label: { sv: 'Mobilanpassad design', en: 'Mobile responsive design' }, icon: '📱' },
     { label: { sv: 'Google Maps-inbäddning', en: 'Google Maps embed' }, icon: '📍' },
-    { label: { sv: 'Kassasystem', en: 'Checkout system' }, icon: '💳' },
     { label: { sv: 'Google Recensioner-sektion', en: 'Google Reviews section' }, icon: '⭐' },
     { label: { sv: 'Före/Efter-sektion', en: 'Before/After section' }, icon: '🔄' },
     { label: { sv: 'SSL-certifikat', en: 'SSL certificate' }, icon: '🔒' },

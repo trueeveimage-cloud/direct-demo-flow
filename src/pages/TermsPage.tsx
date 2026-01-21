@@ -47,9 +47,9 @@ export default function TermsPage() {
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Starter:</strong> €490 — {t('Upp till 3 sidor, 7 dagars leverans, 1 revision', 'Up to 3 pages, 7-day delivery, 1 revision')}</li>
                 <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Standard:</strong> €790 — {t('Upp till 5 sidor, 7 dagars leverans, 2 revisioner, flerspråk', 'Up to 5 pages, 7-day delivery, 2 revisions, multi-language')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> €1,290 — {t('Upp till 8 sidor, 7 dagars leverans, 3 revisioner, flerspråk, bokningssystem, Google Analytics', 'Up to 8 pages, 7-day delivery, 3 revisions, multi-language, booking system, Google Analytics')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> €1,290 — {t('Obegränsade sidor, 7 dagars leverans, obegränsade revisioner, flerspråk, bokningssystem, Google Analytics', 'Unlimited pages, 7-day delivery, unlimited revisions, multi-language, booking system, Google Analytics')}</li>
               </ul>
-              <p className="text-muted-foreground mt-3">{t('Tillägg: Bokningssystem €200 (ingår i Pro), Adminpanel €100.', 'Add-ons: Booking system €200 (included in Pro), Admin panel €100.')}</p>
+              <p className="text-muted-foreground mt-3">{t('Tillägg: Bokningssystem €200 (ingår i Pro), Adminpanel €100, Kassasystem €50 (ingår i Standard & Pro).', 'Add-ons: Booking system €200 (included in Pro), Admin panel €100, Checkout system €50 (included in Standard & Pro).')}</p>
             </section>
           </AnimatedSection>
 
