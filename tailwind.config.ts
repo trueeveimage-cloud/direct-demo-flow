@@ -55,6 +55,10 @@ export default {
         surface: {
           elevated: "hsl(var(--surface-elevated))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

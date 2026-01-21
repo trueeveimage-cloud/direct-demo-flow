@@ -40,6 +40,8 @@
     /* Custom tokens */
     --accent-soft: 38 92% 95%;
     --surface-elevated: 0 0% 99%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -73,6 +75,8 @@
 
     --accent-soft: 38 40% 15%;
     --surface-elevated: 0 0% 6%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
   }
 }
 

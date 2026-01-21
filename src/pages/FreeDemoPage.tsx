@@ -232,7 +232,7 @@ export default function FreeDemoPage() {
 
       const { data: orderResult, error: orderError } = await supabase
         .from('order_submissions')
-        .insert([orderData])
+        .insert(orderData as any)
         .select('id')
         .single();
 
@@ -294,8 +294,8 @@ export default function FreeDemoPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center"
           >
-            <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-              <Check className="w-10 h-10 text-green-500" />
+            <div className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
+              <Check className="w-10 h-10 text-success" />
             </div>
             <h1 className="text-3xl font-bold mb-4">
               {t('Tack för din förfrågan!', 'Thank you for your request!')}
@@ -325,20 +325,20 @@ export default function FreeDemoPage() {
       <div className="min-h-screen py-8 sm:py-12 relative overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
         </div>
 
         <div className="max-w-7xl mx-auto relative px-3 sm:px-6">
           {/* Header */}
           <AnimatedSection animation="fade-up" className="text-center mb-8 sm:mb-10">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/20 text-orange-400 text-sm font-medium mb-4 backdrop-blur-sm border border-orange-500/30">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent text-sm font-medium mb-4 backdrop-blur-sm border border-accent/30">
               <Clock className="w-4 h-4" />
               {t('Klart inom 72 timmar', 'Ready within 72 hours')}
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
               {t('Få ditt ', 'Get your ')}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">
+              <span className="text-accent">
                 {t('gratis designkoncept', 'free design concept')}
               </span>
             </h1>
@@ -357,16 +357,16 @@ export default function FreeDemoPage() {
                 <div key={i} className="flex items-center">
                   <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
                     i + 1 < step 
-                      ? 'bg-orange-500 text-white' 
+                      ? 'bg-accent text-accent-foreground' 
                       : i + 1 === step 
-                        ? 'bg-orange-500/20 text-orange-400 ring-2 ring-orange-500' 
+                        ? 'bg-accent/20 text-accent ring-2 ring-accent' 
                         : 'bg-secondary text-muted-foreground'
                   }`}>
                     {i + 1 < step ? <Check className="w-4 h-4" /> : i + 1}
                   </div>
                   {i < totalSteps - 1 && (
                     <div className={`w-6 sm:w-12 md:w-20 h-1 mx-1 sm:mx-2 rounded transition-all ${
-                      i + 1 < step ? 'bg-orange-500' : 'bg-secondary'
+                      i + 1 < step ? 'bg-accent' : 'bg-secondary'
                     }`} />
                   )}
                 </div>
@@ -910,10 +910,10 @@ export default function FreeDemoPage() {
                   </div>
 
                   {/* Payment Summary */}
-                  <div className="bg-gradient-to-r from-orange-500/20 to-orange-600/20 rounded-xl p-4 sm:p-6 border border-orange-500/30">
+                  <div className="bg-accent/10 rounded-xl p-4 sm:p-6 border border-accent/30">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
-                        <Sparkles className="w-5 h-5 text-orange-500" />
+                      <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-accent" />
                       </div>
                       <div>
                         <h3 className="font-semibold">{t('Gratis designkoncept', 'Free design concept')}</h3>
@@ -932,10 +932,10 @@ export default function FreeDemoPage() {
                         <span>{t('Verifieringsavgift', 'Verification fee')}</span>
                         <span>{formattedVerificationFee}</span>
                       </div>
-                      <div className="border-t border-orange-500/30 pt-2 mt-2">
+                      <div className="border-t border-accent/30 pt-2 mt-2">
                         <div className="flex justify-between font-semibold">
                           <span>{t('Att betala nu', 'To pay now')}</span>
-                          <span className="text-orange-500">{formattedVerificationFee}</span>
+                          <span className="text-accent">{formattedVerificationFee}</span>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                           {t(
@@ -948,7 +948,7 @@ export default function FreeDemoPage() {
                   </div>
 
                   <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
                     <span>
                       {t(
                         'Du får ett unikt designförslag baserat på dina preferenser inom 72 timmar.',
@@ -971,7 +971,7 @@ export default function FreeDemoPage() {
                 )}
                 
                 {step < totalSteps ? (
-                  <Button onClick={handleNext} className="bg-orange-500 hover:bg-orange-600">
+                  <Button onClick={handleNext} className="bg-accent hover:bg-accent/90 text-accent-foreground">
                     {t('Nästa', 'Next')}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
@@ -979,7 +979,7 @@ export default function FreeDemoPage() {
                   <Button 
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground"
                   >
                     {isSubmitting ? (
                       <>
@@ -1002,15 +1002,15 @@ export default function FreeDemoPage() {
           <div className="max-w-2xl mx-auto mt-8 text-center">
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-500" />
+                <Check className="w-4 h-4 text-success" />
                 <span>{t('100% anpassat design', '100% custom design')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-500" />
+                <Check className="w-4 h-4 text-success" />
                 <span>{t('Ingen bindning', 'No commitment')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-500" />
+                <Check className="w-4 h-4 text-success" />
                 <span>{t('Säker betalning', 'Secure payment')}</span>
               </div>
             </div>
