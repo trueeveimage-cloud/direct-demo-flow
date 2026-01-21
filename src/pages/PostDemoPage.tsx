@@ -40,25 +40,25 @@ export default function PostDemoPage() {
     }
   }, [searchParams]);
 
-  // Check for saved data on mount
+  // Check for saved data on mount - always show banner if data exists
   useEffect(() => {
-    const wasSessionActive = sessionStorage.getItem(POST_DEMO_SESSION_KEY);
     const stored = localStorage.getItem(POST_DEMO_STORAGE_KEY);
     
-    if (stored && !wasSessionActive) {
+    if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        if (Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
+        const hasContent = parsed.conceptLink?.trim();
+        const isRecent = Date.now() - (parsed.lastSaved || 0) < 7 * 24 * 60 * 60 * 1000;
+        
+        if (hasContent && isRecent) {
           setShowResumeBanner(true);
-        } else {
+        } else if (!isRecent) {
           localStorage.removeItem(POST_DEMO_STORAGE_KEY);
         }
       } catch {
         localStorage.removeItem(POST_DEMO_STORAGE_KEY);
       }
     }
-    
-    sessionStorage.setItem(POST_DEMO_SESSION_KEY, 'true');
   }, []);
 
   // Auto-save data
