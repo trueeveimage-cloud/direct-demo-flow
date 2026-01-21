@@ -79,7 +79,8 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
         }
         break;
       case 4:
-        // Care plan is optional
+        // Care plan is now mandatory
+        if (!formData.selectedCarePlan) newErrors.selectedCarePlan = true;
         break;
       case 5:
         // All fields optional in this step
