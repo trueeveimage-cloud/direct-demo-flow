@@ -82,6 +82,10 @@ const BOOKING_ADDON_PRICE_SEK = "price_1SoVfz74JfaAfHsdcM6g7gyq"; // 1990 kr boo
 const ADMIN_PANEL_PRICE_EUR = "price_1SjVDH74JfaAfHsdJ2bpHabL"; // €100 admin panel add-on
 const ADMIN_PANEL_PRICE_SEK = "price_1SoVg074JfaAfHsdCfjHTSR4"; // 990 kr admin panel add-on
 
+// Checkout system add-on price IDs from Stripe (€50 / 499 kr - free with Standard & Pro)
+const CHECKOUT_ADDON_PRICE_EUR = "price_checkout_addon_eur"; // TODO: Create in Stripe - €50
+const CHECKOUT_ADDON_PRICE_SEK = "price_checkout_addon_sek"; // TODO: Create in Stripe - 499 kr
+
 // Care plan price IDs from Stripe (monthly)
 const CARE_PLAN_MONTHLY_EUR: Record<string, string> = {
   basic: "price_1SjVDL74JfaAfHsd1i1pFby6",    // €25/mo
@@ -122,6 +126,7 @@ interface CheckoutRequest {
   wantsBooking?: boolean;
   bookingAddonCost?: number;
   addedAdminPanel?: boolean;
+  wantsCheckoutSystem?: boolean;
   isPostDemoFlow?: boolean;
   businessType?: string;
   websiteGoal?: string;
@@ -176,6 +181,10 @@ function getBookingAddonPriceId(currency: Currency): string {
 
 function getAdminPanelPriceId(currency: Currency): string {
   return currency === 'SEK' ? ADMIN_PANEL_PRICE_SEK : ADMIN_PANEL_PRICE_EUR;
+}
+
+function getCheckoutAddonPriceId(currency: Currency): string {
+  return currency === 'SEK' ? CHECKOUT_ADDON_PRICE_SEK : CHECKOUT_ADDON_PRICE_EUR;
 }
 
 function getCarePlanPriceId(planId: string, isYearly: boolean, currency: Currency): string | null {
@@ -358,6 +367,17 @@ serve(async (req) => {
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
       console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on", { currency });
+    }
+
+    // Add checkout system add-on if selected and Starter package (free with Standard & Pro)
+    const wantsCheckoutSystem = requestData.wantsCheckoutSystem === true;
+    if (wantsCheckoutSystem && packageId === "starter") {
+      lineItems.push({
+        price: getCheckoutAddonPriceId(currency),
+        quantity: 1,
+        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+      });
+      console.log("[CREATE-PACKAGE-CHECKOUT] Added checkout system add-on", { currency });
     }
 
     // Add care plan if selected (recurring)

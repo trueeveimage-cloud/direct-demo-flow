@@ -360,13 +360,13 @@ export const packages = [
     }, 
     bestFor: { sv: 'Växande företag', en: 'Growing businesses' } 
   },
-  { 
+{ 
     id: 'pro', 
     name: 'Pro', 
     price: 1290, 
     priceDisplay: '€1,290', 
-    pages: { sv: 'Upp till 8 sidor', en: 'Up to 8 pages' }, 
-    maxPages: 8, 
+    pages: { sv: 'Obegränsade sidor', en: 'Unlimited pages' }, 
+    maxPages: 999, // Unlimited
     delivery: 7, 
     booking: true, 
     features: { 

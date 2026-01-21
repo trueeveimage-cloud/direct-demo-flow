@@ -37,6 +37,7 @@ export const addonPrices: Record<string, PriceConfig> = {
   booking: { eur: 200, sek: 1990 },
   adminPanel: { eur: 100, sek: 990 },
   verification: { eur: 50, sek: 499 },
+  checkout: { eur: 50, sek: 499 },
 };
 
 // Get currency based on language

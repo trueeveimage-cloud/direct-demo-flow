@@ -140,7 +140,7 @@ export default function PricingPage() {
       price: formatPrice(getPackagePrice('pro', currency), currency),
       delivery: t('7 dagar', '7 days'),
       description: t('För företag som vill ha bokning + mer tillväxt.', 'For businesses wanting booking + more growth.'),
-      pages: t('Upp till 8 sidor', 'Up to 8 pages'), 
+      pages: t('Obegränsade sidor', 'Unlimited pages'), 
       features: [
         { text: t('Allt i Standard', 'Everything in Standard'), key: 'Allt i Standard' },
         { text: t('Obegränsade revisioner', 'Unlimited revisions'), key: 'Obegränsade revisioner' },

@@ -35,12 +35,15 @@ function OrderSummaryComponent({
   const packagePrice = pkg ? getPackagePrice(pkg.id, currency) : 0;
   const bookingAddonPrice = getBookingAddonPrice(currency);
   const adminPanelPrice = getAddonPrice('adminPanel', currency);
+  const checkoutAddonPrice = getAddonPrice('checkout', currency);
   const verificationFee = getVerificationFee(currency);
   
   // Booking costs extra except for Pro package where it's included
   const bookingCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? bookingAddonPrice : 0;
   const adminPanelCost = addedAdminPanel ? adminPanelPrice : 0;
-  const packageTotal = packagePrice + bookingCost + adminPanelCost;
+  // Checkout system costs €50 for Starter, free for Standard/Pro
+  const checkoutCost = formData.wantsCheckoutSystem && formData.selectedPackage === 'starter' ? checkoutAddonPrice : 0;
+  const packageTotal = packagePrice + bookingCost + adminPanelCost + checkoutCost;
   const oneTimeNet = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
   
   // Total today = one-time items + first care plan payment (both charged at checkout)
@@ -48,12 +51,12 @@ function OrderSummaryComponent({
 
   const formatPrice = (price: number) => formatPriceFn(price, currency);
   
-  // Count selected free features
+  // Count selected free features (exclude checkout for starter since it's paid)
   const freeFeatures = [
     { enabled: formData.wantsGoogleMaps, label: t('Google Maps', 'Google Maps'), icon: MapPin },
     { enabled: formData.wantsGoogleReviews, label: t('Google Recensioner', 'Google Reviews'), icon: Star },
     { enabled: formData.wantsBeforeAfter, label: t('Före/Efter', 'Before/After'), icon: Image },
-    { enabled: formData.wantsCheckoutSystem, label: t('Kassasystem', 'Checkout'), icon: ShoppingCart },
+    { enabled: formData.wantsCheckoutSystem && formData.selectedPackage !== 'starter', label: t('Kassasystem', 'Checkout'), icon: ShoppingCart },
   ].filter(f => f.enabled);
 
   const getTotalPages = () => {
@@ -181,6 +184,24 @@ function OrderSummaryComponent({
                 <span>{t('Adminpanel', 'Admin Panel')}</span>
               </div>
               <span className="text-sm font-medium">+{formatPrice(adminPanelPrice)}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Checkout System add-on - costs €50 for Starter, FREE for Standard/Pro */}
+        <AnimatePresence>
+          {formData.wantsCheckoutSystem && formData.selectedPackage === 'starter' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex items-center justify-between px-3 py-2"
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <ShoppingCart className="w-4 h-4 text-accent" />
+                <span>{t('Kassasystem', 'Checkout system')}</span>
+              </div>
+              <span className="text-sm font-medium">+{formatPrice(checkoutAddonPrice)}</span>
             </motion.div>
           )}
         </AnimatePresence>
