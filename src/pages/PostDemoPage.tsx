@@ -304,8 +304,20 @@ export default function PostDemoPage() {
 
   // Initial page - concept link input
   return (
-    <div className="section-padding pt-24 pb-12 sm:pb-20">
+    <div className="min-h-screen py-12 sm:py-16 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+      </div>
+      
       <div className="container-narrow text-center px-4">
+        {/* Logo */}
+        <div className="text-center mb-6">
+          <a href="/" className="inline-block font-heading font-semibold text-2xl tracking-tight hover:opacity-80 transition-opacity">
+            Nomia<span className="text-accent">.</span>
+          </a>
+        </div>
         {/* Resume Banner */}
         <AnimatePresence>
           {showResumeBanner && (
