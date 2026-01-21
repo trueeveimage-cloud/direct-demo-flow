@@ -551,13 +551,7 @@ export default function Index() {
       ═══════════════════════════════════════════════════════════════════ */}
       <section className="py-32">
         <div className="container-narrow section-padding">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex items-center justify-between mb-12"
-          >
+          <div className="flex items-center justify-between mb-12 animate-fade-in">
             <h2 className="text-3xl sm:text-4xl font-bold">FAQ</h2>
             <Button asChild variant="ghost" className="group">
               <Link to="/faq">
@@ -565,7 +559,7 @@ export default function Index() {
                 <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-          </motion.div>
+          </div>
 
           <div className="space-y-4">
             {[
@@ -573,17 +567,14 @@ export default function Index() {
               { q: t('Hur lång tid tar leveransen?', 'How long does delivery take?'), a: t('Beroende på paket: Starter 14 dagar, Standard 10 dagar, Pro 7 dagar. Koncept levereras inom 72h.', 'Depending on package: Starter 14 days, Standard 10 days, Pro 7 days. Concepts delivered within 72h.') },
               { q: t('Erbjuder ni Klarna?', 'Do you offer Klarna?'), a: t('Ja! Delbetala med Klarna – betala senare eller dela upp i 3 delbetalningar.', 'Yes! Pay in installments with Klarna – pay later or split into 3 payments.') },
             ].map((faq, index) => (
-              <motion.div 
+              <div 
                 key={index} 
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.6, delay: index * 0.15, ease: "easeOut" }}
-                className="p-6 rounded-xl border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300"
+                className="p-6 rounded-xl border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <h4 className="font-heading font-semibold text-lg mb-2">{faq.q}</h4>
                 <p className="text-muted-foreground">{faq.a}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -598,30 +589,20 @@ export default function Index() {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
         <div className="container-wide section-padding relative">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-center mb-16"
-          >
+          <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
               {t('Välj din väg', 'Choose your path')}
             </h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
               {t('Två sätt att komma igång – välj det som passar dig bäst.', 'Two ways to get started – choose what suits you best.')}
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Free Concept Path */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-              whileHover={{ y: -5 }}
-              className="relative p-8 rounded-2xl border border-border/50 bg-background/80 backdrop-blur-sm hover:border-accent/30 transition-all duration-300"
+            <div
+              className="relative p-8 rounded-2xl border border-border/50 bg-background/80 backdrop-blur-sm hover:border-accent/30 hover:-translate-y-1 transition-all duration-300 animate-fade-in"
+              style={{ animationDelay: '100ms' }}
             >
               <div className="flex items-start gap-4 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0">
@@ -653,16 +634,12 @@ export default function Index() {
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
-            </motion.div>
+            </div>
 
             {/* Direct Order Path */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-              whileHover={{ y: -5 }}
-              className="relative p-8 rounded-2xl border border-border/50 bg-background/80 backdrop-blur-sm hover:border-accent/30 transition-all duration-300"
+            <div
+              className="relative p-8 rounded-2xl border border-border/50 bg-background/80 backdrop-blur-sm hover:border-accent/30 hover:-translate-y-1 transition-all duration-300 animate-fade-in"
+              style={{ animationDelay: '200ms' }}
             >
               <div className="flex items-start gap-4 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0">
@@ -694,16 +671,10 @@ export default function Index() {
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
-            </motion.div>
+            </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="text-center mt-10"
-          >
+          <div className="text-center mt-10 animate-fade-in" style={{ animationDelay: '300ms' }}>
             <Link 
               to="/efter-demo" 
               className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2"
@@ -711,7 +682,7 @@ export default function Index() {
               {t('Har du redan fått ditt koncept?', 'Already received your concept?')}
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
     </div>
