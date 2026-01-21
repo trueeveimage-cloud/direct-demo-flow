@@ -32,6 +32,7 @@ import { getCurrencyFromLang, getPackagePrice, getAddonPrice } from '@/config/cu
 
 const STORAGE_KEY = 'nomia_wizard_data';
 const SESSION_KEY = 'nomia_wizard_session';
+const RESUME_DISMISSED_KEY = 'nomia_wizard_resume_dismissed';
 
 interface WebsiteOrderWizardProps {
   isPostDemoFlow?: boolean;
@@ -68,19 +69,33 @@ function WebsiteOrderWizardComponent({
 
 // Check for saved data on mount - show resume prompt if data exists
   useEffect(() => {
+    // Don't show banner if user already dismissed it this session
+    const wasDismissed = sessionStorage.getItem(RESUME_DISMISSED_KEY);
+    if (wasDismissed) {
+      console.log('[Wizard] Resume banner was already dismissed this session');
+      return;
+    }
+
     const stored = localStorage.getItem(STORAGE_KEY);
+    console.log('[Wizard] Checking for saved data on mount:', stored ? 'found' : 'not found');
     
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
         // Check if data is less than 7 days old and has meaningful content
         const hasContent = parsed.businessName || parsed.email || parsed.step > 1;
-        if (hasContent && Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
+        const isRecent = Date.now() - (parsed.lastSaved || 0) < 7 * 24 * 60 * 60 * 1000;
+        console.log('[Wizard] Saved data check:', { hasContent, isRecent, lastSaved: parsed.lastSaved, step: parsed.step });
+        
+        if (hasContent && isRecent) {
+          console.log('[Wizard] Showing resume banner');
           setShowResumeBanner(true);
         } else {
+          console.log('[Wizard] Removing stale data');
           localStorage.removeItem(STORAGE_KEY);
         }
-      } catch {
+      } catch (e) {
+        console.error('[Wizard] Error parsing saved data:', e);
         localStorage.removeItem(STORAGE_KEY);
       }
     }
@@ -144,6 +159,7 @@ function WebsiteOrderWizardComponent({
   }, [formData, step, saveData]);
 
   const loadSavedData = useCallback(() => {
+    console.log('[Wizard] Loading saved data...');
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
@@ -151,12 +167,18 @@ function WebsiteOrderWizardComponent({
       setStep(parsed.step || 1);
       if (parsed.customerTypeData) setCustomerTypeData(parsed.customerTypeData);
       if (parsed.addedAdminPanel) setAddedAdminPanel(parsed.addedAdminPanel);
+      console.log('[Wizard] Restored to step', parsed.step);
     }
+    // Mark as dismissed so banner doesn't re-appear on navigation
+    sessionStorage.setItem(RESUME_DISMISSED_KEY, 'true');
     setShowResumeBanner(false);
   }, [conceptLink]);
 
   const clearSavedData = useCallback(() => {
+    console.log('[Wizard] Clearing saved data and starting fresh');
     localStorage.removeItem(STORAGE_KEY);
+    // Mark as dismissed so banner doesn't re-appear
+    sessionStorage.setItem(RESUME_DISMISSED_KEY, 'true');
     setFormData({ ...initialFormData, conceptLink });
     setStep(1);
     setCustomerTypeData(initialCustomerTypeData);
@@ -315,7 +337,12 @@ function WebsiteOrderWizardComponent({
         business_followups: JSON.parse(JSON.stringify(formData.businessFollowUps)),
       };
 
-      console.log('[Wizard] Saving order to database before Stripe redirect...');
+      console.log('[Wizard] Saving order to database before Stripe redirect...', { 
+        email: formData.email, 
+        businessName: formData.businessName,
+        package: formData.selectedPackage 
+      });
+      
       const { data: insertedOrder, error: dbError } = await supabase
         .from('order_submissions')
         .insert([orderSubmission])
@@ -323,16 +350,28 @@ function WebsiteOrderWizardComponent({
         .maybeSingle();
 
       if (dbError) {
-        console.error('[Wizard] Failed to save order:', dbError.message, dbError);
-        // Still continue to payment - don't block the user
+        console.error('[Wizard] ❌ Failed to save order to database:', {
+          code: dbError.code,
+          message: dbError.message,
+          details: dbError.details,
+          hint: dbError.hint
+        });
+        // Show a warning toast but still continue to payment
+        toast({
+          title: t('Varning', 'Warning'),
+          description: t('Din beställning kunde inte sparas, men du kan fortfarande betala.', 'Your order could not be saved, but you can still pay.'),
+          variant: 'destructive'
+        });
       } else {
-        console.log('[Wizard] Order saved successfully:', insertedOrder?.id);
+        console.log('[Wizard] ✓ Order saved successfully to database:', insertedOrder?.id);
       }
 
       // Store order ID for later payment status update
       if (insertedOrder?.id) {
         sessionStorage.setItem('pending_order_id', insertedOrder.id);
-        console.log('[Wizard] Stored pending order ID:', insertedOrder.id);
+        console.log('[Wizard] ✓ Stored pending order ID in sessionStorage:', insertedOrder.id);
+      } else {
+        console.warn('[Wizard] ⚠ No order ID returned from database insert');
       }
 
       // Use edge function for Stripe checkout
