@@ -134,7 +134,13 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
         });
         setVatError(null);
       } else {
-        setVatError(result.message || t('VAT-nummer kunde inte verifieras', 'VAT number could not be verified'));
+        // Localize error messages from edge function
+        const errorMessage = result.error === 'VIES_UNAVAILABLE' 
+          ? t('VIES-tjänsten är tillfälligt otillgänglig. Försök igen senare.', 'VIES service temporarily unavailable. Please try again later.')
+          : result.message?.includes('not valid according to VIES')
+            ? t('VAT-numret är ogiltigt enligt VIES', 'VAT number is not valid according to VIES')
+            : t('VAT-nummer kunde inte verifieras', 'VAT number could not be verified');
+        setVatError(errorMessage);
         onChange({ ...currentData, vatVerified: false, vatVerifiedAt: null });
       }
     } catch (error) {
