@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -11,13 +11,18 @@ import { WizardSkeleton } from './WizardSkeleton';
 import { AdminPanelUpsellModal } from '@/components/AdminPanelUpsellModal';
 import { 
   WizardFormData, 
-  CustomerTypeData,
   initialFormData, 
-  initialCustomerTypeData,
-  stepConfig,
-  stepConfigPostDemo
+  FormStep
 } from './wizardConfig';
 import { getCurrencyFromLang, getPackagePrice, getAddonPrice } from '@/config/currency';
+import { Step1Contact } from './steps/Step1Contact';
+import { Step2Package } from './steps/Step2Package';
+import { Step3Pages } from './steps/Step3Pages';
+import { Step4CarePlan } from './steps/Step4CarePlan';
+import { Step5ProjectDetails } from './steps/Step5ProjectDetails';
+import { Step6Payment } from './steps/Step6Payment';
+import { OrderSummary } from './OrderSummary';
+import { CustomerTypeSelection, CustomerTypeData, initialCustomerTypeData } from './steps/CustomerTypeSelection';
 
 interface WebsiteOrderWizardProps {
   isPostDemoFlow?: boolean;
@@ -25,26 +30,12 @@ interface WebsiteOrderWizardProps {
   onComplete?: () => void;
 }
 
-// Lazy load step components for better initial load performance
-const Step1Contact = lazy(() => import('./steps/Step1Contact'));
-const CustomerTypeSelection = lazy(() => import('./steps/CustomerTypeSelection'));
-const Step2Package = lazy(() => import('./steps/Step2Package'));
-const Step3Pages = lazy(() => import('./steps/Step3Pages'));
-const Step4CarePlan = lazy(() => import('./steps/Step4CarePlan'));
-const Step5ProjectDetails = lazy(() => import('./steps/Step5ProjectDetails'));
-const Step6Payment = lazy(() => import('./steps/Step6Payment'));
-const OrderSummary = lazy(() => import('./OrderSummary'));
-
-const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onComplete }: WebsiteOrderWizardProps) => {
+export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComplete }: WebsiteOrderWizardProps) {
   const { toast } = useToast();
   const { lang } = useLanguage();
   const t = (sv: string, en: string) => lang === 'sv' ? sv : en;
-  
-  // Use appropriate step config based on flow
-  const currentStepConfig = isPostDemoFlow ? stepConfigPostDemo : stepConfig;
-  const totalSteps = currentStepConfig.length;
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<FormStep>(1);
   const [formData, setFormData] = useState<WizardFormData>(() => ({
     ...initialFormData,
     conceptLink: conceptLink || ''
@@ -55,7 +46,9 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
   const [submitted, setSubmitted] = useState(false);
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [addedAdminPanel, setAddedAdminPanel] = useState(false);
-  const [lastAttemptedStep, setLastAttemptedStep] = useState<number | null>(null);
+  const [lastAttemptedStep, setLastAttemptedStep] = useState<FormStep | null>(null);
+  const [showCarePlanCompare, setShowCarePlanCompare] = useState(false);
+  const [showPackageCompare, setShowPackageCompare] = useState(false);
   
   // Currency based on language
   const currency = getCurrencyFromLang(lang);
@@ -67,51 +60,38 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
     }
   }, [conceptLink]);
 
-  // Helper for updating form data
-  const updateFormData = useCallback((updates: Partial<WizardFormData>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
-  }, []);
-
-  const updateCustomerTypeData = useCallback((updates: Partial<CustomerTypeData>) => {
-    setCustomerTypeData(prev => ({ ...prev, ...updates }));
-  }, []);
-
-  // Get the actual step type from config
-  const getCurrentStepType = () => currentStepConfig[step - 1];
-
   // Validation
   const validateStep = (): boolean => {
     const newErrors: Record<string, boolean> = {};
-    const stepType = getCurrentStepType();
     
-    switch (stepType) {
-      case 'contact':
+    switch (step) {
+      case 1:
         if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = true;
         if (!formData.businessName.trim()) newErrors.businessName = true;
         if (!formData.contactPerson.trim()) newErrors.contactPerson = true;
         break;
-      case 'customerType':
-        if (!customerTypeData.type) newErrors.customerType = true;
-        if (customerTypeData.type === 'company') {
+      case 2:
+        if (!formData.selectedPackage) newErrors.selectedPackage = true;
+        break;
+      case 3:
+        if (formData.selectedPages.length === 0 && formData.customPages.filter(p => p.trim()).length === 0) {
+          newErrors.pages = true;
+        }
+        break;
+      case 4:
+        // Care plan is optional
+        break;
+      case 5:
+        // All fields optional in this step
+        break;
+      case 6:
+        // Payment step - validated on submit
+        if (!customerTypeData.customerType) newErrors.customerType = true;
+        if (customerTypeData.customerType === 'business') {
           if (!customerTypeData.companyName?.trim()) newErrors.companyName = true;
           if (!customerTypeData.orgNumber?.trim()) newErrors.orgNumber = true;
           if (!customerTypeData.country) newErrors.country = true;
         }
-        break;
-      case 'package':
-        if (!formData.selectedPackage) newErrors.selectedPackage = true;
-        break;
-      case 'pages':
-        if (formData.selectedPages.length === 0 && formData.customPages.length === 0) newErrors.pages = true;
-        break;
-      case 'carePlan':
-        // Care plan is optional
-        break;
-      case 'projectDetails':
-        // All fields optional in this step
-        break;
-      case 'payment':
-        // Validated on submit
         break;
     }
     
@@ -121,18 +101,17 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
 
   // Check if we should show upsell modal (before payment step and hasn't added admin panel)
   const shouldShowUpsell = () => {
-    const nextStepType = currentStepConfig[step];
-    return nextStepType === 'payment' && !addedAdminPanel && !formData.wantsAdminPanel;
+    return step === 5 && !addedAdminPanel && !formData.wantsAdminPanel;
   };
 
   const handleNext = () => {
     if (validateStep()) {
       if (shouldShowUpsell()) {
         setShowUpsellModal(true);
-        setLastAttemptedStep(step + 1);
+        setLastAttemptedStep((step + 1) as FormStep);
       } else {
-        if (step < totalSteps) {
-          setStep(step + 1);
+        if (step < 6) {
+          setStep((step + 1) as FormStep);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
@@ -146,13 +125,13 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
 
   const handleBack = () => {
     if (step > 1) {
-      setStep(step - 1);
+      setStep((step - 1) as FormStep);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleUpsellAccept = () => {
-    updateFormData({ wantsAdminPanel: true });
+    setFormData(prev => ({ ...prev, wantsAdminPanel: true }));
     setAddedAdminPanel(true);
     setShowUpsellModal(false);
     if (lastAttemptedStep) {
@@ -162,7 +141,7 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
   };
 
   const handleUpsellDecline = () => {
-    setAddedAdminPanel(true); // Mark as shown so we don't show again
+    setAddedAdminPanel(true);
     setShowUpsellModal(false);
     if (lastAttemptedStep) {
       setStep(lastAttemptedStep);
@@ -182,7 +161,7 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
     if (formData.wantsBeforeAfter) addons += getAddonPrice('beforeAfter', currency);
     if (formData.wantsCheckoutSystem) addons += getAddonPrice('checkoutSystem', currency);
     
-    // Care plan monthly cost (first month is included in total)
+    // Care plan monthly cost
     let carePlanMonthly = 0;
     if (formData.selectedCarePlan === 'basic') carePlanMonthly = getAddonPrice('carePlanBasic', currency);
     else if (formData.selectedCarePlan === 'plus') carePlanMonthly = getAddonPrice('carePlanPlus', currency);
@@ -202,6 +181,14 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
 
   // Submit handler
   const handleSubmit = async () => {
+    if (!validateStep()) {
+      toast({
+        title: t('Fyll i alla obligatoriska fält', 'Please fill in all required fields'),
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -212,7 +199,7 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
         contact_person: formData.contactPerson,
         phone: formData.phone || null,
         current_website: formData.currentWebsite || null,
-        customer_type: customerTypeData.type,
+        customer_type: customerTypeData.customerType,
         company_name: customerTypeData.companyName || null,
         org_number: customerTypeData.orgNumber || null,
         vat_number: customerTypeData.vatNumber || null,
@@ -223,7 +210,7 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
         primary_color: formData.primaryColor || null,
         accent_color: formData.accentColor || null,
         selected_pages: formData.selectedPages,
-        custom_pages: formData.customPages,
+        custom_pages: formData.customPages.filter(p => p.trim()),
         legal_pages: formData.legalPages,
         page_notes: formData.pageNotes || null,
         wants_booking: formData.wantsBooking,
@@ -275,7 +262,7 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
           },
           carePlan: formData.selectedCarePlan,
           isYearlyCarePlan: formData.isYearlyCarePlan,
-          customerType: customerTypeData.type,
+          customerType: customerTypeData.customerType,
           vatNumber: customerTypeData.vatNumber,
           vatVerified: customerTypeData.vatVerified,
         }
@@ -288,8 +275,6 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
           title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
           description: t('Slutför betalningen i det nya fönstret.', 'Complete payment in the new window.') 
         });
-        // DON'T remove localStorage here - keep it so we don't lose data
-        // The data will be cleared on the payment success page instead
         setSubmitted(true);
         onComplete?.();
         window.location.href = checkoutData.url;
@@ -308,37 +293,32 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
 
   // Render current step
   const renderStep = () => {
-    const stepType = getCurrentStepType();
-    const stepProps = { formData, updateFormData, errors, currency, lang, t };
-    
-    return (
-      <Suspense fallback={<WizardSkeleton />}>
-        {stepType === 'contact' && <Step1Contact {...stepProps} />}
-        {stepType === 'customerType' && (
-          <CustomerTypeSelection 
-            customerTypeData={customerTypeData}
-            updateCustomerTypeData={updateCustomerTypeData}
-            errors={errors}
-            lang={lang}
-            t={t}
-          />
-        )}
-        {stepType === 'package' && <Step2Package {...stepProps} isPostDemoFlow={isPostDemoFlow} />}
-        {stepType === 'pages' && <Step3Pages {...stepProps} />}
-        {stepType === 'carePlan' && <Step4CarePlan {...stepProps} />}
-        {stepType === 'projectDetails' && <Step5ProjectDetails {...stepProps} />}
-        {stepType === 'payment' && (
+    switch (step) {
+      case 1:
+        return <Step1Contact formData={formData} setFormData={setFormData} errors={errors} />;
+      case 2:
+        return <Step2Package formData={formData} setFormData={setFormData} errors={errors} onComparePackages={() => setShowPackageCompare(true)} />;
+      case 3:
+        return <Step3Pages formData={formData} setFormData={setFormData} errors={errors} />;
+      case 4:
+        return <Step4CarePlan formData={formData} setFormData={setFormData} onCompareCarePlans={() => setShowCarePlanCompare(true)} />;
+      case 5:
+        return <Step5ProjectDetails formData={formData} setFormData={setFormData} />;
+      case 6:
+        return (
           <Step6Payment 
-            {...stepProps}
-            customerTypeData={customerTypeData}
-            calculateTotal={calculateTotal}
-            isSubmitting={isSubmitting}
-            onSubmit={handleSubmit}
+            formData={formData}
+            setFormData={setFormData}
             isPostDemoFlow={isPostDemoFlow}
+            customerTypeData={customerTypeData}
+            onCustomerTypeChange={setCustomerTypeData}
+            addedAdminPanel={addedAdminPanel}
+            onAddAdminPanel={() => setFormData(prev => ({ ...prev, wantsAdminPanel: true }))}
           />
-        )}
-      </Suspense>
-    );
+        );
+      default:
+        return null;
+    }
   };
 
   if (submitted) {
@@ -360,9 +340,7 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
         {/* Stepper */}
         <WizardStepper 
           currentStep={step} 
-          totalSteps={totalSteps}
-          stepConfig={currentStepConfig}
-          lang={lang}
+          onStepClick={(s) => s < step && setStep(s)}
         />
 
         {/* Main Content Grid */}
@@ -380,7 +358,7 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
               {renderStep()}
               
               {/* Navigation */}
-              {getCurrentStepType() !== 'payment' && (
+              {step !== 6 && (
                 <div className="flex justify-between mt-8 pt-6 border-t border-border">
                   {step > 1 ? (
                     <Button variant="outline" onClick={handleBack}>
@@ -397,36 +375,55 @@ const WebsiteOrderWizardComponent = ({ isPostDemoFlow = false, conceptLink, onCo
                   </Button>
                 </div>
               )}
+              
+              {/* Payment Step Submit */}
+              {step === 6 && (
+                <div className="flex justify-between mt-8 pt-6 border-t border-border">
+                  <Button variant="outline" onClick={handleBack}>
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    {t('Tillbaka', 'Back')}
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleSubmit} 
+                    disabled={isSubmitting}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {t('Bearbetar...', 'Processing...')}
+                      </>
+                    ) : (
+                      t('Gå till betalning', 'Proceed to payment')
+                    )}
+                  </Button>
+                </div>
+              )}
             </motion.div>
           </div>
           
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <Suspense fallback={<WizardSkeleton />}>
-              <OrderSummary 
-                formData={formData}
-                customerTypeData={customerTypeData}
-                calculateTotal={calculateTotal}
-                currency={currency}
-                lang={lang}
-                t={t}
-                isPostDemoFlow={isPostDemoFlow}
-              />
-            </Suspense>
+            <OrderSummary 
+              formData={formData}
+              isPostDemoFlow={isPostDemoFlow}
+              currentStep={step}
+              addedAdminPanel={addedAdminPanel}
+            />
           </div>
         </div>
       </div>
 
       {/* Admin Panel Upsell Modal */}
       <AdminPanelUpsellModal
-        isOpen={showUpsellModal}
+        open={showUpsellModal}
+        onOpenChange={setShowUpsellModal}
         onAccept={handleUpsellAccept}
         onDecline={handleUpsellDecline}
-        currency={currency}
-        lang={lang}
       />
     </div>
   );
-};
+}
 
-export default WebsiteOrderWizardComponent;
+export default WebsiteOrderWizard;
