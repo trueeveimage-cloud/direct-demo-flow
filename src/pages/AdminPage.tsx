@@ -6,7 +6,8 @@ import {
   Eye, MousePointer, CreditCard, CheckCircle, ShoppingCart,
   LogOut, Mail, MessageSquare, ExternalLink, Check, Trash2,
   LayoutDashboard, Inbox, LineChart, Settings, ChevronLeft,
-  ChevronRight, Search, Filter, MoreVertical, X, Square, CheckSquare
+  ChevronRight, X, Server, Database, Zap, Activity,
+  FileText, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ContactSubmission {
   id: string;
@@ -54,20 +61,59 @@ interface ConceptRequest {
 interface OrderSubmission {
   id: string;
   created_at: string;
+  updated_at?: string;
   email: string;
   business_name: string;
   contact_person?: string;
   phone?: string;
   submission_type: string;
+  customer_type?: string;
+  company_name?: string;
+  org_number?: string;
+  vat_number?: string;
+  vat_verified?: boolean;
+  country?: string;
   selected_package?: string;
   selected_style?: string;
+  selected_language?: string;
+  primary_color?: string;
+  accent_color?: string;
+  selected_pages?: string[];
+  custom_pages?: string[];
+  legal_pages?: string[];
   payment_status: string;
   payment_amount?: string;
+  stripe_session_id?: string;
+  paid_at?: string;
   wants_booking?: boolean;
   wants_admin_panel?: boolean;
+  wants_google_reviews?: boolean;
+  wants_google_maps?: boolean;
+  wants_before_after?: boolean;
+  wants_checkout_system?: boolean;
   selected_care_plan?: string;
+  is_yearly_care_plan?: boolean;
   services?: string;
+  opening_hours?: string;
+  booking_services?: unknown;
+  appointment_lengths?: string[];
+  buffer_time?: string;
+  max_bookings_per_day?: string;
+  advance_booking_days?: string;
+  google_maps_address?: string;
+  google_business_link?: string;
+  business_type?: string;
+  business_followups?: unknown;
+  website_goal?: string;
+  current_website?: string;
+  competitors?: string;
+  seo_keywords?: string;
+  brand_preferences?: string;
+  uploaded_photos?: string[];
+  terms_explanation?: string;
+  page_notes?: string;
   extra_notes?: string;
+  concept_link?: string;
   is_read: boolean;
   type: 'order';
 }
@@ -97,7 +143,7 @@ interface AnalyticsData {
   totalEvents: number;
 }
 
-type NavItem = 'overview' | 'orders' | 'messages' | 'analytics';
+type NavItem = 'overview' | 'orders' | 'messages' | 'analytics' | 'system';
 
 // Process real events from localStorage
 function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsData {
@@ -242,18 +288,21 @@ export default function AdminPage() {
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
   const [activeNav, setActiveNav] = useState<NavItem>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [submissionToDelete, setSubmissionToDelete] = useState<Submission | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Bulk selection state
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [bulkDeleteType, setBulkDeleteType] = useState<'orders' | 'messages'>('orders');
+  
+  // Full order details modal
+  const [fullDetailsOrder, setFullDetailsOrder] = useState<OrderSubmission | null>(null);
 
   // Check for stored lockout on mount
   useEffect(() => {
@@ -326,35 +375,35 @@ export default function AdminPage() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const fetchAllSubmissions = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data, error } = await supabase.functions.invoke('admin-get-submissions', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+      
+      if (error) {
+        console.error('Error fetching submissions:', error);
+        return;
+      }
+      
+      if (data?.submissions) {
+        setSubmissions(data.submissions);
+      }
+    } catch (err) {
+      console.error('Failed to fetch submissions:', err);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated && isAdmin) {
       const analytics = getAnalytics();
       const storedEvents = analytics.getStoredEvents();
       setEvents(storedEvents);
-      
-      const fetchAllSubmissions = async () => {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (!session) return;
-
-          const { data, error } = await supabase.functions.invoke('admin-get-submissions', {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`
-            }
-          });
-          
-          if (error) {
-            console.error('Error fetching submissions:', error);
-            return;
-          }
-          
-          if (data?.submissions) {
-            setSubmissions(data.submissions);
-          }
-        } catch (err) {
-          console.error('Failed to fetch submissions:', err);
-        }
-      };
       fetchAllSubmissions();
     }
   }, [isAuthenticated, isAdmin, refreshKey]);
@@ -427,7 +476,6 @@ export default function AdminPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // Build items array with correct types
       const items = Array.from(selectedIds).map(id => {
         const submission = submissions.find(s => s.id === id);
         return { id, type: submission?.type || (bulkDeleteType === 'orders' ? 'order' : 'contact') };
@@ -450,7 +498,6 @@ export default function AdminPage() {
         setSelectedSubmission(null);
       }
       
-      // Clear selection
       if (bulkDeleteType === 'orders') {
         setSelectedOrders(new Set());
       } else {
@@ -495,22 +542,8 @@ export default function AdminPage() {
   const orders = submissions.filter(s => s.type === 'order') as OrderSubmission[];
   const messages = submissions.filter(s => s.type !== 'order');
   
-  const filteredOrders = orders.filter(o => 
-    o.business_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    o.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
-  const filteredMessages = messages.filter(m => {
-    const searchLower = searchQuery.toLowerCase();
-    if (m.type === 'contact') {
-      const contact = m as ContactSubmission;
-      return contact.name.toLowerCase().includes(searchLower) ||
-        contact.email.toLowerCase().includes(searchLower);
-    }
-    const concept = m as ConceptRequest;
-    return concept.business_name.toLowerCase().includes(searchLower) ||
-      concept.email.toLowerCase().includes(searchLower);
-  });
+  const filteredOrders = orders;
+  const filteredMessages = messages;
 
   const toggleAllOrders = () => {
     if (selectedOrders.size === filteredOrders.length) {
@@ -550,7 +583,6 @@ export default function AdminPage() {
     e.preventDefault();
     setError('');
     
-    // Check if locked out
     if (lockedUntil && Date.now() < lockedUntil) {
       const remainingTime = Math.ceil((lockedUntil - Date.now()) / 60000);
       setError(`Too many attempts. Try again in ${remainingTime} minute(s).`);
@@ -574,7 +606,7 @@ export default function AdminPage() {
         localStorage.setItem('admin_attempts', String(newAttempts));
         
         if (newAttempts >= 3) {
-          const lockTime = Date.now() + 15 * 60 * 1000; // Lock for 15 minutes
+          const lockTime = Date.now() + 15 * 60 * 1000;
           setLockedUntil(lockTime);
           localStorage.setItem('admin_lockout', String(lockTime));
           setError('Too many failed attempts. Locked for 15 minutes.');
@@ -603,7 +635,6 @@ export default function AdminPage() {
         return;
       }
 
-      // Successful login - reset attempts
       setLoginAttempts(0);
       localStorage.removeItem('admin_attempts');
       localStorage.removeItem('admin_lockout');
@@ -621,8 +652,20 @@ export default function AdminPage() {
     setIsAdmin(false);
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    
+    // Refresh analytics
+    const analytics = getAnalytics();
+    const storedEvents = analytics.getStoredEvents();
+    setEvents(storedEvents);
+    
+    // Refresh submissions
+    await fetchAllSubmissions();
+    
     setRefreshKey(k => k + 1);
+    
+    setTimeout(() => setIsRefreshing(false), 500);
   };
 
   if (isLoading) {
@@ -680,6 +723,7 @@ export default function AdminPage() {
     { id: 'orders', label: 'Orders', icon: ShoppingCart, badge: pendingPayments > 0 ? pendingPayments : undefined },
     { id: 'messages', label: 'Messages', icon: Inbox, badge: unreadCount > 0 ? unreadCount : undefined },
     { id: 'analytics', label: 'Analytics', icon: LineChart },
+    { id: 'system', label: 'System', icon: Server },
   ];
 
   return (
@@ -747,25 +791,18 @@ export default function AdminPage() {
                 {activeNav === 'orders' && `${orders.length} total orders`}
                 {activeNav === 'messages' && `${messages.length} messages`}
                 {activeNav === 'analytics' && 'Conversion funnel & page performance'}
+                {activeNav === 'system' && 'System information & quick actions'}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              {(activeNav === 'orders' || activeNav === 'messages') && (
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 w-64"
-                  />
-                </div>
-              )}
-              <Button variant="outline" size="sm" onClick={handleRefresh}>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh
-              </Button>
-            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </Button>
           </div>
 
           {/* Overview Section */}
@@ -920,7 +957,6 @@ export default function AdminPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {/* Select All Header */}
                   {filteredOrders.length > 0 && (
                     <div className="flex items-center gap-3 mb-3 pb-3 border-b border-border">
                       <Checkbox
@@ -1010,6 +1046,7 @@ export default function AdminPage() {
                       order={selectedSubmission as OrderSubmission} 
                       onDelete={() => confirmDelete(selectedSubmission)}
                       onMarkRead={() => markAsRead(selectedSubmission.id, 'order')}
+                      onViewFull={() => setFullDetailsOrder(selectedSubmission as OrderSubmission)}
                     />
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
@@ -1046,7 +1083,6 @@ export default function AdminPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {/* Select All Header */}
                   {filteredMessages.length > 0 && (
                     <div className="flex items-center gap-3 mb-3 pb-3 border-b border-border">
                       <Checkbox
@@ -1297,6 +1333,179 @@ export default function AdminPage() {
               )}
             </div>
           )}
+
+          {/* System Section */}
+          {activeNav === 'system' && (
+            <div className="space-y-6">
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription className="flex items-center gap-2">
+                      <Database className="w-4 h-4" />
+                      Total Submissions
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold">{submissions.length}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription className="flex items-center gap-2">
+                      <Zap className="w-4 h-4" />
+                      Events Tracked
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold">{events.length}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription className="flex items-center gap-2">
+                      <Activity className="w-4 h-4" />
+                      Active Sessions
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold text-green-500">Live</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription className="flex items-center gap-2">
+                      <Server className="w-4 h-4" />
+                      System Status
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold text-green-500">OK</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* System Info */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5" />
+                      Database Tables
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg">
+                        <span>order_submissions</span>
+                        <Badge>{orders.length} rows</Badge>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg">
+                        <span>contact_submissions</span>
+                        <Badge>{messages.filter(m => m.type === 'contact').length} rows</Badge>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg">
+                        <span>concept_requests</span>
+                        <Badge>{messages.filter(m => m.type === 'concept').length} rows</Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="w-5 h-5" />
+                      Quick Actions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={handleRefresh}
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Refresh All Data
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => {
+                          localStorage.removeItem('nomia_analytics_events');
+                          setEvents([]);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Clear Analytics Cache
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        asChild
+                      >
+                        <a href="https://stripe.com/dashboard" target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Open Stripe Dashboard
+                        </a>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Package Prices Reference */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Package Prices (SEK)</CardTitle>
+                  <CardDescription>Current pricing configuration</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-secondary/30 rounded-lg border border-border">
+                      <h4 className="font-semibold text-lg">Starter</h4>
+                      <p className="text-2xl font-bold text-accent">2,900 kr</p>
+                      <p className="text-sm text-muted-foreground mt-1">1-page website</p>
+                    </div>
+                    <div className="p-4 bg-accent/10 rounded-lg border border-accent/30">
+                      <h4 className="font-semibold text-lg">Standard</h4>
+                      <p className="text-2xl font-bold text-accent">6,900 kr</p>
+                      <p className="text-sm text-muted-foreground mt-1">Multi-page + booking</p>
+                    </div>
+                    <div className="p-4 bg-secondary/30 rounded-lg border border-border">
+                      <h4 className="font-semibold text-lg">Pro</h4>
+                      <p className="text-2xl font-bold text-accent">15,900 kr</p>
+                      <p className="text-sm text-muted-foreground mt-1">Full-featured</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Care Plan Prices */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Care Plan Prices (Monthly)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-secondary/30 rounded-lg">
+                      <h4 className="font-semibold">Basic</h4>
+                      <p className="text-xl font-bold">290 kr/mo</p>
+                    </div>
+                    <div className="p-4 bg-secondary/30 rounded-lg">
+                      <h4 className="font-semibold">Standard</h4>
+                      <p className="text-xl font-bold">490 kr/mo</p>
+                    </div>
+                    <div className="p-4 bg-secondary/30 rounded-lg">
+                      <h4 className="font-semibold">Premium</h4>
+                      <p className="text-xl font-bold">790 kr/mo</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </main>
 
@@ -1343,15 +1552,201 @@ export default function AdminPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Full Order Details Modal */}
+      <Dialog open={!!fullDetailsOrder} onOpenChange={() => setFullDetailsOrder(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Full Order Details - {fullDetailsOrder?.business_name}
+            </DialogTitle>
+          </DialogHeader>
+          {fullDetailsOrder && (
+            <div className="space-y-4">
+              <FullOrderDetails order={fullDetailsOrder} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// Full Order Details Component - Shows EVERYTHING
+function FullOrderDetails({ order }: { order: OrderSubmission }) {
+  const formatValue = (value: unknown): string => {
+    if (value === null || value === undefined) return '—';
+    if (typeof value === 'boolean') return value ? '✓ Yes' : '✗ No';
+    if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '—';
+    if (typeof value === 'object') return JSON.stringify(value, null, 2);
+    return String(value);
+  };
+
+  const sections = [
+    {
+      title: '📋 Basic Info',
+      fields: [
+        { label: 'ID', value: order.id },
+        { label: 'Created', value: new Date(order.created_at).toLocaleString('sv-SE') },
+        { label: 'Updated', value: order.updated_at ? new Date(order.updated_at).toLocaleString('sv-SE') : null },
+        { label: 'Submission Type', value: order.submission_type },
+        { label: 'Is Read', value: order.is_read },
+      ]
+    },
+    {
+      title: '🏢 Business Details',
+      fields: [
+        { label: 'Business Name', value: order.business_name },
+        { label: 'Contact Person', value: order.contact_person },
+        { label: 'Email', value: order.email },
+        { label: 'Phone', value: order.phone },
+        { label: 'Customer Type', value: order.customer_type },
+        { label: 'Company Name', value: order.company_name },
+        { label: 'Org Number', value: order.org_number },
+        { label: 'VAT Number', value: order.vat_number },
+        { label: 'VAT Verified', value: order.vat_verified },
+        { label: 'Country', value: order.country },
+        { label: 'Business Type', value: order.business_type },
+      ]
+    },
+    {
+      title: '💳 Payment Info',
+      fields: [
+        { label: 'Payment Status', value: order.payment_status },
+        { label: 'Payment Amount', value: order.payment_amount },
+        { label: 'Stripe Session ID', value: order.stripe_session_id },
+        { label: 'Paid At', value: order.paid_at ? new Date(order.paid_at).toLocaleString('sv-SE') : null },
+      ]
+    },
+    {
+      title: '📦 Package & Style',
+      fields: [
+        { label: 'Selected Package', value: order.selected_package },
+        { label: 'Selected Style', value: order.selected_style },
+        { label: 'Selected Language', value: order.selected_language },
+        { label: 'Primary Color', value: order.primary_color },
+        { label: 'Accent Color', value: order.accent_color },
+      ]
+    },
+    {
+      title: '📄 Pages',
+      fields: [
+        { label: 'Selected Pages', value: order.selected_pages },
+        { label: 'Custom Pages', value: order.custom_pages },
+        { label: 'Legal Pages', value: order.legal_pages },
+      ]
+    },
+    {
+      title: '🛠️ Features & Add-ons',
+      fields: [
+        { label: 'Wants Booking', value: order.wants_booking },
+        { label: 'Wants Admin Panel', value: order.wants_admin_panel },
+        { label: 'Wants Google Reviews', value: order.wants_google_reviews },
+        { label: 'Wants Google Maps', value: order.wants_google_maps },
+        { label: 'Wants Before/After', value: order.wants_before_after },
+        { label: 'Wants Checkout System', value: order.wants_checkout_system },
+      ]
+    },
+    {
+      title: '🛡️ Care Plan',
+      fields: [
+        { label: 'Selected Care Plan', value: order.selected_care_plan },
+        { label: 'Is Yearly', value: order.is_yearly_care_plan },
+      ]
+    },
+    {
+      title: '📅 Booking Settings',
+      fields: [
+        { label: 'Services', value: order.services },
+        { label: 'Opening Hours', value: order.opening_hours },
+        { label: 'Booking Services', value: order.booking_services },
+        { label: 'Appointment Lengths', value: order.appointment_lengths },
+        { label: 'Buffer Time', value: order.buffer_time },
+        { label: 'Max Bookings/Day', value: order.max_bookings_per_day },
+        { label: 'Advance Booking Days', value: order.advance_booking_days },
+      ]
+    },
+    {
+      title: '📍 Location & Links',
+      fields: [
+        { label: 'Google Maps Address', value: order.google_maps_address },
+        { label: 'Google Business Link', value: order.google_business_link },
+        { label: 'Concept Link', value: order.concept_link },
+        { label: 'Current Website', value: order.current_website },
+      ]
+    },
+    {
+      title: '📝 Project Details',
+      fields: [
+        { label: 'Website Goal', value: order.website_goal },
+        { label: 'Competitors', value: order.competitors },
+        { label: 'SEO Keywords', value: order.seo_keywords },
+        { label: 'Brand Preferences', value: order.brand_preferences },
+        { label: 'Business Followups', value: order.business_followups },
+      ]
+    },
+    {
+      title: '🖼️ Files & Notes',
+      fields: [
+        { label: 'Uploaded Photos', value: order.uploaded_photos },
+        { label: 'Terms Explanation', value: order.terms_explanation },
+        { label: 'Page Notes', value: order.page_notes },
+        { label: 'Extra Notes', value: order.extra_notes },
+      ]
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Color Preview */}
+      {(order.primary_color || order.accent_color) && (
+        <div className="flex items-center gap-4 p-4 bg-secondary/30 rounded-lg">
+          <span className="text-sm font-medium">Colors:</span>
+          {order.primary_color && (
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-8 h-8 rounded-full border-2 border-border" 
+                style={{ backgroundColor: order.primary_color }}
+              />
+              <span className="text-xs">{order.primary_color}</span>
+            </div>
+          )}
+          {order.accent_color && (
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-8 h-8 rounded-full border-2 border-border" 
+                style={{ backgroundColor: order.accent_color }}
+              />
+              <span className="text-xs">{order.accent_color}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {sections.map((section) => (
+        <div key={section.title} className="space-y-2">
+          <h3 className="font-semibold text-lg border-b border-border pb-2">{section.title}</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {section.fields.map((field) => (
+              <div key={field.label} className="p-2 bg-secondary/20 rounded">
+                <p className="text-xs text-muted-foreground">{field.label}</p>
+                <p className="text-sm font-medium break-all">{formatValue(field.value)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
 
 // Order Details Component
-function OrderDetails({ order, onDelete, onMarkRead }: { 
+function OrderDetails({ order, onDelete, onMarkRead, onViewFull }: { 
   order: OrderSubmission; 
   onDelete: () => void;
   onMarkRead: () => void;
+  onViewFull: () => void;
 }) {
   return (
     <div className="space-y-4">
@@ -1366,7 +1761,7 @@ function OrderDetails({ order, onDelete, onMarkRead }: {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <MoreVertical className="w-4 h-4" />
+              <Settings className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -1444,13 +1839,19 @@ function OrderDetails({ order, onDelete, onMarkRead }: {
           <p className="text-sm whitespace-pre-wrap">{order.extra_notes}</p>
         </div>
       )}
-      
-      <Button asChild className="w-full">
-        <a href={`mailto:${order.email}?subject=Your Nomia Order - ${order.business_name}`}>
-          <Mail className="w-4 h-4 mr-2" />
-          Contact Customer
-        </a>
-      </Button>
+
+      <div className="space-y-2 pt-2">
+        <Button onClick={onViewFull} variant="outline" className="w-full">
+          <FileText className="w-4 h-4 mr-2" />
+          View ALL Details
+        </Button>
+        <Button asChild className="w-full">
+          <a href={`mailto:${order.email}?subject=Your Nomia Order - ${order.business_name}`}>
+            <Mail className="w-4 h-4 mr-2" />
+            Contact Customer
+          </a>
+        </Button>
+      </div>
     </div>
   );
 }
@@ -1476,7 +1877,7 @@ function MessageDetails({ message, reasonLabels, onDelete }: {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <MoreVertical className="w-4 h-4" />
+                <Settings className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -1523,7 +1924,7 @@ function MessageDetails({ message, reasonLabels, onDelete }: {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <MoreVertical className="w-4 h-4" />
+              <Settings className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
