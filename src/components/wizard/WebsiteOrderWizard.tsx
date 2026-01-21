@@ -335,8 +335,21 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
   }
 
   return (
-    <div className="min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12 relative overflow-hidden">
+    <div className="min-h-screen py-8 sm:py-12 relative overflow-hidden">
       <WizardBackground />
+      
+      {/* Header Section */}
+      <div className="text-center mb-6 sm:mb-8 px-4">
+        <a href="/" className="inline-block font-heading font-semibold text-2xl tracking-tight hover:opacity-80 transition-opacity mb-4">
+          Nomia<span className="text-accent">.</span>
+        </a>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+          {t('Beställ din hemsida', 'Order your website')}
+        </h1>
+        <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
+          {t('Fyll i formuläret så sätter vi igång med ditt projekt.', 'Fill out the form and we\'ll get started on your project.')}
+        </p>
+      </div>
       
       <div className="container-wide relative z-10 max-w-6xl mx-auto px-3 sm:px-6">
         {/* Stepper */}

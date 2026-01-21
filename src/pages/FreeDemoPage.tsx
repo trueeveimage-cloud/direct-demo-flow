@@ -330,7 +330,13 @@ export default function FreeDemoPage() {
         </div>
 
         <div className="max-w-7xl mx-auto relative px-3 sm:px-6">
-          {/* Header */}
+          {/* Logo */}
+          <div className="text-center mb-6">
+            <a href="/" className="inline-block font-heading font-semibold text-2xl tracking-tight hover:opacity-80 transition-opacity">
+              Nomia<span className="text-accent">.</span>
+            </a>
+          </div>
+          
           <AnimatedSection animation="fade-up" className="text-center mb-8 sm:mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent text-sm font-medium mb-4 backdrop-blur-sm border border-accent/30">
               <Clock className="w-4 h-4" />
