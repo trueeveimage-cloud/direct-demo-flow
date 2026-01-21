@@ -286,3 +286,16 @@
 .animate-shake {
   animation: shake 0.5s ease-in-out;
 }
+
+/* Error highlight animation for validation scroll-to-field */
+@keyframes error-pulse {
+  0% { box-shadow: 0 0 0 0 hsl(var(--destructive) / 0.4); }
+  50% { box-shadow: 0 0 0 8px hsl(var(--destructive) / 0.2); }
+  100% { box-shadow: 0 0 0 0 hsl(var(--destructive) / 0); }
+}
+
+.error-highlight {
+  animation: error-pulse 0.8s ease-out 2;
+  outline: 2px solid hsl(var(--destructive));
+  outline-offset: 2px;
+}

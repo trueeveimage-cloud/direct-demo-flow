@@ -41,7 +41,10 @@ function OrderSummaryComponent({
   const bookingCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? bookingAddonPrice : 0;
   const adminPanelCost = addedAdminPanel ? adminPanelPrice : 0;
   const packageTotal = packagePrice + bookingCost + adminPanelCost;
-  const totalToday = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
+  const oneTimeNet = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
+  
+  // Total today = one-time items + first care plan payment (both charged at checkout)
+  const totalNetToday = oneTimeNet + carePlanPriceValue;
 
   const formatPrice = (price: number) => formatPriceFn(price, currency);
   
@@ -249,11 +252,11 @@ function OrderSummaryComponent({
         <div className="space-y-1 text-sm text-muted-foreground">
           <div className="flex items-center justify-between">
             <span>{t('Netto', 'Net')}</span>
-            <span>{formatPrice(Math.round(totalToday))}</span>
+            <span>{formatPrice(Math.round(totalNetToday))}</span>
           </div>
           <div className="flex items-center justify-between">
             <span>{t('Moms (25%)', 'VAT (25%)')}</span>
-            <span>{formatPrice(Math.round(totalToday * VAT_RATE))}</span>
+            <span>{formatPrice(Math.round(totalNetToday * VAT_RATE))}</span>
           </div>
         </div>
 
@@ -264,7 +267,7 @@ function OrderSummaryComponent({
         >
           <div>
             <p className="text-sm text-muted-foreground">{t('Totalt idag', 'Total today')}</p>
-            <p className="text-2xl font-bold">{formatPrice(Math.round(totalToday * (1 + VAT_RATE)))}</p>
+            <p className="text-2xl font-bold">{formatPrice(Math.round(totalNetToday * (1 + VAT_RATE)))}</p>
           </div>
           <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
             <CreditCard className="w-6 h-6 text-accent" />

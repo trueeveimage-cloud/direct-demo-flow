@@ -60,7 +60,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
     }
   }, [conceptLink]);
 
-  // Validation
+  // Validation with scroll-to-field functionality
   const validateStep = (): boolean => {
     const newErrors: Record<string, boolean> = {};
     
@@ -97,7 +97,54 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
     }
     
     setErrors(newErrors);
+    
+    // Scroll to first error field and highlight it
+    if (Object.keys(newErrors).length > 0) {
+      const firstErrorKey = Object.keys(newErrors)[0];
+      scrollToAndHighlight(firstErrorKey);
+    }
+    
     return Object.keys(newErrors).length === 0;
+  };
+
+  // Scroll to error field and add highlight animation
+  const scrollToAndHighlight = (errorKey: string) => {
+    // Map error keys to element IDs or data attributes
+    const fieldSelectors: Record<string, string> = {
+      email: '[data-field="email"], #email, input[type="email"]',
+      businessName: '[data-field="businessName"], #businessName, input[name="businessName"]',
+      contactPerson: '[data-field="contactPerson"], #contactPerson, input[name="contactPerson"]',
+      selectedPackage: '[data-field="package"], .package-selection',
+      pages: '[data-field="pages"], .page-selection',
+      selectedCarePlan: '[data-field="carePlan"], .care-plan-selection',
+      customerType: '[data-field="customerType"], .customer-type-selection',
+      companyName: '[data-field="companyName"], #companyName, input[name="companyName"]',
+      orgNumber: '[data-field="orgNumber"], #orgNumber, input[name="orgNumber"]',
+      country: '[data-field="country"], #country, select[name="country"]',
+    };
+    
+    const selector = fieldSelectors[errorKey];
+    if (!selector) return;
+    
+    // Find the element
+    const element = document.querySelector(selector) as HTMLElement;
+    if (!element) return;
+    
+    // Scroll to element with offset
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Add highlight animation class
+    element.classList.add('error-highlight');
+    
+    // Focus if it's an input
+    if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
+      setTimeout(() => element.focus(), 500);
+    }
+    
+    // Remove highlight after animation
+    setTimeout(() => {
+      element.classList.remove('error-highlight');
+    }, 2000);
   };
 
   // Check if we should show upsell modal (before payment step and hasn't added admin panel)
@@ -119,6 +166,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
     } else {
       toast({
         title: t('Fyll i alla obligatoriska fält', 'Please fill in all required fields'),
+        description: t('Scrolla ner för att se vad som saknas.', 'Scroll down to see what\'s missing.'),
         variant: 'destructive'
       });
     }

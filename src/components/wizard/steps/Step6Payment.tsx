@@ -53,7 +53,10 @@ export function Step6Payment({
   const bookingAddonCost = formData.wantsBooking && formData.selectedPackage !== 'pro' ? bookingAddonPrice : 0;
   const adminPanelCost = addedAdminPanel ? adminPanelPrice : 0;
   const packageTotal = packagePrice + bookingAddonCost + adminPanelCost;
-  const totalToday = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
+  const oneTimeNet = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
+  
+  // Total today = one-time items + first care plan payment (both charged at checkout)
+  const totalNetToday = oneTimeNet + carePlanPriceValue;
 
   // VAT calculations
   const isBusinessWithVat = customerTypeData.customerType === 'business' && customerTypeData.vatVerified;
@@ -62,8 +65,8 @@ export function Step6Payment({
   // For businesses with valid VAT in same country as seller (Sweden), show VAT breakdown
   // For businesses with valid VAT in other EU countries, reverse charge (0% VAT)
   const showVatBreakdown = isPrivate || (customerTypeData.customerType === 'business' && customerTypeData.country === 'SE');
-  const vatAmount = showVatBreakdown ? totalToday * VAT_RATE : 0;
-  const netAmount = showVatBreakdown ? totalToday : totalToday;
+  const vatAmount = showVatBreakdown ? totalNetToday * VAT_RATE : 0;
+  const netAmount = showVatBreakdown ? totalNetToday : totalNetToday;
 
   const formatPrice = (price: number) => formatPriceFn(price, currency);
 
@@ -182,7 +185,7 @@ export function Step6Payment({
           <div className="flex justify-between items-center text-lg font-bold">
             <span>{t('Totalt idag', 'Total today')}</span>
             <span className="text-accent">
-              {formatPrice(showVatBreakdown ? totalToday + vatAmount : totalToday)}
+              {formatPrice(Math.round(showVatBreakdown ? totalNetToday + vatAmount : totalNetToday))}
             </span>
           </div>
 

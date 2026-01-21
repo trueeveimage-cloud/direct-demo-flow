@@ -79,6 +79,7 @@ function Step1ContactComponent({ formData, setFormData, errors, showConceptOptio
               {t('Företagsnamn', 'Business name')} *
             </Label>
             <Input 
+              data-field="businessName"
               value={formData.businessName} 
               onChange={(e) => updateField('businessName', e.target.value)} 
               placeholder={t('Ditt företagsnamn', 'Your business name')} 
@@ -91,6 +92,7 @@ function Step1ContactComponent({ formData, setFormData, errors, showConceptOptio
               {t('Kontaktperson', 'Contact person')} *
             </Label>
             <Input 
+              data-field="contactPerson"
               value={formData.contactPerson} 
               onChange={(e) => updateField('contactPerson', e.target.value)} 
               placeholder={t('Ditt namn', 'Your name')} 
@@ -103,6 +105,7 @@ function Step1ContactComponent({ formData, setFormData, errors, showConceptOptio
               {t('E-post', 'Email')} *
             </Label>
             <Input 
+              data-field="email"
               type="email" 
               value={formData.email} 
               onChange={(e) => updateField('email', e.target.value)} 
