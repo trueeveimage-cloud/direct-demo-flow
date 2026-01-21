@@ -63,43 +63,8 @@ function WebsiteOrderWizardComponent({
   const [addedAdminPanel, setAddedAdminPanel] = useState(false);
   const [showPackageCompare, setShowPackageCompare] = useState(false);
   const [showCarePlanCompare, setShowCarePlanCompare] = useState(false);
-  const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [showAdminPanelModal, setShowAdminPanelModal] = useState(false);
   const [adminPanelDecision, setAdminPanelDecision] = useState(false);
-
-// Check for saved data on mount - show resume prompt if data exists
-  useEffect(() => {
-    // Don't show banner if user already dismissed it this session
-    const wasDismissed = sessionStorage.getItem(RESUME_DISMISSED_KEY);
-    if (wasDismissed) {
-      console.log('[Wizard] Resume banner was already dismissed this session');
-      return;
-    }
-
-    const stored = localStorage.getItem(STORAGE_KEY);
-    console.log('[Wizard] Checking for saved data on mount:', stored ? 'found' : 'not found');
-    
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        // Check if data is less than 7 days old and has meaningful content
-        const hasContent = parsed.businessName || parsed.email || parsed.step > 1;
-        const isRecent = Date.now() - (parsed.lastSaved || 0) < 7 * 24 * 60 * 60 * 1000;
-        console.log('[Wizard] Saved data check:', { hasContent, isRecent, lastSaved: parsed.lastSaved, step: parsed.step });
-        
-        if (hasContent && isRecent) {
-          console.log('[Wizard] Showing resume banner');
-          setShowResumeBanner(true);
-        } else {
-          console.log('[Wizard] Removing stale data');
-          localStorage.removeItem(STORAGE_KEY);
-        }
-      } catch (e) {
-        console.error('[Wizard] Error parsing saved data:', e);
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    }
-  }, []);
 
   // Detect when user returns from Stripe payment and redirect to success page
   useEffect(() => {
@@ -171,21 +136,15 @@ function WebsiteOrderWizardComponent({
       if (parsed.addedAdminPanel) setAddedAdminPanel(parsed.addedAdminPanel);
       console.log('[Wizard] Restored to step', parsed.step);
     }
-    // Mark as dismissed so banner doesn't re-appear on navigation
-    sessionStorage.setItem(RESUME_DISMISSED_KEY, 'true');
-    setShowResumeBanner(false);
   }, [conceptLink]);
 
   const clearSavedData = useCallback(() => {
     console.log('[Wizard] Clearing saved data and starting fresh');
     localStorage.removeItem(STORAGE_KEY);
-    // Mark as dismissed so banner doesn't re-appear
-    sessionStorage.setItem(RESUME_DISMISSED_KEY, 'true');
     setFormData({ ...initialFormData, conceptLink });
     setStep(1);
     setCustomerTypeData(initialCustomerTypeData);
     setAddedAdminPanel(false);
-    setShowResumeBanner(false);
   }, [conceptLink]);
 
   const validateStep1 = (): boolean => {
