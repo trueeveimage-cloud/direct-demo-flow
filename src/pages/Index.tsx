@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield, Info, Sparkles, TrendingDown, Eye } from 'lucide-react';
+import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield, Info, Sparkles, TrendingDown, Eye, Calendar } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -174,17 +174,52 @@ export default function Index() {
             </span>
           </div>
 
-          {/* Urgency Badge */}
-          <div className="animate-hero-fade-in animation-delay-100 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20">
-            <Clock className="w-4 h-4" />
-            {spotsLoading ? (
-              <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
-            ) : remainingSpots > 0 ? (
-              <span>{t(`Endast ${remainingSpots} platser kvar för gratis koncept`, `Only ${remainingSpots} spots left for free concept`)}</span>
-            ) : (
-              <span className="text-orange-400">{t('Fullbokat denna vecka', 'Fully booked this week')}</span>
-            )}
-          </div>
+          {/* Urgency Badge - Clickable with explanation */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="animate-hero-fade-in animation-delay-100 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20 hover:bg-accent/20 hover:border-accent/30 transition-colors cursor-pointer">
+                <Clock className="w-4 h-4" />
+                {spotsLoading ? (
+                  <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
+                ) : remainingSpots > 0 ? (
+                  <span>{t(`Endast ${remainingSpots} platser kvar för gratis koncept`, `Only ${remainingSpots} spots left for free concept`)}</span>
+                ) : (
+                  <span className="text-orange-400">{t('Fullbokat denna vecka', 'Fully booked this week')}</span>
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-4" align="center">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-accent">
+                  <Calendar className="w-5 h-5" />
+                  <h4 className="font-semibold">{t('Veckans platser', 'Weekly Spots')}</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {t(
+                    'Vi tar endast emot 7 nya koncept per vecka för att säkerställa högsta kvalitet på varje design. Just nu finns det ',
+                    'We only accept 7 new concepts per week to ensure the highest quality for each design. Currently there are '
+                  )}
+                  <span className="font-semibold text-foreground">{remainingSpots} {t('platser', 'spots')}</span>
+                  {t(' kvar denna vecka.', ' left this week.')}
+                </p>
+                <div className="flex items-center gap-3 pt-2 border-t border-border">
+                  <div className="flex -space-x-1">
+                    {[...Array(7)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className={`w-4 h-4 rounded-full border-2 border-background ${
+                          i < (7 - remainingSpots) ? 'bg-muted-foreground/50' : 'bg-accent'
+                        }`} 
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {7 - remainingSpots}/7 {t('bokade', 'booked')}
+                  </span>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           <h1 className="animate-hero-fade-in animation-delay-200 text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4">
             {t('Webbdesign som funkar.', 'Web design that works.')}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -433,60 +433,65 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Form Area */}
           <div className="lg:col-span-2">
-            <motion.div 
-              key={step}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-4 sm:p-6 md:p-8"
-            >
-              {renderStep()}
-              
-              {/* Navigation */}
-              {step !== 6 && (
-                <div className="flex justify-between mt-8 pt-6 border-t border-border">
-                  {step > 1 ? (
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={step}
+                initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -12, scale: 0.98 }}
+                transition={{ 
+                  duration: 0.35, 
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+                className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-4 sm:p-6 md:p-8"
+              >
+                {renderStep()}
+                
+                {/* Navigation */}
+                {step !== 6 && (
+                  <div className="flex justify-between mt-8 pt-6 border-t border-border">
+                    {step > 1 ? (
+                      <Button variant="outline" onClick={handleBack}>
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        {t('Tillbaka', 'Back')}
+                      </Button>
+                    ) : (
+                      <div />
+                    )}
+                    
+                    <Button onClick={handleNext} className="bg-primary hover:bg-primary/90">
+                      {t('Nästa', 'Next')}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                )}
+                
+                {/* Payment Step Submit */}
+                {step === 6 && (
+                  <div className="flex justify-between mt-8 pt-6 border-t border-border">
                     <Button variant="outline" onClick={handleBack}>
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       {t('Tillbaka', 'Back')}
                     </Button>
-                  ) : (
-                    <div />
-                  )}
-                  
-                  <Button onClick={handleNext} className="bg-primary hover:bg-primary/90">
-                    {t('Nästa', 'Next')}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              )}
-              
-              {/* Payment Step Submit */}
-              {step === 6 && (
-                <div className="flex justify-between mt-8 pt-6 border-t border-border">
-                  <Button variant="outline" onClick={handleBack}>
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    {t('Tillbaka', 'Back')}
-                  </Button>
-                  
-                  <Button 
-                    onClick={handleSubmit} 
-                    disabled={isSubmitting}
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {t('Bearbetar...', 'Processing...')}
-                      </>
-                    ) : (
-                      t('Gå till betalning', 'Proceed to payment')
-                    )}
-                  </Button>
-                </div>
-              )}
-            </motion.div>
+                    
+                    <Button 
+                      onClick={handleSubmit} 
+                      disabled={isSubmitting}
+                      className="bg-primary hover:bg-primary/90"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          {t('Bearbetar...', 'Processing...')}
+                        </>
+                      ) : (
+                        t('Gå till betalning', 'Proceed to payment')
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
           
           {/* Order Summary Sidebar */}
