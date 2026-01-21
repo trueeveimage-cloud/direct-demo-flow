@@ -72,6 +72,8 @@ export default function PaymentSuccessPage() {
       const cachedOrder = sessionStorage.getItem('pending_order');
       if (!cachedOrder) {
         console.log('No cached order data found for email confirmation');
+        // Still clear wizard data even if no cached order (user may have paid from a different tab)
+        localStorage.removeItem('nomia_wizard_data');
         return;
       }
 
@@ -126,6 +128,9 @@ export default function PaymentSuccessPage() {
           setEmailSent(true);
           // Clear cached order data
           sessionStorage.removeItem('pending_order');
+          sessionStorage.removeItem('pending_order_id');
+          // Clear wizard data so "continue where you left off" doesn't show for completed orders
+          localStorage.removeItem('nomia_wizard_data');
         }
       } catch (err) {
         console.error('Error sending confirmation email:', err);

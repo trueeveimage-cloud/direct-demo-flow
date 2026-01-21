@@ -315,6 +315,7 @@ function WebsiteOrderWizardComponent({
         business_followups: JSON.parse(JSON.stringify(formData.businessFollowUps)),
       };
 
+      console.log('[Wizard] Saving order to database before Stripe redirect...');
       const { data: insertedOrder, error: dbError } = await supabase
         .from('order_submissions')
         .insert([orderSubmission])
@@ -322,13 +323,16 @@ function WebsiteOrderWizardComponent({
         .maybeSingle();
 
       if (dbError) {
-        console.error('Failed to save order:', dbError);
-        // Continue anyway - don't block payment
+        console.error('[Wizard] Failed to save order:', dbError.message, dbError);
+        // Still continue to payment - don't block the user
+      } else {
+        console.log('[Wizard] Order saved successfully:', insertedOrder?.id);
       }
 
       // Store order ID for later payment status update
       if (insertedOrder?.id) {
         sessionStorage.setItem('pending_order_id', insertedOrder.id);
+        console.log('[Wizard] Stored pending order ID:', insertedOrder.id);
       }
 
       // Use edge function for Stripe checkout
@@ -396,7 +400,8 @@ function WebsiteOrderWizardComponent({
           title: t('Stripe-kassan öppnad', 'Stripe checkout opened'), 
           description: t('Slutför betalningen i det nya fönstret.', 'Complete payment in the new window.') 
         });
-        localStorage.removeItem(STORAGE_KEY);
+        // DON'T remove localStorage here - keep it so "continue where you left off" works
+        // The data will be cleared on the payment success page instead
         setSubmitted(true);
         onComplete?.();
       }
