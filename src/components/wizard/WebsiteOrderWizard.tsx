@@ -333,7 +333,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
           isYearly: formData.isYearlyCarePlan,
           wantsBooking: formData.wantsBooking,
           bookingAddonCost: formData.wantsBooking && formData.selectedPackage !== 'pro' ? getAddonPrice('booking', currency) : 0,
-          addedAdminPanel: formData.wantsAdminPanel,
+          addedAdminPanel: addedAdminPanel || formData.wantsAdminPanel,
           isPostDemoFlow,
           customerType: customerTypeData.customerType,
           companyName: customerTypeData.companyName || '',
