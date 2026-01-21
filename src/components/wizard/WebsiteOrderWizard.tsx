@@ -141,8 +141,8 @@ function WebsiteOrderWizardComponent({
     };
   }, [submitted]);
 
-  // Debounced auto-save
-  const saveData = useCallback(() => {
+  // Save data immediately and also with debounce for performance
+  const saveDataToStorage = useCallback(() => {
     const toSave = { 
       ...formData, 
       step, 
@@ -151,12 +151,14 @@ function WebsiteOrderWizardComponent({
       lastSaved: Date.now() 
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    console.log('[Wizard] Data saved to localStorage at step', step);
   }, [formData, step, customerTypeData, addedAdminPanel]);
 
+  // IMMEDIATELY save on any formData change (not debounced) to prevent data loss
   useEffect(() => {
-    const timer = setTimeout(saveData, 1000);
-    return () => clearTimeout(timer);
-  }, [formData, step, saveData]);
+    // Save immediately on mount and any change
+    saveDataToStorage();
+  }, [saveDataToStorage]);
 
   const loadSavedData = useCallback(() => {
     console.log('[Wizard] Loading saved data...');
