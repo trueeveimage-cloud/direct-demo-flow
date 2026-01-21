@@ -232,6 +232,28 @@ function WebsiteOrderWizardComponent({
   const VERIFICATION_FEE = getVerificationFee(currency);
 
   const handleSubmit = async () => {
+    // Validate customer type is selected
+    if (!customerTypeData.customerType) {
+      toast({ 
+        title: t('Välj kundtyp', 'Select customer type'), 
+        description: t('Du måste välja Privatperson eller Företag innan du kan fortsätta.', 'You must select Private or Business before continuing.'),
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    // Validate business fields if business selected
+    if (customerTypeData.customerType === 'business') {
+      if (!customerTypeData.companyName || !customerTypeData.orgNumber || !customerTypeData.billingAddress) {
+        toast({ 
+          title: t('Fyll i företagsuppgifter', 'Fill in company details'), 
+          description: t('Alla företagsuppgifter måste fyllas i.', 'All company details must be filled in.'),
+          variant: 'destructive' 
+        });
+        return;
+      }
+    }
+
     setIsLoading(true);
     
     try {
