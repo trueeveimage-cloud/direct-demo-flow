@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -60,9 +61,26 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
     }
   }, [conceptLink]);
 
-  // Auto scroll to top when step changes
+  // Track if confetti has been shown for step 6
+  const hasShownConfetti = useRef(false);
+
+  // Auto scroll to top when step changes + confetti on payment step
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Show confetti when reaching payment step (step 6)
+    if (step === 6 && !hasShownConfetti.current) {
+      hasShownConfetti.current = true;
+      // Small delay to let the page transition complete
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.3 },
+          colors: ['#F59E0B', '#FBBF24', '#FCD34D', '#FDE68A', '#FEF3C7']
+        });
+      }, 400);
+    }
   }, [step]);
 
   // Validation with scroll-to-field functionality
