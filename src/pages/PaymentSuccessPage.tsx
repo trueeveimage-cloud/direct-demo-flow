@@ -74,6 +74,7 @@ export default function PaymentSuccessPage() {
         console.log('No cached order data found for email confirmation');
         // Still clear wizard data even if no cached order (user may have paid from a different tab)
         localStorage.removeItem('nomia_wizard_data');
+        sessionStorage.removeItem('nomia_wizard_resume_dismissed');
         return;
       }
 
@@ -131,6 +132,8 @@ export default function PaymentSuccessPage() {
           sessionStorage.removeItem('pending_order_id');
           // Clear wizard data so "continue where you left off" doesn't show for completed orders
           localStorage.removeItem('nomia_wizard_data');
+          // Also clear the resume dismissed flag so future orders can show the banner
+          sessionStorage.removeItem('nomia_wizard_resume_dismissed');
         }
       } catch (err) {
         console.error('Error sending confirmation email:', err);
