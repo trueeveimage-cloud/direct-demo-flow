@@ -90,7 +90,7 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, error
         </motion.div>
       )}
 
-      <div className={`grid md:grid-cols-3 gap-6 ${hasError ? 'animate-shake' : ''}`}>
+      <div className={`grid md:grid-cols-3 gap-6 care-plan-selection ${hasError ? 'animate-shake' : ''}`} data-field="carePlan">
         {carePlans.map((c, i) => {
           const price = getCarePlanPrice(c.id, formData.isYearlyCarePlan, currency);
           const oldPrice = getCarePlanPrice(c.id, false, currency);

@@ -51,7 +51,7 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
             {t('Jämför paket', 'Compare packages')}
           </Button>
         </div>
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-3 gap-4 package-selection" data-field="package">
           {packages.map((p, i) => (
             <motion.button
               key={p.id}

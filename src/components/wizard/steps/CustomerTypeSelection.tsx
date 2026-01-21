@@ -196,7 +196,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
         <Label className="text-sm font-medium mb-3 block">
           {t('Jag köper som', 'I am purchasing as')} *
         </Label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 customer-type-selection" data-field="customerType">
           <button
             type="button"
             onClick={() => updateField('customerType', 'private')}
@@ -275,6 +275,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                   <InfoTooltip content={t('Det officiella registrerade företagsnamnet.', 'The official registered company name.')} />
                 </Label>
                 <Input
+                  data-field="companyName"
                   value={data.companyName}
                   onChange={(e) => updateField('companyName', e.target.value)}
                   placeholder={t('AB Företaget', 'Company Ltd')}
@@ -292,6 +293,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                   />
                 </Label>
                 <Input
+                  data-field="orgNumber"
                   value={data.orgNumber}
                   onChange={(e) => updateField('orgNumber', e.target.value)}
                   placeholder={selectedCountry?.orgFormat || 'XXXXXX-XXXX'}
