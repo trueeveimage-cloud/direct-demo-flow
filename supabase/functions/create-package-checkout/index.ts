@@ -83,8 +83,8 @@ const ADMIN_PANEL_PRICE_EUR = "price_1SjVDH74JfaAfHsdJ2bpHabL"; // €100 admin 
 const ADMIN_PANEL_PRICE_SEK = "price_1SoVg074JfaAfHsdCfjHTSR4"; // 990 kr admin panel add-on
 
 // Checkout system add-on price IDs from Stripe (€50 / 499 kr - free with Standard & Pro)
-const CHECKOUT_ADDON_PRICE_EUR = "price_checkout_addon_eur"; // TODO: Create in Stripe - €50
-const CHECKOUT_ADDON_PRICE_SEK = "price_checkout_addon_sek"; // TODO: Create in Stripe - 499 kr
+const CHECKOUT_ADDON_PRICE_EUR = "price_1Ss7lg74JfaAfHsd2VcoKjUh"; // €50 checkout add-on
+const CHECKOUT_ADDON_PRICE_SEK = "price_1Ss7lg74JfaAfHsdnKn2RQjt"; // 499 kr checkout add-on
 
 // Care plan price IDs from Stripe (monthly)
 const CARE_PLAN_MONTHLY_EUR: Record<string, string> = {
