@@ -32,6 +32,72 @@ export type Database = {
         }
         Relationships: []
       }
+      case_studies: {
+        Row: {
+          after_image_url: string | null
+          before_image_url: string | null
+          challenge_en: string
+          challenge_sv: string
+          client_name: string
+          created_at: string
+          id: string
+          industry: string
+          is_published: boolean | null
+          metrics: Json | null
+          results_en: string
+          results_sv: string
+          slug: string
+          solution_en: string
+          solution_sv: string
+          testimonial_author: string | null
+          testimonial_quote: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          after_image_url?: string | null
+          before_image_url?: string | null
+          challenge_en: string
+          challenge_sv: string
+          client_name: string
+          created_at?: string
+          id?: string
+          industry: string
+          is_published?: boolean | null
+          metrics?: Json | null
+          results_en: string
+          results_sv: string
+          slug: string
+          solution_en: string
+          solution_sv: string
+          testimonial_author?: string | null
+          testimonial_quote?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          after_image_url?: string | null
+          before_image_url?: string | null
+          challenge_en?: string
+          challenge_sv?: string
+          client_name?: string
+          created_at?: string
+          id?: string
+          industry?: string
+          is_published?: boolean | null
+          metrics?: Json | null
+          results_en?: string
+          results_sv?: string
+          slug?: string
+          solution_en?: string
+          solution_sv?: string
+          testimonial_author?: string | null
+          testimonial_quote?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       concept_requests: {
         Row: {
           business_name: string
@@ -83,6 +149,121 @@ export type Database = {
         }
         Relationships: []
       }
+      email_captures: {
+        Row: {
+          business_name: string | null
+          captured_at: string
+          converted_to_order: boolean | null
+          email: string
+          id: string
+          ip_address: string | null
+          order_id: string | null
+          source: string
+          user_agent: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          captured_at?: string
+          converted_to_order?: boolean | null
+          email: string
+          id?: string
+          ip_address?: string | null
+          order_id?: string | null
+          source?: string
+          user_agent?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          captured_at?: string
+          converted_to_order?: boolean | null
+          email?: string
+          id?: string
+          ip_address?: string | null
+          order_id?: string | null
+          source?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_captures_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "order_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          billing_address: string | null
+          company_name: string | null
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_name: string
+          id: string
+          invoice_number: string
+          line_items: Json
+          order_id: string | null
+          org_number: string | null
+          pdf_url: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          subtotal: number
+          total: number
+          vat_amount: number | null
+          vat_number: string | null
+        }
+        Insert: {
+          billing_address?: string | null
+          company_name?: string | null
+          created_at?: string
+          currency?: string
+          customer_email: string
+          customer_name: string
+          id?: string
+          invoice_number: string
+          line_items?: Json
+          order_id?: string | null
+          org_number?: string | null
+          pdf_url?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          subtotal: number
+          total: number
+          vat_amount?: number | null
+          vat_number?: string | null
+        }
+        Update: {
+          billing_address?: string | null
+          company_name?: string | null
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string
+          id?: string
+          invoice_number?: string
+          line_items?: Json
+          order_id?: string | null
+          org_number?: string | null
+          pdf_url?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          subtotal?: number
+          total?: number
+          vat_amount?: number | null
+          vat_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "order_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_submissions: {
         Row: {
           accent_color: string | null
@@ -120,6 +301,7 @@ export type Database = {
           payment_status: string
           phone: string | null
           primary_color: string | null
+          recovery_email_sent_at: string | null
           selected_care_plan: string | null
           selected_language: string | null
           selected_package: string | null
@@ -178,6 +360,7 @@ export type Database = {
           payment_status?: string
           phone?: string | null
           primary_color?: string | null
+          recovery_email_sent_at?: string | null
           selected_care_plan?: string | null
           selected_language?: string | null
           selected_package?: string | null
@@ -236,6 +419,7 @@ export type Database = {
           payment_status?: string
           phone?: string | null
           primary_color?: string | null
+          recovery_email_sent_at?: string | null
           selected_care_plan?: string | null
           selected_language?: string | null
           selected_package?: string | null

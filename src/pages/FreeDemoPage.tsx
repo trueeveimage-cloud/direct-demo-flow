@@ -68,7 +68,6 @@ export default function FreeDemoPage() {
   const [step, setStep] = useState<FormStep>(1);
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showResumeBanner, setShowResumeBanner] = useState(false);
   const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
   
   // Check for payment success from Stripe redirect
@@ -124,39 +123,6 @@ export default function FreeDemoPage() {
   const verificationFee = getAddonPrice('verification', currency);
   const formattedVerificationFee = formatPrice(verificationFee, currency);
 
-  // Check for saved data on mount - always show banner if meaningful data exists
-  useEffect(() => {
-    const stored = localStorage.getItem(DEMO_STORAGE_KEY);
-    
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        // Check for meaningful progress - any filled field counts
-        const hasProgress = !!(
-          parsed.businessName?.trim() ||
-          parsed.email?.trim() ||
-          parsed.contactPerson?.trim() ||
-          parsed.phone?.trim() ||
-          parsed.businessType ||
-          parsed.websiteGoal ||
-          parsed.selectedStyle ||
-          parsed.services?.trim() ||
-          parsed.step > 1
-        );
-        
-        const isRecent = Date.now() - (parsed.lastSaved || 0) < 7 * 24 * 60 * 60 * 1000;
-        
-        if (hasProgress && isRecent) {
-          setShowResumeBanner(true);
-        } else if (!isRecent) {
-          localStorage.removeItem(DEMO_STORAGE_KEY);
-        }
-      } catch {
-        localStorage.removeItem(DEMO_STORAGE_KEY);
-      }
-    }
-  }, []);
-
   // Auto-save data IMMEDIATELY (no debounce) to prevent data loss on navigation/close
   useEffect(() => {
     const toSave = {
@@ -186,6 +152,30 @@ export default function FreeDemoPage() {
       setContactPerson(parsed.contactPerson || '');
       setEmail(parsed.email || '');
       setPhone(parsed.phone || '');
+      setCurrentWebsite(parsed.currentWebsite || '');
+      setBusinessType(parsed.businessType || '');
+      setBusinessTypeOther(parsed.businessTypeOther || '');
+      setWebsiteGoal(parsed.websiteGoal || '');
+      setSelectedStyle(parsed.selectedStyle || '');
+      setPrimaryColor(parsed.primaryColor || '');
+      setAccentColor(parsed.accentColor || '');
+      setNoColorPreference(parsed.noColorPreference || false);
+      setServices(parsed.services || '');
+      setWantsBooking(parsed.wantsBooking ?? null);
+      setOpeningHours(parsed.openingHours || '');
+      setAppointmentLengths(parsed.appointmentLengths || []);
+      setCustomAppointmentLength(parsed.customAppointmentLength || '');
+      setBookingServices(parsed.bookingServices || [{ name: '', duration: '', price: '' }]);
+      setBufferTime(parsed.bufferTime || '');
+      setMaxBookingsPerDay(parsed.maxBookingsPerDay || '');
+      setAdvanceBookingDays(parsed.advanceBookingDays || '');
+      setExtraNotes(parsed.extraNotes || '');
+    }
+  };
+
+  const clearSavedData = () => {
+    localStorage.removeItem(DEMO_STORAGE_KEY);
+  };
       setCurrentWebsite(parsed.currentWebsite || '');
       setBusinessType(parsed.businessType || '');
       setBusinessTypeOther(parsed.businessTypeOther || '');

@@ -33,6 +33,8 @@ import NotFound from "./pages/NotFound";
 import IndustryRestaurantsPage from "./pages/IndustryRestaurantsPage";
 import IndustrySalonsPage from "./pages/IndustrySalonsPage";
 import IndustryEcommercePage from "./pages/IndustryEcommercePage";
+import CaseStudiesPage from "./pages/CaseStudiesPage";
+import { ExitIntentPopup } from "./components/ExitIntentPopup";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +59,8 @@ function AnimatedRoutes() {
         <Route path="/betalning-klar" element={<PaymentSuccessPage />} />
         <Route path="/betalning-avbruten" element={<PaymentCancelledPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/kundcase" element={<CaseStudiesPage />} />
+        <Route path="/case/:slug" element={<CaseStudyPage />} />
         <Route path="/tjanster/restauranger" element={<IndustryRestaurantsPage />} />
         <Route path="/tjanster/salonger" element={<IndustrySalonsPage />} />
         <Route path="/tjanster/e-handel" element={<IndustryEcommercePage />} />
@@ -134,6 +138,7 @@ function AppContent() {
           <AnimatedRoutes />
         </Layout>
         <CookieConsent />
+        <ExitIntentPopup />
       </BrowserRouter>
     </>
   );
