@@ -60,6 +60,11 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
     }
   }, [conceptLink]);
 
+  // Auto scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
+
   // Validation with scroll-to-field functionality
   const validateStep = (): boolean => {
     const newErrors: Record<string, boolean> = {};
