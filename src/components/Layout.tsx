@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
@@ -12,6 +13,18 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   useScrollToTop();
+  const location = useLocation();
+  
+  // Hide layout elements on admin page
+  const isAdminPage = location.pathname === '/admin';
+
+  if (isAdminPage) {
+    return (
+      <div className="min-h-screen">
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
