@@ -244,16 +244,16 @@ export function Header() {
                     <Link
                       to="/bestall"
                       onClick={() => setProjectDropdownOpen(false)}
-                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/50 transition-colors group"
+                      className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/30 transition-colors group"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                        <ShoppingCart className="w-5 h-5 text-muted-foreground" />
+                      <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                        <ShoppingCart className="w-5 h-5 text-amber-500" />
                       </div>
                       <div className="flex-1">
-                        <div className="font-medium text-sm">{t('Beställ direkt', 'Order directly')}</div>
-                        <div className="text-xs text-muted-foreground">{t('Hoppa över demo', 'Skip demo')}</div>
+                        <div className="font-medium text-sm text-amber-500">{t('Beställ direkt', 'Order directly')}</div>
+                        <div className="text-xs text-amber-500/70">{t('Hoppa över demo', 'Skip demo')}</div>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
+                      <ArrowRight className="w-4 h-4 text-amber-500/70 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
                     </Link>
                     
                     <div className="border-t border-border/50 pt-2 mt-2">
@@ -353,7 +353,7 @@ export function Header() {
                     {t('Gratis koncept', 'Free concept')}
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="w-full rounded-xl group">
+                <Button asChild variant="outline" className="w-full rounded-xl group border-amber-500/50 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 hover:border-amber-500/70">
                   <Link to="/bestall" onClick={handleLinkClick}>
                     <ShoppingCart className="w-4 h-4 mr-2" />
                     {t('Beställ direkt', 'Order directly')}
