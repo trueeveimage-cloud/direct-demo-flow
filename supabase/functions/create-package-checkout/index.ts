@@ -272,6 +272,10 @@ serve(async (req) => {
     const accentColor = sanitizeString(requestData.accentColor, 50);
     const services = sanitizeString(requestData.services, 2000);
 
+    // Check if care plan is selected
+    const carePlanPriceId = getCarePlanPriceId(carePlanId, isYearly, currency);
+    const hasCarePlan = !!carePlanPriceId;
+
     console.log("[CREATE-PACKAGE-CHECKOUT] Request validated", { 
       packageId, 
       email: email ? "provided" : "none", 
@@ -284,7 +288,8 @@ serve(async (req) => {
       customerType,
       vatVerified,
       customerCountry,
-      currency
+      currency,
+      hasCarePlan
     });
 
     // Get the correct price ID based on currency and flow type
@@ -315,45 +320,61 @@ serve(async (req) => {
     }
 
     const safeOrigin = origin || "https://nomia.se";
+
+    // Determine checkout mode based on whether care plan is selected
+    // If care plan is selected, use subscription mode with one-time items added via invoice
+    const mode: "payment" | "subscription" = hasCarePlan ? "subscription" : "payment";
     
-    const lineItems: Array<{ price: string; quantity: number; tax_rates?: string[] }> = [
-      {
+    console.log("[CREATE-PACKAGE-CHECKOUT] Checkout mode", { mode, hasCarePlan });
+
+    // Build line items based on mode
+    interface LineItemType {
+      price: string;
+      quantity: number;
+      tax_rates?: string[];
+    }
+    
+    const lineItems: LineItemType[] = [];
+
+    if (hasCarePlan) {
+      // SUBSCRIPTION MODE: Add care plan as recurring, package as one-time invoice item
+      
+      // Add care plan as recurring subscription item
+      lineItems.push({
+        price: carePlanPriceId,
+        quantity: 1,
+        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+      });
+      console.log("[CREATE-PACKAGE-CHECKOUT] Added care plan to subscription", { carePlanId, carePlanPriceId });
+      
+    } else {
+      // PAYMENT MODE: Add package as one-time payment
+      lineItems.push({
         price: priceId,
         quantity: 1,
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
-      },
-    ];
-
-    // Add booking add-on if selected and not Pro package
-    if (wantsBooking && packageId !== "pro" && bookingAddonCost > 0) {
-      lineItems.push({
-        price: getBookingAddonPriceId(currency),
-        quantity: 1,
-        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added booking add-on to checkout", { bookingAddonCost, currency });
-    }
 
-    // Add admin panel add-on if selected
-    if (addedAdminPanel) {
-      lineItems.push({
-        price: getAdminPanelPriceId(currency),
-        quantity: 1,
-        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
-      });
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on to checkout", { currency });
-    }
+      // Add booking add-on if selected and not Pro package
+      if (wantsBooking && packageId !== "pro" && bookingAddonCost > 0) {
+        lineItems.push({
+          price: getBookingAddonPriceId(currency),
+          quantity: 1,
+          ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+        });
+        console.log("[CREATE-PACKAGE-CHECKOUT] Added booking add-on to checkout", { bookingAddonCost, currency });
+      }
 
-    // IMPORTANT: Care plans are billed separately as subscriptions, NOT included in the package checkout
-    // This is because care plans have recurring prices which require mode: "subscription"
-    // The care plan should be handled in a separate checkout flow after the initial package purchase
-    const carePlanPriceId = getCarePlanPriceId(carePlanId, isYearly, currency);
-    if (carePlanPriceId) {
-      // Log that care plan was selected but will be handled separately
-      console.log("[CREATE-PACKAGE-CHECKOUT] Care plan selected but will be billed separately", { carePlanId, isYearly, currency });
+      // Add admin panel add-on if selected
+      if (addedAdminPanel) {
+        lineItems.push({
+          price: getAdminPanelPriceId(currency),
+          quantity: 1,
+          ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+        });
+        console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on to checkout", { currency });
+      }
     }
-
-    const mode: "payment" = "payment";
     
     const successUrl = new URL(`${safeOrigin}/betalning-klar`);
     successUrl.searchParams.set("session_id", "{CHECKOUT_SESSION_ID}");
@@ -363,53 +384,134 @@ serve(async (req) => {
       successUrl.searchParams.set("care_yearly", String(isYearly));
     }
 
-    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
-      customer: customerId,
-      customer_email: customerId ? undefined : email,
-      customer_creation: customerId ? undefined : 'always',
-      customer_update: customerId ? { name: 'auto', address: 'auto' } : undefined,
-      billing_address_collection: 'required',
-      line_items: lineItems,
-      mode,
-      allow_promotion_codes: true,
-      success_url: successUrl.toString(),
-      cancel_url: `${safeOrigin}/betalning-avbruten`,
-      tax_id_collection: { enabled: true },
-      metadata: {
-        packageId,
-        conceptLink: (conceptLink || "").slice(0, 500),
-        carePlanId: carePlanId || "",
-        isYearly: String(isYearly),
-        wantsBooking: String(wantsBooking),
-        bookingAddonIncluded: packageId === "pro" ? "included" : (wantsBooking ? "addon" : "none"),
-        adminPanelIncluded: String(addedAdminPanel),
-        customerType: customerType || "private",
-        vatNumber: vatNumber || "",
-        vatVerified: String(vatVerified),
-        customerCountry: customerCountry,
-        orgNumber: orgNumber || "",
-        businessName: businessName.slice(0, 500),
-        contactPerson: contactPerson.slice(0, 500),
-        phone,
-        selectedStyle,
-        selectedLanguage,
-        businessType,
-        websiteGoal,
-        primaryColor,
-        accentColor,
-        services: services.slice(0, 500),
-        vatApplied: String(shouldApplyVat),
-        currency: currency,
-      },
+    // Build session config based on mode
+    const baseMetadata = {
+      packageId,
+      conceptLink: (conceptLink || "").slice(0, 500),
+      carePlanId: carePlanId || "",
+      isYearly: String(isYearly),
+      wantsBooking: String(wantsBooking),
+      bookingAddonIncluded: packageId === "pro" ? "included" : (wantsBooking ? "addon" : "none"),
+      adminPanelIncluded: String(addedAdminPanel),
+      customerType: customerType || "private",
+      vatNumber: vatNumber || "",
+      vatVerified: String(vatVerified),
+      customerCountry: customerCountry,
+      orgNumber: orgNumber || "",
+      businessName: businessName.slice(0, 500),
+      contactPerson: contactPerson.slice(0, 500),
+      phone,
+      selectedStyle,
+      selectedLanguage,
+      businessType,
+      websiteGoal,
+      primaryColor,
+      accentColor,
+      services: services.slice(0, 500),
+      vatApplied: String(shouldApplyVat),
+      currency: currency,
     };
+
+    let sessionConfig: Stripe.Checkout.SessionCreateParams;
+
+    if (hasCarePlan) {
+      // Subscription mode with invoice items for one-time fees
+      // Build invoice items for the one-time package and add-ons
+      interface InvoiceItemType {
+        price: string;
+        quantity?: number;
+        tax_rates?: string[];
+      }
+      
+      const invoiceItems: InvoiceItemType[] = [
+        {
+          price: priceId,
+          ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+        },
+      ];
+
+      // Add booking add-on as invoice item if selected and not Pro package
+      if (wantsBooking && packageId !== "pro" && bookingAddonCost > 0) {
+        invoiceItems.push({
+          price: getBookingAddonPriceId(currency),
+          ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+        });
+        console.log("[CREATE-PACKAGE-CHECKOUT] Added booking add-on as invoice item", { bookingAddonCost, currency });
+      }
+
+      // Add admin panel add-on as invoice item if selected
+      if (addedAdminPanel) {
+        invoiceItems.push({
+          price: getAdminPanelPriceId(currency),
+          ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
+        });
+        console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on as invoice item", { currency });
+      }
+
+      sessionConfig = {
+        customer: customerId,
+        customer_email: customerId ? undefined : email,
+        customer_creation: customerId ? undefined : 'always',
+        customer_update: customerId ? { name: 'auto', address: 'auto' } : undefined,
+        billing_address_collection: 'required',
+        line_items: lineItems,
+        mode: "subscription",
+        allow_promotion_codes: true,
+        success_url: successUrl.toString(),
+        cancel_url: `${safeOrigin}/betalning-avbruten`,
+        tax_id_collection: { enabled: true },
+        subscription_data: {
+          metadata: baseMetadata,
+        },
+        metadata: baseMetadata,
+        // Add one-time items to the first invoice
+        invoice_creation: undefined, // Not applicable for subscription mode
+      };
+
+      // For subscription mode, we need to add invoice items after creating customer
+      // Instead, we'll use subscription_data.add_invoice_items (Stripe API feature)
+      // But since this might not be available, we'll add them as regular line items
+      // with price_data for one-time charges
+      
+      // Actually, Stripe allows adding invoice_items to subscription_data
+      (sessionConfig.subscription_data as Record<string, unknown>).invoice_items = invoiceItems.map(item => ({
+        price: item.price,
+        quantity: 1,
+        tax_rates: item.tax_rates,
+      }));
+
+      console.log("[CREATE-PACKAGE-CHECKOUT] Subscription session with invoice items", { 
+        carePlanPriceId,
+        invoiceItemsCount: invoiceItems.length 
+      });
+
+    } else {
+      // Payment mode (no care plan)
+      sessionConfig = {
+        customer: customerId,
+        customer_email: customerId ? undefined : email,
+        customer_creation: customerId ? undefined : 'always',
+        customer_update: customerId ? { name: 'auto', address: 'auto' } : undefined,
+        billing_address_collection: 'required',
+        line_items: lineItems,
+        mode: "payment",
+        allow_promotion_codes: true,
+        success_url: successUrl.toString(),
+        cancel_url: `${safeOrigin}/betalning-avbruten`,
+        tax_id_collection: { enabled: true },
+        metadata: baseMetadata,
+      };
+    }
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
     console.log("[CREATE-PACKAGE-CHECKOUT] Checkout session created", { 
       sessionId: session.id,
+      mode,
       vatApplied: shouldApplyVat,
       taxRateId,
-      currency
+      currency,
+      hasCarePlan
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

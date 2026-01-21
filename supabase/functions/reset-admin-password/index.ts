@@ -1,0 +1,105 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error("Missing Supabase configuration");
+    }
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false }
+    });
+
+    // Get the admin email and new password from request
+    const { email, newPassword, adminSecret } = await req.json();
+    
+    // Simple secret check to prevent unauthorized calls
+    if (adminSecret !== "reset-admin-2024-secure") {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 403,
+      });
+    }
+
+    if (email !== "38kqgt@gmail.com") {
+      return new Response(JSON.stringify({ error: "Invalid email" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // Find the user by email
+    const { data: users, error: listError } = await supabase.auth.admin.listUsers();
+    
+    if (listError) {
+      throw new Error(`Failed to list users: ${listError.message}`);
+    }
+
+    const adminUser = users.users.find(u => u.email === email);
+    
+    if (!adminUser) {
+      // User doesn't exist, create them
+      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+        email: email,
+        password: newPassword || "Guemir1453",
+        email_confirm: true,
+      });
+
+      if (createError) {
+        throw new Error(`Failed to create user: ${createError.message}`);
+      }
+
+      console.log("[RESET-ADMIN-PASSWORD] Created new admin user", { userId: newUser.user?.id });
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: "Admin user created with password",
+        userId: newUser.user?.id 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // Update the user's password
+    const { error: updateError } = await supabase.auth.admin.updateUserById(
+      adminUser.id,
+      { password: newPassword || "Guemir1453" }
+    );
+
+    if (updateError) {
+      throw new Error(`Failed to update password: ${updateError.message}`);
+    }
+
+    console.log("[RESET-ADMIN-PASSWORD] Password reset successful", { userId: adminUser.id });
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: "Password reset successful",
+      userId: adminUser.id 
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("[RESET-ADMIN-PASSWORD] Error", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
+  }
+});
