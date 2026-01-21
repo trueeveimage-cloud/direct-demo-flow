@@ -50,13 +50,14 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
   const currency = getCurrencyFromLang(lang);
   
   // Build packages with dynamic pricing
+  const bookingAddonPrice = formatPrice(getAddonPrice('booking', currency), currency);
+  
   const packages = [
     { 
       id: 'starter', 
       name: 'Starter', 
       price: formatPrice(getPackagePrice('starter', currency), currency),
       pages: { sv: 'Upp till 3', en: 'Up to 3' },
-      delivery: 7,
       revisions: 10,
       features: {
         sv: ['Mobilanpassad design', 'Kontaktformulär', 'Google Maps', 'Grundläggande SEO', 'Lansering + genomgång'],
@@ -64,6 +65,7 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
       },
       booking: false,
       bookingAddon: true,
+      bookingAddonPrice,
       analytics: false,
       newsletter: false,
       prioritySupport: false,
@@ -77,7 +79,6 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
       name: 'Standard', 
       price: formatPrice(getPackagePrice('standard', currency), currency),
       pages: { sv: 'Upp till 5', en: 'Up to 5' },
-      delivery: 7,
       revisions: 20,
       popular: true,
       features: {
@@ -86,6 +87,7 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
       },
       booking: false,
       bookingAddon: true,
+      bookingAddonPrice,
       analytics: true,
       newsletter: true,
       prioritySupport: true,
@@ -98,7 +100,6 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
       name: 'Pro', 
       price: formatPrice(getPackagePrice('pro', currency), currency),
       pages: { sv: 'Obegränsat', en: 'Unlimited' },
-      delivery: 7,
       revisions: '∞',
       features: {
         sv: ['Allt i Standard', 'Bokningssystem ingår', 'Avancerad SEO', 'Custom integrationer', 'Dedicerad support'],
@@ -163,14 +164,6 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 ))}
               </tr>
               <tr className="border-b border-border">
-                <td className="p-3 font-medium">{t('Leveranstid', 'Delivery')}</td>
-                {packages.map(pkg => (
-                  <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
-                    {pkg.delivery} {t('dagar', 'days')}
-                  </td>
-                ))}
-              </tr>
-              <tr className="border-b border-border">
                 <td className="p-3 font-medium flex items-center">
                   {t('Revisionsrundor', 'Revision rounds')}
                   <InfoIcon tooltipKey="revisions" />
@@ -198,7 +191,7 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                         <span className="text-xs text-green-500">{t('Ingår', 'Included')}</span>
                       </div>
                     ) : pkg.bookingAddon ? (
-                      <span className="text-xs text-muted-foreground">+€200</span>
+                      <span className="text-xs text-muted-foreground">+{pkg.bookingAddonPrice}</span>
                     ) : (
                       <X className="w-5 h-5 text-muted-foreground mx-auto" />
                     )}
