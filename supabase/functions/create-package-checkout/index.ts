@@ -9,24 +9,26 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3000",
 ];
 
-// Helper to validate origin
+// Helper to validate origin - more permissive for SDK calls
 function isAllowedOrigin(origin: string | null): boolean {
-  if (!origin) return false;
+  // If no origin (like from SDK), allow it
+  if (!origin) return true;
   // Allow Lovable preview domains
   if (origin.includes("lovableproject.com") || origin.includes("lovable.dev") || origin.includes("lovable.app")) {
+    return true;
+  }
+  // Allow localhost for development
+  if (origin.includes("localhost")) {
     return true;
   }
   return ALLOWED_ORIGINS.some(allowed => origin === allowed || origin.startsWith(allowed));
 }
 
-function getCorsHeaders(origin: string | null) {
-  const allowedOrigin = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin!,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-  };
-}
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
 
 // Input validation helpers
 function isValidPackageId(id: unknown): id is string {
@@ -191,7 +193,6 @@ function getCarePlanPriceId(planId: string, isYearly: boolean, currency: Currenc
 
 serve(async (req) => {
   const origin = req.headers.get("origin");
-  const corsHeaders = getCorsHeaders(origin);
   
   console.log("[CREATE-PACKAGE-CHECKOUT] Function started", { origin });
 
@@ -409,11 +410,11 @@ serve(async (req) => {
       currency: currency,
     };
 
-    // Create session config
+    // Create session config - customer_creation only works in payment mode
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : email,
-      customer_creation: customerId ? undefined : 'always',
+      ...(mode === 'payment' && !customerId ? { customer_creation: 'always' } : {}),
       customer_update: customerId ? { name: 'auto', address: 'auto' } : undefined,
       billing_address_collection: 'required',
       line_items: lineItems,
