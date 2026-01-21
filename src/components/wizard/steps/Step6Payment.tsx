@@ -197,8 +197,25 @@ export function Step6Payment({
                   {formatPrice(carePlanPriceValue)}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'month')}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {t('Ingår i din beställning – prenumerationen startar vid betalning.', 'Included in your order – subscription starts upon payment.')}
+              {/* VAT breakdown for care plan */}
+              {showVatBreakdown && (
+                <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                  <div className="flex justify-between">
+                    <span>{t('Netto', 'Net')}</span>
+                    <span>{formatPrice(Math.round(carePlanPriceValue))}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{t('Moms (25%)', 'VAT (25%)')}</span>
+                    <span>{formatPrice(Math.round(carePlanPriceValue * VAT_RATE))}</span>
+                  </div>
+                  <div className="flex justify-between font-medium text-foreground">
+                    <span>{t('Totalt', 'Total')}</span>
+                    <span>{formatPrice(Math.round(carePlanPriceValue * (1 + VAT_RATE)))}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'month')}</span>
+                  </div>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-2">
+                {t('Prenumerationen startar vid betalning.', 'Subscription starts upon payment.')}
               </p>
             </div>
           )}
