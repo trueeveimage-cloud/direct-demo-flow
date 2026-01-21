@@ -7,6 +7,16 @@ import { packages, carePlans, getBookingAddonPrice, getVerificationFee, getCurre
 
 const VAT_RATE = 0.25; // 25% VAT
 
+interface CustomerTypeData {
+  customerType: 'private' | 'business' | null;
+  companyName: string;
+  orgNumber: string;
+  vatNumber: string;
+  country: string;
+  vatVerified: boolean;
+  vatVerifiedAt: string | null;
+}
+
 interface OrderSummaryProps {
   formData: WizardFormData;
   isPostDemoFlow?: boolean;
@@ -14,6 +24,7 @@ interface OrderSummaryProps {
   isLoading?: boolean;
   currentStep: number;
   addedAdminPanel?: boolean;
+  customerTypeData?: CustomerTypeData;
 }
 
 function OrderSummaryComponent({ 
@@ -22,7 +33,8 @@ function OrderSummaryComponent({
   onCheckout,
   isLoading = false,
   currentStep,
-  addedAdminPanel = false
+  addedAdminPanel = false,
+  customerTypeData
 }: OrderSummaryProps) {
   const { t, lang } = useLanguage();
   const currency = getCurrencyFromLang(lang);
@@ -48,6 +60,13 @@ function OrderSummaryComponent({
   
   // Total today = one-time items + first care plan payment (both charged at checkout)
   const totalNetToday = oneTimeNet + carePlanPriceValue;
+
+  // VAT logic - matches edge function exactly
+  // Show VAT if: private customer OR Swedish business OR non-verified EU business
+  const shouldShowVat = !customerTypeData?.customerType || // Default to showing VAT before selection
+    customerTypeData.customerType === 'private' ||
+    (customerTypeData.customerType === 'business' && customerTypeData.country === 'SE') ||
+    (customerTypeData.customerType === 'business' && !customerTypeData.vatVerified);
 
   const formatPrice = (price: number) => formatPriceFn(price, currency);
   
@@ -275,10 +294,17 @@ function OrderSummaryComponent({
             <span>{t('Netto', 'Net')}</span>
             <span>{formatPrice(Math.round(totalNetToday))}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span>{t('Moms (25%)', 'VAT (25%)')}</span>
-            <span>{formatPrice(Math.round(totalNetToday * VAT_RATE))}</span>
-          </div>
+          {shouldShowVat ? (
+            <div className="flex items-center justify-between">
+              <span>{t('Moms (25%)', 'VAT (25%)')}</span>
+              <span>{formatPrice(Math.round(totalNetToday * VAT_RATE))}</span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between text-accent">
+              <span>{t('Omvänd moms (EU B2B)', 'Reverse charge (EU B2B)')}</span>
+              <span>{formatPrice(0)}</span>
+            </div>
+          )}
         </div>
 
         {/* Total */}
@@ -288,7 +314,9 @@ function OrderSummaryComponent({
         >
           <div>
             <p className="text-sm text-muted-foreground">{t('Totalt idag', 'Total today')}</p>
-            <p className="text-2xl font-bold">{formatPrice(Math.round(totalNetToday * (1 + VAT_RATE)))}</p>
+            <p className="text-2xl font-bold">
+              {formatPrice(Math.round(shouldShowVat ? totalNetToday * (1 + VAT_RATE) : totalNetToday))}
+            </p>
           </div>
           <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
             <CreditCard className="w-6 h-6 text-accent" />

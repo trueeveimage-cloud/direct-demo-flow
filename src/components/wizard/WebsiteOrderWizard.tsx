@@ -525,6 +525,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
               isPostDemoFlow={isPostDemoFlow}
               currentStep={step}
               addedAdminPanel={addedAdminPanel || formData.wantsAdminPanel}
+              customerTypeData={customerTypeData}
             />
           </div>
         </div>

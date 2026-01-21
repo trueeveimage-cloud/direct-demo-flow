@@ -3,6 +3,7 @@ import { Calendar, Check, Gift, LayoutDashboard } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getCurrencyFromLang, formatPrice, getAddonPrice } from '@/config/currency';
 
 interface CheckoutUpsellsProps {
   businessType: string;
@@ -26,7 +27,11 @@ export function CheckoutUpsells({
   addedBooking = false,
   addedAdminPanel = false,
 }: CheckoutUpsellsProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const currency = getCurrencyFromLang(lang);
+  
+  const bookingPrice = getAddonPrice('booking', currency);
+  const adminPanelPrice = getAddonPrice('adminPanel', currency);
   
   const shouldShowBookingUpsell = !wantsBooking && !addedBooking && bookingBusinessTypes.includes(businessType) && selectedPackage !== 'pro';
   
@@ -66,7 +71,7 @@ export function CheckoutUpsells({
                   </ul>
                   <Button onClick={onAddBooking} size="sm" className="gap-2">
                     <Calendar className="w-4 h-4" />
-                    {t('Lägg till', 'Add')} +€200
+                    {t('Lägg till', 'Add')} +{formatPrice(bookingPrice, currency)}
                   </Button>
                 </div>
               </div>
@@ -113,7 +118,7 @@ export function CheckoutUpsells({
                   </ul>
                   <Button onClick={onAddAdminPanel} variant="outline" size="sm" className="gap-2">
                     <LayoutDashboard className="w-4 h-4" />
-                    {t('Lägg till', 'Add')} +€100
+                    {t('Lägg till', 'Add')} +{formatPrice(adminPanelPrice, currency)}
                   </Button>
                 </div>
               </div>
