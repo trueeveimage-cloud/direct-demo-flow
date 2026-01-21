@@ -26,8 +26,9 @@ serve(async (req) => {
     // Get the admin email and new password from request
     const { email, newPassword, adminSecret } = await req.json();
     
-    // Simple secret check to prevent unauthorized calls
-    if (adminSecret !== "reset-admin-2024-secure") {
+    // Secure secret check using environment variable
+    const expectedSecret = Deno.env.get("ADMIN_RESET_SECRET");
+    if (!expectedSecret || adminSecret !== expectedSecret) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 403,
