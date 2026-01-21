@@ -133,18 +133,20 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
     // Scroll to element with offset
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     
-    // Add highlight animation class
-    element.classList.add('error-highlight');
-    
-    // Focus if it's an input
-    if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
-      setTimeout(() => element.focus(), 500);
-    }
-    
-    // Remove highlight after animation
+    // Add highlight animation class after a small delay for scroll to complete
     setTimeout(() => {
-      element.classList.remove('error-highlight');
-    }, 2000);
+      element.classList.add('error-highlight');
+      
+      // Focus if it's an input
+      if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
+        element.focus();
+      }
+      
+      // Remove highlight after animation
+      setTimeout(() => {
+        element.classList.remove('error-highlight');
+      }, 2000);
+    }, 300);
   };
 
   // Check if we should show upsell modal (before payment step and hasn't added admin panel)
@@ -164,9 +166,10 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
         }
       }
     } else {
+      // Show toast with scroll indicator
       toast({
         title: t('Fyll i alla obligatoriska fält', 'Please fill in all required fields'),
-        description: t('Scrolla ner för att se vad som saknas.', 'Scroll down to see what\'s missing.'),
+        description: t('Vi visar dig vad som saknas...', 'We\'re showing you what\'s missing...'),
         variant: 'destructive'
       });
     }
