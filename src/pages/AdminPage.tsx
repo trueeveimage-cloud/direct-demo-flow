@@ -432,6 +432,37 @@ export default function AdminPage() {
     }
   };
 
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { error } = await supabase.functions.invoke('admin-update-order-status', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        },
+        body: { orderId, paymentStatus: newStatus }
+      });
+      
+      if (error) {
+        console.error('Update status error:', error);
+        return;
+      }
+      
+      // Update local state
+      setSubmissions(prev => 
+        prev.map(s => s.id === orderId ? { ...s, payment_status: newStatus } : s)
+      );
+      
+      // Update selected submission if it's the same order
+      if (selectedSubmission?.id === orderId) {
+        setSelectedSubmission({ ...selectedSubmission, payment_status: newStatus } as OrderSubmission);
+      }
+    } catch (err) {
+      console.error('Failed to update order status:', err);
+    }
+  };
+
   const handleDelete = async () => {
     if (!submissionToDelete) return;
     
@@ -1047,6 +1078,7 @@ export default function AdminPage() {
                       onDelete={() => confirmDelete(selectedSubmission)}
                       onMarkRead={() => markAsRead(selectedSubmission.id, 'order')}
                       onViewFull={() => setFullDetailsOrder(selectedSubmission as OrderSubmission)}
+                      onUpdateStatus={(status) => updateOrderStatus(selectedSubmission.id, status)}
                     />
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
@@ -1742,12 +1774,28 @@ function FullOrderDetails({ order }: { order: OrderSubmission }) {
 }
 
 // Order Details Component
-function OrderDetails({ order, onDelete, onMarkRead, onViewFull }: { 
+function OrderDetails({ order, onDelete, onMarkRead, onViewFull, onUpdateStatus }: { 
   order: OrderSubmission; 
   onDelete: () => void;
   onMarkRead: () => void;
   onViewFull: () => void;
+  onUpdateStatus: (status: string) => void;
 }) {
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleStatusChange = async (newStatus: string) => {
+    setIsUpdating(true);
+    await onUpdateStatus(newStatus);
+    setIsUpdating(false);
+  };
+
+  const statusOptions = [
+    { value: 'pending', label: '⏳ Pending', className: 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30' },
+    { value: 'paid', label: '✓ Paid', className: 'bg-green-500/20 text-green-400 hover:bg-green-500/30' },
+    { value: 'failed', label: '✗ Failed', className: 'bg-red-500/20 text-red-400 hover:bg-red-500/30' },
+    { value: 'refunded', label: '↩ Refunded', className: 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30' },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between">
@@ -1779,15 +1827,26 @@ function OrderDetails({ order, onDelete, onMarkRead, onViewFull }: {
         </DropdownMenu>
       </div>
 
-      <Badge className={`${
-        order.payment_status === 'paid' 
-          ? 'bg-green-500/20 text-green-400' 
-          : order.payment_status === 'pending'
-          ? 'bg-yellow-500/20 text-yellow-400'
-          : 'bg-red-500/20 text-red-400'
-      }`}>
-        {order.payment_status === 'paid' ? '✓ Paid' : order.payment_status === 'pending' ? '⏳ Pending' : order.payment_status}
-      </Badge>
+      {/* Payment Status Editor */}
+      <div className="p-3 bg-secondary/30 rounded-lg">
+        <p className="text-xs text-muted-foreground mb-2">Payment Status (click to change)</p>
+        <div className="flex flex-wrap gap-2">
+          {statusOptions.map((status) => (
+            <button
+              key={status.value}
+              onClick={() => handleStatusChange(status.value)}
+              disabled={isUpdating || order.payment_status === status.value}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                order.payment_status === status.value 
+                  ? `${status.className} ring-2 ring-offset-2 ring-offset-background ring-accent` 
+                  : `${status.className} opacity-50 hover:opacity-100`
+              } ${isUpdating ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+              {status.label}
+            </button>
+          ))}
+        </div>
+      </div>
       
       <div className="text-sm text-muted-foreground">
         {new Date(order.created_at).toLocaleString('sv-SE')}
