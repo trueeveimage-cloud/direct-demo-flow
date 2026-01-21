@@ -30,6 +30,11 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[admin-delete-submission] ${step}${detailsStr}`);
 };
 
+interface DeleteItem {
+  id: string;
+  type: 'contact' | 'order' | 'concept';
+}
+
 serve(async (req: Request): Promise<Response> => {
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
@@ -73,47 +78,69 @@ serve(async (req: Request): Promise<Response> => {
 
     logStep("Admin verified, processing request");
 
-    // Parse request body
-    const { submissionId, submissionType } = await req.json();
+    // Parse request body - support both single item and batch deletion
+    const body = await req.json();
     
-    if (!submissionId || !submissionType) {
-      return new Response(JSON.stringify({ error: "Missing submissionId or submissionType" }), {
+    let items: DeleteItem[] = [];
+    
+    // Support both old format (single item) and new format (batch)
+    if (body.items && Array.isArray(body.items)) {
+      items = body.items;
+    } else if (body.submissionId && body.submissionType) {
+      // Legacy single-item format
+      items = [{ id: body.submissionId, type: body.submissionType }];
+    }
+    
+    if (items.length === 0) {
+      return new Response(JSON.stringify({ error: "No items to delete" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    logStep("Deleting submission", { submissionId, submissionType });
+    logStep("Deleting items", { count: items.length });
 
     // Use service role to delete (bypasses RLS)
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    let deleteResult;
-    
-    if (submissionType === 'contact') {
-      deleteResult = await adminClient.from('contact_submissions').delete().eq('id', submissionId);
-    } else if (submissionType === 'order') {
-      deleteResult = await adminClient.from('order_submissions').delete().eq('id', submissionId);
-    } else if (submissionType === 'concept') {
-      deleteResult = await adminClient.from('concept_requests').delete().eq('id', submissionId);
-    } else {
-      return new Response(JSON.stringify({ error: "Invalid submission type" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const results = { success: 0, failed: 0, errors: [] as string[] };
+
+    for (const item of items) {
+      try {
+        let deleteResult;
+        
+        if (item.type === 'contact') {
+          deleteResult = await adminClient.from('contact_submissions').delete().eq('id', item.id);
+        } else if (item.type === 'order') {
+          deleteResult = await adminClient.from('order_submissions').delete().eq('id', item.id);
+        } else if (item.type === 'concept') {
+          deleteResult = await adminClient.from('concept_requests').delete().eq('id', item.id);
+        } else {
+          results.failed++;
+          results.errors.push(`Invalid type for item ${item.id}`);
+          continue;
+        }
+
+        if (deleteResult.error) {
+          results.failed++;
+          results.errors.push(`Failed to delete ${item.id}: ${deleteResult.error.message}`);
+        } else {
+          results.success++;
+        }
+      } catch (err) {
+        results.failed++;
+        results.errors.push(`Error deleting ${item.id}: ${err instanceof Error ? err.message : String(err)}`);
+      }
     }
 
-    if (deleteResult.error) {
-      logStep("Delete error", deleteResult.error);
-      return new Response(JSON.stringify({ error: deleteResult.error.message }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    logStep("Deletion complete", results);
 
-    logStep("Deletion successful");
-
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      deleted: results.success,
+      failed: results.failed,
+      errors: results.errors.length > 0 ? results.errors : undefined
+    }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
