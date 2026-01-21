@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useState, useRef } from 'react';
 import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield, Info, Sparkles, TrendingDown, Eye, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -8,7 +10,6 @@ import { TrustBadges } from '@/components/TrustBadges';
 import { ROICalculator } from '@/components/ROICalculator';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
-import { useRef } from 'react';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -144,6 +145,7 @@ export default function Index() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
+  const [showSpotsDialog, setShowSpotsDialog] = useState(false);
 
   return (
     <div className="overflow-hidden">
@@ -174,52 +176,62 @@ export default function Index() {
             </span>
           </div>
 
-          {/* Urgency Badge - Clickable with explanation */}
-          <Popover>
-            <PopoverTrigger asChild>
+          {/* Urgency Badge - Clickable with Dialog explanation */}
+          <Dialog open={showSpotsDialog} onOpenChange={setShowSpotsDialog}>
+            <DialogTrigger asChild>
               <button className="animate-hero-fade-in animation-delay-100 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20 hover:bg-accent/20 hover:border-accent/30 transition-colors cursor-pointer">
                 <Clock className="w-4 h-4" />
                 {spotsLoading ? (
                   <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
                 ) : remainingSpots > 0 ? (
-                  <span>{t(`Endast ${remainingSpots} platser kvar för gratis koncept`, `Only ${remainingSpots} spots left for free concept`)}</span>
+                  <span>{remainingSpots} {t('platser kvar', 'spots left')}</span>
                 ) : (
-                  <span className="text-orange-400">{t('Fullbokat denna vecka', 'Fully booked this week')}</span>
+                  <span className="text-orange-400">{t('Fullbokat', 'Fully booked')}</span>
                 )}
               </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-4" align="center">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-accent">
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-accent">
                   <Calendar className="w-5 h-5" />
-                  <h4 className="font-semibold">{t('Veckans platser', 'Weekly Spots')}</h4>
-                </div>
-                <p className="text-sm text-muted-foreground">
+                  {t('Veckans platser', 'Weekly Spots')}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <p className="text-muted-foreground">
                   {t(
-                    'Vi tar endast emot 7 nya koncept per vecka för att säkerställa högsta kvalitet på varje design. Just nu finns det ',
-                    'We only accept 7 new concepts per week to ensure the highest quality for each design. Currently there are '
+                    'Vi tar endast emot 7 nya koncept per vecka för att säkerställa högsta kvalitet på varje design.',
+                    'We only accept 7 new concepts per week to ensure the highest quality for each design.'
                   )}
-                  <span className="font-semibold text-foreground">{remainingSpots} {t('platser', 'spots')}</span>
-                  {t(' kvar denna vecka.', ' left this week.')}
                 </p>
-                <div className="flex items-center gap-3 pt-2 border-t border-border">
-                  <div className="flex -space-x-1">
+                <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
+                  <div className="text-center mb-4">
+                    <span className="text-4xl font-bold text-accent">{remainingSpots}</span>
+                    <span className="text-lg text-muted-foreground ml-2">{t('platser kvar', 'spots left')}</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
                     {[...Array(7)].map((_, i) => (
                       <div 
                         key={i} 
-                        className={`w-4 h-4 rounded-full border-2 border-background ${
-                          i < (7 - remainingSpots) ? 'bg-muted-foreground/50' : 'bg-accent'
+                        className={`w-6 h-6 rounded-full border-2 border-background transition-colors ${
+                          i < (7 - remainingSpots) ? 'bg-muted-foreground/40' : 'bg-accent'
                         }`} 
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {7 - remainingSpots}/7 {t('bokade', 'booked')}
-                  </span>
+                  <p className="text-center text-xs text-muted-foreground mt-3">
+                    {7 - remainingSpots}/7 {t('bokade denna vecka', 'booked this week')}
+                  </p>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  {t(
+                    'Platserna återställs varje måndag. Boka din plats nu för att garantera leverans.',
+                    'Spots reset every Monday. Book your spot now to guarantee delivery.'
+                  )}
+                </p>
               </div>
-            </PopoverContent>
-          </Popover>
+            </DialogContent>
+          </Dialog>
 
           <h1 className="animate-hero-fade-in animation-delay-200 text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4">
             {t('Webbdesign som funkar.', 'Web design that works.')}
