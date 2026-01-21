@@ -157,22 +157,20 @@ export default function FreeDemoPage() {
     }
   }, []);
 
-  // Auto-save data
+  // Auto-save data IMMEDIATELY (no debounce) to prevent data loss on navigation/close
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const toSave = {
-        step,
-        businessName, contactPerson, email, phone, currentWebsite,
-        businessType, businessTypeOther, websiteGoal,
-        selectedStyle, primaryColor, accentColor, noColorPreference,
-        services, wantsBooking, openingHours, appointmentLengths,
-        customAppointmentLength, bookingServices, bufferTime,
-        maxBookingsPerDay, advanceBookingDays, extraNotes,
-        lastSaved: Date.now()
-      };
-      localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(toSave));
-    }, 1000);
-    return () => clearTimeout(timer);
+    const toSave = {
+      step,
+      businessName, contactPerson, email, phone, currentWebsite,
+      businessType, businessTypeOther, websiteGoal,
+      selectedStyle, primaryColor, accentColor, noColorPreference,
+      services, wantsBooking, openingHours, appointmentLengths,
+      customAppointmentLength, bookingServices, bufferTime,
+      maxBookingsPerDay, advanceBookingDays, extraNotes,
+      lastSaved: Date.now()
+    };
+    localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(toSave));
+    console.log('[FreeDemoPage] Data saved to localStorage at step', step);
   }, [step, businessName, contactPerson, email, phone, currentWebsite,
       businessType, businessTypeOther, websiteGoal, selectedStyle,
       primaryColor, accentColor, noColorPreference, services, wantsBooking,
@@ -566,11 +564,11 @@ export default function FreeDemoPage() {
                       />
                     </div>
                     <div>
-                      <Label>{t('Nuvarande webbplats', 'Current website')}</Label>
+                      <Label>{t('Nuvarande webbplats', 'Current website')} <span className="text-muted-foreground font-normal">({t('valfritt', 'optional')})</span></Label>
                       <Input 
                         value={currentWebsite} 
                         onChange={(e) => setCurrentWebsite(e.target.value)} 
-                        placeholder="www.dittforetag.se" 
+                        placeholder={t('Om du har en befintlig webbplats', 'If you have an existing website')}
                         className="h-12 mt-1" 
                       />
                     </div>
