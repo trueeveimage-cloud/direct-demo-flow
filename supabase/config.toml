@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.admin-mark-read]
 verify_jwt = false
+
+[functions.admin-delete-submission]
+verify_jwt = false

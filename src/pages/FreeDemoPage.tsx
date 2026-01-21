@@ -124,20 +124,31 @@ export default function FreeDemoPage() {
   const verificationFee = getAddonPrice('verification', currency);
   const formattedVerificationFee = formatPrice(verificationFee, currency);
 
-  // Check for saved data on mount
+  // Check for saved data on mount - always show banner if meaningful data exists
   useEffect(() => {
     const stored = localStorage.getItem(DEMO_STORAGE_KEY);
     
-    // Always check for saved data and show resume banner if there's meaningful progress
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        const hasProgress = parsed.step > 1 || parsed.businessName || parsed.email;
-        if (hasProgress && Date.now() - parsed.lastSaved < 7 * 24 * 60 * 60 * 1000) {
+        // Check for meaningful progress - any filled field counts
+        const hasProgress = !!(
+          parsed.businessName?.trim() ||
+          parsed.email?.trim() ||
+          parsed.contactPerson?.trim() ||
+          parsed.phone?.trim() ||
+          parsed.businessType ||
+          parsed.websiteGoal ||
+          parsed.selectedStyle ||
+          parsed.services?.trim() ||
+          parsed.step > 1
+        );
+        
+        const isRecent = Date.now() - (parsed.lastSaved || 0) < 7 * 24 * 60 * 60 * 1000;
+        
+        if (hasProgress && isRecent) {
           setShowResumeBanner(true);
-        } else if (!hasProgress) {
-          // Don't show banner for minimal progress
-        } else {
+        } else if (!isRecent) {
           localStorage.removeItem(DEMO_STORAGE_KEY);
         }
       } catch {
