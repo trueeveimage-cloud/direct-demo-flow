@@ -50,26 +50,26 @@ type Currency = 'SEK' | 'EUR';
 
 // EUR Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
 const PACKAGE_PRICES_EUR_FULL: Record<string, string> = {
-  starter: "price_1SmXpw74JfaAfHsdvQz2fjIQ",   // €599 full price
+  starter: "price_1Ss9kC74JfaAfHsdDPRZYlBm",   // €290 full price
   standard: "price_1Ss9h374JfaAfHsdKckRgJu8", // €590 full price
   pro: "price_1SmXq074JfaAfHsdjKigI9Qr",      // €1,290 full price
 };
 
 const PACKAGE_PRICES_EUR_DISCOUNTED: Record<string, string> = {
-  starter: "price_1Shc6974JfaAfHsdWpLPkGaW",   // €549 (€599 - €50 deposit)
+  starter: "price_1Ss9kF74JfaAfHsdpY2wmDL7",   // €240 (€290 - €50 deposit)
   standard: "price_1Ss9h574JfaAfHsdehKws0uF", // €540 (€590 - €50 deposit)
   pro: "price_1Shc5k74JfaAfHsdT7xzOxfA",      // €1,240 (€1,290 - €50 deposit)
 };
 
 // SEK Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
 const PACKAGE_PRICES_SEK_FULL: Record<string, string> = {
-  starter: "price_1SoVfq74JfaAfHsd8a2QIo5P",   // 5990 kr full price
+  starter: "price_1Ss9kD74JfaAfHsdYOiPQ9B8",   // 2900 kr full price
   standard: "price_1Ss9h474JfaAfHsdGHSjCHPa", // 5900 kr full price
   pro: "price_1SoVft74JfaAfHsdMxKuptCm",      // 12900 kr full price
 };
 
 const PACKAGE_PRICES_SEK_DISCOUNTED: Record<string, string> = {
-  starter: "price_1SoVfr74JfaAfHsdnBqw4qjJ",   // 5491 kr (5990 - 499 deposit)
+  starter: "price_1Ss9kG74JfaAfHsdzCs1Bjb0",   // 2401 kr (2900 - 499 deposit)
   standard: "price_1Ss9h674JfaAfHsd0NFDdcsu", // 5401 kr (5900 - 499 deposit)
   pro: "price_1SoVfy74JfaAfHsdvxed2nJ0",      // 12401 kr (12900 - 499 deposit)
 };
