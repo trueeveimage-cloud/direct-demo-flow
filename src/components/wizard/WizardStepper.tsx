@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Users, Package, FileText, Clock, CreditCard, Settings } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -19,11 +20,19 @@ const stepIcons = {
 
 export function WizardStepper({ currentStep, onStepClick }: WizardStepperProps) {
   const { t } = useLanguage();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to the start (left) on mount
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
+  }, []);
 
   return (
     <div className="mb-6 sm:mb-10">
       {/* Mobile: Compact horizontal scroll showing all steps */}
-      <div className="flex sm:hidden items-center justify-center px-2 overflow-x-auto">
+      <div ref={scrollContainerRef} className="flex sm:hidden items-center justify-start px-2 overflow-x-auto scrollbar-hide">
         <div className="flex items-center gap-1 min-w-max">
           {stepInfo.map((s, index) => {
             const isActive = currentStep === s.num;

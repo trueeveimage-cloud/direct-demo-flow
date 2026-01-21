@@ -11,7 +11,7 @@ const ALLOWED_ORIGINS = [
 
 function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) return false;
-  if (origin.includes("lovableproject.com") || origin.includes("lovable.dev")) {
+  if (origin.includes("lovableproject.com") || origin.includes("lovable.dev") || origin.includes("lovable.app")) {
     return true;
   }
   return ALLOWED_ORIGINS.some(allowed => origin === allowed || origin.startsWith(allowed));
