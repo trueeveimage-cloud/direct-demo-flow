@@ -187,6 +187,7 @@ export interface WizardFormData {
   contactPerson: string;
   email: string;
   phone: string;
+  currentWebsite: string;
   businessType: string;
   businessTypeOther: string;
   websiteGoal: string;
@@ -250,6 +251,7 @@ export const initialFormData: WizardFormData = {
   contactPerson: '',
   email: '',
   phone: '',
+  currentWebsite: '',
   businessType: '',
   businessTypeOther: '',
   websiteGoal: '',

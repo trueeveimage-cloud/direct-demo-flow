@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Briefcase, Target, ExternalLink } from 'lucide-react';
+import { Users, Briefcase, Target, ExternalLink, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -121,6 +121,20 @@ function Step1ContactComponent({ formData, setFormData, errors, showConceptOptio
               onChange={(e) => updateField('phone', e.target.value)} 
               placeholder="+46 70 123 45 67" 
               className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.phone ? 'border-destructive' : ''}`}
+            />
+          </div>
+          
+          <div className="space-y-1">
+            <Label className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-muted-foreground" />
+              {t('Nuvarande webbplats', 'Current website')} 
+              <span className="text-muted-foreground font-normal text-sm">({t('valfritt', 'optional')})</span>
+            </Label>
+            <Input 
+              value={formData.currentWebsite || ''} 
+              onChange={(e) => updateField('currentWebsite', e.target.value)} 
+              placeholder={t('Om du har en befintlig webbplats', 'If you have an existing website')}
+              className="h-12 transition-all focus:ring-2 focus:ring-accent/20"
             />
           </div>
         </div>
