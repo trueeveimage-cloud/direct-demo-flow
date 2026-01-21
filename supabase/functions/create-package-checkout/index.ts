@@ -61,13 +61,13 @@ const PACKAGE_PRICES_EUR_DISCOUNTED: Record<string, string> = {
 
 // SEK Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
 const PACKAGE_PRICES_SEK_FULL: Record<string, string> = {
-  starter: "price_1SoVfq74JfaAfHsdNWWLIfGh",   // 4900 kr full price
+  starter: "price_1SqNLk74JfaAfHsdWQs79hL9",   // 2900 kr full price (UPDATED)
   standard: "price_1SoVfs74JfaAfHsdvR4tgHMF", // 7900 kr full price
   pro: "price_1SoVft74JfaAfHsdMxKuptCm",      // 12900 kr full price
 };
 
 const PACKAGE_PRICES_SEK_DISCOUNTED: Record<string, string> = {
-  starter: "price_1SoVfv74JfaAfHsdqEKOpoDO",   // 4401 kr (4900 - 499 deposit)
+  starter: "price_1SoVfv74JfaAfHsdqEKOpoDO",   // 2401 kr (2900 - 499 deposit) - needs updating in Stripe
   standard: "price_1SoVfw74JfaAfHsdUP3t0xEK", // 7401 kr (7900 - 499 deposit)
   pro: "price_1SoVfy74JfaAfHsdvxed2nJ0",      // 12401 kr (12900 - 499 deposit)
 };

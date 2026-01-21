@@ -245,6 +245,26 @@ export default function AdminPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [submissionToDelete, setSubmissionToDelete] = useState<Submission | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+
+  // Check for stored lockout on mount
+  useEffect(() => {
+    const storedLockout = localStorage.getItem('admin_lockout');
+    if (storedLockout) {
+      const lockTime = parseInt(storedLockout, 10);
+      if (Date.now() < lockTime) {
+        setLockedUntil(lockTime);
+      } else {
+        localStorage.removeItem('admin_lockout');
+        localStorage.removeItem('admin_attempts');
+      }
+    }
+    const storedAttempts = localStorage.getItem('admin_attempts');
+    if (storedAttempts) {
+      setLoginAttempts(parseInt(storedAttempts, 10));
+    }
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -439,6 +459,13 @@ export default function AdminPage() {
     e.preventDefault();
     setError('');
     
+    // Check if locked out
+    if (lockedUntil && Date.now() < lockedUntil) {
+      const remainingTime = Math.ceil((lockedUntil - Date.now()) / 60000);
+      setError(`Too many attempts. Try again in ${remainingTime} minute(s).`);
+      return;
+    }
+    
     if (!email.trim() || !password.trim()) {
       setError('Please enter both email and password');
       return;
@@ -451,7 +478,18 @@ export default function AdminPage() {
       });
 
       if (signInError) {
-        setError('Invalid login credentials');
+        const newAttempts = loginAttempts + 1;
+        setLoginAttempts(newAttempts);
+        localStorage.setItem('admin_attempts', String(newAttempts));
+        
+        if (newAttempts >= 3) {
+          const lockTime = Date.now() + 15 * 60 * 1000; // Lock for 15 minutes
+          setLockedUntil(lockTime);
+          localStorage.setItem('admin_lockout', String(lockTime));
+          setError('Too many failed attempts. Locked for 15 minutes.');
+        } else {
+          setError(`Invalid login credentials. ${3 - newAttempts} attempt(s) remaining.`);
+        }
         return;
       }
 
@@ -459,10 +497,25 @@ export default function AdminPage() {
       
       if (adminCheck !== true) {
         await supabase.auth.signOut();
-        setError('Unauthorized - admin access required');
+        const newAttempts = loginAttempts + 1;
+        setLoginAttempts(newAttempts);
+        localStorage.setItem('admin_attempts', String(newAttempts));
+        
+        if (newAttempts >= 3) {
+          const lockTime = Date.now() + 15 * 60 * 1000;
+          setLockedUntil(lockTime);
+          localStorage.setItem('admin_lockout', String(lockTime));
+          setError('Too many failed attempts. Locked for 15 minutes.');
+        } else {
+          setError(`Unauthorized - admin access required. ${3 - newAttempts} attempt(s) remaining.`);
+        }
         return;
       }
 
+      // Successful login - reset attempts
+      setLoginAttempts(0);
+      localStorage.removeItem('admin_attempts');
+      localStorage.removeItem('admin_lockout');
       setIsAuthenticated(true);
       setIsAdmin(true);
     } catch (err) {

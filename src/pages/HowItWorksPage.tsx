@@ -174,16 +174,16 @@ export default function HowItWorksPage() {
       number: "02",
       title: t("Vi designar ditt koncept", "We design your concept"),
       description: t(
-        "Inom 72 timmar får du ett färdigt designkoncept med mockups, färgpalett och layout.",
-        "Within 72 hours, you'll receive a complete design concept with mockups, colors, and layouts."
+        "Din dedikerade webbdesigner skapar ett skräddarsytt koncept inom 72 timmar. Du får en interaktiv preview med färgpalett och layout.",
+        "Your dedicated web designer creates a tailored concept within 72 hours. You get an interactive preview with color palette and layouts."
       ),
       icon: Palette,
       features: [
-        t("Komplett design", "Complete design"),
+        t("Dedikerad webbdesigner", "Dedicated web designer"),
+        t("Gratis logotyp", "Free logo creation"),
         t("Mobilanpassat", "Mobile-optimized"),
         t("Interaktiv preview", "Interactive preview"),
         t("Färgpalett", "Color palette"),
-        t("Typografi", "Typography"),
         t("Revisioner", "Revisions"),
       ]
     },
