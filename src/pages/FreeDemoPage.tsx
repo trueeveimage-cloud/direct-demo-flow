@@ -221,7 +221,7 @@ export default function FreeDemoPage() {
         wants_booking: wantsBooking,
         opening_hours: openingHours || null,
         appointment_lengths: appointmentLengths.length > 0 ? appointmentLengths : null,
-        booking_services: wantsBooking && bookingServices.some(s => s.name) ? bookingServices : null,
+        booking_services: wantsBooking && bookingServices.some(s => s.name) ? JSON.parse(JSON.stringify(bookingServices)) : null,
         buffer_time: bufferTime || null,
         max_bookings_per_day: maxBookingsPerDay || null,
         advance_booking_days: advanceBookingDays || null,
@@ -232,7 +232,7 @@ export default function FreeDemoPage() {
 
       const { data: orderResult, error: orderError } = await supabase
         .from('order_submissions')
-        .insert(orderData)
+        .insert([orderData])
         .select('id')
         .single();
 

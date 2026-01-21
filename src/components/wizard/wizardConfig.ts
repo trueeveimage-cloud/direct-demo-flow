@@ -181,6 +181,35 @@ export const businessTypeFollowUps: BusinessTypeFollowUp[] = [
   },
 ];
 
+// Customer type data for company/private selection
+export interface CustomerTypeData {
+  type: 'private' | 'company' | null;
+  companyName: string;
+  orgNumber: string;
+  vatNumber: string;
+  country: string;
+  billingAddress: string;
+  vatVerified: boolean;
+  vatVerifiedAt: string | null;
+}
+
+export const initialCustomerTypeData: CustomerTypeData = {
+  type: null,
+  companyName: '',
+  orgNumber: '',
+  vatNumber: '',
+  country: '',
+  billingAddress: '',
+  vatVerified: false,
+  vatVerifiedAt: null,
+};
+
+// Step configuration for wizard flows
+export type StepType = 'contact' | 'customerType' | 'package' | 'pages' | 'carePlan' | 'projectDetails' | 'payment';
+
+export const stepConfig: StepType[] = ['contact', 'customerType', 'package', 'pages', 'carePlan', 'projectDetails', 'payment'];
+export const stepConfigPostDemo: StepType[] = ['contact', 'customerType', 'package', 'pages', 'carePlan', 'projectDetails', 'payment'];
+
 export interface WizardFormData {
   // Step 1: Contact
   businessName: string;
@@ -200,7 +229,7 @@ export interface WizardFormData {
   selectedPackage: string;
   selectedStyle: string;
   selectedLanguage: string;
-  customLanguages: string; // NEW: For custom language input
+  customLanguages: string;
   wantsBooking: boolean | null;
   bookingPlatform: string;
   primaryColor: string;
@@ -214,6 +243,9 @@ export interface WizardFormData {
   googleBusinessLink: string;
   wantsBeforeAfter: boolean;
   wantsCheckoutSystem: boolean;
+  
+  // Admin panel upsell
+  wantsAdminPanel: boolean;
   
   // Step 3: Pages & Content
   selectedPages: string[];
@@ -272,6 +304,7 @@ export const initialFormData: WizardFormData = {
   googleBusinessLink: '',
   wantsBeforeAfter: false,
   wantsCheckoutSystem: false,
+  wantsAdminPanel: false,
   selectedPages: [],
   customPages: [''],
   services: '',
