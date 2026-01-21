@@ -184,7 +184,7 @@ export default function Index() {
                 {spotsLoading ? (
                   <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
                 ) : remainingSpots > 0 ? (
-                  <span>{remainingSpots} {t('platser kvar', 'spots left')}</span>
+                  <span>{remainingSpots} {remainingSpots === 1 ? t('plats kvar', 'spot left') : t('platser kvar', 'spots left')}</span>
                 ) : (
                   <span className="text-orange-400">{t('Fullbokat', 'Fully booked')}</span>
                 )}
@@ -207,7 +207,7 @@ export default function Index() {
                 <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
                   <div className="text-center mb-4">
                     <span className="text-4xl font-bold text-accent">{remainingSpots}</span>
-                    <span className="text-lg text-muted-foreground ml-2">{t('platser kvar', 'spots left')}</span>
+                    <span className="text-lg text-muted-foreground ml-2">{remainingSpots === 1 ? t('plats kvar', 'spot left') : t('platser kvar', 'spots left')}</span>
                   </div>
                   <div className="flex items-center justify-center gap-2">
                     {[...Array(7)].map((_, i) => (

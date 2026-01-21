@@ -2,6 +2,7 @@ import { Check, X, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { getCurrencyFromLang, formatPrice, getPackagePrice, getAddonPrice } from '@/config/currency';
 
 interface PackageCompareModalProps {
   open: boolean;
@@ -28,63 +29,16 @@ const tooltips: Record<string, { sv: string; en: string }> = {
   prioritySupport: {
     sv: 'Snabbare svarstider under projektet.',
     en: 'Faster response times during the project.'
+  },
+  checkoutSystem: {
+    sv: 'Enkelt betalningsformulär för produkter/tjänster.',
+    en: 'Simple payment form for products/services.'
+  },
+  revisions: {
+    sv: 'Antal ändringsrundor som ingår.',
+    en: 'Number of revision rounds included.'
   }
 };
-
-const packages = [
-  { 
-    id: 'starter', 
-    name: 'Starter', 
-    price: '€490',
-    pages: 3,
-    delivery: 7,
-    revisions: 1,
-    features: {
-      sv: ['Mobilanpassad design', 'Kontaktformulär', 'Google Maps', 'Grundläggande SEO', 'Lansering + genomgång'],
-      en: ['Mobile-responsive design', 'Contact form', 'Google Maps', 'Basic SEO', 'Launch + walkthrough']
-    },
-    booking: false,
-    analytics: false,
-    newsletter: false,
-    prioritySupport: false,
-    multiLanguage: false
-  },
-  { 
-    id: 'standard', 
-    name: 'Standard', 
-    price: '€790',
-    pages: 5,
-    delivery: 7,
-    revisions: 2,
-    popular: true,
-    features: {
-      sv: ['Allt i Starter', 'Bildgalleri/sektioner', 'Sociala länkar', 'Klickbar telefon/mail', 'Snabb laddtid'],
-      en: ['Everything in Starter', 'Image gallery/sections', 'Social links', 'Clickable phone/email', 'Fast loading']
-    },
-    booking: false,
-    analytics: true,
-    newsletter: true,
-    prioritySupport: true,
-    multiLanguage: true
-  },
-  { 
-    id: 'pro', 
-    name: 'Pro', 
-    price: '€1,290',
-    pages: 8,
-    delivery: 7,
-    revisions: 3,
-    features: {
-      sv: ['Allt i Standard', 'Bokningssystem', 'Avancerad SEO', 'Custom integrationer', 'Dedicerad support'],
-      en: ['Everything in Standard', 'Booking system', 'Advanced SEO', 'Custom integrations', 'Dedicated support']
-    },
-    booking: true,
-    analytics: true,
-    newsletter: true,
-    prioritySupport: true,
-    multiLanguage: true
-  },
-];
 
 const freeInclusions = {
   sv: ['Mobilanpassad design', 'Kontaktformulär', 'Google Maps', 'SSL-certifikat', 'Grundläggande SEO', 'Lansering + genomgång'],
@@ -93,6 +47,73 @@ const freeInclusions = {
 
 export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalProps) {
   const { t, lang } = useLanguage();
+  const currency = getCurrencyFromLang(lang);
+  
+  // Build packages with dynamic pricing
+  const packages = [
+    { 
+      id: 'starter', 
+      name: 'Starter', 
+      price: formatPrice(getPackagePrice('starter', currency), currency),
+      pages: { sv: 'Upp till 3', en: 'Up to 3' },
+      delivery: 7,
+      revisions: 10,
+      features: {
+        sv: ['Mobilanpassad design', 'Kontaktformulär', 'Google Maps', 'Grundläggande SEO', 'Lansering + genomgång'],
+        en: ['Mobile-responsive design', 'Contact form', 'Google Maps', 'Basic SEO', 'Launch + walkthrough']
+      },
+      booking: false,
+      bookingAddon: true,
+      analytics: false,
+      newsletter: false,
+      prioritySupport: false,
+      multiLanguage: false,
+      checkoutSystem: false,
+      checkoutAddon: true,
+      checkoutAddonPrice: formatPrice(getAddonPrice('checkout', currency), currency)
+    },
+    { 
+      id: 'standard', 
+      name: 'Standard', 
+      price: formatPrice(getPackagePrice('standard', currency), currency),
+      pages: { sv: 'Upp till 5', en: 'Up to 5' },
+      delivery: 7,
+      revisions: 20,
+      popular: true,
+      features: {
+        sv: ['Allt i Starter', 'Bildgalleri/sektioner', 'Sociala länkar', 'Klickbar telefon/mail', 'Snabb laddtid'],
+        en: ['Everything in Starter', 'Image gallery/sections', 'Social links', 'Clickable phone/email', 'Fast loading']
+      },
+      booking: false,
+      bookingAddon: true,
+      analytics: true,
+      newsletter: true,
+      prioritySupport: true,
+      multiLanguage: true,
+      checkoutSystem: true,
+      checkoutAddon: false
+    },
+    { 
+      id: 'pro', 
+      name: 'Pro', 
+      price: formatPrice(getPackagePrice('pro', currency), currency),
+      pages: { sv: 'Obegränsat', en: 'Unlimited' },
+      delivery: 7,
+      revisions: '∞',
+      features: {
+        sv: ['Allt i Standard', 'Bokningssystem ingår', 'Avancerad SEO', 'Custom integrationer', 'Dedicerad support'],
+        en: ['Everything in Standard', 'Booking system included', 'Advanced SEO', 'Custom integrations', 'Dedicated support']
+      },
+      booking: true,
+      bookingAddon: false,
+      analytics: true,
+      newsletter: true,
+      prioritySupport: true,
+      multiLanguage: true,
+      checkoutSystem: true,
+      checkoutAddon: false
+    },
+  ];
 
   const InfoIcon = ({ tooltipKey }: { tooltipKey: keyof typeof tooltips }) => (
     <Popover>
@@ -106,6 +127,7 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
       </PopoverContent>
     </Popover>
   );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -136,7 +158,7 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 <td className="p-3 font-medium">{t('Antal sidor', 'Pages')}</td>
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
-                    {t(`Upp till ${pkg.pages}`, `Up to ${pkg.pages}`)}
+                    {lang === 'sv' ? pkg.pages.sv : pkg.pages.en}
                   </td>
                 ))}
               </tr>
@@ -149,10 +171,17 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 ))}
               </tr>
               <tr className="border-b border-border">
-                <td className="p-3 font-medium">{t('Revisionsrundor', 'Revision rounds')}</td>
+                <td className="p-3 font-medium flex items-center">
+                  {t('Revisionsrundor', 'Revision rounds')}
+                  <InfoIcon tooltipKey="revisions" />
+                </td>
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
-                    {pkg.revisions}
+                    {pkg.revisions === '∞' ? (
+                      <span className="text-accent font-bold">{t('Obegränsat', 'Unlimited')}</span>
+                    ) : (
+                      pkg.revisions
+                    )}
                   </td>
                 ))}
               </tr>
@@ -164,7 +193,32 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
                     {pkg.booking ? (
-                      <Check className="w-5 h-5 text-accent mx-auto" />
+                      <div className="flex flex-col items-center">
+                        <Check className="w-5 h-5 text-accent mx-auto" />
+                        <span className="text-xs text-green-500">{t('Ingår', 'Included')}</span>
+                      </div>
+                    ) : pkg.bookingAddon ? (
+                      <span className="text-xs text-muted-foreground">+€200</span>
+                    ) : (
+                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-3 font-medium flex items-center">
+                  {t('Kassasystem', 'Checkout system')}
+                  <InfoIcon tooltipKey="checkoutSystem" />
+                </td>
+                {packages.map(pkg => (
+                  <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
+                    {pkg.checkoutSystem ? (
+                      <div className="flex flex-col items-center">
+                        <Check className="w-5 h-5 text-accent mx-auto" />
+                        <span className="text-xs text-green-500">{t('Ingår', 'Included')}</span>
+                      </div>
+                    ) : pkg.checkoutAddon ? (
+                      <span className="text-xs text-muted-foreground">{pkg.checkoutAddonPrice}</span>
                     ) : (
                       <X className="w-5 h-5 text-muted-foreground mx-auto" />
                     )}

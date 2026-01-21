@@ -1,6 +1,7 @@
 import { Check, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getCurrencyFromLang, formatPrice, getCarePlanPrice } from '@/config/currency';
 
 interface CarePlansCompareModalProps {
   open: boolean;
@@ -8,107 +9,107 @@ interface CarePlansCompareModalProps {
   isYearly: boolean;
 }
 
-const carePlans = [
-  { 
-    id: 'basic', 
-    name: 'Basic', 
-    monthlyPrice: 25,
-    yearlyPrice: 20,
-    features: {
-      sv: [
-        'Hosting (snabb + SSL)',
-        'Säkerhetsuppdateringar',
-        'Dagliga/veckovisa backups',
-        'Uptime monitoring + alert',
-        'Prestanda/säkerhetscheck 1x/mån'
-      ],
-      en: [
-        'Hosting (fast + SSL)',
-        'Security updates',
-        'Daily/weekly backups',
-        'Uptime monitoring + alerts',
-        'Performance/security check 1x/month'
-      ]
-    },
-    domain: true,
-    email: false,
-    editHours: 0,
-    prioritySupport: false,
-    seoCheck: false,
-    speedOptimization: false,
-    uptimeMonitoring: false,
-    malwareCleanup: false,
-    rollbackRestore: false
-  },
-  { 
-    id: 'standard', 
-    name: 'Standard', 
-    monthlyPrice: 45,
-    yearlyPrice: 36,
-    popular: true,
-    features: {
-      sv: [
-        'Allt i Basic',
-        'Företagsmail (1–3 adresser)',
-        '1 timme ändringar/mån',
-        'Support inom 24–48h vardagar'
-      ],
-      en: [
-        'Everything in Basic',
-        'Business email (1-3 addresses)',
-        '1 hour edits/month',
-        'Support within 24-48h weekdays'
-      ]
-    },
-    domain: true,
-    email: true,
-    editHours: 1,
-    prioritySupport: false,
-    seoCheck: false,
-    speedOptimization: true,
-    uptimeMonitoring: false,
-    malwareCleanup: true,
-    rollbackRestore: false
-  },
-  { 
-    id: 'pro', 
-    name: 'Pro', 
-    monthlyPrice: 75,
-    yearlyPrice: 60,
-    features: {
-      sv: [
-        'Allt i Standard',
-        '3 timmar ändringar/mån',
-        'Prioriterad support',
-        'Prestandaoptimering 1x/mån',
-        'Basic SEO-check 1x/mån'
-      ],
-      en: [
-        'Everything in Standard',
-        '3 hours edits/month',
-        'Priority support',
-        'Performance optimization 1x/month',
-        'Basic SEO check 1x/month'
-      ]
-    },
-    domain: true,
-    email: true,
-    editHours: 3,
-    prioritySupport: true,
-    seoCheck: true,
-    speedOptimization: true,
-    uptimeMonitoring: true,
-    malwareCleanup: true,
-    rollbackRestore: true
-  },
-];
-
 export function CarePlansCompareModal({ open, onOpenChange, isYearly }: CarePlansCompareModalProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const currency = getCurrencyFromLang(lang);
 
-  const getPrice = (plan: typeof carePlans[0]) => {
-    const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-    return `€${price}/mo`;
+  const carePlans = [
+    { 
+      id: 'basic', 
+      name: 'Basic', 
+      features: {
+        sv: [
+          'Hosting (snabb + SSL)',
+          'Säkerhetsuppdateringar',
+          'Dagliga/veckovisa backups',
+          'Uptime monitoring + alert',
+          'Prestanda/säkerhetscheck 1x/mån'
+        ],
+        en: [
+          'Hosting (fast + SSL)',
+          'Security updates',
+          'Daily/weekly backups',
+          'Uptime monitoring + alerts',
+          'Performance/security check 1x/month'
+        ]
+      },
+      domain: true,
+      email: false,
+      editHours: 0,
+      prioritySupport: false,
+      seoCheck: false,
+      speedOptimization: false,
+      malwareCleanup: false,
+      rollbackRestore: false
+    },
+    { 
+      id: 'standard', 
+      name: 'Standard', 
+      popular: true,
+      features: {
+        sv: [
+          'Allt i Basic',
+          'Företagsmail (1–3 adresser)',
+          '1 timme ändringar/mån',
+          'Support inom 24–48h vardagar'
+        ],
+        en: [
+          'Everything in Basic',
+          'Business email (1-3 addresses)',
+          '1 hour edits/month',
+          'Support within 24-48h weekdays'
+        ]
+      },
+      domain: true,
+      email: true,
+      editHours: 1,
+      prioritySupport: false,
+      seoCheck: false,
+      speedOptimization: true,
+      malwareCleanup: true,
+      rollbackRestore: false
+    },
+    { 
+      id: 'pro', 
+      name: 'Pro', 
+      features: {
+        sv: [
+          'Allt i Standard',
+          '3 timmar ändringar/mån',
+          'Prioriterad support',
+          'Prestandaoptimering 1x/mån',
+          'Basic SEO-check 1x/mån'
+        ],
+        en: [
+          'Everything in Standard',
+          '3 hours edits/month',
+          'Priority support',
+          'Performance optimization 1x/month',
+          'Basic SEO check 1x/month'
+        ]
+      },
+      domain: true,
+      email: true,
+      editHours: 3,
+      prioritySupport: true,
+      seoCheck: true,
+      speedOptimization: true,
+      malwareCleanup: true,
+      rollbackRestore: true
+    },
+  ];
+
+  const getPrice = (planId: string) => {
+    const price = getCarePlanPrice(planId, isYearly, currency);
+    const suffix = lang === 'sv' ? '/mån' : '/mo';
+    return formatPrice(price, currency) + suffix;
+  };
+  
+  const getOldPrice = (planId: string) => {
+    if (!isYearly) return null;
+    const monthlyPrice = getCarePlanPrice(planId, false, currency);
+    const suffix = lang === 'sv' ? '/mån' : '/mo';
+    return formatPrice(monthlyPrice, currency) + suffix;
   };
 
   return (
@@ -126,10 +127,10 @@ export function CarePlansCompareModal({ open, onOpenChange, isYearly }: CarePlan
                 {carePlans.map(plan => (
                   <th key={plan.id} className={`text-center p-3 ${plan.popular ? 'bg-accent/10' : ''}`}>
                     <div className="font-semibold text-lg">{plan.name}</div>
-                    <div className="text-accent font-bold">{getPrice(plan)}</div>
+                    <div className="text-accent font-bold">{getPrice(plan.id)}</div>
                     {isYearly && (
                       <div className="text-xs text-muted-foreground line-through">
-                        €{plan.monthlyPrice}/mo
+                        {getOldPrice(plan.id)}
                       </div>
                     )}
                     {plan.popular && (
@@ -188,18 +189,6 @@ export function CarePlansCompareModal({ open, onOpenChange, isYearly }: CarePlan
                 {carePlans.map(plan => (
                   <td key={plan.id} className={`text-center p-3 ${plan.popular ? 'bg-accent/5' : ''}`}>
                     {plan.speedOptimization ? (
-                      <Check className="w-5 h-5 text-accent mx-auto" />
-                    ) : (
-                      <X className="w-5 h-5 text-muted-foreground mx-auto" />
-                    )}
-                  </td>
-                ))}
-              </tr>
-              <tr className="border-b border-border">
-                <td className="p-3 font-medium">{t('Uptime-övervakning', 'Uptime monitoring')}</td>
-                {carePlans.map(plan => (
-                  <td key={plan.id} className={`text-center p-3 ${plan.popular ? 'bg-accent/5' : ''}`}>
-                    {plan.uptimeMonitoring ? (
                       <Check className="w-5 h-5 text-accent mx-auto" />
                     ) : (
                       <X className="w-5 h-5 text-muted-foreground mx-auto" />

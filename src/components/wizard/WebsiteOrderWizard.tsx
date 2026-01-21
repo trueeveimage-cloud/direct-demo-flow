@@ -10,6 +10,8 @@ import { WizardBackground } from './WizardBackground';
 import { WizardStepper } from './WizardStepper';
 import { WizardSkeleton } from './WizardSkeleton';
 import { AdminPanelUpsellModal } from '@/components/AdminPanelUpsellModal';
+import { PackageCompareModal } from '@/components/PackageCompareModal';
+import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
 import { 
   WizardFormData, 
   initialFormData, 
@@ -342,6 +344,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
           currency,
           selectedStyle: formData.selectedStyle || '',
           selectedLanguage: formData.selectedLanguage || lang,
+          wantsCheckoutSystem: formData.wantsCheckoutSystem,
         }
       });
 
@@ -530,6 +533,19 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
         onOpenChange={setShowUpsellModal}
         onAccept={handleUpsellAccept}
         onDecline={handleUpsellDecline}
+      />
+      
+      {/* Package Compare Modal */}
+      <PackageCompareModal
+        open={showPackageCompare}
+        onOpenChange={setShowPackageCompare}
+      />
+      
+      {/* Care Plans Compare Modal */}
+      <CarePlansCompareModal
+        open={showCarePlanCompare}
+        onOpenChange={setShowCarePlanCompare}
+        isYearly={formData.isYearlyCarePlan}
       />
     </div>
   );
