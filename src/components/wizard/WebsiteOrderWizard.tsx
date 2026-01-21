@@ -246,25 +246,27 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
       const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-package-checkout', {
         body: {
           orderId: orderResult.id,
+          packageId: formData.selectedPackage,
           email: formData.email,
           businessName: formData.businessName,
-          packageName: formData.selectedPackage,
-          currency,
-          language: lang,
+          contactPerson: formData.contactPerson,
+          phone: formData.phone || '',
+          conceptLink: formData.conceptLink || '',
+          carePlanId: formData.selectedCarePlan || '',
+          isYearly: formData.isYearlyCarePlan,
+          wantsBooking: formData.wantsBooking,
+          bookingAddonCost: formData.wantsBooking && formData.selectedPackage !== 'pro' ? getAddonPrice('booking', currency) : 0,
+          addedAdminPanel: formData.wantsAdminPanel,
           isPostDemoFlow,
-          addons: {
-            booking: formData.wantsBooking,
-            adminPanel: formData.wantsAdminPanel,
-            googleReviews: formData.wantsGoogleReviews,
-            googleMaps: formData.wantsGoogleMaps,
-            beforeAfter: formData.wantsBeforeAfter,
-            checkoutSystem: formData.wantsCheckoutSystem,
-          },
-          carePlan: formData.selectedCarePlan,
-          isYearlyCarePlan: formData.isYearlyCarePlan,
           customerType: customerTypeData.customerType,
-          vatNumber: customerTypeData.vatNumber,
+          companyName: customerTypeData.companyName || '',
+          orgNumber: customerTypeData.orgNumber || '',
+          vatNumber: customerTypeData.vatNumber || '',
           vatVerified: customerTypeData.vatVerified,
+          country: customerTypeData.country || 'SE',
+          currency,
+          selectedStyle: formData.selectedStyle || '',
+          selectedLanguage: formData.selectedLanguage || lang,
         }
       });
 
@@ -333,7 +335,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
   }
 
   return (
-    <div className="min-h-screen py-8 sm:py-12 relative overflow-hidden">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12 relative overflow-hidden">
       <WizardBackground />
       
       <div className="container-wide relative z-10 max-w-6xl mx-auto px-3 sm:px-6">
