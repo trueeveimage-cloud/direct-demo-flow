@@ -6,13 +6,14 @@ import {
   Eye, MousePointer, CreditCard, CheckCircle, ShoppingCart,
   LogOut, Mail, MessageSquare, ExternalLink, Check, Trash2,
   LayoutDashboard, Inbox, LineChart, Settings, ChevronLeft,
-  ChevronRight, Search, Filter, MoreVertical, X
+  ChevronRight, Search, Filter, MoreVertical, X, Square, CheckSquare
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { getAnalytics, FunnelEvents } from '@/lib/posthog';
 import {
   AlertDialog,
@@ -247,6 +248,12 @@ export default function AdminPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  
+  // Bulk selection state
+  const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [bulkDeleteType, setBulkDeleteType] = useState<'orders' | 'messages'>('orders');
 
   // Check for stored lockout on mount
   useEffect(() => {
@@ -389,8 +396,7 @@ export default function AdminPage() {
           Authorization: `Bearer ${session.access_token}`
         },
         body: { 
-          submissionId: submissionToDelete.id, 
-          submissionType: submissionToDelete.type 
+          items: [{ id: submissionToDelete.id, type: submissionToDelete.type }]
         }
       });
       
@@ -412,9 +418,78 @@ export default function AdminPage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    const selectedIds = bulkDeleteType === 'orders' ? selectedOrders : selectedMessages;
+    if (selectedIds.size === 0) return;
+    
+    setIsDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // Build items array with correct types
+      const items = Array.from(selectedIds).map(id => {
+        const submission = submissions.find(s => s.id === id);
+        return { id, type: submission?.type || (bulkDeleteType === 'orders' ? 'order' : 'contact') };
+      });
+
+      const { error } = await supabase.functions.invoke('admin-delete-submission', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        },
+        body: { items }
+      });
+      
+      if (error) {
+        console.error('Bulk delete error:', error);
+        return;
+      }
+      
+      setSubmissions(prev => prev.filter(s => !selectedIds.has(s.id)));
+      if (selectedSubmission && selectedIds.has(selectedSubmission.id)) {
+        setSelectedSubmission(null);
+      }
+      
+      // Clear selection
+      if (bulkDeleteType === 'orders') {
+        setSelectedOrders(new Set());
+      } else {
+        setSelectedMessages(new Set());
+      }
+    } catch (err) {
+      console.error('Failed to bulk delete:', err);
+    } finally {
+      setIsDeleting(false);
+      setBulkDeleteDialogOpen(false);
+    }
+  };
+
   const confirmDelete = (submission: Submission) => {
     setSubmissionToDelete(submission);
     setDeleteDialogOpen(true);
+  };
+
+  const confirmBulkDelete = (type: 'orders' | 'messages') => {
+    setBulkDeleteType(type);
+    setBulkDeleteDialogOpen(true);
+  };
+
+  const toggleOrderSelection = (id: string) => {
+    setSelectedOrders(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleMessageSelection = (id: string) => {
+    setSelectedMessages(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const orders = submissions.filter(s => s.type === 'order') as OrderSubmission[];
@@ -436,6 +511,22 @@ export default function AdminPage() {
     return concept.business_name.toLowerCase().includes(searchLower) ||
       concept.email.toLowerCase().includes(searchLower);
   });
+
+  const toggleAllOrders = () => {
+    if (selectedOrders.size === filteredOrders.length) {
+      setSelectedOrders(new Set());
+    } else {
+      setSelectedOrders(new Set(filteredOrders.map(o => o.id)));
+    }
+  };
+
+  const toggleAllMessages = () => {
+    if (selectedMessages.size === filteredMessages.length) {
+      setSelectedMessages(new Set());
+    } else {
+      setSelectedMessages(new Set(filteredMessages.map(m => m.id)));
+    }
+  };
 
   const unreadCount = submissions.filter(s => {
     if (s.type === 'contact') return !(s as ContactSubmission).is_read;
@@ -811,55 +902,94 @@ export default function AdminPage() {
               {/* Orders List */}
               <Card className="lg:col-span-1">
                 <CardHeader>
-                  <CardTitle>All Orders</CardTitle>
-                  <CardDescription>{filteredOrders.length} orders</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>All Orders</CardTitle>
+                      <CardDescription>{filteredOrders.length} orders</CardDescription>
+                    </div>
+                    {selectedOrders.size > 0 && (
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => confirmBulkDelete('orders')}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete ({selectedOrders.size})
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                  {/* Select All Header */}
+                  {filteredOrders.length > 0 && (
+                    <div className="flex items-center gap-3 mb-3 pb-3 border-b border-border">
+                      <Checkbox
+                        checked={selectedOrders.size === filteredOrders.length && filteredOrders.length > 0}
+                        onCheckedChange={toggleAllOrders}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {selectedOrders.size > 0 
+                          ? `${selectedOrders.size} selected` 
+                          : 'Select all'}
+                      </span>
+                    </div>
+                  )}
+                  <div className="space-y-2 max-h-[calc(100vh-380px)] overflow-y-auto">
                     {filteredOrders.length === 0 ? (
                       <p className="text-center py-8 text-muted-foreground">No orders found</p>
                     ) : (
                       filteredOrders.map((order) => (
                         <div
                           key={order.id}
-                          onClick={() => {
-                            setSelectedSubmission(order);
-                            if (!order.is_read) markAsRead(order.id, 'order');
-                          }}
-                          className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                          className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
                             selectedSubmission?.id === order.id
                               ? 'border-accent bg-accent/10'
+                              : selectedOrders.has(order.id)
+                              ? 'border-destructive/50 bg-destructive/5'
                               : !order.is_read
                               ? 'border-accent/50 bg-accent/5 hover:bg-accent/10'
                               : 'border-border hover:bg-secondary/50'
                           }`}
                         >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium">{order.business_name}</p>
-                                {!order.is_read && <Badge className="bg-accent text-xs">New</Badge>}
+                          <Checkbox
+                            checked={selectedOrders.has(order.id)}
+                            onCheckedChange={() => toggleOrderSelection(order.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <div 
+                            className="flex-1 min-w-0"
+                            onClick={() => {
+                              setSelectedSubmission(order);
+                              if (!order.is_read) markAsRead(order.id, 'order');
+                            }}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium">{order.business_name}</p>
+                                  {!order.is_read && <Badge className="bg-accent text-xs">New</Badge>}
+                                </div>
+                                <p className="text-sm text-muted-foreground truncate">{order.email}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {new Date(order.created_at).toLocaleDateString('sv-SE', {
+                                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                                  })}
+                                </p>
                               </div>
-                              <p className="text-sm text-muted-foreground truncate">{order.email}</p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {new Date(order.created_at).toLocaleDateString('sv-SE', {
-                                  day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-                                })}
-                              </p>
-                            </div>
-                            <div className="flex flex-col items-end gap-1">
-                              <Badge className={`text-xs ${
-                                order.payment_status === 'paid' 
-                                  ? 'bg-green-500/20 text-green-400' 
-                                  : order.payment_status === 'pending'
-                                  ? 'bg-yellow-500/20 text-yellow-400'
-                                  : 'bg-red-500/20 text-red-400'
-                              }`}>
-                                {order.payment_status}
-                              </Badge>
-                              {order.payment_amount && (
-                                <span className="text-xs font-medium">{order.payment_amount}</span>
-                              )}
+                              <div className="flex flex-col items-end gap-1">
+                                <Badge className={`text-xs ${
+                                  order.payment_status === 'paid' 
+                                    ? 'bg-green-500/20 text-green-400' 
+                                    : order.payment_status === 'pending'
+                                    ? 'bg-yellow-500/20 text-yellow-400'
+                                    : 'bg-red-500/20 text-red-400'
+                                }`}>
+                                  {order.payment_status}
+                                </Badge>
+                                {order.payment_amount && (
+                                  <span className="text-xs font-medium">{order.payment_amount}</span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -898,11 +1028,39 @@ export default function AdminPage() {
               {/* Messages List */}
               <Card className="lg:col-span-1">
                 <CardHeader>
-                  <CardTitle>All Messages</CardTitle>
-                  <CardDescription>{filteredMessages.length} messages</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>All Messages</CardTitle>
+                      <CardDescription>{filteredMessages.length} messages</CardDescription>
+                    </div>
+                    {selectedMessages.size > 0 && (
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => confirmBulkDelete('messages')}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete ({selectedMessages.size})
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                  {/* Select All Header */}
+                  {filteredMessages.length > 0 && (
+                    <div className="flex items-center gap-3 mb-3 pb-3 border-b border-border">
+                      <Checkbox
+                        checked={selectedMessages.size === filteredMessages.length && filteredMessages.length > 0}
+                        onCheckedChange={toggleAllMessages}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {selectedMessages.size > 0 
+                          ? `${selectedMessages.size} selected` 
+                          : 'Select all'}
+                      </span>
+                    </div>
+                  )}
+                  <div className="space-y-2 max-h-[calc(100vh-380px)] overflow-y-auto">
                     {filteredMessages.length === 0 ? (
                       <p className="text-center py-8 text-muted-foreground">No messages found</p>
                     ) : (
@@ -916,39 +1074,50 @@ export default function AdminPage() {
                         return (
                           <div
                             key={message.id}
-                            onClick={() => {
-                              setSelectedSubmission(message);
-                              if (contact && !contact.is_read) {
-                                markAsRead(message.id, message.type);
-                              }
-                            }}
-                            className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                            className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
                               selectedSubmission?.id === message.id
                                 ? 'border-accent bg-accent/10'
+                                : selectedMessages.has(message.id)
+                                ? 'border-destructive/50 bg-destructive/5'
                                 : isUnread
                                 ? 'border-accent/50 bg-accent/5 hover:bg-accent/10'
                                 : 'border-border hover:bg-secondary/50'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <p className="font-medium truncate">{displayName}</p>
-                                  {isUnread && <Badge className="bg-accent text-xs">New</Badge>}
-                                </div>
-                                <p className="text-sm text-muted-foreground truncate">{message.email}</p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {new Date(message.created_at).toLocaleDateString('sv-SE', {
-                                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-                                  })}
-                                </p>
-                              </div>
-                              <Badge variant="outline" className={`text-xs ${message.type === 'concept' ? 'bg-primary/10 border-primary' : ''}`}>
-                                {isContact 
-                                  ? (reasonLabels[contact!.contact_reason] || contact!.contact_reason)
-                                  : '🚀 Concept'
+                            <Checkbox
+                              checked={selectedMessages.has(message.id)}
+                              onCheckedChange={() => toggleMessageSelection(message.id)}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <div 
+                              className="flex-1 min-w-0"
+                              onClick={() => {
+                                setSelectedSubmission(message);
+                                if (contact && !contact.is_read) {
+                                  markAsRead(message.id, message.type);
                                 }
-                              </Badge>
+                              }}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium truncate">{displayName}</p>
+                                    {isUnread && <Badge className="bg-accent text-xs">New</Badge>}
+                                  </div>
+                                  <p className="text-sm text-muted-foreground truncate">{message.email}</p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {new Date(message.created_at).toLocaleDateString('sv-SE', {
+                                      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                                    })}
+                                  </p>
+                                </div>
+                                <Badge variant="outline" className={`text-xs ${message.type === 'concept' ? 'bg-primary/10 border-primary' : ''}`}>
+                                  {isContact 
+                                    ? (reasonLabels[contact!.contact_reason] || contact!.contact_reason)
+                                    : '🚀 Concept'
+                                  }
+                                </Badge>
+                              </div>
                             </div>
                           </div>
                         );
@@ -1131,7 +1300,7 @@ export default function AdminPage() {
         </div>
       </main>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Single Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -1148,6 +1317,28 @@ export default function AdminPage() {
               className="bg-destructive hover:bg-destructive/90"
             >
               {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {bulkDeleteType === 'orders' ? selectedOrders.size : selectedMessages.size} Items</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {bulkDeleteType === 'orders' ? selectedOrders.size : selectedMessages.size} selected {bulkDeleteType}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : `Delete All (${bulkDeleteType === 'orders' ? selectedOrders.size : selectedMessages.size})`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
