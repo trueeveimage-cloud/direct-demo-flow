@@ -405,6 +405,14 @@ export default function AdminPage() {
       const storedEvents = analytics.getStoredEvents();
       setEvents(storedEvents);
       fetchAllSubmissions();
+      
+      // Auto-refresh submissions every 30 seconds
+      const refreshInterval = setInterval(() => {
+        console.log('[Admin] Auto-refreshing submissions...');
+        fetchAllSubmissions();
+      }, 30000);
+      
+      return () => clearInterval(refreshInterval);
     }
   }, [isAuthenticated, isAdmin, refreshKey]);
 

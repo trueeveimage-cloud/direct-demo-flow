@@ -294,6 +294,7 @@ function WebsiteOrderWizardComponent({
         business_name: formData.businessName,
         contact_person: formData.contactPerson,
         phone: formData.phone,
+        current_website: formData.currentWebsite || null,
         business_type: formData.businessType === 'other' ? formData.businessTypeOther : formData.businessType,
         website_goal: formData.websiteGoal,
         selected_package: formData.selectedPackage,
