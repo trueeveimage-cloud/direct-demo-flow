@@ -271,7 +271,12 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
         }
       });
 
-      if (checkoutError) throw checkoutError;
+      if (checkoutError) {
+        console.error('Checkout error details:', JSON.stringify(checkoutError, null, 2));
+        throw checkoutError;
+      }
+
+      console.log('Checkout response:', checkoutData);
 
       if (checkoutData?.url) {
         toast({ 
@@ -281,12 +286,17 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
         setSubmitted(true);
         onComplete?.();
         window.location.href = checkoutData.url;
+      } else {
+        console.error('No URL in checkout response:', checkoutData);
+        throw new Error('No checkout URL returned');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submission error:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error context:', error?.context);
       toast({
         title: t('Något gick fel', 'Something went wrong'),
-        description: t('Försök igen eller kontakta oss.', 'Please try again or contact us.'),
+        description: error?.message || t('Försök igen eller kontakta oss.', 'Please try again or contact us.'),
         variant: 'destructive'
       });
     } finally {
