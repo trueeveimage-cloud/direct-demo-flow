@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.admin-delete-submission]
 verify_jwt = false
+
+[functions.reset-admin-password]
+verify_jwt = false

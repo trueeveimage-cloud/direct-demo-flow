@@ -188,18 +188,17 @@ export function Step6Payment({
 
           {carePlan && (
             <div className="pt-3 mt-3 border-t border-border/50">
-              <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <CreditCard className="w-4 h-4" />
-                {t('Webbvård faktureras separat:', 'Web care billed separately:')}
-              </p>
-              <div className="flex justify-between items-center mt-1">
-                <span className="text-sm font-medium">{carePlan.name} {t('Webbvård', 'Web Care')}</span>
-                <span className="text-sm font-semibold">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-accent" />
+                  {carePlan.name} {t('Webbvård', 'Web Care')}
+                </span>
+                <span className="text-sm font-semibold text-accent">
                   {formatPrice(carePlanPriceValue)}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'month')}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {t('Du får en separat betalningslänk för webbvård efter beställningen.', 'You will receive a separate payment link for web care after your order.')}
+                {t('Ingår i din beställning – prenumerationen startar vid betalning.', 'Included in your order – subscription starts upon payment.')}
               </p>
             </div>
           )}
