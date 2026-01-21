@@ -1,8 +1,8 @@
-// PostHog Analytics Integration
-// Using PostHog's free tier for real analytics
+// Custom Analytics Implementation
+// Stores events locally for admin dashboard analytics
+// No external service integration - data stays client-side
 
-const POSTHOG_KEY = 'phc_nomia_analytics'; // Public key - safe to expose
-const POSTHOG_HOST = 'https://eu.i.posthog.com';
+const ANALYTICS_KEY = 'nomia_analytics'; // Local storage identifier
 
 interface EventProperties {
   [key: string]: string | number | boolean | undefined | null;
