@@ -7,7 +7,7 @@ import {
   LogOut, Mail, MessageSquare, ExternalLink, Check, Trash2,
   LayoutDashboard, Inbox, LineChart, Settings, ChevronLeft,
   ChevronRight, X, Server, Database, Zap, Activity,
-  FileText, ChevronDown, ChevronUp, Sparkles
+  FileText, ChevronDown, ChevronUp, Sparkles, Download
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { getAnalytics, FunnelEvents } from '@/lib/posthog';
+import { useRealtimePresence } from '@/hooks/useRealtimePresence';
+import { AnalyticsHeatmap } from '@/components/admin/AnalyticsHeatmap';
+import { LiveVisitorCounter } from '@/components/admin/LiveVisitorCounter';
+import { exportToCSV, exportSubmissionsToCSV } from '@/lib/exportAnalytics';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -304,7 +308,8 @@ export default function AdminPage() {
   // Full order details modal
   const [fullDetailsOrder, setFullDetailsOrder] = useState<OrderSubmission | null>(null);
 
-  // Check for stored lockout on mount
+  // Real-time presence tracking
+  const { visitorCount, visitorsByPage, visitorsByDevice } = useRealtimePresence(true);
   useEffect(() => {
     const storedLockout = localStorage.getItem('admin_lockout');
     if (storedLockout) {
@@ -1381,23 +1386,55 @@ export default function AdminPage() {
           {/* Analytics Section */}
           {activeNav === 'analytics' && (
             <div className="space-y-6">
-              {/* Date Range Filter */}
-              <div className="flex gap-2">
-                {[
-                  { id: 'today', label: 'Today' },
-                  { id: '7days', label: '7 Days' },
-                  { id: '30days', label: '30 Days' },
-                ].map((range) => (
-                  <Button
-                    key={range.id}
-                    variant={dateRange === range.id ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setDateRange(range.id as typeof dateRange)}
-                  >
-                    {range.label}
-                  </Button>
-                ))}
+              {/* Date Range Filter + Export */}
+              <div className="flex flex-wrap gap-2 justify-between items-center">
+                <div className="flex gap-2">
+                  {[
+                    { id: 'today', label: 'Today' },
+                    { id: '7days', label: '7 Days' },
+                    { id: '30days', label: '30 Days' },
+                  ].map((range) => (
+                    <Button
+                      key={range.id}
+                      variant={dateRange === range.id ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setDateRange(range.id as typeof dateRange)}
+                    >
+                      {range.label}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => exportToCSV({ events, filename: 'nomia-analytics' })}
+                  disabled={events.length === 0}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export CSV
+                </Button>
               </div>
+
+              {/* Live Visitors */}
+              <LiveVisitorCounter 
+                visitorCount={visitorCount}
+                visitorsByPage={visitorsByPage}
+                visitorsByDevice={visitorsByDevice}
+              />
+
+              {/* Heatmap */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    Traffic Heatmap & Funnel Analysis
+                  </CardTitle>
+                  <CardDescription>Visual breakdown of page traffic and conversion dropoff</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <AnalyticsHeatmap pageViews={data.pageViews} funnel={data.funnel} />
+                </CardContent>
+              </Card>
 
               {/* Funnel */}
               <Card>
@@ -1553,15 +1590,29 @@ export default function AdminPage() {
                     <p className="text-3xl font-bold">{events.length}</p>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className={visitorCount > 0 ? 'border-green-500/50' : ''}>
                   <CardHeader className="pb-2">
                     <CardDescription className="flex items-center gap-2">
                       <Activity className="w-4 h-4" />
-                      Active Sessions
+                      Live Visitors
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold text-green-500">Live</p>
+                  <CardContent className="flex items-center gap-2">
+                    <motion.p 
+                      key={visitorCount}
+                      initial={{ scale: 1.2 }}
+                      animate={{ scale: 1 }}
+                      className="text-3xl font-bold text-green-500"
+                    >
+                      {visitorCount}
+                    </motion.p>
+                    {visitorCount > 0 && (
+                      <motion.div
+                        className="w-2 h-2 bg-green-500 rounded-full"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                      />
+                    )}
                   </CardContent>
                 </Card>
                 <Card>
@@ -1623,6 +1674,24 @@ export default function AdminPage() {
                       >
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Refresh All Data
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => exportToCSV({ events, filename: 'nomia-analytics' })}
+                        disabled={events.length === 0}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Export Analytics CSV
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => exportSubmissionsToCSV(orders, 'nomia-orders')}
+                        disabled={orders.length === 0}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Export Orders CSV
                       </Button>
                       <Button 
                         variant="outline" 
