@@ -30,9 +30,23 @@ class AnalyticsTracker {
     this.captureUtmParams();
     this.trackPageView();
     
-    // Track page views on route changes
+    // Track page views on route changes (popstate for browser nav)
     if (typeof window !== 'undefined') {
       window.addEventListener('popstate', () => this.trackPageView());
+      
+      // Also intercept history.pushState for React Router navigation
+      const originalPushState = history.pushState.bind(history);
+      history.pushState = (...args) => {
+        originalPushState(...args);
+        // Small delay to ensure the URL has changed
+        setTimeout(() => this.trackPageView(), 50);
+      };
+      
+      const originalReplaceState = history.replaceState.bind(history);
+      history.replaceState = (...args) => {
+        originalReplaceState(...args);
+        setTimeout(() => this.trackPageView(), 50);
+      };
     }
     
     // Flush events periodically
