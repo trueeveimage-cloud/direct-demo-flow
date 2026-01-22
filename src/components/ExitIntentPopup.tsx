@@ -139,16 +139,16 @@ export function ExitIntentPopup() {
                   </p>
 
                   {/* Form */}
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-4 flex flex-col items-center">
                     <Input
                       type="email"
                       placeholder={t('Din e-postadress', 'Your email address')}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="h-12"
+                      className="h-12 w-full text-center"
                       required
                     />
-                    <Button type="submit" className="w-full h-12" disabled={isSubmitting}>
+                    <Button type="submit" className="w-full h-12 justify-center" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
