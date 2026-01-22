@@ -32,13 +32,13 @@ export function NomiaIntro({ onComplete }: NomiaIntroProps) {
       return;
     }
 
-    // Faster, smoother phase timing
-    const visibleTimer = setTimeout(() => setPhase('visible'), 50);
-    const morphTimer = setTimeout(() => setPhase('morph'), 1400);
+    // Faster timing - start almost immediately
+    const visibleTimer = setTimeout(() => setPhase('visible'), 20);
+    const morphTimer = setTimeout(() => setPhase('morph'), 1000);
     const doneTimer = setTimeout(() => {
       setPhase('done');
       onComplete();
-    }, 2000);
+    }, 1400);
 
     return () => {
       clearTimeout(visibleTimer);

@@ -218,7 +218,7 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
   const afterY = useTransform(scrollYProgress, [0, 1], [100, -100]);
   
   return (
-    <section ref={sectionRef} className="py-32 relative overflow-hidden">
+    <section ref={sectionRef} className="py-32 relative overflow-hidden scroll-snap-section">
       {/* Asymmetric background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-accent/5 to-transparent" />
@@ -337,16 +337,16 @@ export default function Index() {
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.5]);
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden scroll-snap-container">
       {/* ═══════════════════════════════════════════════════════════════════
-          1. HERO - Hook + Promise
+          1. HERO - Hook + Promise - SCROLL SNAP SECTION
       ═══════════════════════════════════════════════════════════════════ */}
       
       {/* ADVANCED PARALLAX HERO BACKGROUND */}
       <ParallaxHeroBackground />
 
-      {/* Hero Content with letter-by-letter animation */}
-      <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24">
+      {/* Hero Content with letter-by-letter animation - SCROLL SNAP */}
+      <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24 scroll-snap-section">
         <div className="container-narrow text-center relative z-10 section-padding py-12">
           {/* Hero Logo with letter animation */}
           <motion.div 
@@ -493,7 +493,7 @@ export default function Index() {
           4. HOW IT WORKS - Simple process with steps preview + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.3} floatingElements accentGlow>
-        <section className="py-32 bg-gradient-to-b from-secondary/20 via-secondary/30 to-secondary/20 relative overflow-hidden">
+        <section className="py-32 bg-gradient-to-b from-secondary/20 via-secondary/30 to-secondary/20 relative overflow-hidden scroll-snap-section">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
           
@@ -572,7 +572,7 @@ export default function Index() {
           5. PROOF - Portfolio Showcase + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.4} scaleOnView>
-        <section className="py-32 bg-secondary/30 relative overflow-hidden">
+        <section className="py-32 bg-secondary/30 relative overflow-hidden scroll-snap-section">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
           
@@ -650,7 +650,7 @@ export default function Index() {
           ROI CALCULATOR - Show the pain + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.2} accentGlow>
-        <section className="py-32 relative">
+        <section className="py-32 relative scroll-snap-section">
           <div className="absolute inset-0 bg-gradient-to-b from-background via-destructive/5 to-background pointer-events-none" />
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
           
@@ -691,7 +691,7 @@ export default function Index() {
           6. WHAT YOU GET - Features/Deliverables + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.35} floatingElements skewOnScroll>
-        <section className="py-32 relative overflow-hidden">
+        <section className="py-32 relative overflow-hidden scroll-snap-section">
           <FloatingShapes />
           
           <div className="container-wide section-padding relative">
@@ -770,7 +770,7 @@ export default function Index() {
           8. FAQ - Handle objections + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.25}>
-        <section className="py-32">
+        <section className="py-32 scroll-snap-section">
           <div className="container-narrow section-padding">
             <div className="flex items-center justify-between mb-12 animate-fade-in">
               <h2 className="text-3xl sm:text-4xl font-bold">FAQ</h2>
@@ -810,7 +810,7 @@ export default function Index() {
           9. FINAL CTA - Choose Your Path + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.3} accentGlow rotate3D>
-        <section className="py-32 relative">
+        <section className="py-32 relative scroll-snap-section">
           <div className="absolute inset-0 bg-gradient-to-b from-secondary/30 via-accent/5 to-secondary/30 pointer-events-none" />
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
           

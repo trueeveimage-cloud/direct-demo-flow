@@ -89,12 +89,36 @@
     scroll-behavior: smooth;
   }
 
+  /* Smooth theme color transitions */
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* All elements inherit smooth color transitions */
+  *:not(svg):not(path):not(animate) {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 0.3s;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading font-semibold tracking-tight;
+  }
+
+  /* Scroll snap container for home page */
+  .scroll-snap-container {
+    scroll-snap-type: y proximity;
+    overflow-y: auto;
+    height: 100vh;
+    scroll-behavior: smooth;
+  }
+
+  .scroll-snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+    min-height: 80vh;
   }
 }
 
