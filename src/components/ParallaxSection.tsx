@@ -238,10 +238,11 @@ export const TiltCard: React.FC<TiltCardProps> = ({ children, className }) => {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateX = (y - centerY) / 20;
-    const rotateY = (centerX - x) / 20;
+    // Much more subtle: divide by 80 instead of 20
+    const rotateX = (y - centerY) / 80;
+    const rotateY = (centerX - x) / 80;
 
-    ref.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    ref.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
   };
 
   const handleMouseLeave = () => {
