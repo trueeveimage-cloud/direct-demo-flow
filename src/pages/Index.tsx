@@ -11,6 +11,7 @@ import { ROICalculator } from '@/components/ROICalculator';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 import { ParallaxSection, FloatingShapes, AnimatedText, TiltCard } from '@/components/ParallaxSection';
+import { MagneticButton } from '@/components/MagneticButton';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -444,21 +445,25 @@ export default function Index() {
             transition={{ delay: 1.4 }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
-            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
-              <Link to="/demo">
-                {t('Få ditt gratis koncept', 'Get your free concept')}
-                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
-              <Link to="/bestall">
-                <span className="flex flex-col items-start leading-tight">
-                  <span>{t('Beställ direkt', 'Order directly')}</span>
-                  <span className="text-xs opacity-80">{t('Hemsida från €290', 'Website from €290')}</span>
-                </span>
-                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
+            <MagneticButton strength={0.4}>
+              <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
+                <Link to="/demo">
+                  {t('Få ditt gratis koncept', 'Get your free concept')}
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </MagneticButton>
+            <MagneticButton strength={0.4}>
+              <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
+                <Link to="/bestall">
+                  <span className="flex flex-col items-start leading-tight">
+                    <span>{t('Beställ direkt', 'Order directly')}</span>
+                    <span className="text-xs opacity-80">{t('Hemsida från €290', 'Website from €290')}</span>
+                  </span>
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </MagneticButton>
           </motion.div>
           
           <motion.div 

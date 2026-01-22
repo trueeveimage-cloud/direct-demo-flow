@@ -3,10 +3,12 @@ import { ArrowRight, Plus, Minus, HelpCircle, Sparkles, MessageSquare, Zap } fro
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
+import { MagneticButton } from '@/components/MagneticButton';
 
-// Static floating element component - no animation for performance
-const FloatingIcon = ({ children, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
+// Static floating element component
+const FloatingIcon = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <div className={`absolute pointer-events-none ${className}`}>
     {children}
   </div>
@@ -17,7 +19,8 @@ const FAQItem = ({
   question, 
   answer, 
   isOpen, 
-  onClick
+  onClick,
+  index
 }: { 
   question: string; 
   answer: string; 
@@ -26,7 +29,11 @@ const FAQItem = ({
   index: number;
 }) => {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 30, rotateX: -10 }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.08 }}
       className={`relative border rounded-xl overflow-hidden transition-all duration-300 ${
         isOpen 
           ? 'border-accent/50 bg-accent/5 shadow-lg shadow-accent/5' 
@@ -45,33 +52,46 @@ const FAQItem = ({
         <span className="font-semibold pr-4 text-base sm:text-lg group-hover:text-accent transition-colors">
           {question}
         </span>
-        <div
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
           className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
-            isOpen ? 'bg-accent text-accent-foreground rotate-180' : 'bg-muted text-muted-foreground group-hover:bg-accent/20 group-hover:text-accent'
+            isOpen ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground group-hover:bg-accent/20 group-hover:text-accent'
           }`}
         >
           {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-        </div>
+        </motion.div>
       </button>
       
-      <div
-        className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96' : 'max-h-0'}`}
+      <motion.div
+        initial={false}
+        animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
+        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+        className="overflow-hidden"
       >
         <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
           <p className="text-muted-foreground leading-relaxed">
             {answer}
           </p>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
 export default function FAQPage() {
   const { t } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const heroRef = useRef(null);
-  const heroInView = useInView(heroRef, { once: true });
+  const heroRef = useRef<HTMLDivElement>(null);
+  
+  // Parallax for hero
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -118,44 +138,60 @@ export default function FAQPage() {
 
   return (
     <div className="relative overflow-hidden">
-      {/* Background elements */}
+      {/* Background elements with parallax */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-[10%] w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-20 right-[10%] w-[300px] h-[300px] bg-accent/5 rounded-full blur-[100px]" />
+        <motion.div 
+          style={{ y: useTransform(scrollYProgress, [0, 1], [0, -100]) }}
+          className="absolute top-20 left-[10%] w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" 
+        />
+        <motion.div 
+          style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }}
+          className="absolute bottom-20 right-[10%] w-[300px] h-[300px] bg-accent/5 rounded-full blur-[100px]" 
+        />
       </div>
 
       {/* Floating decorative elements - hidden on mobile */}
       <div className="hidden md:block">
-        <FloatingIcon delay={0} className="top-32 left-[8%]">
-          <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+        <FloatingIcon className="top-32 left-[8%]">
+          <motion.div 
+            animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center"
+          >
             <HelpCircle className="w-6 h-6 text-accent/40" />
-          </div>
+          </motion.div>
         </FloatingIcon>
-        <FloatingIcon delay={1} className="top-48 right-[12%]">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+        <FloatingIcon className="top-48 right-[12%]">
+          <motion.div 
+            animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center"
+          >
             <MessageSquare className="w-5 h-5 text-primary/40" />
-          </div>
+          </motion.div>
         </FloatingIcon>
-        <FloatingIcon delay={2} className="bottom-40 left-[15%]">
-          <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+        <FloatingIcon className="bottom-40 left-[15%]">
+          <motion.div 
+            animate={{ y: [0, -10, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center"
+          >
             <Zap className="w-4 h-4 text-accent/40" />
-          </div>
+          </motion.div>
         </FloatingIcon>
       </div>
 
       <div className="section-padding pt-28 pb-20 relative z-10">
         <div className="container-narrow">
-          {/* Header */}
+          {/* Header with parallax */}
           <motion.div 
             ref={heroRef}
-            initial={{ opacity: 0, y: 40 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            style={{ y: heroY, opacity: heroOpacity }}
             className="text-center mb-16"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
-              animate={heroInView ? { scale: 1, opacity: 1 } : {}}
+              animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6"
             >
@@ -165,72 +201,92 @@ export default function FAQPage() {
               </span>
             </motion.div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+            <motion.h1 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-tight"
+            >
               {t('Vanliga ', 'Frequently Asked ')}
               <span className="bg-gradient-to-r from-accent via-orange-400 to-accent bg-clip-text text-transparent">
                 {t('frågor', 'Questions')}
               </span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg text-muted-foreground max-w-xl mx-auto"
+            >
               {t('Hitta svar på de vanligaste frågorna om vår tjänst.', 'Find answers to the most common questions about our service.')}
-            </p>
+            </motion.p>
           </motion.div>
 
-          {/* FAQ List */}
-          <div className="space-y-4 mb-20">
-            {faqs.map((faq, index) => (
-              <FAQItem
-                key={index}
-                question={faq.q}
-                answer={faq.a}
-                isOpen={openIndex === index}
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                index={index}
-              />
-            ))}
-          </div>
-
-          {/* CTA Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-accent/10 via-accent/5 to-accent/10 rounded-2xl blur-xl" />
-            <div className="relative bg-gradient-to-br from-secondary/80 to-secondary/40 backdrop-blur-xl rounded-2xl border border-border/50 p-8 sm:p-12 text-center overflow-hidden">
-              {/* Animated corner accents */}
-              <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-accent/20 rounded-tl-2xl" />
-              <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-accent/20 rounded-br-2xl" />
-              
-              <motion.div
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
-              >
-                <Sparkles className="w-10 h-10 text-accent mx-auto mb-4" />
-              </motion.div>
-              
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-                {t('Har du fler frågor?', 'Have more questions?')}
-              </h2>
-              <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                {t('Kontakta oss så svarar vi inom 24 timmar.', 'Contact us and we\'ll reply within 24 hours.')}
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button asChild variant="outline" size="lg" className="rounded-full px-8">
-                  <Link to="/kontakt">{t('Kontakta oss', 'Contact us')}</Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="rounded-full px-8 group">
-                  <Link to="/demo">
-                    {t('Få ditt gratis koncept', 'Get your free concept')}
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </div>
+          {/* FAQ List with parallax wrapper */}
+          <ParallaxSection speed={0.2} floatingElements>
+            <div className="space-y-4 mb-20">
+              {faqs.map((faq, index) => (
+                <FAQItem
+                  key={index}
+                  question={faq.q}
+                  answer={faq.a}
+                  isOpen={openIndex === index}
+                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                  index={index}
+                />
+              ))}
             </div>
-          </motion.div>
+          </ParallaxSection>
+
+          {/* CTA Section with parallax */}
+          <ParallaxSection speed={0.3} accentGlow scaleOnView>
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-accent/10 via-accent/5 to-accent/10 rounded-2xl blur-xl" />
+              <TiltCard>
+                <div className="relative bg-gradient-to-br from-secondary/80 to-secondary/40 backdrop-blur-xl rounded-2xl border border-border/50 p-8 sm:p-12 text-center overflow-hidden glass-premium">
+                  {/* Animated corner accents */}
+                  <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-accent/20 rounded-tl-2xl" />
+                  <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-accent/20 rounded-br-2xl" />
+                  
+                  <motion.div
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                  >
+                    <Sparkles className="w-10 h-10 text-accent mx-auto mb-4" />
+                  </motion.div>
+                  
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+                    {t('Har du fler frågor?', 'Have more questions?')}
+                  </h2>
+                  <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                    {t('Kontakta oss så svarar vi inom 24 timmar.', 'Contact us and we\'ll reply within 24 hours.')}
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <MagneticButton>
+                      <Button asChild variant="outline" size="lg" className="rounded-full px-8">
+                        <Link to="/kontakt">{t('Kontakta oss', 'Contact us')}</Link>
+                      </Button>
+                    </MagneticButton>
+                    <MagneticButton>
+                      <Button asChild variant="outline" size="lg" className="rounded-full px-8 group">
+                        <Link to="/demo">
+                          {t('Få ditt gratis koncept', 'Get your free concept')}
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                      </Button>
+                    </MagneticButton>
+                  </div>
+                </div>
+              </TiltCard>
+            </motion.div>
+          </ParallaxSection>
         </div>
       </div>
     </div>
