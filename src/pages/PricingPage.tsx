@@ -100,14 +100,18 @@ const PricingCard = ({
                   <span className="leading-tight flex items-center gap-1 flex-wrap">
                     {feature.text}
                     {tooltip && (
-                      <Popover>
+                      <Popover modal>
                         <PopoverTrigger asChild>
-                          <button type="button" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent/20 transition-colors">
+                          <button 
+                            type="button" 
+                            className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted hover:bg-accent/20 transition-colors relative z-50"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Info className="w-3 h-3 text-muted-foreground" />
                           </button>
                         </PopoverTrigger>
-                        <PopoverContent side="top" className="max-w-xs p-2">
-                          <p className="text-xs">{tooltip}</p>
+                        <PopoverContent side="top" className="max-w-xs p-3 z-[100]">
+                          <p className="text-sm">{tooltip}</p>
                         </PopoverContent>
                       </Popover>
                     )}
