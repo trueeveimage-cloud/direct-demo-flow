@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
 interface PageData {
@@ -22,7 +22,8 @@ interface AnalyticsHeatmapProps {
   funnel: FunnelData;
 }
 
-export function AnalyticsHeatmap({ pageViews, funnel }: AnalyticsHeatmapProps) {
+export const AnalyticsHeatmap = forwardRef<HTMLDivElement, AnalyticsHeatmapProps>(
+  function AnalyticsHeatmap({ pageViews, funnel }, ref) {
   const maxViews = useMemo(() => {
     return Math.max(...pageViews.map(p => p.views), 1);
   }, [pageViews]);
@@ -47,7 +48,7 @@ export function AnalyticsHeatmap({ pageViews, funnel }: AnalyticsHeatmapProps) {
   const maxFunnel = Math.max(...funnelSteps.map(s => s.value), 1);
 
   return (
-    <div className="space-y-6">
+    <div ref={ref} className="space-y-6">
       {/* Page Traffic Heatmap */}
       <div>
         <h4 className="text-sm font-medium mb-3 text-muted-foreground">Page Traffic Intensity</h4>
@@ -144,4 +145,4 @@ export function AnalyticsHeatmap({ pageViews, funnel }: AnalyticsHeatmapProps) {
       </div>
     </div>
   );
-}
+});

@@ -149,7 +149,7 @@ interface AnalyticsData {
 
 type NavItem = 'overview' | 'orders' | 'demos' | 'messages' | 'analytics' | 'system';
 
-// Process real events from localStorage
+// Process real events from database
 function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsData {
   const filterDate = new Date();
   
@@ -166,8 +166,14 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
   const pageViewMap = new Map<string, { views: number; visitors: Set<string>; times: number[] }>();
   const sessionSet = new Set<string>();
   
+  // Detect page views: check for $pageview, page_view, or funnel landing view events
+  const isPageViewEvent = (eventName: string) => 
+    eventName === '$pageview' || 
+    eventName === 'page_view' || 
+    eventName === FunnelEvents.LANDING_VIEW;
+  
   filteredEvents.forEach(e => {
-    if (e.event === 'page_view' || e.event === FunnelEvents.LANDING_VIEW) {
+    if (isPageViewEvent(e.event)) {
       const path = (e.properties.path as string) || '/';
       const sessionId = (e.properties.session_id as string) || 'unknown';
       sessionSet.add(sessionId);
@@ -195,7 +201,7 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
 
   const referrerMap = new Map<string, Set<string>>();
   filteredEvents.forEach(e => {
-    if ((e.event === 'page_view' || e.event === FunnelEvents.LANDING_VIEW) && e.properties.referrer) {
+    if (isPageViewEvent(e.event) && e.properties.referrer) {
       const source = String(e.properties.referrer) || 'direct';
       const sessionId = String(e.properties.session_id) || 'unknown';
       if (!referrerMap.has(source)) {
@@ -212,7 +218,7 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
 
   let desktop = 0, mobile = 0, tablet = 0;
   filteredEvents.forEach(e => {
-    if (e.event === 'page_view' || e.event === FunnelEvents.LANDING_VIEW) {
+    if (isPageViewEvent(e.event)) {
       const width = e.properties.screen_width as number || 1920;
       if (width <= 768) mobile++;
       else if (width <= 1024) tablet++;
@@ -226,8 +232,14 @@ function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsD
     tablet: Math.round((tablet / totalDevice) * 100)
   };
 
+  // Count page views on home as landing views, or use explicit funnel event
+  const landingViews = filteredEvents.filter(e => 
+    e.event === FunnelEvents.LANDING_VIEW || 
+    (isPageViewEvent(e.event) && (e.properties.path === '/' || e.properties.path === ''))
+  ).length;
+  
   const funnel = {
-    landingView: filteredEvents.filter(e => e.event === FunnelEvents.LANDING_VIEW).length,
+    landingView: landingViews,
     startWizard: filteredEvents.filter(e => e.event === FunnelEvents.WIZARD_START).length,
     completeWizard: filteredEvents.filter(e => e.event === FunnelEvents.WIZARD_COMPLETE).length,
     checkoutStarted: filteredEvents.filter(e => e.event === FunnelEvents.CHECKOUT_START).length,
