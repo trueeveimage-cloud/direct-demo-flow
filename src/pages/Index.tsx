@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield, Info, Sparkles, TrendingDown, Eye, Calendar } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -8,7 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Testimonials } from '@/components/Testimonials';
 import { TrustBadges } from '@/components/TrustBadges';
 import { ROICalculator } from '@/components/ROICalculator';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 
 // Import portfolio images
@@ -20,6 +20,148 @@ import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
 // Before/After images
 import beforeSwedenCarImg from '@/assets/before-swedencar.png';
 import afterSwedenCarImg from '@/assets/after-swedencar.png';
+
+// ═══════════════════════════════════════════════════════════════════
+// ADVANCED PARALLAX HERO BACKGROUND - "Holy shit" effect
+// ═══════════════════════════════════════════════════════════════════
+function ParallaxHeroBackground() {
+  const { scrollY } = useScroll();
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  // Smooth spring physics for mouse movement
+  const springConfig = { damping: 25, stiffness: 150 };
+  const smoothMouseX = useSpring(mouseX, springConfig);
+  const smoothMouseY = useSpring(mouseY, springConfig);
+  
+  // Scroll-based parallax transforms
+  const y1 = useTransform(scrollY, [0, 500], [0, 150]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -100]);
+  const y3 = useTransform(scrollY, [0, 500], [0, 200]);
+  const scale1 = useTransform(scrollY, [0, 300], [1, 1.3]);
+  const opacity1 = useTransform(scrollY, [0, 400], [1, 0]);
+  const rotate1 = useTransform(scrollY, [0, 500], [0, 45]);
+  const rotate2 = useTransform(scrollY, [0, 500], [0, -30]);
+  const gridOpacity = useTransform(scrollY, [0, 300], [0.03, 0]);
+  
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      // Normalize mouse position to -1 to 1
+      mouseX.set((clientX / innerWidth - 0.5) * 2);
+      mouseY.set((clientY / innerHeight - 0.5) * 2);
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [mouseX, mouseY]);
+  
+  // Combine scroll and mouse for 3D parallax
+  const orbX1 = useTransform(smoothMouseX, [-1, 1], [-30, 30]);
+  const orbY1 = useTransform(smoothMouseY, [-1, 1], [-30, 30]);
+  const orbX2 = useTransform(smoothMouseX, [-1, 1], [40, -40]);
+  const orbY2 = useTransform(smoothMouseY, [-1, 1], [20, -20]);
+  const orbX3 = useTransform(smoothMouseX, [-1, 1], [-20, 20]);
+  const orbY3 = useTransform(smoothMouseY, [-1, 1], [-40, 40]);
+  
+  return (
+    <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0 overflow-hidden">
+      {/* Desktop: Full parallax experience */}
+      <div className="hidden md:block h-full">
+        {/* Primary glow orb - largest, slowest */}
+        <motion.div
+          style={{ 
+            y: y1, 
+            x: orbX1, 
+            scale: scale1,
+            rotate: rotate1,
+            opacity: opacity1
+          }}
+          className="absolute top-[-150px] left-[5%] w-[600px] h-[600px]"
+        >
+          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/30 via-accent/10 to-transparent blur-[100px]" />
+        </motion.div>
+        
+        {/* Secondary orb - medium speed */}
+        <motion.div
+          style={{ 
+            y: y2, 
+            x: orbX2,
+            rotate: rotate2,
+            opacity: opacity1
+          }}
+          className="absolute top-[50px] right-[10%] w-[500px] h-[500px]"
+        >
+          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/25 via-accent/10 to-transparent blur-[80px]" />
+        </motion.div>
+        
+        {/* Tertiary orb - fastest parallax */}
+        <motion.div
+          style={{ 
+            y: y3,
+            x: orbX3,
+            opacity: opacity1
+          }}
+          className="absolute top-[300px] left-[35%] w-[400px] h-[400px]"
+        >
+          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/20 via-accent/5 to-transparent blur-[60px]" />
+        </motion.div>
+        
+        {/* Floating particles - CSS animated dots */}
+        <div className="absolute inset-0">
+          {[...Array(12)].map((_, i) => (
+            <motion.div
+              key={i}
+              style={{ opacity: opacity1 }}
+              className="absolute rounded-full bg-accent animate-pulse"
+              initial={false}
+            >
+              <div 
+                className="rounded-full bg-accent"
+                style={{
+                  position: 'absolute',
+                  left: `${10 + (i * 7) % 80}%`,
+                  top: `${5 + (i * 11) % 50}%`,
+                  width: 2 + (i % 3) * 2,
+                  height: 2 + (i % 3) * 2,
+                  opacity: 0.3 + (i % 4) * 0.15,
+                  animationDelay: `${i * 0.2}s`
+                }}
+              />
+            </motion.div>
+          ))}
+        </div>
+        
+        {/* Animated gradient mesh overlay */}
+        <motion.div 
+          style={{ opacity: opacity1 }}
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent"
+        />
+        
+        {/* Grid lines for tech feel */}
+        <motion.div 
+          style={{ opacity: gridOpacity }}
+          className="absolute inset-0"
+        >
+          <div className="absolute inset-0" style={{
+            backgroundImage: `
+              linear-gradient(to right, hsl(var(--accent) / 0.1) 1px, transparent 1px),
+              linear-gradient(to bottom, hsl(var(--accent) / 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '80px 80px'
+          }} />
+        </motion.div>
+      </div>
+      
+      {/* Mobile: Simplified static gradient */}
+      <div className="md:hidden h-full">
+        <div className="absolute top-[-100px] left-[10%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[80px]" />
+        <div className="absolute top-[-50px] right-[10%] w-[200px] h-[200px] bg-accent/10 rounded-full blur-[60px]" />
+      </div>
+    </div>
+  );
+}
 
 // Before/After Section with Parallax Effect
 function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: string) => string; beforeImg: string; afterImg: string }) {
@@ -153,18 +295,8 @@ export default function Index() {
           1. HERO - Hook + Promise
       ═══════════════════════════════════════════════════════════════════ */}
       
-      {/* Gold Blur Background - Static on mobile, animated on desktop */}
-      <div className="fixed top-0 left-0 right-0 h-[700px] pointer-events-none z-0 overflow-hidden">
-        <div className="hidden md:block">
-          <div className="absolute top-[-100px] left-[10%] w-[400px] h-[400px] bg-accent/20 rounded-full blur-[120px] animate-float-slow" />
-          <div className="absolute top-[-50px] right-[15%] w-[350px] h-[350px] bg-accent/15 rounded-full blur-[100px] animate-float-medium" />
-          <div className="absolute top-[200px] left-[40%] w-[250px] h-[250px] bg-accent/10 rounded-full blur-[80px] animate-float-fast" />
-        </div>
-        <div className="md:hidden">
-          <div className="absolute top-[-100px] left-[10%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[80px]" />
-          <div className="absolute top-[-50px] right-[10%] w-[200px] h-[200px] bg-accent/10 rounded-full blur-[60px]" />
-        </div>
-      </div>
+      {/* ADVANCED PARALLAX HERO BACKGROUND */}
+      <ParallaxHeroBackground />
 
       {/* Hero Content - CSS animations instead of framer-motion */}
       <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24">
@@ -248,7 +380,7 @@ export default function Index() {
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="group h-14 px-10 text-base font-medium border-amber-500/50 text-amber-400 hover:bg-amber-500/10 hover:border-amber-400">
+            <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-black hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
               <Link to="/bestall">
                 <span className="flex flex-col items-start leading-tight">
                   <span>{t('Beställ direkt', 'Order directly')}</span>
