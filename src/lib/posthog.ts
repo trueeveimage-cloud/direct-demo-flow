@@ -1,8 +1,7 @@
 // Custom Analytics Implementation
-// Stores events locally for admin dashboard analytics
-// No external service integration - data stays client-side
+// Stores events in Supabase database for admin dashboard analytics
 
-const ANALYTICS_KEY = 'nomia_analytics'; // Local storage identifier
+import { supabase } from '@/integrations/supabase/client';
 
 interface EventProperties {
   [key: string]: string | number | boolean | undefined | null;
@@ -14,17 +13,17 @@ interface UserProperties {
   [key: string]: string | number | boolean | undefined | null;
 }
 
-// Simple analytics tracker that works without PostHog SDK
-// Stores events locally and syncs to our backend
+// Analytics tracker that stores events in Supabase
 class AnalyticsTracker {
   private sessionId: string;
   private userId: string | null = null;
   private utmParams: Record<string, string> = {};
-  private events: Array<{
+  private pendingEvents: Array<{
     event: string;
     properties: EventProperties;
     timestamp: string;
   }> = [];
+  private isFlushingEvents = false;
 
   constructor() {
     this.sessionId = this.getOrCreateSessionId();
@@ -35,6 +34,9 @@ class AnalyticsTracker {
     if (typeof window !== 'undefined') {
       window.addEventListener('popstate', () => this.trackPageView());
     }
+    
+    // Flush events periodically
+    setInterval(() => this.flushEvents(), 5000);
   }
 
   private getOrCreateSessionId(): string {
@@ -57,10 +59,8 @@ class AnalyticsTracker {
       const value = urlParams.get(key);
       if (value) {
         this.utmParams[key] = value;
-        // Persist UTMs for the session
         sessionStorage.setItem(key, value);
       } else {
-        // Try to get from session storage
         const stored = sessionStorage.getItem(key);
         if (stored) {
           this.utmParams[key] = stored;
@@ -80,44 +80,9 @@ class AnalyticsTracker {
       ...properties 
     });
     
-    // Store for persistence
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('nomia_user_id', userId);
     }
-  }
-
-  track(event: string, properties: EventProperties = {}): void {
-    const eventData = {
-      event,
-      properties: {
-        ...properties,
-        ...this.utmParams,
-        $session_id: this.sessionId,
-        $current_url: typeof window !== 'undefined' ? window.location.href : '',
-        $pathname: typeof window !== 'undefined' ? window.location.pathname : '',
-        $referrer: typeof document !== 'undefined' ? document.referrer : '',
-        $device_type: this.getDeviceType(),
-        $screen_width: typeof window !== 'undefined' ? window.innerWidth : 0,
-        $screen_height: typeof window !== 'undefined' ? window.innerHeight : 0,
-        $user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
-        $timestamp: new Date().toISOString(),
-      },
-      timestamp: new Date().toISOString(),
-    };
-
-    this.events.push(eventData);
-    
-    // Store events in localStorage for persistence
-    this.persistEvents();
-    
-    // Also log for debugging
-    console.log(`[Analytics] ${event}`, eventData.properties);
-  }
-
-  private trackPageView(): void {
-    this.track('$pageview', {
-      $title: typeof document !== 'undefined' ? document.title : '',
-    });
   }
 
   private getDeviceType(): string {
@@ -128,26 +93,101 @@ class AnalyticsTracker {
     return 'desktop';
   }
 
-  private persistEvents(): void {
-    if (typeof localStorage === 'undefined') return;
+  track(event: string, properties: EventProperties = {}): void {
+    const eventData = {
+      event,
+      properties: {
+        ...properties,
+        ...this.utmParams,
+        session_id: this.sessionId,
+        path: typeof window !== 'undefined' ? window.location.pathname : '',
+        referrer: typeof document !== 'undefined' ? document.referrer : '',
+        device_type: this.getDeviceType(),
+        screen_width: typeof window !== 'undefined' ? window.innerWidth : 0,
+        screen_height: typeof window !== 'undefined' ? window.innerHeight : 0,
+        user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+      },
+      timestamp: new Date().toISOString(),
+    };
+
+    this.pendingEvents.push(eventData);
     
-    // Get existing events
-    const stored = localStorage.getItem('nomia_analytics_events');
-    let allEvents = stored ? JSON.parse(stored) : [];
+    // Also persist to localStorage as backup
+    this.persistToLocalStorage(eventData);
     
-    // Add new events
-    allEvents = [...allEvents, ...this.events];
-    
-    // Keep only last 1000 events to prevent storage overflow
-    if (allEvents.length > 1000) {
-      allEvents = allEvents.slice(-1000);
+    // Try to flush immediately for important events
+    if (event.startsWith('funnel_') || event === '$pageview') {
+      this.flushEvents();
     }
-    
-    localStorage.setItem('nomia_analytics_events', JSON.stringify(allEvents));
-    this.events = [];
   }
 
-  // Get stored events for admin dashboard
+  private persistToLocalStorage(eventData: { event: string; properties: EventProperties; timestamp: string }): void {
+    if (typeof localStorage === 'undefined') return;
+    
+    try {
+      const stored = localStorage.getItem('nomia_analytics_events');
+      let allEvents = stored ? JSON.parse(stored) : [];
+      allEvents.push(eventData);
+      
+      if (allEvents.length > 500) {
+        allEvents = allEvents.slice(-500);
+      }
+      
+      localStorage.setItem('nomia_analytics_events', JSON.stringify(allEvents));
+    } catch (e) {
+      console.error('[Analytics] Failed to persist to localStorage:', e);
+    }
+  }
+
+  private async flushEvents(): Promise<void> {
+    if (this.isFlushingEvents || this.pendingEvents.length === 0) return;
+    
+    this.isFlushingEvents = true;
+    const eventsToFlush = [...this.pendingEvents];
+    this.pendingEvents = [];
+    
+    try {
+      // Insert events to Supabase
+      const insertData = eventsToFlush.map(e => ({
+        event_name: e.event,
+        session_id: e.properties.session_id as string,
+        page_path: e.properties.path as string || null,
+        referrer: e.properties.referrer as string || null,
+        device_type: e.properties.device_type as string || null,
+        screen_width: e.properties.screen_width as number || null,
+        screen_height: e.properties.screen_height as number || null,
+        user_agent: e.properties.user_agent as string || null,
+        utm_source: e.properties.utm_source as string || null,
+        utm_medium: e.properties.utm_medium as string || null,
+        utm_campaign: e.properties.utm_campaign as string || null,
+        properties: e.properties,
+      }));
+      
+      const { error } = await supabase
+        .from('analytics_events')
+        .insert(insertData);
+      
+      if (error) {
+        console.error('[Analytics] Failed to insert events:', error);
+        // Put events back in queue
+        this.pendingEvents = [...eventsToFlush, ...this.pendingEvents];
+      }
+    } catch (err) {
+      console.error('[Analytics] Flush error:', err);
+      // Put events back in queue
+      this.pendingEvents = [...eventsToFlush, ...this.pendingEvents];
+    } finally {
+      this.isFlushingEvents = false;
+    }
+  }
+
+  private trackPageView(): void {
+    this.track('$pageview', {
+      title: typeof document !== 'undefined' ? document.title : '',
+    });
+  }
+
+  // Get stored events from localStorage (for backwards compatibility)
   getStoredEvents(): Array<{
     event: string;
     properties: EventProperties;
@@ -159,12 +199,11 @@ class AnalyticsTracker {
     return stored ? JSON.parse(stored) : [];
   }
 
-  // Clear stored events
   clearEvents(): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('nomia_analytics_events');
     }
-    this.events = [];
+    this.pendingEvents = [];
   }
 }
 
