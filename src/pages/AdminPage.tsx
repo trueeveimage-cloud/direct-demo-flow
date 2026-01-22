@@ -399,17 +399,54 @@ export default function AdminPage() {
     }
   };
 
+  const fetchAnalyticsEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('analytics_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1000);
+      
+      if (error) {
+        console.error('[Admin] Error fetching analytics:', error);
+        // Fallback to localStorage
+        const analytics = getAnalytics();
+        const storedEvents = analytics.getStoredEvents();
+        setEvents(storedEvents);
+        return;
+      }
+      
+      // Transform database events to match the expected format
+      const transformedEvents = (data || []).map(e => ({
+        event: e.event_name,
+        properties: {
+          ...(e.properties as Record<string, unknown> || {}),
+          path: e.page_path,
+          referrer: e.referrer,
+          device_type: e.device_type,
+          screen_width: e.screen_width,
+          session_id: e.session_id,
+        },
+        timestamp: e.created_at,
+      }));
+      
+      setEvents(transformedEvents);
+      console.log(`[Admin] Loaded ${transformedEvents.length} analytics events from database`);
+    } catch (err) {
+      console.error('[Admin] Failed to fetch analytics:', err);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated && isAdmin) {
-      const analytics = getAnalytics();
-      const storedEvents = analytics.getStoredEvents();
-      setEvents(storedEvents);
+      fetchAnalyticsEvents();
       fetchAllSubmissions();
       
-      // Auto-refresh submissions every 30 seconds
+      // Auto-refresh every 30 seconds
       const refreshInterval = setInterval(() => {
-        console.log('[Admin] Auto-refreshing submissions...');
+        console.log('[Admin] Auto-refreshing data...');
         fetchAllSubmissions();
+        fetchAnalyticsEvents();
       }, 30000);
       
       return () => clearInterval(refreshInterval);
@@ -696,10 +733,8 @@ export default function AdminPage() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     
-    // Refresh analytics
-    const analytics = getAnalytics();
-    const storedEvents = analytics.getStoredEvents();
-    setEvents(storedEvents);
+    // Refresh analytics from database
+    await fetchAnalyticsEvents();
     
     // Refresh submissions
     await fetchAllSubmissions();
