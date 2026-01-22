@@ -12,6 +12,7 @@ import { NomiaIntro, useNomiaIntro } from "@/components/NomiaIntro";
 import { CookieConsent } from "@/components/CookieConsent";
 import { SEOHead } from "@/components/SEOHead";
 import { PageTransition } from "@/components/PageTransition";
+import { NavigationProgress } from "@/components/NavigationProgress";
 import { getAnalytics } from "@/lib/posthog";
 import { useKonamiCode } from "@/hooks/useKonamiCode";
 import Index from "./pages/Index";
@@ -133,6 +134,7 @@ function AppContent() {
       )}
       
       <BrowserRouter>
+        <NavigationProgress />
         <SEOHead />
         <Layout>
           <AnimatedRoutes />

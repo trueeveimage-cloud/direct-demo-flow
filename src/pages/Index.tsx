@@ -12,6 +12,7 @@ import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'fram
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 import { ParallaxSection, FloatingShapes, AnimatedText, TiltCard } from '@/components/ParallaxSection';
 import { MagneticButton } from '@/components/MagneticButton';
+import { ScrollTriggeredCounter } from '@/components/ScrollTriggeredCounter';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -523,8 +524,8 @@ export default function Index() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
               {[
                 { num: '01', title: t('Beskriv', 'Describe'), desc: t('Berätta om ditt företag', 'Tell us about your business'), icon: FileText },
-                { num: '02', title: t('Granska', 'Review'), desc: t('Få ditt koncept inom 72h', 'Get your concept within 72h'), icon: Eye },
-                { num: '03', title: t('Finjustera', 'Refine'), desc: t('Vi anpassar efter dina önskemål', 'We adapt to your wishes'), icon: Sparkles },
+                { num: '02', title: t('Granska', 'Review'), desc: t('Få ditt koncept inom 72h', 'Get your concept within 72h'), icon: Eye, counterValue: 72 },
+                { num: '03', title: t('Finjustera', 'Refine'), desc: t('Vi anpassar efter dina önskemål', 'We adapt to your wishes'), icon: Sparkles, counterValue: null },
                 { num: '04', title: t('Lansera', 'Launch'), desc: t('Din webbplats är live!', 'Your website is live!'), icon: CheckCircle2 },
               ].map((step, index) => (
                 <motion.div

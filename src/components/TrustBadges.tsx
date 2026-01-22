@@ -1,6 +1,7 @@
 import { Shield, Clock, Users, RefreshCcw } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
+import { ScrollTriggeredCounter } from './ScrollTriggeredCounter';
 
 export function TrustBadges() {
   const { t } = useLanguage();
@@ -9,22 +10,42 @@ export function TrustBadges() {
     {
       icon: Shield,
       title: t('100% pengarna tillbaka', '100% money-back'),
-      desc: t('Om du inte gillar demon', 'If you don\'t like the demo')
+      desc: t('Om du inte gillar demon', 'If you don\'t like the demo'),
+      hasCounter: true,
+      counterValue: 100,
+      counterSuffix: '%',
+      labelSv: 'pengarna tillbaka',
+      labelEn: 'money-back'
     },
     {
       icon: Clock,
       title: t('Svar inom 24h', 'Reply within 24h'),
-      desc: t('Snabb och personlig service', 'Fast and personal service')
+      desc: t('Snabb och personlig service', 'Fast and personal service'),
+      hasCounter: true,
+      counterValue: 24,
+      counterSuffix: 'h',
+      labelSv: 'svar',
+      labelEn: 'reply'
     },
     {
       icon: Users,
       title: t('50+ nöjda kunder', '50+ happy customers'),
-      desc: t('Företag som litar på oss', 'Businesses that trust us')
+      desc: t('Företag som litar på oss', 'Businesses that trust us'),
+      hasCounter: true,
+      counterValue: 50,
+      counterSuffix: '+',
+      labelSv: 'nöjda kunder',
+      labelEn: 'happy customers'
     },
     {
       icon: RefreshCcw,
       title: t('Demo inom 72h', 'Demo in 72h'),
-      desc: t('Snabb leverans garanterad', 'Fast delivery guaranteed')
+      desc: t('Snabb leverans garanterad', 'Fast delivery guaranteed'),
+      hasCounter: true,
+      counterValue: 72,
+      counterSuffix: 'h',
+      labelSv: 'demo',
+      labelEn: 'demo'
     }
   ];
 
@@ -45,7 +66,19 @@ export function TrustBadges() {
                 <badge.icon className="w-5 h-5 text-accent" />
               </div>
               <div>
-                <p className="font-heading font-semibold text-sm">{badge.title}</p>
+                <p className="font-heading font-semibold text-sm">
+                  {badge.hasCounter ? (
+                    <>
+                      <ScrollTriggeredCounter 
+                        end={badge.counterValue} 
+                        duration={1500} 
+                        suffix={badge.counterSuffix}
+                        className="text-accent"
+                      />
+                      {' '}{t(badge.labelSv, badge.labelEn)}
+                    </>
+                  ) : badge.title}
+                </p>
                 <p className="text-xs text-muted-foreground">{badge.desc}</p>
               </div>
             </motion.div>
