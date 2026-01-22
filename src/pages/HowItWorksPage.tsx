@@ -1,19 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ArrowRight, Palette, Code, Rocket, CheckCircle2, Zap, MessageSquare, ChevronDown, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
+import { MagneticButton } from '@/components/MagneticButton';
 
-// Simple card component - CSS only
-const SimpleCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`relative bg-gradient-to-br from-secondary/90 to-secondary/50 backdrop-blur-xl rounded-2xl border border-border/50 overflow-hidden transition-transform duration-300 hover:-translate-y-1 ${className}`}>
-    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-    {children}
-  </div>
-);
-
-// Step component with CSS animation
+// Step component with parallax
 const StepCard = ({ 
   number, 
   title, 
@@ -29,64 +23,85 @@ const StepCard = ({
   features: string[];
   index: number;
 }) => {
-  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
-
   return (
-    <div
-      ref={ref}
-      className={`relative pl-0 lg:pl-20 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
-      style={{ transitionDelay: `${index * 100}ms` }}
+    <motion.div
+      initial={{ opacity: 0, x: -50, rotateY: 10 }}
+      whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.7, delay: index * 0.15 }}
+      className="relative pl-0 lg:pl-20"
     >
       {/* Step number badge - positioned on timeline */}
-      <div className="hidden lg:flex absolute left-0 top-8 w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 items-center justify-center z-10">
+      <motion.div 
+        initial={{ scale: 0 }}
+        whileInView={{ scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: index * 0.15 + 0.2, type: "spring" }}
+        className="hidden lg:flex absolute left-0 top-8 w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 items-center justify-center z-10"
+      >
         <span className="text-2xl font-bold text-accent">{number}</span>
-      </div>
+      </motion.div>
 
-      {/* Main card */}
-      <SimpleCard className="p-8 lg:p-10">
-        {/* Mobile step number */}
-        <div className="lg:hidden flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-            <span className="text-lg font-bold text-accent">{number}</span>
+      {/* Main card with tilt */}
+      <TiltCard>
+        <div className="relative bg-gradient-to-br from-secondary/90 to-secondary/50 backdrop-blur-xl rounded-2xl border border-border/50 overflow-hidden p-8 lg:p-10 glass-premium spotlight">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+          
+          {/* Mobile step number */}
+          <div className="lg:hidden flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+              <span className="text-lg font-bold text-accent">{number}</span>
+            </div>
+            <div className="h-px flex-1 bg-gradient-to-r from-accent/30 to-transparent" />
           </div>
-          <div className="h-px flex-1 bg-gradient-to-r from-accent/30 to-transparent" />
-        </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
-          {/* Icon section */}
-          <div className="shrink-0">
-            <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20">
-              <Icon className="w-8 h-8 lg:w-10 lg:h-10 text-accent" />
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 relative z-10">
+            {/* Icon section with animation */}
+            <motion.div 
+              whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+              transition={{ duration: 0.5 }}
+              className="shrink-0"
+            >
+              <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20">
+                <Icon className="w-8 h-8 lg:w-10 lg:h-10 text-accent" />
+              </div>
+            </motion.div>
+
+            {/* Content */}
+            <div className="flex-1">
+              <h3 className="text-2xl lg:text-3xl font-bold mb-3">{title}</h3>
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                {description}
+              </p>
+              
+              {/* Features with staggered animation */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {features.map((feature, i) => (
+                  <motion.div 
+                    key={i} 
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: index * 0.1 + i * 0.05 }}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
+                    <span className="text-muted-foreground">{feature}</span>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Content */}
-          <div className="flex-1">
-            <h3 className="text-2xl lg:text-3xl font-bold mb-3">{title}</h3>
-            <p className="text-muted-foreground mb-6 leading-relaxed">
-              {description}
-            </p>
-            
-            {/* Features */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {features.map((feature, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
-                  <span className="text-muted-foreground">{feature}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Corner accent */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/10 to-transparent rounded-bl-full opacity-50" />
         </div>
-
-        {/* Corner accent */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/10 to-transparent rounded-bl-full opacity-50" />
-      </SimpleCard>
-    </div>
+      </TiltCard>
+    </motion.div>
   );
 };
 
-// Path comparison card
+// Path comparison card with enhanced effects
 const PathCard = ({ 
   title, 
   description, 
@@ -104,49 +119,77 @@ const PathCard = ({
   buttonLink: string;
   index: number;
 }) => {
-  const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
-
   return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      style={{ transitionDelay: `${index * 150}ms` }}
+    <motion.div
+      initial={{ opacity: 0, y: 50, rotateX: -10 }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: index * 0.15 }}
     >
-      <SimpleCard className="p-8 h-full">
-        <div className="flex items-start gap-4 mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0">
-            <Icon className="w-7 h-7 text-accent" />
-          </div>
-          <div>
-            <h3 className="text-2xl font-bold mb-1">{title}</h3>
-            <p className="text-muted-foreground text-sm">{description}</p>
-          </div>
-        </div>
-        
-        <div className="space-y-4 mb-8">
-          {steps.map((step, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-xs font-semibold text-accent">{i + 1}</span>
+      <TiltCard className="h-full">
+        <div className="relative bg-gradient-to-br from-secondary/90 to-secondary/50 backdrop-blur-xl rounded-2xl border border-border/50 overflow-hidden p-8 h-full glass-premium spotlight">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+          
+          <div className="relative z-10">
+            <div className="flex items-start gap-4 mb-6">
+              <motion.div 
+                whileHover={{ rotate: 360, scale: 1.1 }}
+                transition={{ duration: 0.6 }}
+                className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0"
+              >
+                <Icon className="w-7 h-7 text-accent" />
+              </motion.div>
+              <div>
+                <h3 className="text-2xl font-bold mb-1">{title}</h3>
+                <p className="text-muted-foreground text-sm">{description}</p>
               </div>
-              <span className="text-muted-foreground">{step}</span>
             </div>
-          ))}
+            
+            <div className="space-y-4 mb-8">
+              {steps.map((step, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 + i * 0.1 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-accent">{i + 1}</span>
+                  </div>
+                  <span className="text-muted-foreground">{step}</span>
+                </motion.div>
+              ))}
+            </div>
+            
+            <MagneticButton className="w-full">
+              <Button asChild className="w-full rounded-xl group">
+                <Link to={buttonLink}>
+                  {buttonText}
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+            </MagneticButton>
+          </div>
         </div>
-        
-        <Button asChild className="w-full rounded-xl group">
-          <Link to={buttonLink}>
-            {buttonText}
-            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </Button>
-      </SimpleCard>
-    </div>
+      </TiltCard>
+    </motion.div>
   );
 };
 
 export default function HowItWorksPage() {
   const { t } = useLanguage();
+  const heroRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -225,153 +268,240 @@ export default function HowItWorksPage() {
 
   return (
     <div className="relative overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-24">
-        {/* Background */}
+      {/* Hero Section with full parallax */}
+      <section ref={heroRef} className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-24">
+        {/* Background with parallax */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent" />
-          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[150px] animate-float-slow" />
-          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px] animate-float-medium" />
+          <motion.div 
+            style={{ y: useTransform(scrollYProgress, [0, 1], [0, -150]) }}
+            className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[150px]" 
+          />
+          <motion.div 
+            style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }}
+            className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px]" 
+          />
         </div>
 
         {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <motion.div 
+          style={{ opacity: useTransform(scrollYProgress, [0, 0.5], [0.03, 0]) }}
+          className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" 
+        />
+        
+        {/* Floating shapes */}
+        <FloatingShapes />
 
-        <div className="relative z-10 container mx-auto px-4 text-center">
+        <motion.div 
+          style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
+          className="relative z-10 container mx-auto px-4 text-center"
+        >
           {/* Badge */}
-          <div className="animate-hero-fade-in inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 border border-accent/20 mb-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 border border-accent/20 mb-10"
+          >
             <Zap className="w-4 h-4 text-accent" />
             <span className="text-sm font-medium text-accent">
               {t("Från idé till lansering på dagar", "From idea to launch in days")}
             </span>
-          </div>
+          </motion.div>
 
-          {/* Main headline */}
-          <h1 className="animate-hero-fade-in animation-delay-100 text-5xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tight">
+          {/* Main headline with stagger */}
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tight"
+          >
             <span className="block">
               {t("Så fungerar", "How it")}
             </span>
             <span className="block bg-gradient-to-r from-accent via-orange-400 to-accent bg-clip-text text-transparent">
               {t("det", "works")}
             </span>
-          </h1>
+          </motion.h1>
 
-          <p className="animate-hero-fade-in animation-delay-200 text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-14">
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-14"
+          >
             {t(
               "Fyra enkla steg. Från första kontakt till färdig hemsida.",
               "Four simple steps. From first contact to finished website."
             )}
-          </p>
+          </motion.p>
 
           {/* Scroll hint */}
-          <div className="animate-hero-fade-in animation-delay-300 flex flex-col items-center gap-2">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="flex flex-col items-center gap-2"
+          >
             <span className="text-sm text-muted-foreground">{t("Scrolla för att utforska", "Scroll to explore")}</span>
-            <ChevronDown className="w-5 h-5 text-accent animate-bounce" />
-          </div>
-        </div>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <ChevronDown className="w-5 h-5 text-accent" />
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </section>
 
 
-      {/* Process Steps */}
-      <section className="py-24 lg:py-32 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none" />
-        
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-20">
-            <span className="text-accent text-sm font-semibold tracking-widest uppercase mb-4 block">
-              {t("Processen", "The Process")}
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              {t("Steg för steg", "Step by step")}
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              {t("Så här skapar vi din hemsida.", "This is how we create your website.")}
-            </p>
-          </div>
+      {/* Process Steps with parallax */}
+      <ParallaxSection speed={0.3} floatingElements accentGlow>
+        <section className="py-24 lg:py-32 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none" />
+          
+          <div className="container mx-auto px-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-20"
+            >
+              <span className="text-accent text-sm font-semibold tracking-widest uppercase mb-4 block">
+                {t("Processen", "The Process")}
+              </span>
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">
+                {t("Steg för steg", "Step by step")}
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">
+                {t("Så här skapar vi din hemsida.", "This is how we create your website.")}
+              </p>
+            </motion.div>
 
-          <div className="relative max-w-4xl mx-auto">
-            {/* Timeline line */}
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-accent/50 via-accent/30 to-accent/10 hidden lg:block" />
+            <div className="relative max-w-4xl mx-auto">
+              {/* Timeline line with gradient */}
+              <motion.div 
+                initial={{ scaleY: 0 }}
+                whileInView={{ scaleY: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.2 }}
+                className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-accent/50 via-accent/30 to-accent/10 hidden lg:block origin-top" 
+              />
 
-            <div className="space-y-12">
-              {steps.map((step, index) => (
-                <StepCard key={step.number} {...step} index={index} />
-              ))}
+              <div className="space-y-12">
+                {steps.map((step, index) => (
+                  <StepCard key={step.number} {...step} index={index} />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ParallaxSection>
 
 
-      {/* Two paths section */}
-      <section className="py-24 lg:py-32 relative">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              {t("Välj din väg", "Choose your path")}
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              {t("Prova gratis eller beställ direkt – du bestämmer.", "Try for free or order directly – you decide.")}
-            </p>
+      {/* Two paths section with parallax */}
+      <ParallaxSection speed={0.25} scaleOnView>
+        <section className="py-24 lg:py-32 relative">
+          <FloatingShapes />
+          
+          <div className="container mx-auto px-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                {t("Välj din väg", "Choose your path")}
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">
+                {t("Prova gratis eller beställ direkt – du bestämmer.", "Try for free or order directly – you decide.")}
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <PathCard
+                icon={Gift}
+                title={t("Gratis koncept", "Free concept")}
+                description={t("Perfekt om du vill se vad vi kan göra först", "Perfect if you want to see what we can do first")}
+                steps={[
+                  t("Fyll i formuläret", "Fill out the form"),
+                  t("Få koncept inom 72h", "Get concept within 72h"),
+                  t("Beställ om du gillar det", "Order if you like it"),
+                ]}
+                buttonText={t("Få gratis koncept", "Get free concept")}
+                buttonLink="/demo"
+                index={0}
+              />
+              <PathCard
+                icon={Rocket}
+                title={t("Beställ direkt", "Order directly")}
+                description={t("För dig som vet vad du vill ha", "For those who know what they want")}
+                steps={[
+                  t("Välj paket", "Choose package"),
+                  t("Anpassa detaljer", "Customize details"),
+                  t("Vi börjar bygga direkt", "We start building immediately"),
+                ]}
+                buttonText={t("Beställ nu", "Order now")}
+                buttonLink="/bestall"
+                index={1}
+              />
+            </div>
           </div>
+        </section>
+      </ParallaxSection>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <PathCard
-              icon={Gift}
-              title={t("Gratis koncept", "Free concept")}
-              description={t("Perfekt om du vill se vad vi kan göra först", "Perfect if you want to see what we can do first")}
-              steps={[
-                t("Fyll i formuläret", "Fill out the form"),
-                t("Få koncept inom 72h", "Get concept within 72h"),
-                t("Beställ om du gillar det", "Order if you like it"),
-              ]}
-              buttonText={t("Få gratis koncept", "Get free concept")}
-              buttonLink="/demo"
-              index={0}
-            />
-            <PathCard
-              icon={Rocket}
-              title={t("Beställ direkt", "Order directly")}
-              description={t("För dig som vet vad du vill ha", "For those who know what they want")}
-              steps={[
-                t("Välj paket", "Choose package"),
-                t("Anpassa detaljer", "Customize details"),
-                t("Vi börjar bygga direkt", "We start building immediately"),
-              ]}
-              buttonText={t("Beställ nu", "Order now")}
-              buttonLink="/bestall"
-              index={1}
-            />
+
+      {/* Final CTA with parallax */}
+      <ParallaxSection speed={0.2} accentGlow>
+        <section className="py-24 relative">
+          <div className="container mx-auto px-4 text-center">
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-bold mb-6"
+            >
+              {t("Redo att komma igång?", "Ready to get started?")}
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto"
+            >
+              {t("Få ett gratis designkoncept inom 72 timmar.", "Get a free design concept within 72 hours.")}
+            </motion.p>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <MagneticButton>
+                <Button asChild size="lg" className="group h-14 px-10 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
+                  <Link to="/demo">
+                    {t("Få gratis koncept", "Get free concept")}
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </MagneticButton>
+              <MagneticButton>
+                <Button asChild size="lg" variant="outline" className="group h-14 px-10 border-amber-500/50 text-amber-400 hover:bg-amber-500/10">
+                  <Link to="/bestall">
+                    {t("Beställ direkt", "Order directly")}
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </MagneticButton>
+            </motion.div>
           </div>
-        </div>
-      </section>
-
-
-      {/* Final CTA */}
-      <section className="py-24 relative">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            {t("Redo att komma igång?", "Ready to get started?")}
-          </h2>
-          <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-            {t("Få ett gratis designkoncept inom 72 timmar.", "Get a free design concept within 72 hours.")}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="group h-14 px-10 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-black hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
-              <Link to="/demo">
-                {t("Få gratis koncept", "Get free concept")}
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="group h-14 px-10 border-amber-500/50 text-amber-400 hover:bg-amber-500/10">
-              <Link to="/bestall">
-                {t("Beställ direkt", "Order directly")}
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+        </section>
+      </ParallaxSection>
     </div>
   );
 }
