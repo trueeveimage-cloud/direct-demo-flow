@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ThemeToggle } from './ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatedLanguageText } from './AnimatedLanguageText';
 
 // SVG Flag components for consistent rendering
 const SwedishFlag = () => (
@@ -212,7 +213,11 @@ export function Header() {
               className="rounded-full ml-1 group"
               onClick={() => handleDropdownClick(setProjectDropdownOpen, projectDropdownOpen)}
             >
-              {t('Starta ditt projekt', 'Start your project')}
+              {lang === 'sv' ? (
+                <AnimatedLanguageText text="Starta ditt projekt" className="inline-flex" />
+              ) : (
+                <AnimatedLanguageText text="Start your project" className="inline-flex" />
+              )}
               <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${projectDropdownOpen ? 'rotate-180' : ''}`} />
             </Button>
 

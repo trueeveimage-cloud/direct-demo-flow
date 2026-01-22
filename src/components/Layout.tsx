@@ -33,7 +33,7 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen flex flex-col">
       <Header />
       <ScrollProgress />
-      <main className="flex-1">
+      <main className="flex-1 [&_.scroll-snap-container]:h-auto [&_.scroll-snap-container]:overflow-visible">
         {children}
       </main>
       <Footer />
