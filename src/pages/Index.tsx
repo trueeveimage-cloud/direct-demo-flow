@@ -349,20 +349,20 @@ export default function Index() {
       {/* Hero Content with staggered animations - SCROLL SNAP */}
       <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24 scroll-snap-section">
         <div className="container-narrow text-center relative z-10 section-padding py-12">
-          {/* Hero Logo with dramatic entrance */}
+          {/* Hero Logo with simplified mobile animation */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.8, filter: 'blur(20px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             style={{ y: heroTextY, opacity: heroOpacity }}
             className="pb-6"
           >
             <span className="font-heading font-extrabold text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tighter">
-              <AnimatedText text="Nomia" delay={0.3} stagger={0.08} />
+              <AnimatedText text="Nomia" delay={0.2} stagger={0.06} />
               <motion.span 
-                initial={{ opacity: 0, scale: 0 }}
+                initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.9, duration: 0.4, type: 'spring', stiffness: 200 }}
+                transition={{ delay: 0.6, duration: 0.3, ease: 'easeOut' }}
                 className="text-accent inline-block"
               >.</motion.span>
             </span>
@@ -372,9 +372,9 @@ export default function Index() {
           <Dialog open={showSpotsDialog} onOpenChange={setShowSpotsDialog}>
             <DialogTrigger asChild>
               <motion.button 
-                initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ delay: 1.1, duration: 0.6, ease: 'easeOut' }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7, duration: 0.5, ease: 'easeOut' }}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20 hover:bg-accent/20 hover:border-accent/30 transition-colors cursor-pointer"
               >
                 <Clock className="w-4 h-4" />
@@ -383,7 +383,7 @@ export default function Index() {
                 ) : remainingSpots > 0 ? (
                   <span>{remainingSpots} {remainingSpots === 1 ? t('plats kvar', 'spot left') : t('platser kvar', 'spots left')}</span>
                 ) : (
-                  <span className="text-orange-400">{t('Fullbokat', 'Fully booked')}</span>
+                  <span className="text-warning">{t('Fullbokat', 'Fully booked')}</span>
                 )}
               </motion.button>
             </DialogTrigger>
@@ -431,27 +431,27 @@ export default function Index() {
           </Dialog>
 
           <motion.h1 
-            initial={{ opacity: 0, y: 40, scale: 0.95, filter: 'blur(15px)' }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-            transition={{ delay: 1.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9, duration: 0.6, ease: 'easeOut' }}
             className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4"
           >
-            <span className="text-reveal-gradient">{t('Webbdesign gjort simpelt.', 'Web design made simple.')}</span>
+            <span className="text-reveal-gradient">{t('Prissmarta webbsidor.', 'Price-smart websites.')}</span>
           </motion.h1>
 
           <motion.p 
-            initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ delay: 1.5, duration: 0.7, ease: 'easeOut' }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.1, duration: 0.5, ease: 'easeOut' }}
             className="text-xl sm:text-2xl text-muted-foreground max-w-xl mx-auto"
           >
             {t('Få ett gratis designkoncept inom 72 timmar.', 'Get a free design concept in 72 hours.')}
           </motion.p>
 
           <motion.div 
-            initial={{ opacity: 0, y: 40, scale: 0.9, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-            transition={{ delay: 1.7, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3, duration: 0.5, ease: 'easeOut' }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
             <MagneticButton strength={0.4}>

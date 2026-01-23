@@ -81,6 +81,21 @@ class AnalyticsTracker {
         }
       }
     });
+    
+    // Also capture custom tracking params (ad_id, ref, gclid, fbclid)
+    const customParams = ['ad_id', 'ref', 'gclid', 'fbclid', 'msclkid'];
+    customParams.forEach(key => {
+      const value = urlParams.get(key);
+      if (value) {
+        this.utmParams[key] = value;
+        sessionStorage.setItem(`tracking_${key}`, value);
+      } else {
+        const stored = sessionStorage.getItem(`tracking_${key}`);
+        if (stored) {
+          this.utmParams[key] = stored;
+        }
+      }
+    });
   }
 
   getUtmParams(): Record<string, string> {
