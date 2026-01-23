@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -18,6 +18,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrencyFromLang, getAddonPrice, formatPrice } from '@/config/currency';
+import { trackFunnelEvent, FunnelEvents } from '@/lib/posthog';
 import {
   Tooltip,
   TooltipContent,
@@ -80,6 +81,20 @@ export default function FreeDemoPage() {
 
   const [step, setStep] = useState(1);
   const totalSteps = 5;
+  const hasTrackedStart = useRef(false);
+
+  // Track demo wizard start on mount
+  useEffect(() => {
+    if (!hasTrackedStart.current) {
+      hasTrackedStart.current = true;
+      trackFunnelEvent('WIZARD_START', { wizard_type: 'demo', step: 1 });
+    }
+  }, []);
+
+  // Track step changes
+  useEffect(() => {
+    trackFunnelEvent('WIZARD_STEP', { wizard_type: 'demo', step });
+  }, [step]);
   
   // Form state
   const [businessName, setBusinessName] = useState('');
@@ -191,6 +206,10 @@ export default function FreeDemoPage() {
     setIsSubmitting(true);
 
     try {
+      // Track demo completion
+      trackFunnelEvent('DEMO_REQUEST', { step: 'submit' });
+      trackFunnelEvent('WIZARD_COMPLETE', { wizard_type: 'demo' });
+
       // First, save concept request to database
       const conceptData = {
         email,

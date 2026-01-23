@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { WizardFormData, carePlans, getCurrencyFromLang, formatPrice, getCarePlanPrice } from '../wizardConfig';
 import { playSound } from '@/lib/haptics';
+import { trackFunnelEvent } from '@/lib/posthog';
 
 interface Step4CarePlanProps {
   formData: WizardFormData;
@@ -107,7 +108,10 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, error
               variants={cardVariants}
               onClick={() => {
                 updateField('selectedCarePlan', isSelected ? null : c.id);
-                if (!isSelected) playSound('successChime');
+                if (!isSelected) {
+                  playSound('successChime');
+                  trackFunnelEvent('CARE_PLAN_SELECTED', { plan_id: c.id });
+                }
               }}
               className={`p-6 rounded-xl border-2 text-left transition-all relative border-accent bg-gradient-to-br from-accent/10 via-accent/5 to-transparent shadow-lg ${
                 isSelected 
