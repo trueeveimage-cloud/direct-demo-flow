@@ -352,13 +352,16 @@ export default function HowItWorksPage() {
             </motion.div>
           </motion.div>
         </motion.div>
+        
+        {/* Fade transition overlay */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-background pointer-events-none" />
       </section>
-
 
       {/* Process Steps with parallax */}
       <ParallaxSection speed={0.3} floatingElements accentGlow>
-        <section className="py-24 lg:py-32 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none" />
+        <section className="py-24 lg:py-32 relative -mt-16">
+          {/* Top fade for seamless blend */}
+          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
           
           <div className="container mx-auto px-4">
             <motion.div 

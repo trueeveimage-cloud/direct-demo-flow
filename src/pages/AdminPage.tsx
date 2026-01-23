@@ -7,7 +7,7 @@ import {
   LogOut, Mail, MessageSquare, ExternalLink, Check, Trash2,
   LayoutDashboard, Inbox, LineChart, Settings, ChevronLeft,
   ChevronRight, X, Server, Database, Zap, Activity,
-  FileText, ChevronDown, ChevronUp, Sparkles, Download
+  FileText, ChevronDown, ChevronUp, Sparkles, Download, Target
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ import { useRealtimePresence } from '@/hooks/useRealtimePresence';
 import { AnalyticsHeatmap } from '@/components/admin/AnalyticsHeatmap';
 import { LiveVisitorCounter } from '@/components/admin/LiveVisitorCounter';
 import { UTMDashboard } from '@/components/admin/UTMDashboard';
+import { CampaignAnalytics } from '@/components/admin/CampaignAnalytics';
 import { exportToCSV, exportSubmissionsToCSV } from '@/lib/exportAnalytics';
 import {
   AlertDialog,
@@ -148,7 +149,7 @@ interface AnalyticsData {
   totalEvents: number;
 }
 
-type NavItem = 'overview' | 'orders' | 'demos' | 'messages' | 'analytics' | 'system';
+type NavItem = 'overview' | 'orders' | 'demos' | 'messages' | 'analytics' | 'campaign' | 'system';
 
 // Process real events from database
 function processRealEvents(events: StoredEvent[], dateRange: string): AnalyticsData {
@@ -818,6 +819,7 @@ export default function AdminPage() {
     { id: 'demos', label: 'Demos', icon: Sparkles, badge: demos.length > 0 ? demos.length : undefined },
     { id: 'messages', label: 'Messages', icon: Inbox, badge: unreadCount > 0 ? unreadCount : undefined },
     { id: 'analytics', label: 'Analytics', icon: LineChart },
+    { id: 'campaign', label: 'Campaign', icon: Target },
     { id: 'system', label: 'System', icon: Server },
   ];
 
@@ -887,6 +889,7 @@ export default function AdminPage() {
                 {activeNav === 'demos' && `${demos.length} demo requests`}
                 {activeNav === 'messages' && `${messages.length} messages`}
                 {activeNav === 'analytics' && 'Conversion funnel & page performance'}
+                {activeNav === 'campaign' && 'Campaign landing page performance'}
                 {activeNav === 'system' && 'System information & quick actions'}
               </p>
             </div>
@@ -1588,6 +1591,11 @@ export default function AdminPage() {
                 </CardContent>
               </Card>
             </div>
+          )}
+
+          {/* Campaign Section */}
+          {activeNav === 'campaign' && (
+            <CampaignAnalytics events={events} />
           )}
 
           {/* System Section */}
