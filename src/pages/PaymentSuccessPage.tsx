@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { playSound, triggerHaptic } from '@/lib/haptics';
 import confetti from 'canvas-confetti';
+import { trackFunnelEvent } from '@/lib/posthog';
 
 export default function PaymentSuccessPage() {
   const { t } = useLanguage();
@@ -16,6 +17,15 @@ export default function PaymentSuccessPage() {
   const [emailError, setEmailError] = useState(false);
   const hasSentEmail = useRef(false);
   const hasPlayedSuccess = useRef(false);
+  const hasTrackedSuccess = useRef(false);
+
+  // Track payment success on mount
+  useEffect(() => {
+    if (!hasTrackedSuccess.current && sessionId) {
+      hasTrackedSuccess.current = true;
+      trackFunnelEvent('PAYMENT_SUCCESS', { session_id: sessionId });
+    }
+  }, [sessionId]);
 
   // Play success sounds and confetti on mount
   useEffect(() => {

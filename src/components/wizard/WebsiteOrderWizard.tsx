@@ -18,6 +18,7 @@ import {
   FormStep
 } from './wizardConfig';
 import { getCurrencyFromLang, getPackagePrice, getAddonPrice } from '@/config/currency';
+import { trackFunnelEvent, FunnelEvents } from '@/lib/posthog';
 import { Step1Contact } from './steps/Step1Contact';
 import { Step2Package } from './steps/Step2Package';
 import { Step3Pages } from './steps/Step3Pages';
@@ -55,6 +56,25 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
   
   // Currency based on language
   const currency = getCurrencyFromLang(lang);
+  
+  // Track wizard start on mount
+  const hasTrackedStart = useRef(false);
+  useEffect(() => {
+    if (!hasTrackedStart.current) {
+      hasTrackedStart.current = true;
+      trackFunnelEvent('WIZARD_START', { wizard_type: isPostDemoFlow ? 'post_demo' : 'direct', step: 1 });
+    }
+  }, [isPostDemoFlow]);
+
+  // Track step changes
+  useEffect(() => {
+    trackFunnelEvent('WIZARD_STEP', { wizard_type: isPostDemoFlow ? 'post_demo' : 'direct', step });
+    
+    // Track checkout start when reaching payment step
+    if (step === 6) {
+      trackFunnelEvent('CHECKOUT_START', { wizard_type: isPostDemoFlow ? 'post_demo' : 'direct' });
+    }
+  }, [step, isPostDemoFlow]);
 
   // Update formData when conceptLink changes
   useEffect(() => {
@@ -267,6 +287,14 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
     }
     
     setIsSubmitting(true);
+    
+    // Track wizard completion and checkout
+    trackFunnelEvent('WIZARD_COMPLETE', { wizard_type: isPostDemoFlow ? 'post_demo' : 'direct' });
+    trackFunnelEvent('CHECKOUT_COMPLETE', { 
+      wizard_type: isPostDemoFlow ? 'post_demo' : 'direct',
+      package: formData.selectedPackage,
+      care_plan: formData.selectedCarePlan 
+    });
     
     try {
       // Prepare order data
