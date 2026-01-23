@@ -19,6 +19,7 @@ import { getAnalytics, FunnelEvents } from '@/lib/posthog';
 import { useRealtimePresence } from '@/hooks/useRealtimePresence';
 import { AnalyticsHeatmap } from '@/components/admin/AnalyticsHeatmap';
 import { LiveVisitorCounter } from '@/components/admin/LiveVisitorCounter';
+import { UTMDashboard } from '@/components/admin/UTMDashboard';
 import { exportToCSV, exportSubmissionsToCSV } from '@/lib/exportAnalytics';
 import {
   AlertDialog,
@@ -1572,6 +1573,20 @@ export default function AdminPage() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* UTM Campaign Dashboard */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ExternalLink className="w-5 h-5" />
+                    UTM Campaign Performance
+                  </CardTitle>
+                  <CardDescription>Track which ad campaigns drive the most conversions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <UTMDashboard events={events} />
+                </CardContent>
+              </Card>
             </div>
           )}
 

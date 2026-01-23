@@ -87,7 +87,7 @@ export default function CampaignLandingPage() {
   const currency = lang === 'sv' ? 'SEK' : 'EUR';
   
   const features = [
-    { icon: Zap, text: t('Leverans inom 14 dagar', 'Delivery in 14 days') },
+    { icon: Zap, text: t('Leverans inom 7 dagar', 'Delivery in 7 days') },
     { icon: Shield, text: t('100% nöjd-garanti', '100% satisfaction guarantee') },
     { icon: CheckCircle2, text: t('Gratis koncept först', 'Free concept first') },
     { icon: Sparkles, text: t('Mobilanpassad design', 'Mobile-responsive design') },
@@ -179,6 +179,11 @@ export default function CampaignLandingPage() {
                 >
                   <Link to="/bestall">
                     {t('Beställ direkt', 'Order directly')}
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost" size="lg" className="text-muted-foreground hover:text-foreground">
+                  <Link to="/hur-det-fungerar">
+                    {t('Läs mer', 'Learn more')}
                   </Link>
                 </Button>
               </div>
