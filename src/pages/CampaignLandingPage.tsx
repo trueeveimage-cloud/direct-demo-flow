@@ -158,15 +158,16 @@ export default function CampaignLandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button 
                   asChild 
+                  variant="outline"
                   size="lg" 
-                  className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:via-amber-500 hover:to-yellow-600 text-background font-semibold shadow-lg shadow-amber-500/25"
+                  className="border-accent/50 hover:bg-accent/10"
                 >
                   <Link to="/demo">
                     {t('Få gratis prototyp', 'Get free prototype')}
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
+                <Button asChild variant="outline" size="lg" className="border-accent/50 hover:bg-accent/10">
                   <Link to="/bestall">
                     {t('Beställ direkt', 'Order directly')}
                   </Link>
