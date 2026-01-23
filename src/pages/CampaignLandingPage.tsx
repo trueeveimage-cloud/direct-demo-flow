@@ -167,7 +167,16 @@ export default function CampaignLandingPage() {
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:via-amber-500 hover:to-yellow-600 text-background font-semibold shadow-lg shadow-amber-500/25">
+                <Button 
+                  asChild 
+                  size="lg" 
+                  className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:via-amber-500 hover:to-yellow-600 text-background font-semibold shadow-lg shadow-amber-500/25"
+                  onClick={() => trackEvent('campaign_cta_click', {
+                    button: 'bestall_direkt',
+                    page: 'campaign_landing',
+                    ...getUtmParams()
+                  })}
+                >
                   <Link to="/bestall">
                     {t('Beställ direkt', 'Order directly')}
                   </Link>
