@@ -369,8 +369,8 @@ export default function FreeDemoPage() {
             </h1>
             <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
               {t(
-                `Berätta om ditt företag så skapar vi ett unikt designförslag. Endast ${formattedVerificationFee} verifieringsavgift (avräknas vid beställning).`,
-                `Tell us about your business and we'll create a unique design concept. Only ${formattedVerificationFee} verification fee (deducted from your order).`
+                'Berätta om ditt företag så skapar vi ett unikt designförslag.',
+                'Tell us about your business and we\'ll create a unique design concept.'
               )}
             </p>
           </AnimatedSection>
@@ -934,7 +934,7 @@ export default function FreeDemoPage() {
                     </div>
                   </div>
 
-                  {/* Payment Summary */}
+                  {/* Payment Summary with Verification Fee Explanation */}
                   <div className="bg-accent/10 rounded-xl p-4 sm:p-6 border border-accent/30">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
@@ -962,12 +962,36 @@ export default function FreeDemoPage() {
                           <span>{t('Att betala nu', 'To pay now')}</span>
                           <span className="text-accent">{formattedVerificationFee}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {t(
-                            '* Avräknas från din beställning om du går vidare',
-                            '* Deducted from your order if you proceed'
-                          )}
-                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Verification Fee Explanation */}
+                  <div className="bg-secondary/50 rounded-xl p-4 border border-border space-y-3">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      <Info className="w-4 h-4 text-accent" />
+                      {t('Varför verifieringsavgift?', 'Why a verification fee?')}
+                    </h4>
+                    <div className="text-sm text-muted-foreground space-y-2">
+                      <p>
+                        {t(
+                          'Verifieringsavgiften säkerställer att vi endast arbetar med seriösa förfrågningar. Det tar oss tid att skapa ett unikt designkoncept för ditt företag.',
+                          'The verification fee ensures we only work with serious inquiries. It takes us time to create a unique design concept for your business.'
+                        )}
+                      </p>
+                      <div className="pt-2 space-y-1.5">
+                        <div className="flex items-start gap-2">
+                          <Check className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                          <span>{t('Avgiften avräknas helt om du beställer', 'Fee is fully deducted if you order')}</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <Check className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                          <span>{t('Full återbetalning om du inte gillar konceptet', 'Full refund if you don\'t like the concept')}</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <RefreshCw className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+                          <span>{t('Möjlighet till revidering innan du bestämmer dig', 'Option for revision before you decide')}</span>
+                        </div>
                       </div>
                     </div>
                   </div>

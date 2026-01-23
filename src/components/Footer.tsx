@@ -124,7 +124,9 @@ export function Footer() {
                 <TikTokIcon />
               </a>
               <a 
-                href="mailto:nordicsite.help@gmail.com"
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=nordicsite.help@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Email"
               >

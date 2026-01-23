@@ -99,9 +99,19 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">E-post</h3>
-                  <a href="mailto:nordicsite.help@gmail.com" className="text-muted-foreground hover:text-foreground transition-colors">
-                    nordicsite.help@gmail.com
-                  </a>
+                  <div className="flex flex-col gap-1">
+                    <a 
+                      href="https://mail.google.com/mail/?view=cm&fs=1&to=nordicsite.help@gmail.com" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      nordicsite.help@gmail.com
+                    </a>
+                    <span className="text-xs text-muted-foreground/60">
+                      {t('Öppnas i Gmail', 'Opens in Gmail')}
+                    </span>
+                  </div>
                 </div>
               </div>
               

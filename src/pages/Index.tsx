@@ -538,22 +538,20 @@ export default function Index() {
               ].map((step, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 40, rotateX: -15 }}
-                  whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.15 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="relative"
                 >
-                  <TiltCard>
-                    <div className="p-5 sm:p-6 rounded-xl border border-accent/30 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent hover:border-accent/50 transition-all duration-300 h-full glass-premium spotlight">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-accent font-bold text-lg">{step.num}</span>
-                        <step.icon className="w-5 h-5 text-accent" />
-                      </div>
-                      <h3 className="font-semibold text-base mb-1">{step.title}</h3>
-                      <p className="text-sm text-muted-foreground">{step.desc}</p>
+                  <div className="p-5 sm:p-6 rounded-xl border border-accent/30 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent hover:border-accent/50 transition-colors duration-300 h-full glass-premium">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-accent font-bold text-lg">{step.num}</span>
+                      <step.icon className="w-5 h-5 text-accent" />
                     </div>
-                  </TiltCard>
+                    <h3 className="font-semibold text-base mb-1">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground">{step.desc}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -730,29 +728,29 @@ export default function Index() {
               ].map((item, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 30, rotateX: -10 }}
-                  whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.08 }}
+                  transition={{ duration: 0.4, delay: index * 0.06 }}
                   className="group"
                 >
-                  <TiltCard>
-                    <div className="p-5 rounded-xl border border-border/50 bg-secondary/30 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 h-full glass-premium spotlight">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="font-semibold text-base">{item.title}</h3>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className="flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-accent/20 hover:text-accent transition-colors">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="w-full text-left">
+                        <div className="p-5 rounded-xl border border-border/50 bg-secondary/30 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 h-full glass-premium spotlight cursor-pointer">
+                          <div className="flex items-start justify-between gap-3">
+                            <h3 className="font-semibold text-base">{item.title}</h3>
+                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                               <Info className="w-3 h-3" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent side="top" className="text-sm max-w-[200px]">
-                            {item.desc}
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                    </div>
-                  </TiltCard>
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent side="top" className="text-sm max-w-[200px]">
+                      {item.desc}
+                    </PopoverContent>
+                  </Popover>
                 </motion.div>
               ))}
             </div>
