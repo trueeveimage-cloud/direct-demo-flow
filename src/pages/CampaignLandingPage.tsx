@@ -181,7 +181,17 @@ export default function CampaignLandingPage() {
                     {t('Beställ direkt', 'Order directly')}
                   </Link>
                 </Button>
-                <Button asChild variant="ghost" size="lg" className="text-muted-foreground hover:text-foreground">
+                <Button 
+                  asChild 
+                  variant="ghost" 
+                  size="lg" 
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => trackEvent('campaign_learn_more_click', {
+                    button: 'las_mer',
+                    page: 'campaign_landing',
+                    ...getUtmParams()
+                  })}
+                >
                   <Link to="/hur-det-fungerar">
                     {t('Läs mer', 'Learn more')}
                   </Link>
