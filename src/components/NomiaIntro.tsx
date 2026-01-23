@@ -159,17 +159,27 @@ export function NomiaIntro({ onComplete }: NomiaIntroProps) {
   );
 }
 
-// Hook to manage intro state - always show on every page load
+// Hook to manage intro state - only show once per session
 export function useNomiaIntro() {
   const [state, setState] = useState<{
     showIntro: boolean;
     isLoading: boolean;
   }>({
-    showIntro: true,
-    isLoading: false,
+    showIntro: false,
+    isLoading: true,
   });
 
+  useEffect(() => {
+    // Check if intro was already shown this session
+    const hasSeenThisSession = sessionStorage.getItem('nomia_intro_seen');
+    setState({
+      showIntro: !hasSeenThisSession,
+      isLoading: false,
+    });
+  }, []);
+
   const markIntroSeen = () => {
+    sessionStorage.setItem('nomia_intro_seen', 'true');
     setState(prev => ({
       ...prev,
       showIntro: false,
@@ -177,7 +187,7 @@ export function useNomiaIntro() {
   };
 
   const replayIntro = () => {
-    // Reload to show intro fresh
+    sessionStorage.removeItem('nomia_intro_seen');
     window.location.reload();
   };
 
