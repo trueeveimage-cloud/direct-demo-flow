@@ -80,10 +80,10 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Moms och betalning (VAT)', 'VAT and Payment')}</h2>
               <ul className="space-y-2 text-muted-foreground">
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Alla priser anges i EUR (euro).', 'All prices are in EUR (euros).')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Privatpersoner och svenska företag: 25% moms tillkommer.', 'Private individuals and Swedish businesses: 25% VAT applies.')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('EU-företag med giltigt VAT-nummer: Omvänd moms (0%).', 'EU businesses with valid VAT number: Reverse charge (0%).')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Betalningar hanteras säkert via Stripe. Klarna delbetalning tillgänglig.', 'Payments are securely handled via Stripe. Klarna installments available.')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Alla priser anges i SEK (svenska kronor) eller USD (dollar).', 'All prices are in SEK (Swedish kronor) or USD (dollars).')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Svenska kunder: 25% moms tillkommer.', 'Swedish customers: 25% VAT applies.')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Internationella kunder: Ingen moms tillämpas.', 'International customers: No VAT applied.')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Betalningar hanteras säkert via Stripe.', 'Payments are securely handled via Stripe.')}</li>
               </ul>
             </section>
           </AnimatedSection>

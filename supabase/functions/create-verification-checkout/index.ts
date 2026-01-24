@@ -38,14 +38,14 @@ function sanitizeString(str: unknown, maxLength = 500): string {
 }
 
 // Currency type
-type Currency = 'SEK' | 'EUR';
+type Currency = 'SEK' | 'USD';
 
-// Verification fee price IDs (€50 / 499 kr one-time payment - "Downpayment" product)
-const VERIFICATION_PRICE_EUR = "price_1SjVDJ74JfaAfHsdbZ0gBoeh"; // €50
+// Verification fee price IDs ($50 / 499 kr one-time payment - "Downpayment" product)
+const VERIFICATION_PRICE_USD = "price_1SsvMR74JfaAfHsd4qoTlOHC"; // $50
 const VERIFICATION_PRICE_SEK = "price_1SpHJu74JfaAfHsdl0Vp76On"; // 499 kr
 
 function getVerificationPriceId(currency: Currency): string {
-  return currency === 'SEK' ? VERIFICATION_PRICE_SEK : VERIFICATION_PRICE_EUR;
+  return currency === 'SEK' ? VERIFICATION_PRICE_SEK : VERIFICATION_PRICE_USD;
 }
 
 interface CheckoutRequest {
@@ -107,8 +107,8 @@ serve(async (req) => {
     const phone = sanitizeString(requestData.phone, 50);
     const selectedStyle = sanitizeString(requestData.selectedStyle, 50);
     
-    // Currency - default to EUR if not specified
-    const currency: Currency = requestData.currency === "SEK" ? "SEK" : "EUR";
+    // Currency - default to USD if not specified
+    const currency: Currency = requestData.currency === "SEK" ? "SEK" : "USD";
 
     console.log("[CREATE-VERIFICATION-CHECKOUT] Request validated", { email: email ? "provided" : "none", businessName, currency });
 
