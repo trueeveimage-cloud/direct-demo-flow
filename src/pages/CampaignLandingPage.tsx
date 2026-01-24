@@ -104,7 +104,7 @@ export default function CampaignLandingPage() {
       {/* Header */}
       <header className="relative z-50 py-6 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="font-heading font-extrabold text-3xl tracking-tighter">
+          <Link to="/" className="font-heading font-extrabold text-3xl tracking-tighter hover:opacity-80 transition-opacity cursor-pointer">
             Nomia<span className="text-accent">.</span>
           </Link>
           <Button asChild variant="outline" size="sm">
