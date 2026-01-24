@@ -30,20 +30,20 @@ const PricingCard = ({
   const Icon = icons[index];
 
   return (
-    <TiltCard>
+    <TiltCard className="h-full">
       <motion.div 
-        initial={{ opacity: 0, y: 40, rotateX: -10 }}
-        whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, delay: index * 0.15 }}
         className="h-full"
       >
-        <div className={`relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col transition-all duration-500 overflow-hidden border-accent/50 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent shadow-xl shadow-accent/10 hover:border-accent hover:shadow-2xl hover:shadow-accent/20 group`}>
-          {/* Animated glow effect */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col overflow-hidden border-accent/50 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent shadow-xl shadow-accent/10 hover:border-accent hover:shadow-2xl hover:shadow-accent/20 group">
+          {/* Animated glow effect - pointer events disabled */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
           
-          {/* Floating particles on hover */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Floating particles on hover - hidden on mobile */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 hidden md:block">
             {[...Array(5)].map((_, i) => (
               <motion.div
                 key={i}
@@ -67,25 +67,25 @@ const PricingCard = ({
           </div>
 
           {/* Icon with glow */}
-          <div className="relative w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-accent/20 group-hover:bg-accent/30 transition-colors">
-            <div className="absolute inset-0 bg-accent/30 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-accent/20 group-hover:bg-accent/30 transition-colors z-10">
+            <div className="absolute inset-0 bg-accent/30 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             <Icon className="w-7 h-7 text-accent relative z-10" />
           </div>
 
-          <h3 className="font-heading font-light text-2xl mb-2">{pkg.name}</h3>
+          <h3 className="font-heading font-light text-2xl mb-2 relative z-10">{pkg.name}</h3>
           
           {/* Animated price */}
-          <div className="flex items-baseline gap-1 mb-2">
+          <div className="flex items-baseline gap-1 mb-2 relative z-10">
             <span className="text-4xl sm:text-5xl font-bold text-accent">{pkg.price}</span>
           </div>
-          <p className="text-sm text-muted-foreground mb-2">{pkg.delivery}</p>
-          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{pkg.description}</p>
-          <p className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
+          <p className="text-sm text-muted-foreground mb-2 relative z-10">{pkg.delivery}</p>
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-2 relative z-10">{pkg.description}</p>
+          <p className="text-sm font-medium text-foreground mb-5 flex items-center gap-2 relative z-10">
             <span className="w-2 h-2 bg-accent rounded-full" />
             {pkg.pages}
           </p>
           
-          <ul className="space-y-3 mb-8 flex-grow">
+          <ul className="space-y-3 mb-8 flex-grow relative z-10">
             {pkg.features.map((feature: any, i: number) => {
               const tooltip = getTooltip(feature.key, lang);
               return (
@@ -122,15 +122,24 @@ const PricingCard = ({
             })}
           </ul>
           
-          <div className="space-y-2 mt-auto relative z-20" style={{ pointerEvents: 'auto' }}>
-            <Button asChild variant="default" className="w-full rounded-xl group/btn bg-accent hover:bg-accent/90">
-              <Link to="/demo" className="relative z-30">
+          {/* CTA Buttons - ensure they're above all overlays */}
+          <div className="space-y-2 mt-auto relative z-50">
+            <Button 
+              asChild 
+              variant="default" 
+              className="w-full rounded-xl group/btn bg-accent hover:bg-accent/90"
+            >
+              <Link to="/demo">
                 {t('Få koncept', 'Get concept')}
                 <ArrowRight className="w-4 h-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full text-sm hover:bg-accent/10">
-              <Link to="/bestall" className="relative z-30">{t('Beställ direkt', 'Order directly')}</Link>
+            <Button 
+              asChild 
+              variant="ghost" 
+              className="w-full text-sm hover:bg-accent/10"
+            >
+              <Link to="/bestall">{t('Beställ direkt', 'Order directly')}</Link>
             </Button>
           </div>
         </div>

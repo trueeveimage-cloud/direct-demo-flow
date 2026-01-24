@@ -89,19 +89,13 @@
     scroll-behavior: smooth;
   }
 
-  /* Smooth theme color transitions */
+  /* Remove ALL theme transition animations for instant switching */
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-                color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Optimize theme transitions - only apply to non-interactive elements */
-  *:not(button):not(a):not(svg):not(path):not(animate):not(.theme-toggle) {
-    transition-property: background-color, border-color;
-    transition-duration: 0.2s;
-    transition-timing-function: ease-out;
-  }
+  /* Disable all color transitions - causes lag on theme change */
+  /* Users get instant theme switching instead */
 
   /* Premium typography - light, elegant headings */
   h1 {
@@ -134,6 +128,20 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* Respect user's reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-reduce\:hidden {
+      display: none !important;
+    }
+    
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
