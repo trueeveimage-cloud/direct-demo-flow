@@ -20,6 +20,7 @@ import FreeDemoPage from "./pages/FreeDemoPage";
 import PricingPage from "./pages/PricingPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
+import AboutPage from "./pages/AboutPage";
 import FAQPage from "./pages/FAQPage";
 import TermsPage from "./pages/TermsPage";
 import ContactPage from "./pages/ContactPage";
@@ -51,6 +52,7 @@ function AnimatedRoutes() {
         <Route path="/priser" element={<PricingPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/hur-det-fungerar" element={<HowItWorksPage />} />
+        <Route path="/om-oss" element={<AboutPage />} />
         <Route path="/portfolio/:slug" element={<CaseStudyPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/villkor" element={<TermsPage />} />
