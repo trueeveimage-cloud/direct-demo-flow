@@ -1,9 +1,11 @@
 import { useRef, useMemo } from 'react';
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useInView, useMotionValueEvent } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { AmbientAudio } from '@/components/AmbientAudio';
+import { useState } from 'react';
 
 // Cinematic text reveal with blur and 3D effect
 function RevealText({ 
@@ -261,10 +263,16 @@ function SectionDivider() {
 export default function AboutPage() {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [scrollProgressValue, setScrollProgressValue] = useState(0);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
+  });
+  
+  // Track scroll progress for ambient audio
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    setScrollProgressValue(latest);
   });
   
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
@@ -284,6 +292,9 @@ export default function AboutPage() {
     <div ref={containerRef} className="relative bg-background min-h-screen overflow-hidden">
       <FloatingParticles />
       <GrainOverlay />
+      
+      {/* Ambient audio that fades in with scroll */}
+      <AmbientAudio scrollProgress={scrollProgressValue} maxVolume={0.12} />
       
       {/* Progress bar */}
       <motion.div 
