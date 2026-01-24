@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
 import { MagneticButton } from '@/components/MagneticButton';
+import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
 
 // Step component with parallax
 const StepCard = ({ 
@@ -268,6 +269,9 @@ export default function HowItWorksPage() {
 
   return (
     <div className="relative overflow-hidden">
+      <GrainOverlay />
+      <FloatingParticles count={12} />
+      <ScrollingAmbientGlow />
       {/* Hero Section with full parallax */}
       <section ref={heroRef} className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-24">
         {/* Background with parallax */}
@@ -405,8 +409,9 @@ export default function HowItWorksPage() {
 
       {/* Two paths section with parallax */}
       <ParallaxSection speed={0.25} scaleOnView>
-        <section className="py-24 lg:py-32 relative">
-          <FloatingShapes />
+        <section className="py-24 lg:py-32 relative overflow-hidden">
+          {/* Gradient fade overlay for seamless section blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
           
           <div className="container mx-auto px-4">
             <motion.div 
@@ -459,8 +464,10 @@ export default function HowItWorksPage() {
 
       {/* Final CTA with parallax */}
       <ParallaxSection speed={0.2} accentGlow>
-        <section className="py-24 relative">
-          <div className="container mx-auto px-4 text-center">
+        <section className="py-24 relative overflow-hidden">
+          {/* Gradient fade overlay for seamless section blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/5 to-background pointer-events-none" />
+          <div className="container mx-auto px-4 text-center relative z-10">
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

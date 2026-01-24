@@ -12,7 +12,7 @@ import { getCurrencyFromLang, formatPrice, getPackagePrice, getCarePlanPrice } f
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ScrollTriggeredCounter } from '@/components/ScrollTriggeredCounter';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
-import { GrainOverlay, FloatingParticles } from '@/components/PremiumEffects';
+import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
 
 // Animated pricing card with 3D effects
 const PricingCard = ({ 
@@ -270,26 +270,7 @@ export default function PricingPage() {
     <div className="relative overflow-hidden">
       <GrainOverlay />
       <FloatingParticles count={12} />
-      {/* Advanced background effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <motion.div 
-          className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-accent/8 rounded-full blur-[200px]"
-          animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.5, 0.7, 0.5],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div 
-          className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-accent/6 rounded-full blur-[150px]"
-          animate={{
-            scale: [1.1, 1, 1.1],
-            opacity: [0.6, 0.4, 0.6],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background))_70%)]" />
-      </div>
+      <ScrollingAmbientGlow />
 
       {/* Hero with parallax */}
       <div ref={heroRef} className="relative">
@@ -366,6 +347,8 @@ export default function PricingPage() {
       {/* Website Packages */}
       <ParallaxSection speed={0.2} accentGlow>
         <section className="pb-32 relative z-10">
+          {/* Gradient fade overlay for seamless section blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
           <FloatingShapes />
           <div className="container-wide section-padding">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -403,7 +386,9 @@ export default function PricingPage() {
       {/* Care Plans */}
       <ParallaxSection speed={0.15}>
         <section className="pb-32 relative z-10">
-          <div className="container-wide section-padding">
+          {/* Gradient fade overlay for seamless section blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
+          <div className="container-wide section-padding relative">
             <div className="text-center mb-12">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -485,9 +470,9 @@ export default function PricingPage() {
       </ParallaxSection>
 
       {/* Final CTA with dramatic styling */}
-      <section className="py-20 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent" />
-        <FloatingShapes />
+      <section className="py-20 relative overflow-hidden">
+        {/* Gradient fade overlay for seamless section blending */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/5 to-background pointer-events-none" />
         
         <div className="container-wide section-padding text-center relative z-10">
           <motion.div

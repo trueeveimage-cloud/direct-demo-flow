@@ -104,6 +104,53 @@ export function AmbientGlow({ variant = 'default' }: { variant?: 'default' | 'he
   );
 }
 
+// Scrolling ambient glow - moves as user scrolls for premium feel
+export function ScrollingAmbientGlow() {
+  const { scrollYProgress } = useScroll();
+  
+  // Transform scroll progress to glow position
+  const glowY1 = useTransform(scrollYProgress, [0, 1], ['10%', '80%']);
+  const glowY2 = useTransform(scrollYProgress, [0, 1], ['30%', '60%']);
+  const glowX1 = useTransform(scrollYProgress, [0, 0.5, 1], ['10%', '60%', '20%']);
+  const glowX2 = useTransform(scrollYProgress, [0, 0.5, 1], ['80%', '30%', '70%']);
+  const glowOpacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.4, 0.7, 0.7, 0.4]);
+  
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {/* Primary moving glow */}
+      <motion.div 
+        style={{ 
+          top: glowY1, 
+          left: glowX1,
+          opacity: glowOpacity,
+        }}
+        className="absolute w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2"
+      >
+        <div className="w-full h-full bg-accent/[0.06] rounded-full blur-[150px] animate-pulse" 
+          style={{ animationDuration: '8s' }} 
+        />
+      </motion.div>
+      
+      {/* Secondary moving glow */}
+      <motion.div 
+        style={{ 
+          top: glowY2, 
+          right: glowX2,
+          opacity: glowOpacity,
+        }}
+        className="absolute w-[400px] h-[400px] translate-x-1/2 -translate-y-1/2"
+      >
+        <div className="w-full h-full bg-accent/[0.04] rounded-full blur-[120px] animate-pulse" 
+          style={{ animationDuration: '10s', animationDelay: '2s' }} 
+        />
+      </motion.div>
+      
+      {/* Subtle static accent */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/[0.02] rounded-full blur-[200px]" />
+    </div>
+  );
+}
+
 // Premium page wrapper with all effects
 interface PremiumPageWrapperProps {
   children: React.ReactNode;
