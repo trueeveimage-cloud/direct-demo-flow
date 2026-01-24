@@ -13,6 +13,7 @@ import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 import { ParallaxSection, FloatingShapes, AnimatedText, TiltCard } from '@/components/ParallaxSection';
 import { MagneticButton } from '@/components/MagneticButton';
 import { ScrollTriggeredCounter } from '@/components/ScrollTriggeredCounter';
+import { GrainOverlay, FloatingParticles } from '@/components/PremiumEffects';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -240,7 +241,7 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
               {t('Transformation', 'Transformation')}
             </div>
             
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-6 leading-tight tracking-tight">
               {t('Från föråldrad till professionell', 'From outdated to professional')}
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
@@ -338,7 +339,9 @@ export default function Index() {
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.5]);
 
   return (
-    <div className="overflow-hidden scroll-snap-container">
+    <div className="overflow-hidden scroll-snap-container relative">
+      <GrainOverlay />
+      <FloatingParticles count={15} />
       {/* ═══════════════════════════════════════════════════════════════════
           1. HERO - Hook + Promise - SCROLL SNAP SECTION
       ═══════════════════════════════════════════════════════════════════ */}
@@ -357,7 +360,7 @@ export default function Index() {
             style={{ y: heroTextY, opacity: heroOpacity }}
             className="pb-6"
           >
-            <span className="font-heading font-extrabold text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tighter">
+            <span className="font-heading font-light text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tighter">
               <AnimatedText text="Nomia" delay={0.2} stagger={0.06} />
               <motion.span 
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -434,7 +437,7 @@ export default function Index() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 0.6, ease: 'easeOut' }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4"
+            className="text-4xl sm:text-5xl lg:text-6xl font-extralight leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4"
           >
             <span className="text-reveal-gradient">{t('Prissmarta webbsidor.', 'Price-smart websites.')}</span>
           </motion.h1>
@@ -520,7 +523,7 @@ export default function Index() {
                 <Zap className="w-4 h-4" />
                 {t('Snabb & enkel process', 'Fast & simple process')}
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-4 tracking-tight">
                 {t('Så här fungerar det', 'How it works')}
               </h2>
               <p className="text-lg text-muted-foreground max-w-xl mx-auto">
@@ -594,7 +597,7 @@ export default function Index() {
               className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-16 gap-4"
             >
               <div>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold">{t('Våra projekt', 'Our Work')}</h2>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight">{t('Våra projekt', 'Our Work')}</h2>
                 <p className="text-muted-foreground mt-3 text-lg">{t('Riktiga resultat för riktiga företag', 'Real results for real businesses')}</p>
               </div>
               <Button asChild variant="outline" className="group hidden sm:flex">
@@ -674,7 +677,7 @@ export default function Index() {
                 {t('Varje dag utan hemsida kostar dig', 'Every day without a website costs you')}
               </div>
               
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-6 tracking-tight">
                 {t('Hur mycket intäkter förlorar du?', 'How much revenue are you losing?')}
               </h2>
               <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
@@ -709,7 +712,7 @@ export default function Index() {
               transition={{ duration: 0.6 }}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-4 tracking-tight">
                 {t('Vad ingår i din webbplats', 'What\'s included in your website')}
               </h2>
               <p className="text-lg text-muted-foreground max-w-xl mx-auto">
@@ -739,7 +742,7 @@ export default function Index() {
                       <button className="w-full text-left">
                         <div className="p-5 rounded-xl border border-border/50 bg-secondary/30 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 h-full glass-premium spotlight cursor-pointer">
                           <div className="flex items-start justify-between gap-3">
-                            <h3 className="font-semibold text-base">{item.title}</h3>
+                            <h3 className="font-medium text-base">{item.title}</h3>
                             <div className="flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                               <Info className="w-3 h-3" />
                             </div>
@@ -780,7 +783,7 @@ export default function Index() {
         <section className="py-32 scroll-snap-section">
           <div className="container-narrow section-padding">
             <div className="flex items-center justify-between mb-12 animate-fade-in">
-              <h2 className="text-3xl sm:text-4xl font-bold">FAQ</h2>
+              <h2 className="text-3xl sm:text-4xl font-light tracking-tight">FAQ</h2>
               <Button asChild variant="ghost" className="group">
                 <Link to="/faq">
                   {t('Se alla', 'View all')}
@@ -803,7 +806,7 @@ export default function Index() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="p-6 rounded-xl border border-border/50 hover:border-accent/30 hover:bg-accent/5 transition-all duration-300 glass-premium"
                 >
-                  <h4 className="font-heading font-semibold text-lg mb-2">{faq.q}</h4>
+                  <h4 className="font-heading font-medium text-lg mb-2">{faq.q}</h4>
                   <p className="text-muted-foreground">{faq.a}</p>
                 </motion.div>
               ))}
@@ -831,7 +834,7 @@ export default function Index() {
               transition={{ duration: 0.6 }}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-4 tracking-tight">
                 {t('Välj din väg', 'Choose your path')}
               </h2>
               <p className="text-lg text-muted-foreground max-w-xl mx-auto">

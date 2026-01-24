@@ -103,8 +103,17 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-semibold tracking-tight;
+  /* Premium typography - light, elegant headings */
+  h1 {
+    @apply font-heading font-extralight tracking-tight;
+  }
+  
+  h2 {
+    @apply font-heading font-light tracking-tight;
+  }
+  
+  h3, h4, h5, h6 {
+    @apply font-heading font-normal tracking-tight;
   }
 
   /* Scroll snap container for home page */

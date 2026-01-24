@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
 import { MagneticButton } from '@/components/MagneticButton';
+import { GrainOverlay, FloatingParticles } from '@/components/PremiumEffects';
 
 // Static floating element component
 const FloatingIcon = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -49,7 +50,7 @@ const FAQItem = ({
         onClick={onClick} 
         className="w-full flex items-center justify-between p-5 sm:p-6 text-left group relative z-10"
       >
-        <span className="font-semibold pr-4 text-base sm:text-lg group-hover:text-accent transition-colors">
+        <span className="font-medium pr-4 text-base sm:text-lg group-hover:text-accent transition-colors">
           {question}
         </span>
         <motion.div
@@ -138,6 +139,8 @@ export default function FAQPage() {
 
   return (
     <div className="relative overflow-hidden">
+      <GrainOverlay />
+      <FloatingParticles count={12} />
       {/* Background elements with parallax */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div 
@@ -205,7 +208,7 @@ export default function FAQPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-tight"
+              className="text-4xl sm:text-5xl lg:text-6xl font-extralight mb-6 tracking-tight"
             >
               {t('Vanliga ', 'Frequently Asked ')}
               <span className="bg-gradient-to-r from-accent via-orange-400 to-accent bg-clip-text text-transparent">
@@ -261,7 +264,7 @@ export default function FAQPage() {
                     <Sparkles className="w-10 h-10 text-accent mx-auto mb-4" />
                   </motion.div>
                   
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+                  <h2 className="text-2xl sm:text-3xl font-light mb-4 tracking-tight">
                     {t('Har du fler frågor?', 'Have more questions?')}
                   </h2>
                   <p className="text-muted-foreground mb-8 max-w-md mx-auto">

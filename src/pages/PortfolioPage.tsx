@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { motion, AnimatePresence } from 'framer-motion';
+import { GrainOverlay, FloatingParticles } from '@/components/PremiumEffects';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -519,11 +520,13 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="section-padding pt-28 pb-20">
+    <div className="section-padding pt-28 pb-20 relative">
+      <GrainOverlay />
+      <FloatingParticles count={12} />
       <div className="container-wide">
         {/* Header */}
         <AnimatedSection animation="fade-up" className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extralight mb-4 tracking-tight">
             {t('Våra arbeten', 'Our Work')}
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto text-lg">
@@ -572,7 +575,7 @@ export default function PortfolioPage() {
             <div className="absolute inset-0 border border-accent/20 rounded-2xl" />
             
             <div className="relative">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+              <h2 className="text-2xl sm:text-3xl font-light mb-4 tracking-tight">
                 {t('Nästa projekt kan vara ditt', 'Your project could be next')}
               </h2>
               <p className="text-muted-foreground mb-8 max-w-md mx-auto">
