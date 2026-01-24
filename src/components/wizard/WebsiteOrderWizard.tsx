@@ -466,7 +466,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
         <a href="/" className="inline-block font-heading font-semibold text-2xl tracking-tight hover:opacity-80 transition-opacity mb-4">
           Nomia<span className="text-accent">.</span>
         </a>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight mb-2">
           {t('Beställ din hemsida', 'Order your website')}
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
