@@ -46,19 +46,19 @@ function sanitizeString(str: unknown, maxLength = 500): string {
   return str.slice(0, maxLength).replace(/[<>]/g, "");
 }
 
-type Currency = 'SEK' | 'EUR';
+type Currency = 'SEK' | 'USD';
 
-// EUR Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
-const PACKAGE_PRICES_EUR_FULL: Record<string, string> = {
-  starter: "price_1Ss9kC74JfaAfHsdDPRZYlBm",   // €290 full price
-  standard: "price_1Ss9h374JfaAfHsdKckRgJu8", // €590 full price
-  pro: "price_1SmXq074JfaAfHsdjKigI9Qr",      // €1,290 full price
+// USD Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
+const PACKAGE_PRICES_USD_FULL: Record<string, string> = {
+  starter: "price_1SsvMI74JfaAfHsdKccBn8r0",   // $290 full price
+  standard: "price_1SsvMK74JfaAfHsdWF41mVKv", // $590 full price
+  pro: "price_1SsvMM74JfaAfHsdrLoJpRoP",      // $1,290 full price
 };
 
-const PACKAGE_PRICES_EUR_DISCOUNTED: Record<string, string> = {
-  starter: "price_1Ss9kF74JfaAfHsdpY2wmDL7",   // €240 (€290 - €50 deposit)
-  standard: "price_1Ss9h574JfaAfHsdehKws0uF", // €540 (€590 - €50 deposit)
-  pro: "price_1Shc5k74JfaAfHsdT7xzOxfA",      // €1,240 (€1,290 - €50 deposit)
+const PACKAGE_PRICES_USD_DISCOUNTED: Record<string, string> = {
+  starter: "price_1SsvMJ74JfaAfHsdaaLyo31Q",   // $240 ($290 - $50 deposit)
+  standard: "price_1SsvML74JfaAfHsdhJW3xA6E", // $540 ($590 - $50 deposit)
+  pro: "price_1SsvMN74JfaAfHsdyEx42PtA",      // $1,240 ($1,290 - $50 deposit)
 };
 
 // SEK Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
@@ -75,22 +75,22 @@ const PACKAGE_PRICES_SEK_DISCOUNTED: Record<string, string> = {
 };
 
 // Booking add-on price IDs from Stripe
-const BOOKING_ADDON_PRICE_EUR = "price_1Shhqd74JfaAfHsdN70mmlQ8"; // €200 booking add-on
+const BOOKING_ADDON_PRICE_USD = "price_1SsvMO74JfaAfHsd3KoBGuu2"; // $200 booking add-on
 const BOOKING_ADDON_PRICE_SEK = "price_1SoVfz74JfaAfHsdcM6g7gyq"; // 1990 kr booking add-on
 
 // Admin panel add-on price IDs from Stripe
-const ADMIN_PANEL_PRICE_EUR = "price_1SjVDH74JfaAfHsdJ2bpHabL"; // €100 admin panel add-on
+const ADMIN_PANEL_PRICE_USD = "price_1SsvMP74JfaAfHsdhszpXick"; // $100 admin panel add-on
 const ADMIN_PANEL_PRICE_SEK = "price_1SoVg074JfaAfHsdCfjHTSR4"; // 990 kr admin panel add-on
 
-// Checkout system add-on price IDs from Stripe (€50 / 499 kr - free with Standard & Pro)
-const CHECKOUT_ADDON_PRICE_EUR = "price_1Ss7lg74JfaAfHsd2VcoKjUh"; // €50 checkout add-on
+// Checkout system add-on price IDs from Stripe ($50 / 499 kr - free with Standard & Pro)
+const CHECKOUT_ADDON_PRICE_USD = "price_1SsvMQ74JfaAfHsdU0jCEali"; // $50 checkout add-on
 const CHECKOUT_ADDON_PRICE_SEK = "price_1Ss7lg74JfaAfHsdnKn2RQjt"; // 499 kr checkout add-on
 
 // Care plan price IDs from Stripe (monthly)
-const CARE_PLAN_MONTHLY_EUR: Record<string, string> = {
-  basic: "price_1SjVDL74JfaAfHsd1i1pFby6",    // €25/mo
-  standard: "price_1SjVDM74JfaAfHsdOemLHRqh", // €45/mo
-  pro: "price_1SjVDO74JfaAfHsdfwTpnk0Y",       // €75/mo
+const CARE_PLAN_MONTHLY_USD: Record<string, string> = {
+  basic: "price_1SsvMV74JfaAfHsdMeGyB3Og",    // $25/mo
+  standard: "price_1SsvMW74JfaAfHsdGVZko9Jo", // $45/mo
+  pro: "price_1SsvMX74JfaAfHsdf6yGoEYB",       // $75/mo
 };
 
 const CARE_PLAN_MONTHLY_SEK: Record<string, string> = {
@@ -100,15 +100,15 @@ const CARE_PLAN_MONTHLY_SEK: Record<string, string> = {
 };
 
 // Care plan price IDs from Stripe (yearly)
-const CARE_PLAN_YEARLY_EUR: Record<string, string> = {
-  basic: "price_1SjVDP74JfaAfHsdsgUuSbuU",    // €240/yr (€20/mo)
-  standard: "price_1SjVDR74JfaAfHsduWagejHS", // €432/yr (€36/mo)
-  pro: "price_1SjVDS74JfaAfHsdwdQM3Seh",       // €720/yr (€60/mo)
+const CARE_PLAN_YEARLY_USD: Record<string, string> = {
+  basic: "price_1SsvMZ74JfaAfHsdsr8ZRvGg",    // $240/yr ($20/mo)
+  standard: "price_1SsvMa74JfaAfHsd2TF1U2oD", // $432/yr ($36/mo)
+  pro: "price_1SsvMb74JfaAfHsdZ339wqWK",       // $720/yr ($60/mo)
 };
 
 const CARE_PLAN_YEARLY_SEK: Record<string, string> = {
   basic: "price_1ShZ2074JfaAfHsdGOu9YrQQ",    // 2388 kr/yr (199 kr/mo)
-  standard: "price_1ShZ2g74JfaAfHsdD4t1jtDb", // 4308 kr/yr (359 kr/mo) -- ISSUE: This price may not exist
+  standard: "price_1ShZ2g74JfaAfHsdD4t1jtDb", // 4308 kr/yr (359 kr/mo)
   pro: "price_1ShZ3F74JfaAfHsdWNdB6gHU",       // 7188 kr/yr (599 kr/mo)
 };
 
@@ -139,10 +139,10 @@ interface CheckoutRequest {
   vatNumber?: string;
   vatVerified?: boolean;
   country?: string;
-  currency?: 'SEK' | 'EUR';
+  currency?: 'SEK' | 'USD';
 }
 
-// Helper to get or create a 25% VAT tax rate
+// Helper to get or create a 25% VAT tax rate (for Swedish customers only)
 async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
   const existingRates = await stripe.taxRates.list({ limit: 100, active: true });
   const vatRate = existingRates.data.find(
@@ -172,19 +172,19 @@ function getPackagePriceId(packageId: string, currency: Currency, isPostDemoFlow
   if (currency === 'SEK') {
     return isPostDemoFlow ? PACKAGE_PRICES_SEK_DISCOUNTED[packageId] : PACKAGE_PRICES_SEK_FULL[packageId];
   }
-  return isPostDemoFlow ? PACKAGE_PRICES_EUR_DISCOUNTED[packageId] : PACKAGE_PRICES_EUR_FULL[packageId];
+  return isPostDemoFlow ? PACKAGE_PRICES_USD_DISCOUNTED[packageId] : PACKAGE_PRICES_USD_FULL[packageId];
 }
 
 function getBookingAddonPriceId(currency: Currency): string {
-  return currency === 'SEK' ? BOOKING_ADDON_PRICE_SEK : BOOKING_ADDON_PRICE_EUR;
+  return currency === 'SEK' ? BOOKING_ADDON_PRICE_SEK : BOOKING_ADDON_PRICE_USD;
 }
 
 function getAdminPanelPriceId(currency: Currency): string {
-  return currency === 'SEK' ? ADMIN_PANEL_PRICE_SEK : ADMIN_PANEL_PRICE_EUR;
+  return currency === 'SEK' ? ADMIN_PANEL_PRICE_SEK : ADMIN_PANEL_PRICE_USD;
 }
 
 function getCheckoutAddonPriceId(currency: Currency): string {
-  return currency === 'SEK' ? CHECKOUT_ADDON_PRICE_SEK : CHECKOUT_ADDON_PRICE_EUR;
+  return currency === 'SEK' ? CHECKOUT_ADDON_PRICE_SEK : CHECKOUT_ADDON_PRICE_USD;
 }
 
 function getCarePlanPriceId(planId: string, isYearly: boolean, currency: Currency): string | null {
@@ -193,11 +193,11 @@ function getCarePlanPriceId(planId: string, isYearly: boolean, currency: Currenc
   if (isYearly) {
     return currency === 'SEK' 
       ? CARE_PLAN_YEARLY_SEK[planId] 
-      : CARE_PLAN_YEARLY_EUR[planId];
+      : CARE_PLAN_YEARLY_USD[planId];
   }
   return currency === 'SEK' 
     ? CARE_PLAN_MONTHLY_SEK[planId] 
-    : CARE_PLAN_MONTHLY_EUR[planId];
+    : CARE_PLAN_MONTHLY_USD[planId];
 }
 
 serve(async (req) => {
@@ -261,14 +261,14 @@ serve(async (req) => {
     const addedAdminPanel = requestData.addedAdminPanel === true;
     const isPostDemoFlow = requestData.isPostDemoFlow === true;
     
-    // Currency - default to EUR if not specified
-    const currency: Currency = requestData.currency === "SEK" ? "SEK" : "EUR";
+    // Currency - default to USD if not specified
+    const currency: Currency = requestData.currency === "SEK" ? "SEK" : "USD";
     
     const customerType = requestData.customerType === "private" || requestData.customerType === "business" 
       ? requestData.customerType : null;
     const vatNumber = sanitizeString(requestData.vatNumber, 50);
     const vatVerified = requestData.vatVerified === true;
-    const customerCountry = sanitizeString(requestData.country, 5) || "SE";
+    const customerCountry = sanitizeString(requestData.country, 5) || "US";
     const orgNumber = sanitizeString(requestData.orgNumber, 50);
     
     const businessName = sanitizeString(requestData.businessName, 200);
@@ -308,17 +308,20 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // VAT logic
-    const shouldApplyVat = customerType === "private" || 
+    // VAT logic - only apply VAT to Swedish customers (SEK currency and SE country)
+    // US customers (USD) do not get VAT applied
+    const shouldApplyVat = currency === 'SEK' && (
+      customerType === "private" || 
       (customerType === "business" && customerCountry === "SE") ||
-      (customerType === "business" && !vatVerified);
+      (customerType === "business" && !vatVerified)
+    );
 
     let taxRateId: string | null = null;
     if (shouldApplyVat) {
       taxRateId = await getOrCreateVatTaxRate(stripe);
       console.log("[CREATE-PACKAGE-CHECKOUT] Will apply VAT tax rate", { taxRateId });
     } else {
-      console.log("[CREATE-PACKAGE-CHECKOUT] No VAT (reverse charge for EU B2B)", { vatVerified, customerCountry });
+      console.log("[CREATE-PACKAGE-CHECKOUT] No VAT applied", { currency, customerCountry });
     }
 
     let customerId: string | undefined;
