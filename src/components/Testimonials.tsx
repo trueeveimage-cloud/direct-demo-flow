@@ -36,8 +36,10 @@ export function Testimonials() {
   const { t } = useLanguage();
 
   return (
-    <section className="section-padding py-20 bg-secondary/30">
-      <div className="container-wide">
+    <section className="section-padding py-20 relative overflow-hidden">
+      {/* Gradient fade overlay for seamless section blending */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/20 to-background pointer-events-none" />
+      <div className="container-wide relative">
         <AnimatedSection animation="fade-up">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold mb-4">
