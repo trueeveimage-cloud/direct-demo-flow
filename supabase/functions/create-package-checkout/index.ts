@@ -1,36 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 
-// Allowed origins for CORS - restrict to your domains
-const ALLOWED_ORIGINS = [
-  "https://nomia.se",
-  "https://www.nomia.se",
-  "http://localhost:5173",
-  "http://localhost:3000",
-];
-
-// Helper to validate origin - more permissive for SDK calls
-function isAllowedOrigin(origin: string | null): boolean {
-  // If no origin (like from SDK), allow it
-  if (!origin) return true;
-  // Allow Lovable preview domains
-  if (origin.includes("lovableproject.com") || origin.includes("lovable.dev") || origin.includes("lovable.app")) {
-    return true;
-  }
-  // Allow localhost for development
-  if (origin.includes("localhost")) {
-    return true;
-  }
-  return ALLOWED_ORIGINS.some(allowed => origin === allowed || origin.startsWith(allowed));
-}
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-// Input validation helpers
 function isValidPackageId(id: unknown): id is string {
   return typeof id === "string" && ["starter", "standard", "pro"].includes(id);
 }
@@ -48,126 +24,66 @@ function sanitizeString(str: unknown, maxLength = 500): string {
 
 type Currency = 'SEK' | 'USD';
 
-// USD Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
+// USD Package price IDs
 const PACKAGE_PRICES_USD_FULL: Record<string, string> = {
-  starter: "price_1SsvMI74JfaAfHsdKccBn8r0",   // $290 full price
-  standard: "price_1SsvMK74JfaAfHsdWF41mVKv", // $590 full price
-  pro: "price_1SsvMM74JfaAfHsdrLoJpRoP",      // $1,290 full price
+  starter: "price_1SsvMI74JfaAfHsdKccBn8r0",
+  standard: "price_1SsvMK74JfaAfHsdWF41mVKv",
+  pro: "price_1SsvMM74JfaAfHsdrLoJpRoP",
 };
 
 const PACKAGE_PRICES_USD_DISCOUNTED: Record<string, string> = {
-  starter: "price_1SsvMJ74JfaAfHsdaaLyo31Q",   // $240 ($290 - $50 deposit)
-  standard: "price_1SsvML74JfaAfHsdhJW3xA6E", // $540 ($590 - $50 deposit)
-  pro: "price_1SsvMN74JfaAfHsdyEx42PtA",      // $1,240 ($1,290 - $50 deposit)
+  starter: "price_1SsvMJ74JfaAfHsdaaLyo31Q",
+  standard: "price_1SsvML74JfaAfHsdhJW3xA6E",
+  pro: "price_1SsvMN74JfaAfHsdyEx42PtA",
 };
 
-// SEK Package price IDs from Stripe (one-time payments) - NET prices (without VAT)
 const PACKAGE_PRICES_SEK_FULL: Record<string, string> = {
-  starter: "price_1Ss9kD74JfaAfHsdYOiPQ9B8",   // 2900 kr full price
-  standard: "price_1Ss9h474JfaAfHsdGHSjCHPa", // 5900 kr full price
-  pro: "price_1SoVft74JfaAfHsdMxKuptCm",      // 12900 kr full price
+  starter: "price_1Ss9kD74JfaAfHsdYOiPQ9B8",
+  standard: "price_1Ss9h474JfaAfHsdGHSjCHPa",
+  pro: "price_1SoVft74JfaAfHsdMxKuptCm",
 };
 
 const PACKAGE_PRICES_SEK_DISCOUNTED: Record<string, string> = {
-  starter: "price_1Ss9kG74JfaAfHsdzCs1Bjb0",   // 2401 kr (2900 - 499 deposit)
-  standard: "price_1Ss9h674JfaAfHsd0NFDdcsu", // 5401 kr (5900 - 499 deposit)
-  pro: "price_1SoVfy74JfaAfHsdvxed2nJ0",      // 12401 kr (12900 - 499 deposit)
+  starter: "price_1Ss9kG74JfaAfHsdzCs1Bjb0",
+  standard: "price_1Ss9h674JfaAfHsd0NFDdcsu",
+  pro: "price_1SoVfy74JfaAfHsdvxed2nJ0",
 };
 
-// Booking add-on price IDs from Stripe
-const BOOKING_ADDON_PRICE_USD = "price_1SsvMO74JfaAfHsd3KoBGuu2"; // $200 booking add-on
-const BOOKING_ADDON_PRICE_SEK = "price_1SoVfz74JfaAfHsdcM6g7gyq"; // 1990 kr booking add-on
+const BOOKING_ADDON_PRICE_USD = "price_1SsvMO74JfaAfHsd3KoBGuu2";
+const BOOKING_ADDON_PRICE_SEK = "price_1SoVfz74JfaAfHsdcM6g7gyq";
+const ADMIN_PANEL_PRICE_USD = "price_1SsvMP74JfaAfHsdhszpXick";
+const ADMIN_PANEL_PRICE_SEK = "price_1SoVg074JfaAfHsdCfjHTSR4";
+const CHECKOUT_ADDON_PRICE_USD = "price_1SsvMQ74JfaAfHsdU0jCEali";
+const CHECKOUT_ADDON_PRICE_SEK = "price_1Ss7lg74JfaAfHsdnKn2RQjt";
 
-// Admin panel add-on price IDs from Stripe
-const ADMIN_PANEL_PRICE_USD = "price_1SsvMP74JfaAfHsdhszpXick"; // $100 admin panel add-on
-const ADMIN_PANEL_PRICE_SEK = "price_1SoVg074JfaAfHsdCfjHTSR4"; // 990 kr admin panel add-on
-
-// Checkout system add-on price IDs from Stripe ($50 / 499 kr - free with Standard & Pro)
-const CHECKOUT_ADDON_PRICE_USD = "price_1SsvMQ74JfaAfHsdU0jCEali"; // $50 checkout add-on
-const CHECKOUT_ADDON_PRICE_SEK = "price_1Ss7lg74JfaAfHsdnKn2RQjt"; // 499 kr checkout add-on
-
-// Care plan price IDs from Stripe (monthly)
 const CARE_PLAN_MONTHLY_USD: Record<string, string> = {
-  basic: "price_1SsvMV74JfaAfHsdMeGyB3Og",    // $25/mo
-  standard: "price_1SsvMW74JfaAfHsdGVZko9Jo", // $45/mo
-  pro: "price_1SsvMX74JfaAfHsdf6yGoEYB",       // $75/mo
+  basic: "price_1SsvMV74JfaAfHsdMeGyB3Og",
+  standard: "price_1SsvMW74JfaAfHsdGVZko9Jo",
+  pro: "price_1SsvMX74JfaAfHsdf6yGoEYB",
 };
 
 const CARE_PLAN_MONTHLY_SEK: Record<string, string> = {
-  basic: "price_1ShZ2W74JfaAfHsdZwoAI3AM",    // 249 kr/mo
-  standard: "price_1ShZ3974JfaAfHsdJRyNwKZF", // 449 kr/mo
-  pro: "price_1ShZ3V74JfaAfHsdFTHkwZfX",       // 749 kr/mo
+  basic: "price_1ShZ2W74JfaAfHsdZwoAI3AM",
+  standard: "price_1ShZ3974JfaAfHsdJRyNwKZF",
+  pro: "price_1ShZ3V74JfaAfHsdFTHkwZfX",
 };
 
-// Care plan price IDs from Stripe (yearly)
 const CARE_PLAN_YEARLY_USD: Record<string, string> = {
-  basic: "price_1SsvMZ74JfaAfHsdsr8ZRvGg",    // $240/yr ($20/mo)
-  standard: "price_1SsvMa74JfaAfHsd2TF1U2oD", // $432/yr ($36/mo)
-  pro: "price_1SsvMb74JfaAfHsdZ339wqWK",       // $720/yr ($60/mo)
+  basic: "price_1SsvMZ74JfaAfHsdsr8ZRvGg",
+  standard: "price_1SsvMa74JfaAfHsd2TF1U2oD",
+  pro: "price_1SsvMb74JfaAfHsdZ339wqWK",
 };
 
 const CARE_PLAN_YEARLY_SEK: Record<string, string> = {
-  basic: "price_1ShZ2074JfaAfHsdGOu9YrQQ",    // 2388 kr/yr (199 kr/mo)
-  standard: "price_1ShZ2g74JfaAfHsdD4t1jtDb", // 4308 kr/yr (359 kr/mo)
-  pro: "price_1ShZ3F74JfaAfHsdWNdB6gHU",       // 7188 kr/yr (599 kr/mo)
+  basic: "price_1ShZ2074JfaAfHsdGOu9YrQQ",
+  standard: "price_1ShZ2g74JfaAfHsdD4t1jtDb",
+  pro: "price_1ShZ3F74JfaAfHsdWNdB6gHU",
 };
 
-interface CheckoutRequest {
-  packageId: string;
-  email?: string;
-  businessName?: string;
-  contactPerson?: string;
-  phone?: string;
-  selectedStyle?: string;
-  selectedLanguage?: string;
-  conceptLink?: string;
-  carePlanId?: string;
-  isYearly?: boolean;
-  wantsBooking?: boolean;
-  bookingAddonCost?: number;
-  addedAdminPanel?: boolean;
-  wantsCheckoutSystem?: boolean;
-  isPostDemoFlow?: boolean;
-  businessType?: string;
-  websiteGoal?: string;
-  primaryColor?: string;
-  accentColor?: string;
-  services?: string;
-  customerType?: 'private' | 'business' | null;
-  companyName?: string;
-  orgNumber?: string;
-  vatNumber?: string;
-  vatVerified?: boolean;
-  country?: string;
-  currency?: 'SEK' | 'USD';
-}
+// Countries with 0% VAT
+const NON_VAT_COUNTRIES = ['US', 'CA', 'AU', 'GB'];
+const EU_COUNTRIES = ['SE', 'NO', 'DK', 'FI', 'DE', 'NL', 'FR', 'ES', 'IT', 'BE', 'AT', 'PL', 'PT', 'IE'];
 
-// Helper to get or create a 25% VAT tax rate (for Swedish customers only)
-async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
-  const existingRates = await stripe.taxRates.list({ limit: 100, active: true });
-  const vatRate = existingRates.data.find(
-    (rate: Stripe.TaxRate) => rate.percentage === 25 && rate.display_name.toLowerCase().includes("vat") && rate.inclusive === false
-  );
-  
-  if (vatRate) {
-    console.log("[CREATE-PACKAGE-CHECKOUT] Found existing VAT tax rate", { id: vatRate.id });
-    return vatRate.id;
-  }
-  
-  const newRate = await stripe.taxRates.create({
-    display_name: "VAT",
-    description: "Swedish VAT 25%",
-    percentage: 25,
-    inclusive: false,
-    country: "SE",
-    jurisdiction: "Sweden",
-  });
-  
-  console.log("[CREATE-PACKAGE-CHECKOUT] Created new VAT tax rate", { id: newRate.id });
-  return newRate.id;
-}
-
-// Get correct price IDs based on currency
 function getPackagePriceId(packageId: string, currency: Currency, isPostDemoFlow: boolean): string {
   if (currency === 'SEK') {
     return isPostDemoFlow ? PACKAGE_PRICES_SEK_DISCOUNTED[packageId] : PACKAGE_PRICES_SEK_FULL[packageId];
@@ -189,289 +105,182 @@ function getCheckoutAddonPriceId(currency: Currency): string {
 
 function getCarePlanPriceId(planId: string, isYearly: boolean, currency: Currency): string | null {
   if (!planId || planId === 'skip') return null;
-  
   if (isYearly) {
-    return currency === 'SEK' 
-      ? CARE_PLAN_YEARLY_SEK[planId] 
-      : CARE_PLAN_YEARLY_USD[planId];
+    return currency === 'SEK' ? CARE_PLAN_YEARLY_SEK[planId] : CARE_PLAN_YEARLY_USD[planId];
   }
-  return currency === 'SEK' 
-    ? CARE_PLAN_MONTHLY_SEK[planId] 
-    : CARE_PLAN_MONTHLY_USD[planId];
+  return currency === 'SEK' ? CARE_PLAN_MONTHLY_SEK[planId] : CARE_PLAN_MONTHLY_USD[planId];
+}
+
+// Get or create a 25% Swedish VAT tax rate
+async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
+  const existingRates = await stripe.taxRates.list({ limit: 100, active: true });
+  const vatRate = existingRates.data.find(
+    (rate: Stripe.TaxRate) => rate.percentage === 25 && rate.display_name.toLowerCase().includes("vat") && rate.inclusive === false
+  );
+  if (vatRate) return vatRate.id;
+  
+  const newRate = await stripe.taxRates.create({
+    display_name: "VAT",
+    description: "Swedish VAT 25%",
+    percentage: 25,
+    inclusive: false,
+    country: "SE",
+  });
+  return newRate.id;
+}
+
+// Determine if VAT should be applied based on country and customer type
+function shouldApplyVat(
+  currency: Currency,
+  customerCountry: string,
+  customerType: string | null,
+  vatVerified: boolean
+): boolean {
+  // USD currency = no VAT (international market)
+  if (currency === 'USD') return false;
+  
+  // Non-VAT countries = no VAT
+  if (NON_VAT_COUNTRIES.includes(customerCountry)) return false;
+  
+  // SEK currency rules:
+  // Private customers = 25% Swedish VAT
+  if (customerType === 'private') return true;
+  
+  // Swedish business = 25% Swedish VAT
+  if (customerType === 'business' && customerCountry === 'SE') return true;
+  
+  // EU B2B with verified VAT = Reverse charge (0% VAT)
+  if (customerType === 'business' && EU_COUNTRIES.includes(customerCountry) && vatVerified) return false;
+  
+  // EU B2B without verified VAT = 25% Swedish VAT
+  if (customerType === 'business' && EU_COUNTRIES.includes(customerCountry) && !vatVerified) return true;
+  
+  // Default: no VAT for non-EU countries
+  return false;
 }
 
 serve(async (req) => {
-  const origin = req.headers.get("origin");
-  
-  console.log("[CREATE-PACKAGE-CHECKOUT] Function started", { origin });
-
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 405,
-    });
-  }
-
-  if (!isAllowedOrigin(origin)) {
-    console.error("[CREATE-PACKAGE-CHECKOUT] Invalid origin", { origin });
-    return new Response(JSON.stringify({ error: "Forbidden" }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 403,
-    });
-  }
-
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) {
-      console.error("[CREATE-PACKAGE-CHECKOUT] STRIPE_SECRET_KEY not set");
-      throw new Error("STRIPE_SECRET_KEY is not set");
-    }
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
-    let body: unknown;
-    try {
-      body = await req.json();
-    } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
-    }
-
-    const requestData = body as Record<string, unknown>;
-    
-    if (!isValidPackageId(requestData.packageId)) {
-      console.error("[CREATE-PACKAGE-CHECKOUT] Invalid package ID", { packageId: requestData.packageId });
+    const body = await req.json();
+    if (!isValidPackageId(body.packageId)) {
       return new Response(JSON.stringify({ error: "Invalid package ID" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
       });
     }
 
-    const packageId = requestData.packageId;
-    const email = requestData.email && isValidEmail(requestData.email) ? requestData.email : undefined;
-    const conceptLink = sanitizeString(requestData.conceptLink, 2000);
-    const carePlanId = sanitizeString(requestData.carePlanId, 20);
-    const isYearly = requestData.isYearly === true;
-    const wantsBooking = requestData.wantsBooking === true;
-    const bookingAddonCost = typeof requestData.bookingAddonCost === "number" ? requestData.bookingAddonCost : 0;
-    const addedAdminPanel = requestData.addedAdminPanel === true;
-    const isPostDemoFlow = requestData.isPostDemoFlow === true;
-    
-    // Currency - default to USD if not specified
-    const currency: Currency = requestData.currency === "SEK" ? "SEK" : "USD";
-    
-    const customerType = requestData.customerType === "private" || requestData.customerType === "business" 
-      ? requestData.customerType : null;
-    const vatNumber = sanitizeString(requestData.vatNumber, 50);
-    const vatVerified = requestData.vatVerified === true;
-    const customerCountry = sanitizeString(requestData.country, 5) || "US";
-    const orgNumber = sanitizeString(requestData.orgNumber, 50);
-    
-    const businessName = sanitizeString(requestData.businessName, 200);
-    const contactPerson = sanitizeString(requestData.contactPerson, 200);
-    const phone = sanitizeString(requestData.phone, 50);
-    const selectedStyle = sanitizeString(requestData.selectedStyle, 50);
-    const selectedLanguage = sanitizeString(requestData.selectedLanguage, 20);
-    const businessType = sanitizeString(requestData.businessType, 100);
-    const websiteGoal = sanitizeString(requestData.websiteGoal, 100);
-    const primaryColor = sanitizeString(requestData.primaryColor, 50);
-    const accentColor = sanitizeString(requestData.accentColor, 50);
-    const services = sanitizeString(requestData.services, 2000);
+    const packageId = body.packageId;
+    const email = body.email && isValidEmail(body.email) ? body.email : undefined;
+    const carePlanId = sanitizeString(body.carePlanId, 20);
+    const isYearly = body.isYearly === true;
+    const wantsBooking = body.wantsBooking === true;
+    const bookingAddonCost = typeof body.bookingAddonCost === "number" ? body.bookingAddonCost : 0;
+    const addedAdminPanel = body.addedAdminPanel === true;
+    const isPostDemoFlow = body.isPostDemoFlow === true;
+    const currency: Currency = body.currency === "SEK" ? "SEK" : "USD";
+    const customerType = body.customerType === "private" || body.customerType === "business" ? body.customerType : null;
+    const vatVerified = body.vatVerified === true;
+    const customerCountry = sanitizeString(body.country, 5) || (currency === 'SEK' ? 'SE' : 'US');
 
-    // Check if care plan is selected
     const carePlanPriceId = getCarePlanPriceId(carePlanId, isYearly, currency);
     const hasCarePlan = !!carePlanPriceId;
-
-    console.log("[CREATE-PACKAGE-CHECKOUT] Request validated", { 
-      packageId, 
-      email: email ? "provided" : "none", 
-      carePlanId, 
-      isYearly,
-      wantsBooking,
-      bookingAddonCost,
-      addedAdminPanel,
-      isPostDemoFlow,
-      customerType,
-      vatVerified,
-      customerCountry,
-      currency,
-      hasCarePlan,
-      carePlanPriceId
-    });
-
-    // Get the correct price ID based on currency and flow type
     const priceId = getPackagePriceId(packageId, currency, isPostDemoFlow);
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // VAT logic - comprehensive country-based rules
-    // 1. USD currency = NO VAT (primarily US market)
-    // 2. Non-VAT countries (US, CA, AU) = NO VAT regardless of currency
-    // 3. SEK currency + SE country = 25% VAT
-    // 4. EU B2B with verified VAT = Reverse charge (0% VAT)
-    // 5. EU B2B without verified VAT = 25% VAT
-    // 6. Private customers in SE = 25% VAT
-    const nonVatCountries = ['US', 'CA', 'AU'];
-    const isNonVatCountry = nonVatCountries.includes(customerCountry);
-    
-    const shouldApplyVat = !isNonVatCountry && currency === 'SEK' && (
-      customerType === "private" || 
-      (customerType === "business" && customerCountry === "SE") ||
-      (customerType === "business" && !vatVerified)
-    );
-
+    // Apply VAT only when appropriate
+    const applyVat = shouldApplyVat(currency, customerCountry, customerType, vatVerified);
     let taxRateId: string | null = null;
-    if (shouldApplyVat) {
+    if (applyVat) {
       taxRateId = await getOrCreateVatTaxRate(stripe);
-      console.log("[CREATE-PACKAGE-CHECKOUT] Will apply VAT tax rate", { taxRateId, customerCountry, customerType });
-    } else {
-      console.log("[CREATE-PACKAGE-CHECKOUT] No VAT applied", { currency, customerCountry, isNonVatCountry, vatVerified });
     }
+
+    console.log("[CREATE-PACKAGE-CHECKOUT] VAT decision", { 
+      currency, customerCountry, customerType, vatVerified, applyVat, taxRateId 
+    });
 
     let customerId: string | undefined;
     if (email) {
       const customers = await stripe.customers.list({ email, limit: 1 });
-      if (customers.data.length > 0) {
-        customerId = customers.data[0].id;
-        console.log("[CREATE-PACKAGE-CHECKOUT] Found existing customer", { customerId });
-      }
+      if (customers.data.length > 0) customerId = customers.data[0].id;
     }
 
-    const safeOrigin = origin || "https://nomia.se";
-
-    // Build line items - ALL items go here as line_items
-    interface LineItemType {
-      price: string;
-      quantity: number;
-      tax_rates?: string[];
-    }
-    
+    interface LineItemType { price: string; quantity: number; tax_rates?: string[]; }
     const lineItems: LineItemType[] = [];
 
-    // Always add package as line item (one-time)
     lineItems.push({
       price: priceId,
       quantity: 1,
       ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
     });
-    console.log("[CREATE-PACKAGE-CHECKOUT] Added package", { priceId });
 
-    // Add booking add-on if selected and not Pro package
     if (wantsBooking && packageId !== "pro" && bookingAddonCost > 0) {
       lineItems.push({
         price: getBookingAddonPriceId(currency),
         quantity: 1,
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added booking add-on", { currency });
     }
 
-    // Add admin panel add-on if selected
     if (addedAdminPanel) {
       lineItems.push({
         price: getAdminPanelPriceId(currency),
         quantity: 1,
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added admin panel add-on", { currency });
     }
 
-    // Add checkout system add-on if selected and Starter package (free with Standard & Pro)
-    const wantsCheckoutSystem = requestData.wantsCheckoutSystem === true;
-    if (wantsCheckoutSystem && packageId === "starter") {
+    if (body.wantsCheckoutSystem === true && packageId === "starter") {
       lineItems.push({
         price: getCheckoutAddonPriceId(currency),
         quantity: 1,
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added checkout system add-on", { currency });
     }
 
-    // Add care plan if selected (recurring)
     if (hasCarePlan && carePlanPriceId) {
       lineItems.push({
         price: carePlanPriceId,
         quantity: 1,
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
       });
-      console.log("[CREATE-PACKAGE-CHECKOUT] Added care plan", { carePlanId, carePlanPriceId });
     }
 
-    // Determine mode: subscription if care plan selected, otherwise payment
     const mode: "payment" | "subscription" = hasCarePlan ? "subscription" : "payment";
-    console.log("[CREATE-PACKAGE-CHECKOUT] Checkout mode", { mode, lineItemsCount: lineItems.length });
+    const origin = req.headers.get("origin") || "https://nomia.se";
     
-    const successUrl = new URL(`${safeOrigin}/betalning-klar`);
+    const successUrl = new URL(`${origin}/betalning-klar`);
     successUrl.searchParams.set("session_id", "{CHECKOUT_SESSION_ID}");
-    if (conceptLink) successUrl.searchParams.set("concept", encodeURIComponent(conceptLink));
-    if (carePlanId) {
-      successUrl.searchParams.set("care_plan", carePlanId);
-      successUrl.searchParams.set("care_yearly", String(isYearly));
-    }
 
-    // Build metadata
-    const baseMetadata = {
+    const metadata = {
       packageId,
-      conceptLink: (conceptLink || "").slice(0, 500),
       carePlanId: carePlanId || "",
-      isYearly: String(isYearly),
-      wantsBooking: String(wantsBooking),
-      bookingAddonIncluded: packageId === "pro" ? "included" : (wantsBooking ? "addon" : "none"),
-      adminPanelIncluded: String(addedAdminPanel),
       customerType: customerType || "private",
-      vatNumber: vatNumber || "",
-      vatVerified: String(vatVerified),
-      customerCountry: customerCountry,
-      orgNumber: orgNumber || "",
-      businessName: businessName.slice(0, 500),
-      contactPerson: contactPerson.slice(0, 500),
-      phone,
-      selectedStyle,
-      selectedLanguage,
-      businessType,
-      websiteGoal,
-      primaryColor,
-      accentColor,
-      services: services.slice(0, 500),
-      vatApplied: String(shouldApplyVat),
-      currency: currency,
+      customerCountry,
+      vatApplied: String(applyVat),
+      currency,
     };
 
-    // Create session config - customer_creation only works in payment mode
-    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
+    const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : email,
       ...(mode === 'payment' && !customerId ? { customer_creation: 'always' } : {}),
-      customer_update: customerId ? { name: 'auto', address: 'auto' } : undefined,
       billing_address_collection: 'required',
       line_items: lineItems,
-      mode: mode,
+      mode,
       allow_promotion_codes: true,
       success_url: successUrl.toString(),
-      cancel_url: `${safeOrigin}/betalning-avbruten`,
+      cancel_url: `${origin}/betalning-avbruten`,
       tax_id_collection: { enabled: true },
-      metadata: baseMetadata,
-      ...(mode === 'subscription' ? {
-        subscription_data: {
-          metadata: baseMetadata,
-        },
-      } : {}),
-    };
-
-    const session = await stripe.checkout.sessions.create(sessionConfig);
-
-    console.log("[CREATE-PACKAGE-CHECKOUT] Checkout session created", { 
-      sessionId: session.id,
-      mode,
-      vatApplied: shouldApplyVat,
-      taxRateId,
-      currency,
-      hasCarePlan,
-      lineItemsCount: lineItems.length
+      metadata,
+      ...(mode === 'subscription' ? { subscription_data: { metadata } } : {}),
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
@@ -479,9 +288,8 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error("[CREATE-PACKAGE-CHECKOUT] Error", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    console.error("[CREATE-PACKAGE-CHECKOUT] Error", error);
+    return new Response(JSON.stringify({ error: String(error) }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
