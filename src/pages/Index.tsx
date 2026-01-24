@@ -192,11 +192,12 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
   
   return (
     <section ref={sectionRef} className="py-32 relative overflow-hidden scroll-snap-section">
-      {/* Asymmetric background */}
+      {/* Gradient fade overlay for seamless section blending */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background pointer-events-none" />
+      {/* Asymmetric accent glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-accent/5 to-transparent" />
+        <div className="absolute top-1/4 right-0 w-1/2 h-1/2 bg-gradient-to-l from-accent/5 to-transparent blur-3xl" />
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
       
       <div className="container-wide section-padding relative">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -322,6 +323,8 @@ export default function Index() {
 
       {/* Hero Content with staggered animations - SCROLL SNAP */}
       <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24 scroll-snap-section">
+        {/* Bottom gradient fade for seamless transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none z-20" />
         <div className="container-narrow text-center relative z-10 section-padding py-12">
           {/* Hero Logo with simplified mobile animation */}
           <motion.div 
@@ -628,8 +631,8 @@ export default function Index() {
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.2} accentGlow>
         <section className="py-32 relative scroll-snap-section">
+          {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-destructive/5 to-background pointer-events-none" />
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
           
           <div className="container-narrow section-padding relative">
             <motion.div
@@ -747,7 +750,9 @@ export default function Index() {
           8. FAQ - Handle objections + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.25}>
-        <section className="py-32 scroll-snap-section">
+        <section className="py-32 scroll-snap-section relative overflow-hidden">
+          {/* Gradient fade overlay for seamless section blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
           <div className="container-narrow section-padding">
             <div className="flex items-center justify-between mb-12 animate-fade-in">
               <h2 className="text-3xl sm:text-4xl font-light tracking-tight">FAQ</h2>

@@ -50,8 +50,10 @@ export function TrustBadges() {
   ];
 
   return (
-    <section className="section-padding py-12 border-y border-border bg-background">
-      <div className="container-wide">
+    <section className="section-padding py-12 relative overflow-hidden">
+      {/* Gradient fade overlay for seamless section blending */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/30 to-background pointer-events-none" />
+      <div className="container-wide relative">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {badges.map((badge, index) => (
             <motion.div 
