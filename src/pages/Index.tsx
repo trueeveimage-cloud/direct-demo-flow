@@ -70,8 +70,8 @@ function ParallaxHeroBackground() {
   const orbY3 = useTransform(smoothMouseY, [-1, 1], [-40, 40]);
   
   return (
-    <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0 overflow-hidden">
-      {/* Desktop: Full parallax experience */}
+    <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0 overflow-hidden motion-reduce:hidden">
+      {/* Desktop: Full parallax experience - hidden on mobile for performance */}
       <div className="hidden md:block h-full">
         {/* Primary glow orb - largest, slowest */}
         <motion.div
