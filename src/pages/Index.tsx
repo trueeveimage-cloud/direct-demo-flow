@@ -414,7 +414,7 @@ export default function Index() {
             transition={{ delay: 0.9, duration: 0.6, ease: 'easeOut' }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extralight leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4"
           >
-            <span className="text-reveal-gradient">{t('Prissmarta webbsidor.', 'Price-smart websites.')}</span>
+            <span className="text-reveal-gradient">{t('Prissmarta webbsidor.', 'Smart websites.')}</span>
           </motion.h1>
 
           <motion.p 
@@ -445,7 +445,7 @@ export default function Index() {
                 <Link to="/bestall">
                   <span className="flex flex-col items-start leading-tight">
                     <span>{t('Beställ direkt', 'Order directly')}</span>
-                    <span className="text-xs opacity-80">{t('Hemsida från €290', 'Website from €290')}</span>
+                    <span className="text-xs opacity-80">{t('Hemsida från 2 900 kr', 'Website from $290')}</span>
                   </span>
                   <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
