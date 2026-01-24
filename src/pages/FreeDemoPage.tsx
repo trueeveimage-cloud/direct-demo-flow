@@ -316,7 +316,7 @@ export default function FreeDemoPage() {
             <div className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
               <Check className="w-10 h-10 text-success" />
             </div>
-            <h1 className="text-3xl font-bold mb-4">
+            <h1 className="text-3xl font-light tracking-tight mb-4">
               {t('Tack för din förfrågan!', 'Thank you for your request!')}
             </h1>
             <p className="text-muted-foreground mb-8">
@@ -361,7 +361,7 @@ export default function FreeDemoPage() {
               <Clock className="w-4 h-4" />
               {t('Klart inom 72 timmar', 'Ready within 72 hours')}
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight mb-3 sm:mb-4">
               {t('Få ditt ', 'Get your ')}
               <span className="text-accent">
                 {t('gratis designkoncept', 'free design concept')}
@@ -413,7 +413,7 @@ export default function FreeDemoPage() {
               {step === 1 && (
                 <div className="space-y-6">
                   <div className="text-center mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                    <h2 className="text-xl sm:text-2xl font-light tracking-tight mb-2">
                       {t('Dina kontaktuppgifter', 'Your contact details')}
                     </h2>
                     <p className="text-muted-foreground text-sm sm:text-base">
@@ -486,7 +486,7 @@ export default function FreeDemoPage() {
               {step === 2 && (
                 <div className="space-y-6">
                   <div className="text-center mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                    <h2 className="text-xl sm:text-2xl font-light tracking-tight mb-2">
                       {t('Om ditt företag', 'About your business')}
                     </h2>
                     <p className="text-muted-foreground text-sm sm:text-base">
@@ -564,7 +564,7 @@ export default function FreeDemoPage() {
               {step === 3 && (
                 <div className="space-y-6">
                   <div className="text-center mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                    <h2 className="text-xl sm:text-2xl font-light tracking-tight mb-2">
                       {t('Designpreferenser', 'Design preferences')}
                     </h2>
                     <p className="text-muted-foreground text-sm sm:text-base">
@@ -686,7 +686,7 @@ export default function FreeDemoPage() {
               {step === 4 && (
                 <div className="space-y-6">
                   <div className="text-center mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                    <h2 className="text-xl sm:text-2xl font-light tracking-tight mb-2">
                       {t('Tjänster & Bokning', 'Services & Booking')}
                     </h2>
                     <p className="text-muted-foreground text-sm sm:text-base">
@@ -910,7 +910,7 @@ export default function FreeDemoPage() {
               {step === 5 && (
                 <div className="space-y-6">
                   <div className="text-center mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                    <h2 className="text-xl sm:text-2xl font-light tracking-tight mb-2">
                       {t('Nästan klart!', 'Almost done!')}
                     </h2>
                     <p className="text-muted-foreground text-sm sm:text-base">

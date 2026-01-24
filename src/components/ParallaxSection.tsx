@@ -93,71 +93,10 @@ export const ParallaxSection: React.FC<ParallaxSectionProps> = ({
   );
 };
 
-// Floating geometric shapes for visual flair
-export const FloatingShapes: React.FC<{ className?: string }> = ({ className }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-
-  return (
-    <div ref={ref} className={cn("absolute inset-0 pointer-events-none overflow-hidden", className)}>
-      {/* Triangle */}
-      <motion.div
-        style={{
-          y: useTransform(scrollYProgress, [0, 1], [0, -200]),
-          rotate: useTransform(scrollYProgress, [0, 1], [0, 180]),
-          scale: useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.2, 0.8]),
-        }}
-        className="absolute top-[15%] left-[8%] hidden md:block"
-      >
-        <div className="w-0 h-0 border-l-[30px] border-l-transparent border-r-[30px] border-r-transparent border-b-[50px] border-b-accent/20" />
-      </motion.div>
-
-      {/* Circle */}
-      <motion.div
-        style={{
-          y: useTransform(scrollYProgress, [0, 1], [100, -100]),
-          scale: useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.3, 1]),
-        }}
-        className="absolute top-[40%] right-[12%] w-16 h-16 rounded-full border-2 border-accent/30 hidden md:block"
-      />
-
-      {/* Square */}
-      <motion.div
-        style={{
-          y: useTransform(scrollYProgress, [0, 1], [-50, 150]),
-          rotate: useTransform(scrollYProgress, [0, 1], [0, 90]),
-        }}
-        className="absolute bottom-[25%] left-[15%] w-12 h-12 border-2 border-accent/20 hidden md:block"
-      />
-
-      {/* Dots pattern */}
-      <motion.div
-        style={{
-          y: useTransform(scrollYProgress, [0, 1], [0, -80]),
-          opacity: useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 0.6, 0.3]),
-        }}
-        className="absolute top-[60%] right-[25%] hidden md:block"
-      >
-        <div className="grid grid-cols-3 gap-3">
-          {[...Array(9)].map((_, i) => (
-            <div key={i} className="w-2 h-2 rounded-full bg-accent/40" />
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Lines */}
-      <motion.div
-        style={{
-          y: useTransform(scrollYProgress, [0, 1], [50, -50]),
-          scaleX: useTransform(scrollYProgress, [0, 0.5, 1], [0.5, 1, 0.5]),
-        }}
-        className="absolute top-[75%] left-[40%] w-32 h-0.5 bg-gradient-to-r from-transparent via-accent/30 to-transparent hidden md:block"
-      />
-    </div>
-  );
+// Floating geometric shapes - REMOVED for cleaner aesthetic
+export const FloatingShapes: React.FC<{ className?: string }> = () => {
+  // Return null - shapes removed for premium minimalist look
+  return null;
 };
 
 // Letter-by-letter text reveal animation

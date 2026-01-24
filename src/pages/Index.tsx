@@ -112,36 +112,7 @@ function ParallaxHeroBackground() {
           <div className="w-full h-full rounded-full bg-gradient-radial from-accent/20 via-accent/5 to-transparent blur-[60px] animate-float-3d" />
         </motion.div>
         
-        {/* Floating geometric shapes */}
-        <motion.div
-          style={{ opacity: opacity1 }}
-          className="absolute inset-0"
-        >
-          {/* Triangle */}
-          <motion.div
-            style={{ y: useTransform(scrollY, [0, 500], [0, -100]), rotate: useTransform(scrollY, [0, 500], [0, 180]) }}
-            className="absolute top-[20%] left-[15%] w-0 h-0 border-l-[40px] border-l-transparent border-r-[40px] border-r-transparent border-b-[70px] border-b-accent/20"
-          />
-          {/* Circle outline */}
-          <motion.div
-            style={{ y: useTransform(scrollY, [0, 500], [50, -50]), scale: useTransform(scrollY, [0, 500], [1, 1.5]) }}
-            className="absolute top-[40%] right-[20%] w-24 h-24 rounded-full border-2 border-accent/30"
-          />
-          {/* Square */}
-          <motion.div
-            style={{ y: useTransform(scrollY, [0, 500], [0, 150]), rotate: useTransform(scrollY, [0, 500], [0, 90]) }}
-            className="absolute bottom-[30%] left-[25%] w-16 h-16 border-2 border-accent/20"
-          />
-          {/* Dots grid */}
-          <motion.div
-            style={{ y: useTransform(scrollY, [0, 500], [0, -80]) }}
-            className="absolute top-[60%] right-[30%] grid grid-cols-4 gap-4"
-          >
-            {[...Array(16)].map((_, i) => (
-              <div key={i} className="w-2 h-2 rounded-full bg-accent/30" />
-            ))}
-          </motion.div>
-        </motion.div>
+        {/* Removed floating geometric shapes for cleaner aesthetic */}
         
         {/* Floating particles - CSS animated dots */}
         <div className="absolute inset-0">
@@ -505,11 +476,9 @@ export default function Index() {
           4. HOW IT WORKS - Simple process with steps preview + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.3} floatingElements accentGlow>
-        <section className="py-32 bg-gradient-to-b from-secondary/20 via-secondary/30 to-secondary/20 relative overflow-hidden scroll-snap-section">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-          
-          <FloatingShapes />
+        <section className="py-32 relative overflow-hidden scroll-snap-section">
+          {/* Gradient fade overlay for seamless section blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/20 to-background pointer-events-none" />
           
           <div className="container-wide section-padding relative">
             <motion.div 
@@ -582,11 +551,9 @@ export default function Index() {
           5. PROOF - Portfolio Showcase + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.4} scaleOnView>
-        <section className="py-32 bg-secondary/30 relative overflow-hidden scroll-snap-section">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          
-          <FloatingShapes />
+        <section className="py-32 relative overflow-hidden scroll-snap-section">
+          {/* Gradient fade overlay for seamless section blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/15 to-background pointer-events-none" />
           
           <div className="container-wide section-padding">
             <motion.div 
@@ -702,8 +669,8 @@ export default function Index() {
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.35} floatingElements skewOnScroll>
         <section className="py-32 relative overflow-hidden scroll-snap-section">
-          <FloatingShapes />
-          
+          {/* Gradient fade overlay for seamless section blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
           <div className="container-wide section-padding relative">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -821,10 +788,8 @@ export default function Index() {
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.3} accentGlow rotate3D>
         <section className="py-32 relative scroll-snap-section">
-          <div className="absolute inset-0 bg-gradient-to-b from-secondary/30 via-accent/5 to-secondary/30 pointer-events-none" />
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          
-          <FloatingShapes />
+          {/* Gradient fade overlay for seamless section blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/5 to-background pointer-events-none" />
           
           <div className="container-wide section-padding relative">
             <motion.div 
