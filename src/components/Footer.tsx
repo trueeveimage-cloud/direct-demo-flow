@@ -67,6 +67,7 @@ export function Footer() {
               <h4 className="font-heading font-semibold text-sm mb-3">{t('Snabblänkar', 'Quick Links')}</h4>
               <nav className="space-y-2">
                 <Link to="/hur-det-fungerar" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Hur det fungerar', 'How it works')}</Link>
+                <Link to="/om-oss" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Om oss', 'About')}</Link>
                 <Link to="/priser" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Priser', 'Pricing')}</Link>
                 <Link to="/portfolio" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">Portfolio</Link>
                 <Link to="/faq" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</Link>

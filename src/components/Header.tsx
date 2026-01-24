@@ -129,6 +129,7 @@ export function Header() {
   const navItems = [
     { path: '/portfolio', label: t('Portfolio', 'Portfolio') },
     { path: '/hur-det-fungerar', label: t('Hur det fungerar', 'How it works') },
+    { path: '/om-oss', label: t('Om oss', 'About') },
   ];
 
   const isActive = (path: string) => location.pathname === path;
