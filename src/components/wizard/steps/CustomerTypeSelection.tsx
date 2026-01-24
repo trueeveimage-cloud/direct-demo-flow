@@ -24,22 +24,39 @@ interface CustomerTypeSelectionProps {
   onChange: (data: CustomerTypeData) => void;
 }
 
-const EU_COUNTRIES = [
-  { code: 'SE', name: 'Sweden', vatPrefix: 'SE', orgFormat: 'XXXXXX-XXXX' },
-  { code: 'NO', name: 'Norway', vatPrefix: 'NO', orgFormat: 'XXX XXX XXX' },
-  { code: 'DK', name: 'Denmark', vatPrefix: 'DK', orgFormat: 'XXXXXXXX' },
-  { code: 'FI', name: 'Finland', vatPrefix: 'FI', orgFormat: 'XXXXXXXX' },
-  { code: 'DE', name: 'Germany', vatPrefix: 'DE', orgFormat: 'XXXXXXXXXXX' },
-  { code: 'NL', name: 'Netherlands', vatPrefix: 'NL', orgFormat: 'XXXXXXXXXXXX' },
-  { code: 'GB', name: 'United Kingdom', vatPrefix: 'GB', orgFormat: 'XXXXXXXXX' },
-  { code: 'FR', name: 'France', vatPrefix: 'FR', orgFormat: 'XXXXXXXXXXX' },
-  { code: 'ES', name: 'Spain', vatPrefix: 'ES', orgFormat: 'XXXXXXXXX' },
-  { code: 'IT', name: 'Italy', vatPrefix: 'IT', orgFormat: 'XXXXXXXXXXX' },
+// Countries list with VAT info - US and other non-EU countries have no VAT
+const ALL_COUNTRIES = [
+  // Nordic countries (first in list)
+  { code: 'SE', name: 'Sweden', vatPrefix: 'SE', orgFormat: 'XXXXXX-XXXX', vatRate: 25, region: 'EU' },
+  { code: 'NO', name: 'Norway', vatPrefix: 'NO', orgFormat: 'XXX XXX XXX', vatRate: 25, region: 'EEA' },
+  { code: 'DK', name: 'Denmark', vatPrefix: 'DK', orgFormat: 'XXXXXXXX', vatRate: 25, region: 'EU' },
+  { code: 'FI', name: 'Finland', vatPrefix: 'FI', orgFormat: 'XXXXXXXX', vatRate: 24, region: 'EU' },
+  // US & non-EU (no VAT)
+  { code: 'US', name: 'United States', vatPrefix: '', orgFormat: 'EIN', vatRate: 0, region: 'NON_EU' },
+  { code: 'CA', name: 'Canada', vatPrefix: '', orgFormat: 'BN', vatRate: 0, region: 'NON_EU' },
+  { code: 'AU', name: 'Australia', vatPrefix: '', orgFormat: 'ABN', vatRate: 0, region: 'NON_EU' },
+  { code: 'GB', name: 'United Kingdom', vatPrefix: 'GB', orgFormat: 'XXXXXXXXX', vatRate: 20, region: 'NON_EU' },
+  // EU countries
+  { code: 'DE', name: 'Germany', vatPrefix: 'DE', orgFormat: 'XXXXXXXXXXX', vatRate: 19, region: 'EU' },
+  { code: 'NL', name: 'Netherlands', vatPrefix: 'NL', orgFormat: 'XXXXXXXXXXXX', vatRate: 21, region: 'EU' },
+  { code: 'FR', name: 'France', vatPrefix: 'FR', orgFormat: 'XXXXXXXXXXX', vatRate: 20, region: 'EU' },
+  { code: 'ES', name: 'Spain', vatPrefix: 'ES', orgFormat: 'XXXXXXXXX', vatRate: 21, region: 'EU' },
+  { code: 'IT', name: 'Italy', vatPrefix: 'IT', orgFormat: 'XXXXXXXXXXX', vatRate: 22, region: 'EU' },
 ];
+
+// For backwards compatibility
+const EU_COUNTRIES = ALL_COUNTRIES;
+
+// Countries that don't require VAT (no VAT collection)
+const isNonVatCountry = (countryCode: string): boolean => {
+  const nonVatCountries = ['US', 'CA', 'AU'];
+  return nonVatCountries.includes(countryCode);
+};
 
 // Basic VAT format validation per country
 const validateVatFormat = (vatNumber: string, countryCode: string): boolean => {
   if (!vatNumber) return true; // VAT is optional
+  if (isNonVatCountry(countryCode)) return true; // No VAT format for non-VAT countries
   
   const patterns: Record<string, RegExp> = {
     SE: /^SE\d{12}$/i,
@@ -235,6 +252,45 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
         </div>
       </div>
 
+      {/* Country Selection (for all customers to determine VAT) */}
+      <AnimatePresence>
+        {data.customerType && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="p-4 bg-secondary/30 rounded-xl">
+              <Label className="flex items-center gap-2 mb-2">
+                {t('Ditt land', 'Your country')} *
+                <InfoTooltip content={t('Välj ditt land för korrekt momshantering.', 'Select your country for correct tax handling.')} />
+              </Label>
+              <Select
+                value={data.country}
+                onValueChange={(value) => updateField('country', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('Välj land', 'Select country')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALL_COUNTRIES.map((country) => (
+                    <SelectItem key={country.code} value={country.code}>
+                      {country.name} {country.vatRate === 0 ? '' : `(${country.vatRate}% VAT)`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {isNonVatCountry(data.country) && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  ✓ {t('Ingen moms tillämpas för ditt land', 'No VAT applied for your country')}
+                </p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Business Fields */}
       <AnimatePresence>
         {data.customerType === 'business' && (
@@ -387,11 +443,14 @@ export const initialCustomerTypeData: CustomerTypeData = {
   companyName: '',
   orgNumber: '',
   vatNumber: '',
-  country: 'SE',
+  country: 'US', // Default to US for international market
   billingAddress: '',
   vatVerified: false,
   vatVerifiedAt: null,
 };
+
+// Export countries list for use elsewhere
+export { ALL_COUNTRIES, isNonVatCountry };
 
 // Validation function
 export const validateCustomerType = (data: CustomerTypeData): { valid: boolean; errors: string[] } => {

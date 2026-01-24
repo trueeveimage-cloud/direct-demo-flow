@@ -30,121 +30,92 @@ const PricingCard = ({
   const Icon = icons[index];
 
   return (
-    <TiltCard className="h-full">
-      <motion.div 
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: index * 0.15 }}
-        className="h-full"
-      >
-        <div className="relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col overflow-hidden border-accent/50 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent shadow-xl shadow-accent/10 hover:border-accent hover:shadow-2xl hover:shadow-accent/20 group">
-          {/* Animated glow effect - pointer events disabled */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
-          
-          {/* Floating particles on hover - hidden on mobile */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 hidden md:block">
-            {[...Array(5)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 bg-accent rounded-full opacity-0 group-hover:opacity-60"
-                style={{
-                  left: `${20 + i * 15}%`,
-                  top: `${10 + i * 20}%`,
-                }}
-                animate={{
-                  y: [0, -20, 0],
-                  opacity: [0, 0.6, 0],
-                }}
-                transition={{
-                  duration: 2,
-                  delay: i * 0.2,
-                  repeat: Infinity,
-                  repeatType: "loop"
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Icon with glow */}
-          <div className="relative w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-accent/20 group-hover:bg-accent/30 transition-colors z-10">
-            <div className="absolute inset-0 bg-accent/30 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-            <Icon className="w-7 h-7 text-accent relative z-10" />
-          </div>
-
-          <h3 className="font-heading font-light text-2xl mb-2 relative z-10">{pkg.name}</h3>
-          
-          {/* Animated price */}
-          <div className="flex items-baseline gap-1 mb-2 relative z-10">
-            <span className="text-4xl sm:text-5xl font-bold text-accent">{pkg.price}</span>
-          </div>
-          <p className="text-sm text-muted-foreground mb-2 relative z-10">{pkg.delivery}</p>
-          <p className="text-sm text-muted-foreground mb-4 line-clamp-2 relative z-10">{pkg.description}</p>
-          <p className="text-sm font-medium text-foreground mb-5 flex items-center gap-2 relative z-10">
-            <span className="w-2 h-2 bg-accent rounded-full" />
-            {pkg.pages}
-          </p>
-          
-          <ul className="space-y-3 mb-8 flex-grow relative z-10">
-            {pkg.features.map((feature: any, i: number) => {
-              const tooltip = getTooltip(feature.key, lang);
-              return (
-                <motion.li 
-                  key={i} 
-                  className="flex items-start gap-3 text-sm"
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 + i * 0.05 }}
-                >
-                  <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-accent" />
-                  <span className="leading-tight flex items-center gap-1 flex-wrap">
-                    {feature.text}
-                    {tooltip && (
-                      <Popover modal>
-                        <PopoverTrigger asChild>
-                          <button 
-                            type="button" 
-                            className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted hover:bg-accent/20 transition-colors relative z-50"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Info className="w-3 h-3 text-muted-foreground" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent side="top" className="max-w-xs p-3 z-[100]">
-                          <p className="text-sm">{tooltip}</p>
-                        </PopoverContent>
-                      </Popover>
-                    )}
-                  </span>
-                </motion.li>
-              );
-            })}
-          </ul>
-          
-          {/* CTA Buttons - ensure they're above all overlays */}
-          <div className="space-y-2 mt-auto relative z-50">
-            <Button 
-              asChild 
-              variant="default" 
-              className="w-full rounded-xl group/btn bg-accent hover:bg-accent/90"
-            >
-              <Link to="/demo">
-                {t('Få koncept', 'Get concept')}
-                <ArrowRight className="w-4 h-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-            <Button 
-              asChild 
-              variant="ghost" 
-              className="w-full text-sm hover:bg-accent/10"
-            >
-              <Link to="/bestall">{t('Beställ direkt', 'Order directly')}</Link>
-            </Button>
-          </div>
+    <motion.div 
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: index * 0.15 }}
+      className="h-full"
+    >
+      <div className="relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col overflow-hidden border-accent/50 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent shadow-xl shadow-accent/10 hover:border-accent hover:shadow-2xl hover:shadow-accent/20 group">
+        {/* Animated glow effect - pointer events disabled */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+        
+        {/* Icon with glow */}
+        <div className="relative w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-accent/20 group-hover:bg-accent/30 transition-colors z-10">
+          <div className="absolute inset-0 bg-accent/30 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          <Icon className="w-7 h-7 text-accent relative z-10" />
         </div>
-      </motion.div>
-    </TiltCard>
+
+        <h3 className="font-heading font-light text-2xl mb-2 relative z-10">{pkg.name}</h3>
+        
+        {/* Animated price */}
+        <div className="flex items-baseline gap-1 mb-2 relative z-10">
+          <span className="text-4xl sm:text-5xl font-bold text-accent">{pkg.price}</span>
+        </div>
+        <p className="text-sm text-muted-foreground mb-2 relative z-10">{pkg.delivery}</p>
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 relative z-10">{pkg.description}</p>
+        <p className="text-sm font-medium text-foreground mb-5 flex items-center gap-2 relative z-10">
+          <span className="w-2 h-2 bg-accent rounded-full" />
+          {pkg.pages}
+        </p>
+        
+        <ul className="space-y-3 mb-8 flex-grow relative z-10">
+          {pkg.features.map((feature: any, i: number) => {
+            const tooltip = getTooltip(feature.key, lang);
+            return (
+              <motion.li 
+                key={i} 
+                className="flex items-start gap-3 text-sm"
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 + i * 0.05 }}
+              >
+                <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-accent" />
+                <span className="leading-tight flex items-center gap-1 flex-wrap">
+                  {feature.text}
+                  {tooltip && (
+                    <Popover modal>
+                      <PopoverTrigger asChild>
+                        <button 
+                          type="button" 
+                          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted hover:bg-accent/20 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Info className="w-3 h-3 text-muted-foreground" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent side="top" className="max-w-xs p-3 z-[100]">
+                        <p className="text-sm">{tooltip}</p>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </span>
+              </motion.li>
+            );
+          })}
+        </ul>
+        
+        {/* CTA Buttons - simple, no complex z-index */}
+        <div className="space-y-2 mt-auto relative">
+          <Button 
+            className="w-full rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground"
+            onClick={() => window.location.href = `/demo?package=${pkg.id}`}
+          >
+            {t('Få koncept', 'Get concept')}
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="w-full text-sm hover:bg-accent/10"
+            onClick={() => window.location.href = `/bestall?package=${pkg.id}`}
+          >
+            {t('Beställ direkt', 'Order directly')}
+          </Button>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 

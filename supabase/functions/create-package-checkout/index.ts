@@ -308,9 +308,17 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // VAT logic - only apply VAT to Swedish customers (SEK currency and SE country)
-    // US customers (USD) do not get VAT applied
-    const shouldApplyVat = currency === 'SEK' && (
+    // VAT logic - comprehensive country-based rules
+    // 1. USD currency = NO VAT (primarily US market)
+    // 2. Non-VAT countries (US, CA, AU) = NO VAT regardless of currency
+    // 3. SEK currency + SE country = 25% VAT
+    // 4. EU B2B with verified VAT = Reverse charge (0% VAT)
+    // 5. EU B2B without verified VAT = 25% VAT
+    // 6. Private customers in SE = 25% VAT
+    const nonVatCountries = ['US', 'CA', 'AU'];
+    const isNonVatCountry = nonVatCountries.includes(customerCountry);
+    
+    const shouldApplyVat = !isNonVatCountry && currency === 'SEK' && (
       customerType === "private" || 
       (customerType === "business" && customerCountry === "SE") ||
       (customerType === "business" && !vatVerified)
@@ -319,9 +327,9 @@ serve(async (req) => {
     let taxRateId: string | null = null;
     if (shouldApplyVat) {
       taxRateId = await getOrCreateVatTaxRate(stripe);
-      console.log("[CREATE-PACKAGE-CHECKOUT] Will apply VAT tax rate", { taxRateId });
+      console.log("[CREATE-PACKAGE-CHECKOUT] Will apply VAT tax rate", { taxRateId, customerCountry, customerType });
     } else {
-      console.log("[CREATE-PACKAGE-CHECKOUT] No VAT applied", { currency, customerCountry });
+      console.log("[CREATE-PACKAGE-CHECKOUT] No VAT applied", { currency, customerCountry, isNonVatCountry, vatVerified });
     }
 
     let customerId: string | undefined;
