@@ -96,11 +96,11 @@
                 color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* All elements inherit smooth color transitions */
-  *:not(svg):not(path):not(animate) {
-    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
-    transition-duration: 0.3s;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Optimize theme transitions - only apply to non-interactive elements */
+  *:not(button):not(a):not(svg):not(path):not(animate):not(.theme-toggle) {
+    transition-property: background-color, border-color;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out;
   }
 
   /* Premium typography - light, elegant headings */

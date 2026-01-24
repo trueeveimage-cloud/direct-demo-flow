@@ -122,15 +122,15 @@ const PricingCard = ({
             })}
           </ul>
           
-          <div className="space-y-2 mt-auto relative z-10">
+          <div className="space-y-2 mt-auto relative z-20" style={{ pointerEvents: 'auto' }}>
             <Button asChild variant="default" className="w-full rounded-xl group/btn bg-accent hover:bg-accent/90">
-              <Link to="/demo">
+              <Link to="/demo" className="relative z-30">
                 {t('Få koncept', 'Get concept')}
                 <ArrowRight className="w-4 h-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
               </Link>
             </Button>
             <Button asChild variant="ghost" className="w-full text-sm hover:bg-accent/10">
-              <Link to="/bestall">{t('Beställ direkt', 'Order directly')}</Link>
+              <Link to="/bestall" className="relative z-30">{t('Beställ direkt', 'Order directly')}</Link>
             </Button>
           </div>
         </div>
@@ -348,12 +348,12 @@ export default function PricingPage() {
       <ParallaxSection speed={0.2} accentGlow>
         <section className="pb-32 relative z-10">
           {/* Gradient fade overlay for seamless section blending */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none z-0" />
           <FloatingShapes />
-          <div className="container-wide section-padding">
+          <div className="container-wide section-padding relative z-10">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <h2 className="text-2xl sm:text-3xl font-light tracking-tight">{t('Webbpaket', 'Website Packages')}</h2>
-              <Button variant="outline" size="sm" onClick={() => setCompareOpen(true)} className="rounded-full group">
+              <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-foreground relative z-10">{t('Webbpaket', 'Website Packages')}</h2>
+              <Button variant="outline" size="sm" onClick={() => setCompareOpen(true)} className="rounded-full group relative z-10">
                 {t('Jämför paket', 'Compare packages')}
                 <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
               </Button>

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { GrainOverlay, FloatingParticles } from '@/components/PremiumEffects';
+import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
 
 const contactReasons = [
   { value: 'concept-received', labelSv: 'Jag har fått mitt koncept', labelEn: 'I received my concept' },
@@ -64,6 +64,10 @@ export default function ContactPage() {
     <div className="relative overflow-hidden">
       <GrainOverlay />
       <FloatingParticles count={12} />
+      <ScrollingAmbientGlow />
+      
+      {/* Seamless gradient transition at top */}
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
       
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none z-0">
