@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Scale, CreditCard, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { CheckoutUpsells } from '@/components/CheckoutUpsells';
-import { CustomerTypeSelection, CustomerTypeData, calculateVat } from './CustomerTypeSelection';
+import { CustomerTypeSelection, CustomerTypeData, initialCustomerTypeData, validateCustomerType } from './CustomerTypeSelection';
 import { CheckoutTrustSection } from './CheckoutTrustSection';
 import { WizardFormData, packages, carePlans, getBookingAddonPrice, getVerificationFee, getCurrencyFromLang, formatPrice as formatPriceFn, getPackagePrice, getCarePlanPrice, getAddonPrice } from '../wizardConfig';
 
@@ -21,6 +21,8 @@ interface Step5PaymentProps {
   addedAdminPanel?: boolean;
   onAddAdminPanel?: () => void;
 }
+
+const VAT_RATE = 0.25; // 25% VAT
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -83,14 +85,15 @@ export function Step5Payment({
   const packageTotal = packagePrice + bookingAddonCost + adminPanelCost + carePlanCost;
   const totalToday = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
 
-  // Calculate VAT using the new country-based logic
-  const customerCountry = customerTypeData?.country || (lang === 'sv' ? 'SE' : 'US');
-  const vatResult = calculateVat(
-    totalToday,
-    customerTypeData?.customerType || null,
-    customerCountry,
-    customerTypeData?.vatVerified || false
-  );
+  // VAT calculations
+  const isBusinessWithVat = customerTypeData.customerType === 'business' && customerTypeData.vatVerified;
+  const isPrivate = customerTypeData.customerType === 'private';
+  
+  // For businesses with valid VAT in same country as seller (Sweden), show VAT breakdown
+  // For businesses with valid VAT in other EU countries, reverse charge (0% VAT)
+  const showVatBreakdown = isPrivate || (customerTypeData.customerType === 'business' && customerTypeData.country === 'SE');
+  const vatAmount = showVatBreakdown ? totalToday * VAT_RATE : 0;
+  const netAmount = showVatBreakdown ? totalToday - vatAmount : totalToday;
 
   const formatPrice = (price: number) => formatPriceFn(price, currency);
 
@@ -153,36 +156,32 @@ export function Step5Payment({
 
           <div className="h-px bg-border my-2" />
 
-          {/* VAT breakdown - only show if VAT applies */}
-          <div className="space-y-1 text-sm text-muted-foreground">
-            <div className="flex justify-between items-center">
-              <span>{t('Netto', 'Net')}</span>
-              <span>{formatPrice(Math.round(totalToday))}</span>
-            </div>
-            {vatResult.showVat && (
-              vatResult.isReverseCharge ? (
-                <div className="flex justify-between items-center text-accent">
-                  <span>{t('Omvänd moms (EU B2B)', 'Reverse charge (EU B2B)')}</span>
-                  <span>{formatPrice(0)}</span>
+          {/* VAT Breakdown for Business/Private */}
+          {customerTypeData.customerType && (
+            <>
+              {showVatBreakdown ? (
+                <>
+                  <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <span>{t('Netto', 'Net')}</span>
+                    <span>{formatPrice(Math.round(netAmount))}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <span>{t('Moms (25%)', 'VAT (25%)')}</span>
+                    <span>{formatPrice(Math.round(vatAmount))}</span>
+                  </div>
+                </>
+              ) : isBusinessWithVat && customerTypeData.country !== 'SE' ? (
+                <div className="flex justify-between items-center text-sm text-muted-foreground">
+                  <span>{t('Omvänd moms (EU)', 'Reverse charge (EU)')}</span>
+                  <span className="text-accent">€0</span>
                 </div>
-              ) : vatResult.vatRate > 0 ? (
-                <div className="flex justify-between items-center">
-                  <span>{t('Moms', 'VAT')} ({vatResult.vatRate}%)</span>
-                  <span>{formatPrice(vatResult.vatAmount)}</span>
-                </div>
-              ) : null
-            )}
-            {!vatResult.showVat && (
-              <div className="flex justify-between items-center text-accent">
-                <span>{t('Ingen moms', 'No VAT')}</span>
-                <span>{formatPrice(0)}</span>
-              </div>
-            )}
-          </div>
+              ) : null}
+            </>
+          )}
 
           <div className="flex justify-between items-center text-lg font-bold">
             <span>{t('Totalt idag', 'Total today')}</span>
-            <span className="text-accent">{formatPrice(Math.round(totalToday + vatResult.vatAmount))}</span>
+            <span className="text-accent">{formatPrice(totalToday)}</span>
           </div>
 
           {carePlan && (
