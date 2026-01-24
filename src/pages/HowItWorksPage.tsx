@@ -69,7 +69,7 @@ const StepCard = ({
 
             {/* Content */}
             <div className="flex-1">
-              <h3 className="text-2xl lg:text-3xl font-bold mb-3">{title}</h3>
+              <h3 className="text-2xl lg:text-3xl font-light mb-3 tracking-tight">{title}</h3>
               <p className="text-muted-foreground mb-6 leading-relaxed">
                 {description}
               </p>
@@ -314,7 +314,7 @@ export default function HowItWorksPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tight"
+            className="text-5xl md:text-7xl lg:text-8xl font-extralight mb-8 tracking-tight"
           >
             <span className="block">
               {t("Så fungerar", "How it")}
@@ -374,7 +374,7 @@ export default function HowItWorksPage() {
               <span className="text-accent text-sm font-semibold tracking-widest uppercase mb-4 block">
                 {t("Processen", "The Process")}
               </span>
-              <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              <h2 className="text-3xl md:text-5xl font-light mb-4 tracking-tight">
                 {t("Steg för steg", "Step by step")}
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto">
@@ -416,7 +416,7 @@ export default function HowItWorksPage() {
               transition={{ duration: 0.6 }}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <h2 className="text-3xl md:text-4xl font-light mb-4 tracking-tight">
                 {t("Välj din väg", "Choose your path")}
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto">

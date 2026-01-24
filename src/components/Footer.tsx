@@ -20,8 +20,8 @@ export function Footer() {
         <div className="container-wide section-padding">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <h3 className="font-heading font-bold text-lg mb-1">
-                {t('Hur mycket pengar förlorar du?', 'How much money are you losing?')}
+            <h3 className="font-heading font-light text-lg mb-1">
+              {t('Hur mycket pengar förlorar du?', 'How much money are you losing?')}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {t('Räkna ut vad en föråldrad webbplats kostar dig.', 'Calculate what an outdated website costs you.')}
@@ -64,7 +64,7 @@ export function Footer() {
 
             {/* Quick Links */}
             <div>
-              <h4 className="font-heading font-semibold text-sm mb-3">{t('Snabblänkar', 'Quick Links')}</h4>
+              <h4 className="font-heading font-normal text-sm mb-3">{t('Snabblänkar', 'Quick Links')}</h4>
               <nav className="space-y-2">
                 <Link to="/hur-det-fungerar" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Hur det fungerar', 'How it works')}</Link>
                 <Link to="/om-oss" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Om oss', 'About')}</Link>
@@ -76,7 +76,7 @@ export function Footer() {
 
             {/* Get Started */}
             <div>
-              <h4 className="font-heading font-semibold text-sm mb-3">{t('Kom igång', 'Get Started')}</h4>
+              <h4 className="font-heading font-normal text-sm mb-3">{t('Kom igång', 'Get Started')}</h4>
               <nav className="space-y-2">
                 <Link to="/demo" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Gratis koncept', 'Free concept')}</Link>
                 <Link to="/bestall" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Beställ direkt', 'Order directly')}</Link>
@@ -87,7 +87,7 @@ export function Footer() {
 
             {/* Legal */}
             <div>
-              <h4 className="font-heading font-semibold text-sm mb-3">{t('Juridiskt', 'Legal')}</h4>
+              <h4 className="font-heading font-normal text-sm mb-3">{t('Juridiskt', 'Legal')}</h4>
               <nav className="space-y-2">
                 <Link to="/villkor" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Villkor', 'Terms')}</Link>
                 <Link to="/integritet" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Integritetspolicy', 'Privacy Policy')}</Link>

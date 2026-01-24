@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { GrainOverlay, FloatingParticles } from '@/components/PremiumEffects';
 
 const contactReasons = [
   { value: 'concept-received', labelSv: 'Jag har fått mitt koncept', labelEn: 'I received my concept' },
@@ -61,10 +62,13 @@ export default function ContactPage() {
 
   return (
     <div className="relative overflow-hidden">
+      <GrainOverlay />
+      <FloatingParticles count={12} />
+      
       {/* Background effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-20 left-[10%] w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-20 right-[10%] w-[300px] h-[300px] bg-accent/5 rounded-full blur-[100px]" />
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-20 left-[10%] w-[400px] h-[400px] bg-accent/[0.03] rounded-full blur-[150px]" />
+        <div className="absolute bottom-20 right-[10%] w-[300px] h-[300px] bg-accent/[0.02] rounded-full blur-[120px]" />
       </div>
 
       <div className="section-padding pt-28 pb-20 relative z-10">
@@ -78,7 +82,7 @@ export default function ContactPage() {
               </span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extralight mb-6 tracking-tight">
               {t('Kontakta ', 'Contact ')}
               <span className="bg-gradient-to-r from-accent via-orange-400 to-accent bg-clip-text text-transparent">
                 {t('oss', 'us')}
@@ -98,7 +102,7 @@ export default function ContactPage() {
                   <Mail className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">E-post</h3>
+                  <h3 className="font-medium mb-1">E-post</h3>
                   <div className="flex flex-col gap-1">
                     <a 
                       href="https://mail.google.com/mail/?view=cm&fs=1&to=nordicsite.help@gmail.com" 
@@ -120,7 +124,7 @@ export default function ContactPage() {
                   <MapPin className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">{t('Plats', 'Location')}</h3>
+                  <h3 className="font-medium mb-1">{t('Plats', 'Location')}</h3>
                   <p className="text-muted-foreground">Göteborg, Sverige</p>
                 </div>
               </div>
@@ -130,7 +134,7 @@ export default function ContactPage() {
                   <Instagram className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Instagram</h3>
+                  <h3 className="font-medium mb-1">Instagram</h3>
                   <a href="https://www.instagram.com/nomia.se/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                     @nomia.se
                   </a>
@@ -138,7 +142,7 @@ export default function ContactPage() {
               </div>
               
               <div className="pt-4 mt-4 border-t border-border mx-4">
-                <h3 className="font-semibold mb-2">{t('Svarstid', 'Response Time')}</h3>
+                <h3 className="font-medium mb-2">{t('Svarstid', 'Response Time')}</h3>
                 <p className="text-sm text-muted-foreground">
                   {t('Vi svarar vanligtvis inom 24 timmar.', 'We typically respond within 24 hours.')}
                 </p>

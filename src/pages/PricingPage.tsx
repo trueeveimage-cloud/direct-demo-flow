@@ -12,6 +12,7 @@ import { getCurrencyFromLang, formatPrice, getPackagePrice, getCarePlanPrice } f
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ScrollTriggeredCounter } from '@/components/ScrollTriggeredCounter';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
+import { GrainOverlay, FloatingParticles } from '@/components/PremiumEffects';
 
 // Animated pricing card with 3D effects
 const PricingCard = ({ 
@@ -71,7 +72,7 @@ const PricingCard = ({
             <Icon className="w-7 h-7 text-accent relative z-10" />
           </div>
 
-          <h3 className="font-heading font-bold text-2xl mb-2">{pkg.name}</h3>
+          <h3 className="font-heading font-light text-2xl mb-2">{pkg.name}</h3>
           
           {/* Animated price */}
           <div className="flex items-baseline gap-1 mb-2">
@@ -267,6 +268,8 @@ export default function PricingPage() {
 
   return (
     <div className="relative overflow-hidden">
+      <GrainOverlay />
+      <FloatingParticles count={12} />
       {/* Advanced background effects */}
       <div className="fixed inset-0 pointer-events-none">
         <motion.div 
@@ -312,7 +315,7 @@ export default function PricingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 tracking-tight"
+                className="text-4xl sm:text-5xl lg:text-7xl font-extralight mb-6 tracking-tight"
               >
                 {t('Välj ditt ', 'Choose your ')}
                 <span className="bg-gradient-to-r from-accent via-amber-400 to-accent bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
@@ -366,7 +369,7 @@ export default function PricingPage() {
           <FloatingShapes />
           <div className="container-wide section-padding">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <h2 className="text-2xl sm:text-3xl font-bold">{t('Webbpaket', 'Website Packages')}</h2>
+              <h2 className="text-2xl sm:text-3xl font-light tracking-tight">{t('Webbpaket', 'Website Packages')}</h2>
               <Button variant="outline" size="sm" onClick={() => setCompareOpen(true)} className="rounded-full group">
                 {t('Jämför paket', 'Compare packages')}
                 <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
