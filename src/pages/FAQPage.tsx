@@ -6,7 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
 import { MagneticButton } from '@/components/MagneticButton';
-import { GrainOverlay, FloatingParticles } from '@/components/PremiumEffects';
+import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
 
 // Static floating element component
 const FloatingIcon = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -141,48 +141,7 @@ export default function FAQPage() {
     <div className="relative overflow-hidden">
       <GrainOverlay />
       <FloatingParticles count={12} />
-      {/* Background elements with parallax */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <motion.div 
-          style={{ y: useTransform(scrollYProgress, [0, 1], [0, -100]) }}
-          className="absolute top-20 left-[10%] w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" 
-        />
-        <motion.div 
-          style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }}
-          className="absolute bottom-20 right-[10%] w-[300px] h-[300px] bg-accent/5 rounded-full blur-[100px]" 
-        />
-      </div>
-
-      {/* Floating decorative elements - hidden on mobile */}
-      <div className="hidden md:block">
-        <FloatingIcon className="top-32 left-[8%]">
-          <motion.div 
-            animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center"
-          >
-            <HelpCircle className="w-6 h-6 text-accent/40" />
-          </motion.div>
-        </FloatingIcon>
-        <FloatingIcon className="top-48 right-[12%]">
-          <motion.div 
-            animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center"
-          >
-            <MessageSquare className="w-5 h-5 text-primary/40" />
-          </motion.div>
-        </FloatingIcon>
-        <FloatingIcon className="bottom-40 left-[15%]">
-          <motion.div 
-            animate={{ y: [0, -10, 0], scale: [1, 1.1, 1] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center"
-          >
-            <Zap className="w-4 h-4 text-accent/40" />
-          </motion.div>
-        </FloatingIcon>
-      </div>
+      <ScrollingAmbientGlow />
 
       <div className="section-padding pt-28 pb-20 relative z-10">
         <div className="container-narrow">

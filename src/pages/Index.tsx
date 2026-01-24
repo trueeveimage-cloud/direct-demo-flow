@@ -13,7 +13,7 @@ import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 import { ParallaxSection, FloatingShapes, AnimatedText, TiltCard } from '@/components/ParallaxSection';
 import { MagneticButton } from '@/components/MagneticButton';
 import { ScrollTriggeredCounter } from '@/components/ScrollTriggeredCounter';
-import { GrainOverlay, FloatingParticles } from '@/components/PremiumEffects';
+import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -314,6 +314,7 @@ export default function Index() {
     <div className="overflow-hidden scroll-snap-container relative">
       <GrainOverlay />
       <FloatingParticles count={15} />
+      <ScrollingAmbientGlow />
       {/* ═══════════════════════════════════════════════════════════════════
           1. HERO - Hook + Promise - SCROLL SNAP SECTION
       ═══════════════════════════════════════════════════════════════════ */}
