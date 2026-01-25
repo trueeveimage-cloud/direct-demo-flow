@@ -37,7 +37,7 @@ import IndustrySalonsPage from "./pages/IndustrySalonsPage";
 import IndustryEcommercePage from "./pages/IndustryEcommercePage";
 import CaseStudiesPage from "./pages/CaseStudiesPage";
 import CampaignLandingPage from "./pages/CampaignLandingPage";
-// Exit intent popup disabled
+import { ExitIntentPopup } from "./components/ExitIntentPopup";
 
 const queryClient = new QueryClient();
 
@@ -144,7 +144,7 @@ function AppContent() {
           <AnimatedRoutes />
         </Layout>
         <CookieConsent />
-        {/* Exit intent popup removed */}
+        <ExitIntentPopup />
       </BrowserRouter>
     </>
   );

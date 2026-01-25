@@ -16,41 +16,16 @@ const SwedishFlag = () => (
   </svg>
 );
 
-const USFlag = () => (
-  <svg viewBox="0 0 76 40" className="w-5 h-4" aria-hidden="true">
-    <rect width="76" height="40" fill="#B22234"/>
-    <path d="M0,4.6h76M0,12.3h76M0,20h76M0,27.7h76M0,35.4h76" stroke="#fff" strokeWidth="3.08"/>
-    <rect width="30.4" height="21.5" fill="#3C3B6E"/>
-    <g fill="#fff">
-      {/* Stars - simplified 5 rows */}
-      <circle cx="3.8" cy="2.7" r="1.2"/>
-      <circle cx="10.1" cy="2.7" r="1.2"/>
-      <circle cx="16.5" cy="2.7" r="1.2"/>
-      <circle cx="22.8" cy="2.7" r="1.2"/>
-      <circle cx="6.9" cy="5.4" r="1.2"/>
-      <circle cx="13.3" cy="5.4" r="1.2"/>
-      <circle cx="19.7" cy="5.4" r="1.2"/>
-      <circle cx="26.0" cy="5.4" r="1.2"/>
-      <circle cx="3.8" cy="8.1" r="1.2"/>
-      <circle cx="10.1" cy="8.1" r="1.2"/>
-      <circle cx="16.5" cy="8.1" r="1.2"/>
-      <circle cx="22.8" cy="8.1" r="1.2"/>
-      <circle cx="6.9" cy="10.8" r="1.2"/>
-      <circle cx="13.3" cy="10.8" r="1.2"/>
-      <circle cx="19.7" cy="10.8" r="1.2"/>
-      <circle cx="26.0" cy="10.8" r="1.2"/>
-      <circle cx="3.8" cy="13.5" r="1.2"/>
-      <circle cx="10.1" cy="13.5" r="1.2"/>
-      <circle cx="16.5" cy="13.5" r="1.2"/>
-      <circle cx="22.8" cy="13.5" r="1.2"/>
-      <circle cx="6.9" cy="16.2" r="1.2"/>
-      <circle cx="13.3" cy="16.2" r="1.2"/>
-      <circle cx="19.7" cy="16.2" r="1.2"/>
-      <circle cx="26.0" cy="16.2" r="1.2"/>
-      <circle cx="3.8" cy="18.9" r="1.2"/>
-      <circle cx="10.1" cy="18.9" r="1.2"/>
-      <circle cx="16.5" cy="18.9" r="1.2"/>
-      <circle cx="22.8" cy="18.9" r="1.2"/>
+const BritishFlag = () => (
+  <svg viewBox="0 0 60 30" className="w-5 h-4" aria-hidden="true">
+    <clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
+    <clipPath id="t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+    <g clipPath="url(#s)">
+      <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
+      <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#t)" stroke="#C8102E" strokeWidth="4"/>
+      <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+      <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
     </g>
   </svg>
 );
@@ -226,7 +201,7 @@ export function Header() {
                 exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
                 transition={{ duration: 0.2 }}
               >
-                {lang === 'sv' ? <USFlag /> : <SwedishFlag />}
+                {lang === 'sv' ? <BritishFlag /> : <SwedishFlag />}
               </motion.div>
             </AnimatePresence>
           </button>
@@ -322,7 +297,7 @@ export function Header() {
                 exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
                 transition={{ duration: 0.2 }}
               >
-                {lang === 'sv' ? <USFlag /> : <SwedishFlag />}
+                {lang === 'sv' ? <BritishFlag /> : <SwedishFlag />}
               </motion.div>
             </AnimatePresence>
           </button>

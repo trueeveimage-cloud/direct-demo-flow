@@ -13,7 +13,7 @@ export function GrainOverlay() {
   );
 }
 
-// Floating particles for ambient atmosphere - hidden on mobile for performance
+// Floating particles for ambient atmosphere
 export function FloatingParticles({ count = 20 }: { count?: number }) {
   const particles = useMemo(() => 
     [...Array(count)].map((_, i) => ({
@@ -28,8 +28,7 @@ export function FloatingParticles({ count = 20 }: { count?: number }) {
   );
 
   return (
-    // Hidden on mobile (md:block) and respects reduced motion preference
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 hidden md:block motion-reduce:hidden">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
       {particles.map((p) => (
         <motion.div
           key={p.id}
@@ -105,7 +104,7 @@ export function AmbientGlow({ variant = 'default' }: { variant?: 'default' | 'he
   );
 }
 
-// Scrolling ambient glow - moves as user scrolls for premium feel (hidden on mobile)
+// Scrolling ambient glow - moves as user scrolls for premium feel
 export function ScrollingAmbientGlow() {
   const { scrollYProgress } = useScroll();
   
@@ -117,8 +116,7 @@ export function ScrollingAmbientGlow() {
   const glowOpacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.4, 0.7, 0.7, 0.4]);
   
   return (
-    // Hidden on mobile for performance
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden hidden md:block motion-reduce:hidden">
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Primary moving glow */}
       <motion.div 
         style={{ 

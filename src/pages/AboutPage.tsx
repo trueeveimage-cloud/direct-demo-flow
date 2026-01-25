@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { ScrollingAmbientGlow } from '@/components/PremiumEffects';
+import { AmbientAudio } from '@/components/AmbientAudio';
 import { useState } from 'react';
 
 // Cinematic text reveal with blur and 3D effect
@@ -292,7 +292,9 @@ export default function AboutPage() {
     <div ref={containerRef} className="relative bg-background min-h-screen overflow-hidden">
       <FloatingParticles />
       <GrainOverlay />
-      <ScrollingAmbientGlow />
+      
+      {/* Ambient audio that fades in with scroll */}
+      <AmbientAudio scrollProgress={scrollProgressValue} maxVolume={0.12} />
       
       {/* Progress bar */}
       <motion.div 

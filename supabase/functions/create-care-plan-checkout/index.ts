@@ -38,37 +38,19 @@ function isValidEmail(email: unknown): email is string {
   return emailRegex.test(email) && email.length <= 255;
 }
 
-type Currency = 'SEK' | 'USD';
-
-// Care plan price IDs from Stripe (USD)
-const CARE_PLAN_PRICES_USD: Record<string, { monthly: string; yearly: string }> = {
+// Care plan price IDs from Stripe (EUR)
+const CARE_PLAN_PRICES: Record<string, { monthly: string; yearly: string }> = {
   basic: {
-    monthly: "price_1SsvMV74JfaAfHsdMeGyB3Og",  // $25/month
-    yearly: "price_1SsvMZ74JfaAfHsdsr8ZRvGg",   // $240/year
+    monthly: "price_1SjVDL74JfaAfHsd1i1pFby6",  // €25/month
+    yearly: "price_1SjVDP74JfaAfHsdsgUuSbuU",   // €240/year
   },
   standard: {
-    monthly: "price_1SsvMW74JfaAfHsdGVZko9Jo", // $45/month
-    yearly: "price_1SsvMa74JfaAfHsd2TF1U2oD",  // $432/year
+    monthly: "price_1SjVDM74JfaAfHsdOemLHRqh", // €45/month
+    yearly: "price_1SjVDR74JfaAfHsduWagejHS",  // €432/year
   },
   pro: {
-    monthly: "price_1SsvMX74JfaAfHsdf6yGoEYB", // $75/month
-    yearly: "price_1SsvMb74JfaAfHsdZ339wqWK",  // $720/year
-  },
-};
-
-// Care plan price IDs from Stripe (SEK)
-const CARE_PLAN_PRICES_SEK: Record<string, { monthly: string; yearly: string }> = {
-  basic: {
-    monthly: "price_1ShZ2W74JfaAfHsdZwoAI3AM",  // 249 kr/month
-    yearly: "price_1ShZ2074JfaAfHsdGOu9YrQQ",   // 2388 kr/year
-  },
-  standard: {
-    monthly: "price_1ShZ3974JfaAfHsdJRyNwKZF", // 449 kr/month
-    yearly: "price_1ShZ2g74JfaAfHsdD4t1jtDb",  // 4308 kr/year
-  },
-  pro: {
-    monthly: "price_1ShZ3V74JfaAfHsdFTHkwZfX", // 749 kr/month
-    yearly: "price_1ShZ3F74JfaAfHsdWNdB6gHU",  // 7188 kr/year
+    monthly: "price_1SjVDO74JfaAfHsdfwTpnk0Y", // €75/month
+    yearly: "price_1SjVDS74JfaAfHsdwdQM3Seh",  // €720/year
   },
 };
 
@@ -79,10 +61,9 @@ interface CheckoutRequest {
   customerType?: 'private' | 'business';
   vatVerified?: boolean;
   country?: string;
-  currency?: Currency;
 }
 
-// Helper to get or create a 25% VAT tax rate (Swedish customers only)
+// Helper to get or create a 25% VAT tax rate
 async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
   const existingRates = await stripe.taxRates.list({ limit: 100, active: true });
   const vatRate = existingRates.data.find(
@@ -168,10 +149,7 @@ serve(async (req) => {
     const customerType = requestData.customerType === "private" || requestData.customerType === "business" 
       ? requestData.customerType : "private";
     const vatVerified = requestData.vatVerified === true;
-    const customerCountry = typeof requestData.country === "string" ? requestData.country : "US";
-    
-    // Currency - default to USD if not specified
-    const currency: Currency = requestData.currency === "SEK" ? "SEK" : "USD";
+    const customerCountry = typeof requestData.country === "string" ? requestData.country : "SE";
 
     console.log("[CREATE-CARE-PLAN-CHECKOUT] Request validated", { 
       carePlanId, 
@@ -179,29 +157,25 @@ serve(async (req) => {
       email: email ? "provided" : "none",
       customerType,
       vatVerified,
-      customerCountry,
-      currency
+      customerCountry
     });
 
-    // Get correct price ID based on currency
-    const planPrices = currency === 'SEK' ? CARE_PLAN_PRICES_SEK[carePlanId] : CARE_PLAN_PRICES_USD[carePlanId];
+    const planPrices = CARE_PLAN_PRICES[carePlanId];
     const priceId = isYearly ? planPrices.yearly : planPrices.monthly;
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Determine if VAT should be applied (only for Swedish customers using SEK)
-    const shouldApplyVat = currency === 'SEK' && (
-      customerType === "private" || 
+    // Determine if VAT should be applied
+    const shouldApplyVat = customerType === "private" || 
       (customerType === "business" && customerCountry === "SE") ||
-      (customerType === "business" && !vatVerified)
-    );
+      (customerType === "business" && !vatVerified);
 
     let taxRateId: string | null = null;
     if (shouldApplyVat) {
       taxRateId = await getOrCreateVatTaxRate(stripe);
       console.log("[CREATE-CARE-PLAN-CHECKOUT] Will apply VAT tax rate", { taxRateId });
     } else {
-      console.log("[CREATE-CARE-PLAN-CHECKOUT] No VAT applied", { currency, customerCountry });
+      console.log("[CREATE-CARE-PLAN-CHECKOUT] No VAT (reverse charge for EU B2B)");
     }
 
     // Check for existing customer
@@ -241,7 +215,6 @@ serve(async (req) => {
           carePlanId,
           isYearly: String(isYearly),
           vatApplied: String(shouldApplyVat),
-          currency,
         },
       },
       metadata: {
@@ -249,7 +222,6 @@ serve(async (req) => {
         isYearly: String(isYearly),
         customerType,
         vatApplied: String(shouldApplyVat),
-        currency,
       },
     };
 
@@ -257,8 +229,7 @@ serve(async (req) => {
 
     console.log("[CREATE-CARE-PLAN-CHECKOUT] Checkout session created", { 
       sessionId: session.id,
-      vatApplied: shouldApplyVat,
-      currency
+      vatApplied: shouldApplyVat 
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

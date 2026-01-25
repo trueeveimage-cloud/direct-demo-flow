@@ -1,54 +1,54 @@
 // Currency configuration based on language selection
-// SEK for Swedish, USD for English (targeting US market)
+// SEK for Swedish, EUR for English
 
-export type Currency = 'SEK' | 'USD';
+export type Currency = 'SEK' | 'EUR';
 
-// Exchange rate: 1 USD = ~10.5 SEK (approximate, can be adjusted)
-const USD_TO_SEK_RATE = 10.5;
+// Exchange rate: 1 EUR = ~11.5 SEK (approximate, can be adjusted)
+const EUR_TO_SEK_RATE = 11.5;
 
 export interface PriceConfig {
-  usd: number;
+  eur: number;
   sek: number;
 }
 
 // Package prices
 export const packagePrices: Record<string, PriceConfig> = {
-  starter: { usd: 290, sek: 2900 },
-  standard: { usd: 590, sek: 5900 },
-  pro: { usd: 1290, sek: 12900 },
+  starter: { eur: 290, sek: 2900 },
+  standard: { eur: 590, sek: 5900 },
+  pro: { eur: 1290, sek: 12900 },
 };
 
 // Care plan prices (monthly)
 export const carePlanMonthlyPrices: Record<string, PriceConfig> = {
-  basic: { usd: 25, sek: 249 },
-  standard: { usd: 45, sek: 449 },
-  pro: { usd: 75, sek: 749 },
+  basic: { eur: 25, sek: 249 },
+  standard: { eur: 45, sek: 449 },
+  pro: { eur: 75, sek: 749 },
 };
 
 // Care plan prices (yearly - 20% discount)
 export const carePlanYearlyPrices: Record<string, PriceConfig> = {
-  basic: { usd: 20, sek: 199 },
-  standard: { usd: 36, sek: 359 },
-  pro: { usd: 60, sek: 599 },
+  basic: { eur: 20, sek: 199 },
+  standard: { eur: 36, sek: 359 },
+  pro: { eur: 60, sek: 599 },
 };
 
 // Add-on prices
 export const addonPrices: Record<string, PriceConfig> = {
-  booking: { usd: 200, sek: 1990 },
-  adminPanel: { usd: 100, sek: 990 },
-  verification: { usd: 50, sek: 499 },
-  checkout: { usd: 50, sek: 499 },
+  booking: { eur: 200, sek: 1990 },
+  adminPanel: { eur: 100, sek: 990 },
+  verification: { eur: 50, sek: 499 },
+  checkout: { eur: 50, sek: 499 },
 };
 
 // Get currency based on language
 export function getCurrencyFromLang(lang: 'sv' | 'en'): Currency {
-  return lang === 'sv' ? 'SEK' : 'USD';
+  return lang === 'sv' ? 'SEK' : 'EUR';
 }
 
 // Format price with currency symbol
 export function formatPrice(amount: number, currency: Currency): string {
-  if (currency === 'USD') {
-    return `$${amount.toLocaleString('en-US')}`;
+  if (currency === 'EUR') {
+    return `€${amount.toLocaleString('en-EU')}`;
   } else {
     return `${amount.toLocaleString('sv-SE')} kr`;
   }
@@ -58,7 +58,7 @@ export function formatPrice(amount: number, currency: Currency): string {
 export function getPackagePrice(packageId: string, currency: Currency): number {
   const prices = packagePrices[packageId];
   if (!prices) return 0;
-  return currency === 'USD' ? prices.usd : prices.sek;
+  return currency === 'EUR' ? prices.eur : prices.sek;
 }
 
 // Get package price display string
@@ -71,20 +71,20 @@ export function getPackagePriceDisplay(packageId: string, currency: Currency): s
 export function getCarePlanPrice(planId: string, isYearly: boolean, currency: Currency): number {
   const prices = isYearly ? carePlanYearlyPrices[planId] : carePlanMonthlyPrices[planId];
   if (!prices) return 0;
-  return currency === 'USD' ? prices.usd : prices.sek;
+  return currency === 'EUR' ? prices.eur : prices.sek;
 }
 
 // Get care plan price display string
 export function getCarePlanPriceDisplay(planId: string, isYearly: boolean, currency: Currency): string {
   const price = getCarePlanPrice(planId, isYearly, currency);
-  return `${formatPrice(price, currency)}/${currency === 'USD' ? 'mo' : 'mån'}`;
+  return `${formatPrice(price, currency)}/${currency === 'EUR' ? 'mo' : 'mån'}`;
 }
 
 // Get addon price
 export function getAddonPrice(addonId: string, currency: Currency): number {
   const prices = addonPrices[addonId];
   if (!prices) return 0;
-  return currency === 'USD' ? prices.usd : prices.sek;
+  return currency === 'EUR' ? prices.eur : prices.sek;
 }
 
 // Get addon price display string
@@ -97,37 +97,36 @@ export function getAddonPriceDisplay(addonId: string, currency: Currency): strin
 export const stripePriceIds = {
   packages: {
     starter: {
-      usd: 'price_1SsvMI74JfaAfHsdKccBn8r0',
-      sek: 'price_1Ss9kD74JfaAfHsdYOiPQ9B8',
+      eur: 'price_starter_eur',
+      sek: 'price_starter_sek',
     },
     standard: {
-      usd: 'price_1SsvMK74JfaAfHsdWF41mVKv',
-      sek: 'price_1Ss9h474JfaAfHsdGHSjCHPa',
+      eur: 'price_standard_eur',
+      sek: 'price_standard_sek',
     },
     pro: {
-      usd: 'price_1SsvMM74JfaAfHsdrLoJpRoP',
-      sek: 'price_1SoVft74JfaAfHsdMxKuptCm',
+      eur: 'price_pro_eur',
+      sek: 'price_pro_sek',
     },
   },
   carePlans: {
     basic: {
-      monthly: { usd: 'price_1SsvMV74JfaAfHsdMeGyB3Og', sek: 'price_1ShZ2W74JfaAfHsdZwoAI3AM' },
-      yearly: { usd: 'price_1SsvMZ74JfaAfHsdsr8ZRvGg', sek: 'price_1ShZ2074JfaAfHsdGOu9YrQQ' },
+      monthly: { eur: 'price_care_basic_monthly_eur', sek: 'price_care_basic_monthly_sek' },
+      yearly: { eur: 'price_care_basic_yearly_eur', sek: 'price_care_basic_yearly_sek' },
     },
     standard: {
-      monthly: { usd: 'price_1SsvMW74JfaAfHsdGVZko9Jo', sek: 'price_1ShZ3974JfaAfHsdJRyNwKZF' },
-      yearly: { usd: 'price_1SsvMa74JfaAfHsd2TF1U2oD', sek: 'price_1ShZ2g74JfaAfHsdD4t1jtDb' },
+      monthly: { eur: 'price_care_standard_monthly_eur', sek: 'price_care_standard_monthly_sek' },
+      yearly: { eur: 'price_care_standard_yearly_eur', sek: 'price_care_standard_yearly_sek' },
     },
     pro: {
-      monthly: { usd: 'price_1SsvMX74JfaAfHsdf6yGoEYB', sek: 'price_1ShZ3V74JfaAfHsdFTHkwZfX' },
-      yearly: { usd: 'price_1SsvMb74JfaAfHsdZ339wqWK', sek: 'price_1ShZ3F74JfaAfHsdWNdB6gHU' },
+      monthly: { eur: 'price_care_pro_monthly_eur', sek: 'price_care_pro_monthly_sek' },
+      yearly: { eur: 'price_care_pro_yearly_eur', sek: 'price_care_pro_yearly_sek' },
     },
   },
   addons: {
-    booking: { usd: 'price_1SsvMO74JfaAfHsd3KoBGuu2', sek: 'price_1SoVfz74JfaAfHsdcM6g7gyq' },
-    adminPanel: { usd: 'price_1SsvMP74JfaAfHsdhszpXick', sek: 'price_1SoVg074JfaAfHsdCfjHTSR4' },
-    verification: { usd: 'price_1SsvMR74JfaAfHsd4qoTlOHC', sek: 'price_1SpHJu74JfaAfHsdl0Vp76On' },
-    checkout: { usd: 'price_1SsvMQ74JfaAfHsdU0jCEali', sek: 'price_1Ss7lg74JfaAfHsdnKn2RQjt' },
+    booking: { eur: 'price_booking_eur', sek: 'price_booking_sek' },
+    adminPanel: { eur: 'price_admin_panel_eur', sek: 'price_admin_panel_sek' },
+    verification: { eur: 'price_verification_eur', sek: 'price_verification_sek' },
   },
 };
 
@@ -135,7 +134,7 @@ export const stripePriceIds = {
 export function getPackageStripePriceId(packageId: string, currency: Currency): string {
   const priceIds = stripePriceIds.packages[packageId as keyof typeof stripePriceIds.packages];
   if (!priceIds) return '';
-  return currency === 'USD' ? priceIds.usd : priceIds.sek;
+  return currency === 'EUR' ? priceIds.eur : priceIds.sek;
 }
 
 // Get Stripe price ID for care plan
@@ -143,12 +142,12 @@ export function getCarePlanStripePriceId(planId: string, isYearly: boolean, curr
   const plan = stripePriceIds.carePlans[planId as keyof typeof stripePriceIds.carePlans];
   if (!plan) return '';
   const period = isYearly ? 'yearly' : 'monthly';
-  return currency === 'USD' ? plan[period].usd : plan[period].sek;
+  return currency === 'EUR' ? plan[period].eur : plan[period].sek;
 }
 
 // Get Stripe price ID for addon
 export function getAddonStripePriceId(addonId: string, currency: Currency): string {
   const priceIds = stripePriceIds.addons[addonId as keyof typeof stripePriceIds.addons];
   if (!priceIds) return '';
-  return currency === 'USD' ? priceIds.usd : priceIds.sek;
+  return currency === 'EUR' ? priceIds.eur : priceIds.sek;
 }
