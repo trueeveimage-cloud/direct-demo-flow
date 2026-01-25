@@ -413,7 +413,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <Step1Contact formData={formData} setFormData={setFormData} errors={errors} />;
+        return <Step1Contact formData={formData} setFormData={setFormData} customerTypeData={customerTypeData} setCustomerTypeData={setCustomerTypeData} errors={errors} />;
       case 2:
         return <Step2Package formData={formData} setFormData={setFormData} errors={errors} onComparePackages={() => setShowPackageCompare(true)} />;
       case 3:

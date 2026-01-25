@@ -102,6 +102,7 @@ export default function FreeDemoPage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [currentWebsite, setCurrentWebsite] = useState('');
+  const [country, setCountry] = useState(lang === 'sv' ? 'SE' : 'US'); // Country selection
   const [businessType, setBusinessType] = useState('');
   const [businessTypeOther, setBusinessTypeOther] = useState('');
   const [websiteGoal, setWebsiteGoal] = useState('');
@@ -120,6 +121,15 @@ export default function FreeDemoPage() {
   const [advanceBookingDays, setAdvanceBookingDays] = useState('');
   const [extraNotes, setExtraNotes] = useState('');
   const [selectedPackage, setSelectedPackage] = useState<string>(searchParams.get('package') || '');
+  
+  // Only 5 countries supported
+  const SUPPORTED_COUNTRIES = [
+    { code: 'SE', name: { sv: 'Sverige', en: 'Sweden' } },
+    { code: 'NO', name: { sv: 'Norge', en: 'Norway' } },
+    { code: 'DK', name: { sv: 'Danmark', en: 'Denmark' } },
+    { code: 'US', name: { sv: 'USA', en: 'United States' } },
+    { code: 'CA', name: { sv: 'Kanada', en: 'Canada' } },
+  ];
   
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,6 +167,7 @@ export default function FreeDemoPage() {
         if (!businessName.trim()) newErrors.businessName = true;
         if (!contactPerson.trim()) newErrors.contactPerson = true;
         if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = true;
+        if (!country) newErrors.country = true;
         break;
       case 2:
         if (!businessType) newErrors.businessType = true;
@@ -233,6 +244,7 @@ export default function FreeDemoPage() {
         contact_person: contactPerson,
         phone: phone || null,
         current_website: currentWebsite || null,
+        country: country,
         business_type: businessType === 'other' ? businessTypeOther : businessType,
         website_goal: websiteGoal,
         selected_style: selectedStyle,
@@ -480,6 +492,23 @@ export default function FreeDemoPage() {
                         onChange={(e) => setCurrentWebsite(e.target.value)}
                         placeholder="https://www.example.com"
                       />
+                    </div>
+                    
+                    <div>
+                      <Label className={errors.country ? 'text-destructive' : ''}>
+                        {t('Land', 'Country')} *
+                      </Label>
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className={`w-full h-12 px-3 rounded-md border bg-background text-foreground ${errors.country ? 'border-destructive' : 'border-input'}`}
+                      >
+                        {SUPPORTED_COUNTRIES.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {lang === 'sv' ? c.name.sv : c.name.en}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>

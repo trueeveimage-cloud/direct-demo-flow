@@ -80,9 +80,9 @@ const CARE_PLAN_YEARLY_SEK: Record<string, string> = {
   pro: "price_1ShZ3F74JfaAfHsdWNdB6gHU",
 };
 
-// Countries with 0% VAT
-const NON_VAT_COUNTRIES = ['US', 'CA', 'AU', 'GB'];
-const EU_COUNTRIES = ['SE', 'NO', 'DK', 'FI', 'DE', 'NL', 'FR', 'ES', 'IT', 'BE', 'AT', 'PL', 'PT', 'IE'];
+// Only 5 supported countries: SE, NO, DK (25% VAT) and US, CA (0% VAT)
+const VAT_COUNTRIES = ['SE', 'NO', 'DK']; // 25% VAT
+const NO_VAT_COUNTRIES = ['US', 'CA']; // 0% VAT
 
 function getPackagePriceId(packageId: string, currency: Currency, isPostDemoFlow: boolean): string {
   if (currency === 'SEK') {
@@ -129,33 +129,19 @@ async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
   return newRate.id;
 }
 
-// Determine if VAT should be applied based on country and customer type
+// Determine if VAT should be applied based on country
+// Only 5 countries supported: SE, NO, DK = 25% VAT | US, CA = 0% VAT
 function shouldApplyVat(
-  currency: Currency,
   customerCountry: string,
-  customerType: string | null,
-  vatVerified: boolean
+  customerType: string | null
 ): boolean {
-  // USD currency = no VAT (international market)
-  if (currency === 'USD') return false;
+  // US and CA = no VAT
+  if (NO_VAT_COUNTRIES.includes(customerCountry)) return false;
   
-  // Non-VAT countries = no VAT
-  if (NON_VAT_COUNTRIES.includes(customerCountry)) return false;
+  // SE, NO, DK = 25% VAT for all customers
+  if (VAT_COUNTRIES.includes(customerCountry)) return true;
   
-  // SEK currency rules:
-  // Private customers = 25% Swedish VAT
-  if (customerType === 'private') return true;
-  
-  // Swedish business = 25% Swedish VAT
-  if (customerType === 'business' && customerCountry === 'SE') return true;
-  
-  // EU B2B with verified VAT = Reverse charge (0% VAT)
-  if (customerType === 'business' && EU_COUNTRIES.includes(customerCountry) && vatVerified) return false;
-  
-  // EU B2B without verified VAT = 25% Swedish VAT
-  if (customerType === 'business' && EU_COUNTRIES.includes(customerCountry) && !vatVerified) return true;
-  
-  // Default: no VAT for non-EU countries
+  // Any other country defaults to no VAT
   return false;
 }
 
@@ -195,15 +181,15 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Apply VAT only when appropriate
-    const applyVat = shouldApplyVat(currency, customerCountry, customerType, vatVerified);
+    // Apply VAT only for SE, NO, DK countries (25%)
+    const applyVat = shouldApplyVat(customerCountry, customerType);
     let taxRateId: string | null = null;
     if (applyVat) {
       taxRateId = await getOrCreateVatTaxRate(stripe);
     }
 
     console.log("[CREATE-PACKAGE-CHECKOUT] VAT decision", { 
-      currency, customerCountry, customerType, vatVerified, applyVat, taxRateId 
+      currency, customerCountry, customerType, applyVat, taxRateId 
     });
 
     let customerId: string | undefined;
