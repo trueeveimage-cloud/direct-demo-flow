@@ -50,15 +50,30 @@ interface CustomerTypeSelectionProps {
   onChange: (data: CustomerTypeData) => void;
 }
 
-// Only 5 countries supported with their VAT rates
+// Countries list with VAT info - comprehensive with accurate rates
 export const ALL_COUNTRIES = [
-  // Nordic countries with 25% VAT
-  { code: 'SE', name: 'Sweden', nameSv: 'Sverige', vatPrefix: 'SE', orgFormat: 'XXXXXX-XXXX', vatRate: 25, region: 'EU' },
-  { code: 'NO', name: 'Norway', nameSv: 'Norge', vatPrefix: 'NO', orgFormat: 'XXX XXX XXX', vatRate: 25, region: 'EEA' },
-  { code: 'DK', name: 'Denmark', nameSv: 'Danmark', vatPrefix: 'DK', orgFormat: 'XXXXXXXX', vatRate: 25, region: 'EU' },
   // Non-VAT countries (0% VAT)
-  { code: 'US', name: 'United States', nameSv: 'USA', vatPrefix: '', orgFormat: 'EIN', vatRate: 0, region: 'NON_EU' },
-  { code: 'CA', name: 'Canada', nameSv: 'Kanada', vatPrefix: '', orgFormat: 'BN', vatRate: 0, region: 'NON_EU' },
+  { code: 'US', name: 'United States', vatPrefix: '', orgFormat: 'EIN', vatRate: 0, region: 'NON_EU' },
+  { code: 'CA', name: 'Canada', vatPrefix: '', orgFormat: 'BN', vatRate: 0, region: 'NON_EU' },
+  { code: 'AU', name: 'Australia', vatPrefix: '', orgFormat: 'ABN', vatRate: 0, region: 'NON_EU' },
+  // Nordic countries (first in list for SEK users)
+  { code: 'SE', name: 'Sweden', vatPrefix: 'SE', orgFormat: 'XXXXXX-XXXX', vatRate: 25, region: 'EU' },
+  { code: 'NO', name: 'Norway', vatPrefix: 'NO', orgFormat: 'XXX XXX XXX', vatRate: 25, region: 'EEA' },
+  { code: 'DK', name: 'Denmark', vatPrefix: 'DK', orgFormat: 'XXXXXXXX', vatRate: 25, region: 'EU' },
+  { code: 'FI', name: 'Finland', vatPrefix: 'FI', orgFormat: 'XXXXXXXX', vatRate: 24, region: 'EU' },
+  // UK (post-Brexit, 20% VAT)
+  { code: 'GB', name: 'United Kingdom', vatPrefix: 'GB', orgFormat: 'XXXXXXXXX', vatRate: 20, region: 'NON_EU' },
+  // EU countries with their actual VAT rates
+  { code: 'DE', name: 'Germany', vatPrefix: 'DE', orgFormat: 'XXXXXXXXXXX', vatRate: 19, region: 'EU' },
+  { code: 'NL', name: 'Netherlands', vatPrefix: 'NL', orgFormat: 'XXXXXXXXXXXX', vatRate: 21, region: 'EU' },
+  { code: 'FR', name: 'France', vatPrefix: 'FR', orgFormat: 'XXXXXXXXXXX', vatRate: 20, region: 'EU' },
+  { code: 'ES', name: 'Spain', vatPrefix: 'ES', orgFormat: 'XXXXXXXXX', vatRate: 21, region: 'EU' },
+  { code: 'IT', name: 'Italy', vatPrefix: 'IT', orgFormat: 'XXXXXXXXXXX', vatRate: 22, region: 'EU' },
+  { code: 'BE', name: 'Belgium', vatPrefix: 'BE', orgFormat: 'XXXXXXXXXX', vatRate: 21, region: 'EU' },
+  { code: 'AT', name: 'Austria', vatPrefix: 'AT', orgFormat: 'XXXXXXXXX', vatRate: 20, region: 'EU' },
+  { code: 'PL', name: 'Poland', vatPrefix: 'PL', orgFormat: 'XXXXXXXXXX', vatRate: 23, region: 'EU' },
+  { code: 'PT', name: 'Portugal', vatPrefix: 'PT', orgFormat: 'XXXXXXXXX', vatRate: 23, region: 'EU' },
+  { code: 'IE', name: 'Ireland', vatPrefix: 'IE', orgFormat: 'XXXXXXXX', vatRate: 23, region: 'EU' },
 ];
 
 // US States for tax compliance
@@ -124,36 +139,83 @@ export function getVatRateForCountry(countryCode: string): number {
 
 // Countries that don't require VAT (no VAT collection)
 export function isNonVatCountry(countryCode: string): boolean {
-  const nonVatCountries = ['US', 'CA'];
+  const nonVatCountries = ['US', 'CA', 'AU'];
   return nonVatCountries.includes(countryCode);
 }
 
-// Calculate VAT for an order based on country
-// Only 5 countries: SE, NO, DK = 25% VAT | US, CA = 0% VAT
+// Is EU country (for reverse charge logic)
+export function isEuCountry(countryCode: string): boolean {
+  const country = ALL_COUNTRIES.find(c => c.code === countryCode);
+  return country?.region === 'EU';
+}
+
+// Calculate VAT for an order based on customer data
 export function calculateVat(
   netAmount: number,
   customerType: 'private' | 'business' | null,
   country: string,
-  _vatVerified: boolean = false
+  vatVerified: boolean
 ): { vatRate: number; vatAmount: number; showVat: boolean; isReverseCharge: boolean } {
-  // US and CA = no VAT
+  // Non-VAT countries (US, CA, AU) = no VAT
   if (isNonVatCountry(country)) {
     return { vatRate: 0, vatAmount: 0, showVat: false, isReverseCharge: false };
   }
 
-  // SE, NO, DK = 25% VAT for all customers
-  const vatCountries = ['SE', 'NO', 'DK'];
-  if (vatCountries.includes(country)) {
+  const vatRate = getVatRateForCountry(country);
+  
+  // Private customers always pay VAT at local rate
+  if (customerType === 'private') {
     return { 
-      vatRate: 25, 
-      vatAmount: Math.round(netAmount * 0.25), 
+      vatRate, 
+      vatAmount: Math.round(netAmount * vatRate / 100), 
       showVat: true, 
       isReverseCharge: false 
     };
   }
   
-  // Default: no VAT
-  return { vatRate: 0, vatAmount: 0, showVat: false, isReverseCharge: false };
+  // Business customers
+  if (customerType === 'business') {
+    // Swedish business = pay 25% Swedish VAT
+    if (country === 'SE') {
+      return { 
+        vatRate: 25, 
+        vatAmount: Math.round(netAmount * 0.25), 
+        showVat: true, 
+        isReverseCharge: false 
+      };
+    }
+    
+    // EU B2B with verified VAT = Reverse charge (0% VAT)
+    if (isEuCountry(country) && vatVerified) {
+      return { 
+        vatRate: 0, 
+        vatAmount: 0, 
+        showVat: true, 
+        isReverseCharge: true 
+      };
+    }
+    
+    // EU B2B without verified VAT = pay 25% Swedish VAT
+    if (isEuCountry(country) && !vatVerified) {
+      return { 
+        vatRate: 25, 
+        vatAmount: Math.round(netAmount * 0.25), 
+        showVat: true, 
+        isReverseCharge: false 
+      };
+    }
+    
+    // Non-EU business (UK, etc.) = no VAT
+    return { vatRate: 0, vatAmount: 0, showVat: false, isReverseCharge: false };
+  }
+  
+  // Default: show 25% Swedish VAT until customer type selected
+  return { 
+    vatRate: 25, 
+    vatAmount: Math.round(netAmount * 0.25), 
+    showVat: true, 
+    isReverseCharge: false 
+  };
 }
 
 // Basic VAT format validation per country
@@ -408,7 +470,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                   <SelectContent>
                     {sortedCountries.map((country) => (
                       <SelectItem key={country.code} value={country.code}>
-                        {lang === 'sv' ? country.nameSv : country.name} {country.vatRate === 0 ? '' : `(${country.vatRate}% ${t('moms', 'VAT')})`}
+                        {country.name} {country.vatRate === 0 ? t('(Ingen moms)', '(No VAT)') : `(${country.vatRate}% VAT)`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -504,6 +566,59 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                   <p className="text-sm text-destructive mt-1">{orgError}</p>
                 )}
               </div>
+
+              {/* VAT Number - only show for EU countries */}
+              {selectedCountry?.region === 'EU' && (
+                <div>
+                  <Label className="flex items-center gap-2">
+                    {t('VAT-nummer', 'VAT Number')}
+                    <InfoTooltip 
+                      content={t('Om ditt företag är momsregistrerat. Lämna tomt om ej tillämpligt.', 'If your company is VAT registered. Leave empty if not applicable.')}
+                      example={`${selectedCountry?.vatPrefix || 'SE'}XXXXXXXXXXXX`}
+                    />
+                  </Label>
+                  <div className="flex gap-2 mt-1">
+                    <div className="relative flex-1">
+                      <Input
+                        value={data.vatNumber}
+                        onChange={(e) => {
+                          onChange({ 
+                            ...data, 
+                            vatNumber: e.target.value.toUpperCase(),
+                            vatVerified: false,
+                            vatVerifiedAt: null
+                          });
+                        }}
+                        placeholder={`${selectedCountry?.vatPrefix || 'SE'}XXXXXXXXXXXX`}
+                        className={cn(
+                          'h-12 w-full bg-background', 
+                          vatError && 'border-destructive', 
+                          data.vatVerified && 'border-green-500 pr-10'
+                        )}
+                      />
+                      {isVerifyingVat && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <Loader2 className="w-5 h-5 animate-spin text-accent" />
+                        </div>
+                      )}
+                      {data.vatVerified && !isVerifyingVat && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {vatError && (
+                    <p className="text-sm text-destructive mt-1">{vatError}</p>
+                  )}
+                  {data.vatVerified && (
+                    <p className="text-sm text-green-500 mt-1 flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      {t('VAT-nummer verifierat - omvänd moms tillämpas', 'VAT number verified - reverse charge applies')}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Billing Address */}
               <div>

@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { WizardBackground } from './WizardBackground';
 import { WizardStepper } from './WizardStepper';
 import { WizardSkeleton } from './WizardSkeleton';
-import { WizardFooterControls } from './WizardFooterControls';
 import { AdminPanelUpsellModal } from '@/components/AdminPanelUpsellModal';
 import { PackageCompareModal } from '@/components/PackageCompareModal';
 import { CarePlansCompareModal } from '@/components/CarePlansCompareModal';
@@ -414,7 +413,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <Step1Contact formData={formData} setFormData={setFormData} customerTypeData={customerTypeData} setCustomerTypeData={setCustomerTypeData} errors={errors} />;
+        return <Step1Contact formData={formData} setFormData={setFormData} errors={errors} />;
       case 2:
         return <Step2Package formData={formData} setFormData={setFormData} errors={errors} onComparePackages={() => setShowPackageCompare(true)} />;
       case 3:
@@ -558,9 +557,6 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
             />
           </div>
         </div>
-        
-        {/* Footer Controls */}
-        <WizardFooterControls />
       </div>
 
       {/* Admin Panel Upsell Modal */}

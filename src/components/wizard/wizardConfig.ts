@@ -183,24 +183,22 @@ export const businessTypeFollowUps: BusinessTypeFollowUp[] = [
 
 // Customer type data for company/private selection
 export interface CustomerTypeData {
-  customerType: 'private' | 'business' | null;
+  type: 'private' | 'company' | null;
   companyName: string;
   orgNumber: string;
   vatNumber: string;
   country: string;
-  state: string;
   billingAddress: string;
   vatVerified: boolean;
   vatVerifiedAt: string | null;
 }
 
 export const initialCustomerTypeData: CustomerTypeData = {
-  customerType: null,
+  type: null,
   companyName: '',
   orgNumber: '',
   vatNumber: '',
   country: '',
-  state: '',
   billingAddress: '',
   vatVerified: false,
   vatVerifiedAt: null,
