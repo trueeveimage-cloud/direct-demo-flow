@@ -111,7 +111,7 @@ function getCarePlanPriceId(planId: string, isYearly: boolean, currency: Currenc
   return currency === 'SEK' ? CARE_PLAN_MONTHLY_SEK[planId] : CARE_PLAN_MONTHLY_USD[planId];
 }
 
-// Get or create a 25% Swedish VAT tax rate
+// Get or create a 25% VAT tax rate
 async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
   const existingRates = await stripe.taxRates.list({ limit: 100, active: true });
   const vatRate = existingRates.data.find(
@@ -121,7 +121,7 @@ async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
   
   const newRate = await stripe.taxRates.create({
     display_name: "VAT",
-    description: "Swedish VAT 25%",
+    description: "VAT 25%",
     percentage: 25,
     inclusive: false,
     country: "SE",
@@ -131,11 +131,8 @@ async function getOrCreateVatTaxRate(stripe: Stripe): Promise<string> {
 
 // Determine if VAT should be applied based on country
 // Only 5 countries supported: SE, NO, DK = 25% VAT | US, CA = 0% VAT
-function shouldApplyVat(
-  customerCountry: string,
-  customerType: string | null
-): boolean {
-  // US and CA = no VAT
+function shouldApplyVat(customerCountry: string): boolean {
+  // US and CA = no VAT ever
   if (NO_VAT_COUNTRIES.includes(customerCountry)) return false;
   
   // SE, NO, DK = 25% VAT for all customers
@@ -171,8 +168,6 @@ serve(async (req) => {
     const addedAdminPanel = body.addedAdminPanel === true;
     const isPostDemoFlow = body.isPostDemoFlow === true;
     const currency: Currency = body.currency === "SEK" ? "SEK" : "USD";
-    const customerType = body.customerType === "private" || body.customerType === "business" ? body.customerType : null;
-    const vatVerified = body.vatVerified === true;
     const customerCountry = sanitizeString(body.country, 5) || (currency === 'SEK' ? 'SE' : 'US');
 
     const carePlanPriceId = getCarePlanPriceId(carePlanId, isYearly, currency);
@@ -182,14 +177,14 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Apply VAT only for SE, NO, DK countries (25%)
-    const applyVat = shouldApplyVat(customerCountry, customerType);
+    const applyVat = shouldApplyVat(customerCountry);
     let taxRateId: string | null = null;
     if (applyVat) {
       taxRateId = await getOrCreateVatTaxRate(stripe);
     }
 
     console.log("[CREATE-PACKAGE-CHECKOUT] VAT decision", { 
-      currency, customerCountry, customerType, applyVat, taxRateId 
+      currency, customerCountry, applyVat, taxRateId 
     });
 
     let customerId: string | undefined;
@@ -248,7 +243,6 @@ serve(async (req) => {
     const metadata = {
       packageId,
       carePlanId: carePlanId || "",
-      customerType: customerType || "private",
       customerCountry,
       vatApplied: String(applyVat),
       currency,

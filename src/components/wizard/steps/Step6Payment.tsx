@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Sparkles, CreditCard, Settings } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CheckoutUpsells } from '@/components/CheckoutUpsells';
-import { CustomerTypeSelection, CustomerTypeData } from './CustomerTypeSelection';
+import { CustomerTypeSelection, CustomerTypeData, calculateVat, isNonVatCountry } from './CustomerTypeSelection';
 import { CheckoutTrustSection } from './CheckoutTrustSection';
 import { WizardFormData, packages, carePlans, getBookingAddonPrice, getVerificationFee, getCurrencyFromLang, formatPrice as formatPriceFn, getPackagePrice, getCarePlanPrice, getAddonPrice } from '../wizardConfig';
 
@@ -15,8 +15,6 @@ interface Step6PaymentProps {
   addedAdminPanel?: boolean;
   onAddAdminPanel?: () => void;
 }
-
-const VAT_RATE = 0.25; // 25% VAT
 
 export function Step6Payment({ 
   formData, 
@@ -58,15 +56,22 @@ export function Step6Payment({
   // Total today = one-time items + first care plan payment (both charged at checkout)
   const totalNetToday = oneTimeNet + carePlanPriceValue;
 
-  // VAT calculations
-  const isBusinessWithVat = customerTypeData.customerType === 'business' && customerTypeData.vatVerified;
-  const isPrivate = customerTypeData.customerType === 'private';
+  // Use unified VAT calculation based on country
+  const customerCountry = customerTypeData?.country || (lang === 'sv' ? 'SE' : 'US');
+  const vatResult = calculateVat(
+    totalNetToday,
+    customerTypeData?.customerType || null,
+    customerCountry,
+    customerTypeData?.vatVerified || false
+  );
   
-  // For businesses with valid VAT in same country as seller (Sweden), show VAT breakdown
-  // For businesses with valid VAT in other EU countries, reverse charge (0% VAT)
-  const showVatBreakdown = isPrivate || (customerTypeData.customerType === 'business' && customerTypeData.country === 'SE');
-  const vatAmount = showVatBreakdown ? totalNetToday * VAT_RATE : 0;
-  const netAmount = showVatBreakdown ? totalNetToday : totalNetToday;
+  // Care plan VAT
+  const carePlanVatResult = calculateVat(
+    carePlanPriceValue,
+    customerTypeData?.customerType || null,
+    customerCountry,
+    customerTypeData?.vatVerified || false
+  );
 
   const formatPrice = (price: number) => formatPriceFn(price, currency);
 
@@ -77,7 +82,7 @@ export function Step6Payment({
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-5 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-accent/10 rounded-xl border border-accent/30"
+          className="p-5 bg-gradient-to-r from-primary/10 via-accent/10 to-accent/10 rounded-xl border border-accent/30"
         >
           <div className="flex items-start gap-4">
             <div className="p-3 bg-accent/20 rounded-lg">
@@ -159,33 +164,29 @@ export function Step6Payment({
 
           <div className="h-px bg-border my-2" />
 
-          {/* VAT Breakdown for Business/Private */}
-          {customerTypeData.customerType && (
-            <>
-              {showVatBreakdown ? (
-                <>
-                  <div className="flex justify-between items-center text-sm text-muted-foreground">
-                    <span>{t('Netto', 'Net')}</span>
-                    <span>{formatPrice(Math.round(netAmount))}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm text-muted-foreground">
-                    <span>{t('Moms (25%)', 'VAT (25%)')}</span>
-                    <span>{formatPrice(Math.round(vatAmount))}</span>
-                  </div>
-                </>
-              ) : isBusinessWithVat && customerTypeData.country !== 'SE' ? (
-                <div className="flex justify-between items-center text-sm text-muted-foreground">
-                  <span>{t('Omvänd moms (EU)', 'Reverse charge (EU)')}</span>
-                  <span className="text-accent">€0</span>
-                </div>
-              ) : null}
-            </>
-          )}
+          {/* VAT Breakdown - using unified calculation */}
+          <div className="space-y-1 text-sm text-muted-foreground">
+            <div className="flex justify-between items-center">
+              <span>{t('Netto', 'Net')}</span>
+              <span>{formatPrice(Math.round(totalNetToday))}</span>
+            </div>
+            {vatResult.showVat && vatResult.vatRate > 0 ? (
+              <div className="flex justify-between items-center">
+                <span>{t('Moms', 'VAT')} ({vatResult.vatRate}%)</span>
+                <span>{formatPrice(vatResult.vatAmount)}</span>
+              </div>
+            ) : (
+              <div className="flex justify-between items-center text-accent">
+                <span>{t('Ingen moms', 'No VAT')}</span>
+                <span>{formatPrice(0)}</span>
+              </div>
+            )}
+          </div>
 
           <div className="flex justify-between items-center text-lg font-bold">
             <span>{t('Totalt idag', 'Total today')}</span>
             <span className="text-accent">
-              {formatPrice(Math.round(showVatBreakdown ? totalNetToday + vatAmount : totalNetToday))}
+              {formatPrice(Math.round(totalNetToday + vatResult.vatAmount))}
             </span>
           </div>
 
@@ -201,19 +202,19 @@ export function Step6Payment({
                 </span>
               </div>
               {/* VAT breakdown for care plan */}
-              {showVatBreakdown && (
+              {carePlanVatResult.showVat && carePlanVatResult.vatRate > 0 && (
                 <div className="mt-2 space-y-1 text-xs text-muted-foreground">
                   <div className="flex justify-between">
                     <span>{t('Netto', 'Net')}</span>
                     <span>{formatPrice(Math.round(carePlanPriceValue))}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>{t('Moms (25%)', 'VAT (25%)')}</span>
-                    <span>{formatPrice(Math.round(carePlanPriceValue * VAT_RATE))}</span>
+                    <span>{t('Moms', 'VAT')} ({carePlanVatResult.vatRate}%)</span>
+                    <span>{formatPrice(carePlanVatResult.vatAmount)}</span>
                   </div>
                   <div className="flex justify-between font-medium text-foreground">
                     <span>{t('Totalt', 'Total')}</span>
-                    <span>{formatPrice(Math.round(carePlanPriceValue * (1 + VAT_RATE)))}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'month')}</span>
+                    <span>{formatPrice(Math.round(carePlanPriceValue + carePlanVatResult.vatAmount))}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'month')}</span>
                   </div>
                 </div>
               )}
