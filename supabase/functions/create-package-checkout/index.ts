@@ -252,6 +252,7 @@ serve(async (req) => {
       customer: customerId,
       customer_email: customerId ? undefined : email,
       ...(mode === 'payment' && !customerId ? { customer_creation: 'always' } : {}),
+      ...(customerId ? { customer_update: { name: 'auto', address: 'auto' } } : {}),
       billing_address_collection: 'required',
       line_items: lineItems,
       mode,
