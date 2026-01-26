@@ -1,17 +1,40 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Briefcase, Target, ExternalLink, Globe } from 'lucide-react';
+import { Users, Briefcase, Target, ExternalLink, Globe, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
-import { WizardFormData, businessTypes, websiteGoals } from '../wizardConfig';
+import { WizardFormData, businessTypes, websiteGoals, CustomerTypeData } from '../wizardConfig';
 import { BusinessTypeFollowUp } from './BusinessTypeFollowUp';
+
+// Only 5 countries supported with their VAT rates
+export const SUPPORTED_COUNTRIES = [
+  { code: 'SE', name: { sv: 'Sverige', en: 'Sweden' }, vatRate: 25, currency: 'SEK' },
+  { code: 'NO', name: { sv: 'Norge', en: 'Norway' }, vatRate: 25, currency: 'SEK' },
+  { code: 'DK', name: { sv: 'Danmark', en: 'Denmark' }, vatRate: 25, currency: 'SEK' },
+  { code: 'US', name: { sv: 'USA', en: 'United States' }, vatRate: 0, currency: 'USD' },
+  { code: 'CA', name: { sv: 'Kanada', en: 'Canada' }, vatRate: 0, currency: 'USD' },
+] as const;
+
+export type SupportedCountryCode = typeof SUPPORTED_COUNTRIES[number]['code'];
+
+export function getCountryVatRate(countryCode: string): number {
+  const country = SUPPORTED_COUNTRIES.find(c => c.code === countryCode);
+  return country?.vatRate ?? 0;
+}
+
+export function getCountryCurrency(countryCode: string): 'SEK' | 'USD' {
+  const country = SUPPORTED_COUNTRIES.find(c => c.code === countryCode);
+  return (country?.currency as 'SEK' | 'USD') ?? 'USD';
+}
 
 interface Step1ContactProps {
   formData: WizardFormData;
   setFormData: (data: WizardFormData) => void;
+  customerTypeData: CustomerTypeData;
+  setCustomerTypeData: (data: CustomerTypeData) => void;
   errors: Record<string, boolean>;
   showConceptOption?: boolean;
 }
@@ -25,11 +48,15 @@ const sectionVariants = {
   })
 };
 
-function Step1ContactComponent({ formData, setFormData, errors, showConceptOption = false }: Step1ContactProps) {
+function Step1ContactComponent({ formData, setFormData, customerTypeData, setCustomerTypeData, errors, showConceptOption = false }: Step1ContactProps) {
   const { t, lang } = useLanguage();
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
     setFormData({ ...formData, [field]: value });
+  };
+  
+  const updateCustomerField = <K extends keyof CustomerTypeData>(field: K, value: CustomerTypeData[K]) => {
+    setCustomerTypeData({ ...customerTypeData, [field]: value });
   };
 
   return (
@@ -125,6 +152,29 @@ function Step1ContactComponent({ formData, setFormData, errors, showConceptOptio
               placeholder="+46 70 123 45 67" 
               className={`h-12 transition-all focus:ring-2 focus:ring-accent/20 ${errors.phone ? 'border-destructive' : ''}`}
             />
+          </div>
+          
+          {/* Country Selection - Required */}
+          <div className="space-y-1">
+            <Label className={`flex items-center gap-2 ${errors.country ? 'text-destructive' : ''}`}>
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              {t('Land', 'Country')} *
+            </Label>
+            <Select 
+              value={customerTypeData.country} 
+              onValueChange={(v) => updateCustomerField('country', v)}
+            >
+              <SelectTrigger className={`h-12 ${errors.country ? 'border-destructive' : ''}`}>
+                <SelectValue placeholder={t('Välj ditt land', 'Select your country')} />
+              </SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_COUNTRIES.map((country) => (
+                  <SelectItem key={country.code} value={country.code}>
+                    {lang === 'sv' ? country.name.sv : country.name.en}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="space-y-1">

@@ -82,9 +82,9 @@ export default function CampaignLandingPage() {
     });
   }, [searchParams]);
   
-  // Price based on language (matching ad: 2900 SEK)
-  const price = lang === 'sv' ? '2 900 kr' : '€290';
-  const currency = lang === 'sv' ? 'SEK' : 'EUR';
+  // Price based on language (matching ad: 2900 SEK / $290)
+  const price = lang === 'sv' ? '2 900 kr' : '$290';
+  const currency = lang === 'sv' ? 'SEK' : 'USD';
   
   const features = [
     { icon: Zap, text: t('Leverans inom 7 dagar', 'Delivery in 7 days') },

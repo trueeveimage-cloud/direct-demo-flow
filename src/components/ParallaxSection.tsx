@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -161,7 +161,7 @@ export const AnimatedText: React.FC<AnimatedTextProps> = ({
   );
 };
 
-// 3D tilt card effect on hover
+// 3D tilt card effect on hover - disabled on mobile for performance
 interface TiltCardProps {
   children: React.ReactNode;
   className?: string;
@@ -169,9 +169,15 @@ interface TiltCardProps {
 
 export const TiltCard: React.FC<TiltCardProps> = ({ children, className }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Check if device is mobile/touch
+    setIsMobile(window.matchMedia('(max-width: 768px)').matches || 'ontouchstart' in window);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
+    if (!ref.current || isMobile) return;
     const rect = ref.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -185,7 +191,7 @@ export const TiltCard: React.FC<TiltCardProps> = ({ children, className }) => {
   };
 
   const handleMouseLeave = () => {
-    if (!ref.current) return;
+    if (!ref.current || isMobile) return;
     ref.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
   };
 
@@ -194,8 +200,8 @@ export const TiltCard: React.FC<TiltCardProps> = ({ children, className }) => {
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={cn("transition-transform duration-300 ease-out", className)}
-      style={{ transformStyle: 'preserve-3d' }}
+      className={cn("h-full", className)}
+      style={{ transformStyle: isMobile ? undefined : 'preserve-3d' }}
     >
       {children}
     </div>

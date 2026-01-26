@@ -12,7 +12,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="p-2 rounded-lg border border-border text-muted-foreground">
+      <button className="theme-toggle p-2 rounded-lg border border-border text-muted-foreground w-9 h-9 flex items-center justify-center">
         <Sun className="w-4 h-4" />
       </button>
     );
@@ -23,7 +23,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className="p-2 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-foreground transition-colors w-9 h-9 flex items-center justify-center"
+      className="theme-toggle p-2 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-foreground w-9 h-9 flex items-center justify-center"
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {isDark ? (

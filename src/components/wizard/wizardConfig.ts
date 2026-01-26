@@ -2,19 +2,19 @@
 // This is the SINGLE SOURCE OF TRUTH for both DirectCheckout and PostDemo flows
 import { getCurrencyFromLang, formatPrice, getPackagePrice, getCarePlanPrice, getAddonPrice, type Currency } from '@/config/currency';
 
-export const BOOKING_ADDON_PRICE_EUR = 200;
+export const BOOKING_ADDON_PRICE_USD = 200;
 export const BOOKING_ADDON_PRICE_SEK = 1990;
-export const VERIFICATION_FEE_EUR = 50;
+export const VERIFICATION_FEE_USD = 50;
 export const VERIFICATION_FEE_SEK = 499;
 
 // Helper to get booking addon price based on currency
 export function getBookingAddonPrice(currency: Currency): number {
-  return currency === 'EUR' ? BOOKING_ADDON_PRICE_EUR : BOOKING_ADDON_PRICE_SEK;
+  return currency === 'USD' ? BOOKING_ADDON_PRICE_USD : BOOKING_ADDON_PRICE_SEK;
 }
 
 // Helper to get verification fee based on currency
 export function getVerificationFee(currency: Currency): number {
-  return currency === 'EUR' ? VERIFICATION_FEE_EUR : VERIFICATION_FEE_SEK;
+  return currency === 'USD' ? VERIFICATION_FEE_USD : VERIFICATION_FEE_SEK;
 }
 
 export interface BookingService {
@@ -183,22 +183,24 @@ export const businessTypeFollowUps: BusinessTypeFollowUp[] = [
 
 // Customer type data for company/private selection
 export interface CustomerTypeData {
-  type: 'private' | 'company' | null;
+  customerType: 'private' | 'business' | null;
   companyName: string;
   orgNumber: string;
   vatNumber: string;
   country: string;
+  state: string;
   billingAddress: string;
   vatVerified: boolean;
   vatVerifiedAt: string | null;
 }
 
 export const initialCustomerTypeData: CustomerTypeData = {
-  type: null,
+  customerType: null,
   companyName: '',
   orgNumber: '',
   vatNumber: '',
   country: '',
+  state: '',
   billingAddress: '',
   vatVerified: false,
   vatVerifiedAt: null,
@@ -333,7 +335,7 @@ export const packages = [
     id: 'starter', 
     name: 'Starter', 
     price: 290, 
-    priceDisplay: '€290', 
+    priceDisplay: '$290', 
     pages: { sv: 'Upp till 3 sidor', en: 'Up to 3 pages' }, 
     maxPages: 3, 
     delivery: 7, 
@@ -348,7 +350,7 @@ export const packages = [
     id: 'standard', 
     name: 'Standard', 
     price: 790, 
-    priceDisplay: '€790', 
+    priceDisplay: '$590', 
     pages: { sv: 'Upp till 5 sidor', en: 'Up to 5 pages' }, 
     popular: true, 
     maxPages: 5, 
@@ -364,7 +366,7 @@ export const packages = [
     id: 'pro', 
     name: 'Pro', 
     price: 1290, 
-    priceDisplay: '€1,290', 
+    priceDisplay: '$1,290', 
     pages: { sv: 'Obegränsade sidor', en: 'Unlimited pages' }, 
     maxPages: 999, // Unlimited
     delivery: 7, 
@@ -400,7 +402,7 @@ export const carePlans = [
 // Helper to get care plan price display for wizard
 export function getCarePlanPriceDisplayForWizard(planId: string, isYearly: boolean, currency: Currency): string {
   const price = getCarePlanPrice(planId, isYearly, currency);
-  const suffix = currency === 'EUR' ? '/mo' : '/mån';
+  const suffix = currency === 'USD' ? '/mo' : '/mån';
   return formatPrice(price, currency) + suffix;
 }
 

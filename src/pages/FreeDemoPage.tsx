@@ -80,7 +80,7 @@ export default function FreeDemoPage() {
   const t = (sv: string, en: string) => lang === 'sv' ? sv : en;
 
   const [step, setStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 6; // Added package selection step
   const hasTrackedStart = useRef(false);
 
   // Track demo wizard start on mount
@@ -102,6 +102,7 @@ export default function FreeDemoPage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [currentWebsite, setCurrentWebsite] = useState('');
+  const [country, setCountry] = useState(lang === 'sv' ? 'SE' : 'US'); // Country selection
   const [businessType, setBusinessType] = useState('');
   const [businessTypeOther, setBusinessTypeOther] = useState('');
   const [websiteGoal, setWebsiteGoal] = useState('');
@@ -119,6 +120,17 @@ export default function FreeDemoPage() {
   const [maxBookingsPerDay, setMaxBookingsPerDay] = useState('');
   const [advanceBookingDays, setAdvanceBookingDays] = useState('');
   const [extraNotes, setExtraNotes] = useState('');
+  const [selectedPackage, setSelectedPackage] = useState<string>(searchParams.get('package') || '');
+  
+  // Only 5 countries supported
+  const SUPPORTED_COUNTRIES = [
+    { code: 'SE', name: { sv: 'Sverige', en: 'Sweden' } },
+    { code: 'NO', name: { sv: 'Norge', en: 'Norway' } },
+    { code: 'DK', name: { sv: 'Danmark', en: 'Denmark' } },
+    { code: 'US', name: { sv: 'USA', en: 'United States' } },
+    { code: 'CA', name: { sv: 'Kanada', en: 'Canada' } },
+  ];
+  
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -155,6 +167,7 @@ export default function FreeDemoPage() {
         if (!businessName.trim()) newErrors.businessName = true;
         if (!contactPerson.trim()) newErrors.contactPerson = true;
         if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = true;
+        if (!country) newErrors.country = true;
         break;
       case 2:
         if (!businessType) newErrors.businessType = true;
@@ -231,9 +244,11 @@ export default function FreeDemoPage() {
         contact_person: contactPerson,
         phone: phone || null,
         current_website: currentWebsite || null,
+        country: country,
         business_type: businessType === 'other' ? businessTypeOther : businessType,
         website_goal: websiteGoal,
         selected_style: selectedStyle,
+        selected_package: selectedPackage || null,
         primary_color: noColorPreference ? null : primaryColor,
         accent_color: noColorPreference ? null : accentColor,
         services: services || null,
@@ -477,6 +492,23 @@ export default function FreeDemoPage() {
                         onChange={(e) => setCurrentWebsite(e.target.value)}
                         placeholder="https://www.example.com"
                       />
+                    </div>
+                    
+                    <div>
+                      <Label className={errors.country ? 'text-destructive' : ''}>
+                        {t('Land', 'Country')} *
+                      </Label>
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className={`w-full h-12 px-3 rounded-md border bg-background text-foreground ${errors.country ? 'border-destructive' : 'border-input'}`}
+                      >
+                        {SUPPORTED_COUNTRIES.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {lang === 'sv' ? c.name.sv : c.name.en}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -906,8 +938,68 @@ export default function FreeDemoPage() {
                 </div>
               )}
 
-              {/* Step 5: Additional Info & Payment */}
+              {/* Step 5: Package Selection */}
               {step === 5 && (
+                <div className="space-y-6">
+                  <div className="text-center mb-6">
+                    <h2 className="text-xl sm:text-2xl font-light tracking-tight mb-2">
+                      {t('Vilket paket passar dig?', 'Which package suits you?')}
+                    </h2>
+                    <p className="text-muted-foreground text-sm sm:text-base">
+                      {t('Välj vilket paket du är intresserad av (valfritt).', 'Select which package you\'re interested in (optional).')}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {[
+                      { id: 'starter', name: 'Starter', priceUsd: '$290', priceSek: '2 900 kr', pages: t('3 sidor', '3 pages') },
+                      { id: 'standard', name: 'Standard', priceUsd: '$590', priceSek: '5 900 kr', pages: t('5 sidor', '5 pages'), popular: true },
+                      { id: 'pro', name: 'Pro', priceUsd: '$1,290', priceSek: '12 900 kr', pages: t('Obegränsade sidor', 'Unlimited pages') },
+                    ].map((pkg) => (
+                      <button
+                        key={pkg.id}
+                        type="button"
+                        onClick={() => setSelectedPackage(pkg.id)}
+                        className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center justify-between ${
+                          selectedPackage === pkg.id
+                            ? 'border-accent bg-accent/10'
+                            : 'border-border hover:border-accent/50'
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{pkg.name}</span>
+                            {pkg.popular && (
+                              <span className="text-xs px-2 py-0.5 bg-accent/20 text-accent rounded-full">
+                                {t('Populärast', 'Most popular')}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-sm text-muted-foreground">{pkg.pages}</span>
+                        </div>
+                        <span className="font-bold text-accent">
+                          {currency === 'USD' ? pkg.priceUsd : pkg.priceSek}
+                        </span>
+                      </button>
+                    ))}
+                    
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPackage('')}
+                      className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
+                        selectedPackage === ''
+                          ? 'border-accent bg-accent/10'
+                          : 'border-border hover:border-accent/50'
+                      }`}
+                    >
+                      <span className="font-medium">{t('Osäker / Vill diskutera', 'Not sure / Want to discuss')}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 6: Additional Info & Payment */}
+              {step === 6 && (
                 <div className="space-y-6">
                   <div className="text-center mb-6">
                     <h2 className="text-xl sm:text-2xl font-light tracking-tight mb-2">

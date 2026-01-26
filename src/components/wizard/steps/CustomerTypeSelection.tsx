@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building2, User, Info, CheckCircle, Loader2 } from 'lucide-react';
+import { Building2, User, CheckCircle, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,9 +14,35 @@ export interface CustomerTypeData {
   orgNumber: string;
   vatNumber: string;
   country: string;
+  state: string; // US state for tax compliance
   billingAddress: string;
   vatVerified: boolean;
   vatVerifiedAt: string | null;
+}
+
+// Initial state for customer type data
+export const initialCustomerTypeData: CustomerTypeData = {
+  customerType: null,
+  companyName: '',
+  orgNumber: '',
+  vatNumber: '',
+  country: '',
+  state: '',
+  billingAddress: '',
+  vatVerified: false,
+  vatVerifiedAt: null,
+};
+
+// Validate customer type data
+export function validateCustomerType(data: CustomerTypeData): boolean {
+  if (!data.customerType) return false;
+  if (!data.country) return false;
+  if (data.country === 'US' && !data.state) return false;
+  if (data.customerType === 'business') {
+    if (!data.companyName) return false;
+    if (!data.orgNumber) return false;
+  }
+  return true;
 }
 
 interface CustomerTypeSelectionProps {
@@ -24,22 +50,116 @@ interface CustomerTypeSelectionProps {
   onChange: (data: CustomerTypeData) => void;
 }
 
-const EU_COUNTRIES = [
-  { code: 'SE', name: 'Sweden', vatPrefix: 'SE', orgFormat: 'XXXXXX-XXXX' },
-  { code: 'NO', name: 'Norway', vatPrefix: 'NO', orgFormat: 'XXX XXX XXX' },
-  { code: 'DK', name: 'Denmark', vatPrefix: 'DK', orgFormat: 'XXXXXXXX' },
-  { code: 'FI', name: 'Finland', vatPrefix: 'FI', orgFormat: 'XXXXXXXX' },
-  { code: 'DE', name: 'Germany', vatPrefix: 'DE', orgFormat: 'XXXXXXXXXXX' },
-  { code: 'NL', name: 'Netherlands', vatPrefix: 'NL', orgFormat: 'XXXXXXXXXXXX' },
-  { code: 'GB', name: 'United Kingdom', vatPrefix: 'GB', orgFormat: 'XXXXXXXXX' },
-  { code: 'FR', name: 'France', vatPrefix: 'FR', orgFormat: 'XXXXXXXXXXX' },
-  { code: 'ES', name: 'Spain', vatPrefix: 'ES', orgFormat: 'XXXXXXXXX' },
-  { code: 'IT', name: 'Italy', vatPrefix: 'IT', orgFormat: 'XXXXXXXXXXX' },
+// Only 5 countries supported with their VAT rates
+export const ALL_COUNTRIES = [
+  // Nordic countries with 25% VAT
+  { code: 'SE', name: 'Sweden', nameSv: 'Sverige', vatPrefix: 'SE', orgFormat: 'XXXXXX-XXXX', vatRate: 25, region: 'EU' },
+  { code: 'NO', name: 'Norway', nameSv: 'Norge', vatPrefix: 'NO', orgFormat: 'XXX XXX XXX', vatRate: 25, region: 'EEA' },
+  { code: 'DK', name: 'Denmark', nameSv: 'Danmark', vatPrefix: 'DK', orgFormat: 'XXXXXXXX', vatRate: 25, region: 'EU' },
+  // Non-VAT countries (0% VAT)
+  { code: 'US', name: 'United States', nameSv: 'USA', vatPrefix: '', orgFormat: 'EIN', vatRate: 0, region: 'NON_EU' },
+  { code: 'CA', name: 'Canada', nameSv: 'Kanada', vatPrefix: '', orgFormat: 'BN', vatRate: 0, region: 'NON_EU' },
 ];
+
+// US States for tax compliance
+export const US_STATES = [
+  { code: 'AL', name: 'Alabama' },
+  { code: 'AK', name: 'Alaska' },
+  { code: 'AZ', name: 'Arizona' },
+  { code: 'AR', name: 'Arkansas' },
+  { code: 'CA', name: 'California' },
+  { code: 'CO', name: 'Colorado' },
+  { code: 'CT', name: 'Connecticut' },
+  { code: 'DE', name: 'Delaware' },
+  { code: 'FL', name: 'Florida' },
+  { code: 'GA', name: 'Georgia' },
+  { code: 'HI', name: 'Hawaii' },
+  { code: 'ID', name: 'Idaho' },
+  { code: 'IL', name: 'Illinois' },
+  { code: 'IN', name: 'Indiana' },
+  { code: 'IA', name: 'Iowa' },
+  { code: 'KS', name: 'Kansas' },
+  { code: 'KY', name: 'Kentucky' },
+  { code: 'LA', name: 'Louisiana' },
+  { code: 'ME', name: 'Maine' },
+  { code: 'MD', name: 'Maryland' },
+  { code: 'MA', name: 'Massachusetts' },
+  { code: 'MI', name: 'Michigan' },
+  { code: 'MN', name: 'Minnesota' },
+  { code: 'MS', name: 'Mississippi' },
+  { code: 'MO', name: 'Missouri' },
+  { code: 'MT', name: 'Montana' },
+  { code: 'NE', name: 'Nebraska' },
+  { code: 'NV', name: 'Nevada' },
+  { code: 'NH', name: 'New Hampshire' },
+  { code: 'NJ', name: 'New Jersey' },
+  { code: 'NM', name: 'New Mexico' },
+  { code: 'NY', name: 'New York' },
+  { code: 'NC', name: 'North Carolina' },
+  { code: 'ND', name: 'North Dakota' },
+  { code: 'OH', name: 'Ohio' },
+  { code: 'OK', name: 'Oklahoma' },
+  { code: 'OR', name: 'Oregon' },
+  { code: 'PA', name: 'Pennsylvania' },
+  { code: 'RI', name: 'Rhode Island' },
+  { code: 'SC', name: 'South Carolina' },
+  { code: 'SD', name: 'South Dakota' },
+  { code: 'TN', name: 'Tennessee' },
+  { code: 'TX', name: 'Texas' },
+  { code: 'UT', name: 'Utah' },
+  { code: 'VT', name: 'Vermont' },
+  { code: 'VA', name: 'Virginia' },
+  { code: 'WA', name: 'Washington' },
+  { code: 'WV', name: 'West Virginia' },
+  { code: 'WI', name: 'Wisconsin' },
+  { code: 'WY', name: 'Wyoming' },
+  { code: 'DC', name: 'District of Columbia' },
+];
+
+// Get VAT rate for a specific country
+export function getVatRateForCountry(countryCode: string): number {
+  const country = ALL_COUNTRIES.find(c => c.code === countryCode);
+  return country?.vatRate || 0;
+}
+
+// Countries that don't require VAT (no VAT collection)
+export function isNonVatCountry(countryCode: string): boolean {
+  const nonVatCountries = ['US', 'CA'];
+  return nonVatCountries.includes(countryCode);
+}
+
+// Calculate VAT for an order based on country
+// Only 5 countries: SE, NO, DK = 25% VAT | US, CA = 0% VAT
+export function calculateVat(
+  netAmount: number,
+  customerType: 'private' | 'business' | null,
+  country: string,
+  _vatVerified: boolean = false
+): { vatRate: number; vatAmount: number; showVat: boolean; isReverseCharge: boolean } {
+  // US and CA = no VAT
+  if (isNonVatCountry(country)) {
+    return { vatRate: 0, vatAmount: 0, showVat: false, isReverseCharge: false };
+  }
+
+  // SE, NO, DK = 25% VAT for all customers
+  const vatCountries = ['SE', 'NO', 'DK'];
+  if (vatCountries.includes(country)) {
+    return { 
+      vatRate: 25, 
+      vatAmount: Math.round(netAmount * 0.25), 
+      showVat: true, 
+      isReverseCharge: false 
+    };
+  }
+  
+  // Default: no VAT
+  return { vatRate: 0, vatAmount: 0, showVat: false, isReverseCharge: false };
+}
 
 // Basic VAT format validation per country
 const validateVatFormat = (vatNumber: string, countryCode: string): boolean => {
   if (!vatNumber) return true; // VAT is optional
+  if (isNonVatCountry(countryCode)) return true; // No VAT format for non-VAT countries
   
   const patterns: Record<string, RegExp> = {
     SE: /^SE\d{12}$/i,
@@ -84,7 +204,7 @@ const validateOrgFormat = (orgNumber: string, countryCode: string): boolean => {
 };
 
 export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [isVerifyingVat, setIsVerifyingVat] = useState(false);
   const [vatError, setVatError] = useState<string | null>(null);
   const [orgError, setOrgError] = useState<string | null>(null);
@@ -94,7 +214,15 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
     onChange({ ...data, [field]: value });
   };
 
-  const selectedCountry = EU_COUNTRIES.find(c => c.code === data.country);
+  const selectedCountry = ALL_COUNTRIES.find(c => c.code === data.country);
+
+  // Set default country based on language when component mounts
+  useEffect(() => {
+    if (!data.country) {
+      const defaultCountry = lang === 'sv' ? 'SE' : 'US';
+      onChange({ ...data, country: defaultCountry });
+    }
+  }, [lang, data.country]);
 
   // Real VIES verification via edge function
   const verifyVat = useCallback(async (vatToVerify: string, country: string, currentData: CustomerTypeData) => {
@@ -195,6 +323,20 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
     }
   }, [data.orgNumber, data.country, selectedCountry?.orgFormat, t]);
 
+  // Sort countries: put current language's default first
+  const sortedCountries = [...ALL_COUNTRIES].sort((a, b) => {
+    // Swedish users see SE first
+    if (lang === 'sv') {
+      if (a.code === 'SE') return -1;
+      if (b.code === 'SE') return 1;
+    } else {
+      // English users see US first
+      if (a.code === 'US') return -1;
+      if (b.code === 'US') return 1;
+    }
+    return a.name.localeCompare(b.name);
+  });
+
   return (
     <div className="space-y-6">
       {/* Customer Type Selection */}
@@ -235,6 +377,82 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
         </div>
       </div>
 
+      {/* Country Selection (for all customers to determine VAT) */}
+      <AnimatePresence>
+        {data.customerType && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="p-4 bg-secondary/30 rounded-xl space-y-4">
+              <div>
+                <Label className="flex items-center gap-2 mb-2">
+                  {t('Ditt land', 'Your country')} *
+                  <InfoTooltip content={t('Välj ditt land för korrekt momshantering.', 'Select your country for correct tax handling.')} />
+                </Label>
+                <Select
+                  value={data.country}
+                  onValueChange={(value) => {
+                    updateField('country', value);
+                    // Reset state when country changes
+                    if (value !== 'US') {
+                      updateField('state', '');
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('Välj land', 'Select country')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sortedCountries.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {lang === 'sv' ? country.nameSv : country.name} {country.vatRate === 0 ? '' : `(${country.vatRate}% ${t('moms', 'VAT')})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {isNonVatCountry(data.country) && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    ✓ {t('Ingen moms tillämpas för ditt land', 'No VAT applied for your country')}
+                  </p>
+                )}
+              </div>
+
+              {/* US State Selection */}
+              {data.country === 'US' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <Label className="flex items-center gap-2 mb-2">
+                    {t('Delstat', 'State')} *
+                    <InfoTooltip content={t('Välj din delstat för skatteändamål.', 'Select your state for tax purposes.')} />
+                  </Label>
+                  <Select
+                    value={data.state}
+                    onValueChange={(value) => updateField('state', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('Välj delstat', 'Select state')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {US_STATES.map((state) => (
+                        <SelectItem key={state.code} value={state.code}>
+                          {state.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Business Fields */}
       <AnimatePresence>
         {data.customerType === 'business' && (
@@ -250,29 +468,6 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                 <Building2 className="w-4 h-4 text-accent" />
                 {t('Företagsuppgifter', 'Company Details')}
               </h4>
-
-              {/* Country */}
-              <div>
-                <Label className="flex items-center gap-2">
-                  {t('Land', 'Country')} *
-                  <InfoTooltip content={t('Välj det land där företaget är registrerat.', 'Select the country where the company is registered.')} />
-                </Label>
-                <Select
-                  value={data.country}
-                  onValueChange={(value) => updateField('country', value)}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder={t('Välj land', 'Select country')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {EU_COUNTRIES.map((country) => (
-                      <SelectItem key={country.code} value={country.code}>
-                        {country.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
 
               {/* Company Name */}
               <div>
@@ -310,57 +505,6 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                 )}
               </div>
 
-              {/* VAT Number */}
-              <div>
-                <Label className="flex items-center gap-2">
-                  {t('VAT-nummer', 'VAT Number')}
-                  <InfoTooltip 
-                    content={t('Om ditt företag är momsregistrerat. Lämna tomt om ej tillämpligt.', 'If your company is VAT registered. Leave empty if not applicable.')}
-                    example={`${selectedCountry?.vatPrefix || 'SE'}XXXXXXXXXXXX`}
-                  />
-                </Label>
-                <div className="flex gap-2 mt-1">
-                  <div className="relative flex-1">
-                    <Input
-                      value={data.vatNumber}
-                      onChange={(e) => {
-                        onChange({ 
-                          ...data, 
-                          vatNumber: e.target.value.toUpperCase(),
-                          vatVerified: false,
-                          vatVerifiedAt: null
-                        });
-                      }}
-                      placeholder={`${selectedCountry?.vatPrefix || 'SE'}XXXXXXXXXXXX`}
-                      className={cn(
-                        'h-12 w-full bg-background', 
-                        vatError && 'border-destructive', 
-                        data.vatVerified && 'border-green-500 pr-10'
-                      )}
-                    />
-                    {isVerifyingVat && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <Loader2 className="w-5 h-5 animate-spin text-accent" />
-                      </div>
-                    )}
-                    {data.vatVerified && !isVerifyingVat && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {vatError && (
-                  <p className="text-sm text-destructive mt-1">{vatError}</p>
-                )}
-                {data.vatVerified && (
-                  <p className="text-sm text-green-500 mt-1 flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" />
-                    {t('VAT-nummer verifierat', 'VAT number verified')}
-                  </p>
-                )}
-              </div>
-
               {/* Billing Address */}
               <div>
                 <Label className="flex items-center gap-2">
@@ -370,7 +514,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
                 <Input
                   value={data.billingAddress}
                   onChange={(e) => updateField('billingAddress', e.target.value)}
-                  placeholder={t('Gatuadress, Postnummer Ort', 'Street, Postal Code City')}
+                  placeholder={t('Gatuadress, Postnummer, Stad', 'Street address, Postal code, City')}
                   className="mt-1 h-12"
                 />
               </div>
@@ -381,37 +525,3 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
     </div>
   );
 }
-
-export const initialCustomerTypeData: CustomerTypeData = {
-  customerType: null,
-  companyName: '',
-  orgNumber: '',
-  vatNumber: '',
-  country: 'SE',
-  billingAddress: '',
-  vatVerified: false,
-  vatVerifiedAt: null,
-};
-
-// Validation function
-export const validateCustomerType = (data: CustomerTypeData): { valid: boolean; errors: string[] } => {
-  const errors: string[] = [];
-  
-  if (!data.customerType) {
-    errors.push('Please select Private or Business');
-  }
-  
-  if (data.customerType === 'business') {
-    if (!data.country) errors.push('Country is required');
-    if (!data.companyName) errors.push('Company name is required');
-    if (!data.orgNumber) errors.push('Organisation number is required');
-    if (!data.billingAddress) errors.push('Billing address is required');
-    
-    // If VAT number is provided, it must be verified
-    if (data.vatNumber && !data.vatVerified) {
-      errors.push('VAT number must be verified');
-    }
-  }
-  
-  return { valid: errors.length === 0, errors };
-};
