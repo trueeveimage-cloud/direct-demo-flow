@@ -216,13 +216,14 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
 
   const selectedCountry = ALL_COUNTRIES.find(c => c.code === data.country);
 
-  // Set default country based on language when component mounts
+  // Set default country based on language ONLY on initial mount if not set
   useEffect(() => {
     if (!data.country) {
       const defaultCountry = lang === 'sv' ? 'SE' : 'US';
       onChange({ ...data, country: defaultCountry });
     }
-  }, [lang, data.country]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Real VIES verification via edge function
   const verifyVat = useCallback(async (vatToVerify: string, country: string, currentData: CustomerTypeData) => {
