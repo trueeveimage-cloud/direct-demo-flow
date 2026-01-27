@@ -367,10 +367,21 @@ export default function FreeDemoPage() {
       />
       
       <div className="min-h-screen py-8 sm:py-12 relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        {/* Background Effects - Multiple Glow Bubbles */}
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          {/* Primary large glow - top left */}
+          <div className="absolute top-[-100px] left-[-50px] w-[500px] h-[500px] bg-accent/15 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+          {/* Secondary glow - top right */}
+          <div className="absolute top-[50px] right-[-100px] w-[400px] h-[400px] bg-accent/10 rounded-full blur-[80px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+          {/* Tertiary glow - center */}
+          <div className="absolute top-[30%] left-[40%] w-[300px] h-[300px] bg-accent/20 rounded-full blur-[60px]" />
+          {/* Bottom left glow */}
+          <div className="absolute bottom-[20%] left-[10%] w-[350px] h-[350px] bg-primary/15 rounded-full blur-[90px] animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+          {/* Bottom right glow */}
+          <div className="absolute bottom-[-50px] right-[20%] w-[450px] h-[450px] bg-accent/12 rounded-full blur-[100px]" />
+          {/* Small floating orbs */}
+          <div className="absolute top-[15%] right-[30%] w-[150px] h-[150px] bg-accent/25 rounded-full blur-[40px] animate-pulse" style={{ animationDuration: '3s' }} />
+          <div className="absolute top-[60%] left-[25%] w-[180px] h-[180px] bg-accent/18 rounded-full blur-[50px] animate-pulse" style={{ animationDuration: '4.5s', animationDelay: '0.5s' }} />
         </div>
 
         <div className="max-w-7xl mx-auto relative px-3 sm:px-6">

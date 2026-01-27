@@ -37,6 +37,7 @@ import IndustrySalonsPage from "./pages/IndustrySalonsPage";
 import IndustryEcommercePage from "./pages/IndustryEcommercePage";
 import CaseStudiesPage from "./pages/CaseStudiesPage";
 import CampaignLandingPage from "./pages/CampaignLandingPage";
+import AdLandingPage from "./pages/AdLandingPage";
 // Exit intent popup disabled
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ function AnimatedRoutes() {
         <Route path="/tjanster/salonger" element={<IndustrySalonsPage />} />
         <Route path="/tjanster/e-handel" element={<IndustryEcommercePage />} />
         <Route path="/kampanj" element={<CampaignLandingPage />} />
+        <Route path="/ad" element={<AdLandingPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </PageTransition>
