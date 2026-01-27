@@ -414,7 +414,7 @@ export default function Index() {
             transition={{ delay: 0.9, duration: 0.6, ease: 'easeOut' }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extralight leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4"
           >
-            <span className="text-reveal-gradient">{t('Prissmarta webbsidor.', 'Smart websites.')}</span>
+            <span className="text-reveal-gradient">{t('Prissmarta webbsidor.', 'Websites that sell.')}</span>
           </motion.h1>
 
           <motion.p 
