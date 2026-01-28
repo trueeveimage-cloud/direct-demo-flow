@@ -18,8 +18,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrencyFromLang, getAddonPrice, formatPrice } from '@/config/currency';
-import { trackFunnelEvent, FunnelEvents } from '@/lib/posthog';
+import { trackFunnelEvent, FunnelEvents, trackEvent, getUtmParams } from '@/lib/posthog';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
+import { useEmailCapture } from '@/hooks/useEmailCapture';
 import {
   Tooltip,
   TooltipContent,
