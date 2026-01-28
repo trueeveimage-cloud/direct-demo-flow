@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Briefcase, Target, ExternalLink, Globe, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { InfoTooltip } from '@/components/InfoTooltip';
 import { WizardFormData, businessTypes, websiteGoals, CustomerTypeData } from '../wizardConfig';
 import { BusinessTypeFollowUp } from './BusinessTypeFollowUp';
+import { useEmailCapture } from '@/hooks/useEmailCapture';
 
 // Only 5 countries supported with their VAT rates
 export const SUPPORTED_COUNTRIES = [
@@ -50,6 +51,7 @@ const sectionVariants = {
 
 function Step1ContactComponent({ formData, setFormData, customerTypeData, setCustomerTypeData, errors, showConceptOption = false }: Step1ContactProps) {
   const { t, lang } = useLanguage();
+  const { captureEmail } = useEmailCapture('wizard_step1');
 
   const updateField = <K extends keyof WizardFormData>(field: K, value: WizardFormData[K]) => {
     setFormData({ ...formData, [field]: value });
@@ -58,6 +60,13 @@ function Step1ContactComponent({ formData, setFormData, customerTypeData, setCus
   const updateCustomerField = <K extends keyof CustomerTypeData>(field: K, value: CustomerTypeData[K]) => {
     setCustomerTypeData({ ...customerTypeData, [field]: value });
   };
+
+  // Capture email as soon as it's typed (with debounce via hook)
+  useEffect(() => {
+    if (formData.email) {
+      captureEmail(formData.email, formData.businessName);
+    }
+  }, [formData.email, formData.businessName, captureEmail]);
 
   return (
     <div className="max-w-lg mx-auto space-y-6">

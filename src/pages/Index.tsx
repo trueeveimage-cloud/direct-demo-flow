@@ -433,7 +433,16 @@ export default function Index() {
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
             <MagneticButton strength={0.4}>
-              <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
+              <Button 
+                asChild 
+                size="lg" 
+                className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0"
+                onClick={() => {
+                  import('@/lib/posthog').then(({ trackEvent, getUtmParams }) => {
+                    trackEvent('cta_click', { button: 'hero_get_concept', page: 'index', ...getUtmParams() });
+                  });
+                }}
+              >
                 <Link to="/demo">
                   {t('Få ditt gratis koncept', 'Get your free concept')}
                   <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
@@ -441,7 +450,16 @@ export default function Index() {
               </Button>
             </MagneticButton>
             <MagneticButton strength={0.4}>
-              <Button asChild size="lg" className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
+              <Button 
+                asChild 
+                size="lg" 
+                className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0"
+                onClick={() => {
+                  import('@/lib/posthog').then(({ trackEvent, getUtmParams }) => {
+                    trackEvent('cta_click', { button: 'hero_order_directly', page: 'index', ...getUtmParams() });
+                  });
+                }}
+              >
                 <Link to="/bestall">
                   <span className="flex flex-col items-start leading-tight">
                     <span>{t('Beställ direkt', 'Order directly')}</span>
