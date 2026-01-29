@@ -41,6 +41,16 @@ const PricingCard = ({
         {/* Animated glow effect - pointer events disabled */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
         
+        {/* 25% SALE Badge */}
+        <div className="absolute -top-1 -right-1 z-20">
+          <div className="relative">
+            <div className="absolute inset-0 bg-red-500 blur-md opacity-50" />
+            <div className="relative bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg transform -rotate-12">
+              -25%
+            </div>
+          </div>
+        </div>
+        
         {/* Icon with glow */}
         <div className="relative w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-accent/20 group-hover:bg-accent/30 transition-colors z-10">
           <div className="absolute inset-0 bg-accent/30 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />

@@ -28,18 +28,18 @@ interface CampaignAnalyticsProps {
 
 export function CampaignAnalytics({ events }: CampaignAnalyticsProps) {
   const campaignData = useMemo(() => {
-    // Filter only campaign-related events
+    // Filter only campaign-related events - now tracking /ad instead of /kampanj
     const campaignPageViews = events.filter(e => 
       (e.event === '$pageview' || e.event === 'page_view' || e.event === 'LANDING_VIEW') &&
-      (e.properties.path === '/kampanj' || String(e.properties.path).includes('kampanj'))
+      (e.properties.path === '/ad' || String(e.properties.path).includes('/ad'))
     );
     
     const campaignLandingViews = events.filter(e => 
-      e.event === 'campaign_landing_view'
+      e.event === 'ad_landing_view' || e.event === 'campaign_landing_view'
     );
     
     const campaignCtaClicks = events.filter(e => 
-      e.event === 'campaign_cta_click'
+      e.event === 'ad_cta_click' || e.event === 'campaign_cta_click'
     );
     
     const learnMoreClicks = events.filter(e => 
@@ -72,13 +72,13 @@ export function CampaignAnalytics({ events }: CampaignAnalyticsProps) {
       
       const journey = sessionJourneys.get(sessionId)!;
       
-      if (e.event === 'campaign_landing_view' || 
+      if (e.event === 'ad_landing_view' || e.event === 'campaign_landing_view' || 
           ((e.event === '$pageview' || e.event === 'page_view') && 
-           String(e.properties.path).includes('kampanj'))) {
+           (String(e.properties.path) === '/ad' || String(e.properties.path).includes('/ad')))) {
         journey.enteredCampaign = true;
       }
       
-      if (e.event === 'campaign_cta_click') {
+      if (e.event === 'ad_cta_click' || e.event === 'campaign_cta_click') {
         journey.clickedCta = true;
       }
       
@@ -137,9 +137,9 @@ export function CampaignAnalytics({ events }: CampaignAnalyticsProps) {
       ctaBreakdown,
       hourlyDistribution,
       funnelData: [
-        { stage: 'Campaign Page Views', count: campaignSessions.length, percentage: 100 },
-        { stage: 'Clicked "Beställ direkt"', count: sessionsWithCta.length, percentage: campaignSessions.length > 0 ? (sessionsWithCta.length / campaignSessions.length) * 100 : 0 },
-        { stage: 'Clicked "Läs mer"', count: sessionsWithLearnMore.length, percentage: campaignSessions.length > 0 ? (sessionsWithLearnMore.length / campaignSessions.length) * 100 : 0 },
+        { stage: 'Ad Page Views', count: campaignSessions.length, percentage: 100 },
+        { stage: 'Clicked "Get Prototype"', count: sessionsWithCta.length, percentage: campaignSessions.length > 0 ? (sessionsWithCta.length / campaignSessions.length) * 100 : 0 },
+        { stage: 'Clicked "Order Directly"', count: sessionsWithLearnMore.length, percentage: campaignSessions.length > 0 ? (sessionsWithLearnMore.length / campaignSessions.length) * 100 : 0 },
         { stage: 'Completed Wizard', count: sessionsCompleted.length, percentage: campaignSessions.length > 0 ? (sessionsCompleted.length / campaignSessions.length) * 100 : 0 },
         { stage: 'Paid', count: sessionsPaid.length, percentage: campaignSessions.length > 0 ? (sessionsPaid.length / campaignSessions.length) * 100 : 0 },
       ]
@@ -177,7 +177,7 @@ export function CampaignAnalytics({ events }: CampaignAnalyticsProps) {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
                 <MousePointerClick className="w-4 h-4" />
-                "Beställ direkt" Clicks
+                "Get Prototype" Clicks
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -196,7 +196,7 @@ export function CampaignAnalytics({ events }: CampaignAnalyticsProps) {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
                 <ExternalLink className="w-4 h-4" />
-                "Läs mer" Clicks
+                "Order Directly" Clicks
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -293,24 +293,24 @@ export function CampaignAnalytics({ events }: CampaignAnalyticsProps) {
             <div className="space-y-4">
               <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">🔥 "Beställ direkt" (Gold)</span>
+                  <span className="font-medium">🔥 "Get Prototype" (Primary)</span>
                   <Badge className="bg-amber-500">{campaignData.ctaClicks} clicks</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">Primary conversion CTA</p>
+                <p className="text-sm text-muted-foreground">Primary conversion CTA - Free demo flow</p>
               </div>
               
               <div className="p-4 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">📖 "Läs mer"</span>
+                  <span className="font-medium">💳 "Order Directly"</span>
                   <Badge variant="secondary">{campaignData.learnMoreClicks} clicks</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">Information-seeking users</p>
+                <p className="text-sm text-muted-foreground">Secondary CTA - Direct purchase flow</p>
               </div>
               
               {campaignData.ctaClicks > 0 && campaignData.learnMoreClicks > 0 && (
                 <div className="p-3 bg-secondary/30 rounded-lg text-center">
                   <p className="text-sm text-muted-foreground">
-                    "Beställ direkt" outperforms "Läs mer" by{' '}
+                    "Get Prototype" outperforms "Order Directly" by{' '}
                     <span className="font-bold text-foreground">
                       {((campaignData.ctaClicks / campaignData.learnMoreClicks) * 100 - 100).toFixed(0)}%
                     </span>
