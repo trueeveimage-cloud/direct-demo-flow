@@ -264,12 +264,18 @@ export default function PricingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 border border-accent/20 mb-8"
+                className="flex flex-wrap items-center justify-center gap-3 mb-8"
               >
-                <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium text-accent">
-                  {t('Transparent prissättning', 'Transparent pricing')}
-                </span>
+                {/* 25% SALE Badge */}
+                <div className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-red-500 text-white text-sm font-bold shadow-lg shadow-red-500/30">
+                  <Sparkles className="w-4 h-4" />
+                  {t('25% RABATT', '25% SALE')}
+                </div>
+                <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 border border-accent/20">
+                  <span className="text-sm font-medium text-accent">
+                    {t('Transparent prissättning', 'Transparent pricing')}
+                  </span>
+                </div>
               </motion.div>
               
               <motion.h1 

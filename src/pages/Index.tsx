@@ -346,24 +346,32 @@ export default function Index() {
             </span>
           </motion.div>
 
-          {/* Urgency Badge - Clickable with Dialog explanation */}
-          <Dialog open={showSpotsDialog} onOpenChange={setShowSpotsDialog}>
-            <DialogTrigger asChild>
-              <motion.button 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, duration: 0.5, ease: 'easeOut' }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8 backdrop-blur-sm border border-accent/20 hover:bg-accent/20 hover:border-accent/30 transition-colors cursor-pointer"
-              >
-                <Clock className="w-4 h-4" />
-                {spotsLoading ? (
-                  <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
-                ) : remainingSpots > 0 ? (
-                  <span>{remainingSpots} {remainingSpots === 1 ? t('plats kvar', 'spot left') : t('platser kvar', 'spots left')}</span>
-                ) : (
-                  <span className="text-warning">{t('Fullbokat', 'Fully booked')}</span>
-                )}
-              </motion.button>
+          {/* Sale Badge + Urgency Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.5, ease: 'easeOut' }}
+            className="flex flex-wrap items-center justify-center gap-3 mb-8"
+          >
+            {/* 25% SALE Badge */}
+            <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-red-600 to-red-500 text-white text-sm font-bold shadow-lg shadow-red-500/30">
+              <Sparkles className="w-4 h-4" />
+              {t('25% RABATT', '25% SALE')}
+            </div>
+            
+            {/* Spots Badge - Clickable */}
+            <Dialog open={showSpotsDialog} onOpenChange={setShowSpotsDialog}>
+              <DialogTrigger asChild>
+                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium backdrop-blur-sm border border-accent/20 hover:bg-accent/20 hover:border-accent/30 transition-colors cursor-pointer">
+                  <Clock className="w-4 h-4" />
+                  {spotsLoading ? (
+                    <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
+                  ) : remainingSpots > 0 ? (
+                    <span>{remainingSpots} {remainingSpots === 1 ? t('plats kvar', 'spot left') : t('platser kvar', 'spots left')}</span>
+                  ) : (
+                    <span className="text-warning">{t('Fullbokat', 'Fully booked')}</span>
+                  )}
+                </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
@@ -407,6 +415,7 @@ export default function Index() {
               </div>
             </DialogContent>
           </Dialog>
+          </motion.div>
 
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
