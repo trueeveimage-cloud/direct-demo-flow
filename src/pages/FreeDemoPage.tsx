@@ -461,10 +461,6 @@ export default function FreeDemoPage() {
               </DialogContent>
             </Dialog>
 
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent text-sm font-medium mb-4 backdrop-blur-sm border border-accent/30">
-              <Clock className="w-4 h-4" />
-              {t('Klart inom 72 timmar', 'Ready within 72 hours')}
-            </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight mb-3 sm:mb-4">
               {t('Få ditt ', 'Get your ')}
               <span className="text-accent">
