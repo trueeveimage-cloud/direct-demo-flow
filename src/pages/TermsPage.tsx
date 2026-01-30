@@ -43,24 +43,24 @@ export default function TermsPage() {
 
           <AnimatedSection animation="fade-up" delay={250}>
             <section>
-              <h2 className="text-xl font-heading font-semibold mb-3">{t('Webbpaket (EUR)', 'Website Packages (EUR)')}</h2>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Webbpaket (med 25% rabatt)', 'Website Packages (with 25% off)')}</h2>
               <ul className="space-y-3 text-muted-foreground">
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Starter:</strong> €490 — {t('Upp till 3 sidor, 7 dagars leverans, 1 revision', 'Up to 3 pages, 7-day delivery, 1 revision')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Standard:</strong> €790 — {t('Upp till 5 sidor, 7 dagars leverans, 2 revisioner, flerspråk', 'Up to 5 pages, 7-day delivery, 2 revisions, multi-language')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> €1,290 — {t('Obegränsade sidor, 7 dagars leverans, obegränsade revisioner, flerspråk, bokningssystem, Google Analytics', 'Unlimited pages, 7-day delivery, unlimited revisions, multi-language, booking system, Google Analytics')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Starter:</strong> 2 900 kr / $290 <span className="line-through text-muted-foreground/60">(3 900 kr / $390)</span> — {t('Upp till 3 sidor, 7 dagars leverans, 1 revision', 'Up to 3 pages, 7-day delivery, 1 revision')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Standard:</strong> 5 900 kr / $590 <span className="line-through text-muted-foreground/60">(7 900 kr / $790)</span> — {t('Upp till 5 sidor, 7 dagars leverans, 2 revisioner, flerspråk', 'Up to 5 pages, 7-day delivery, 2 revisions, multi-language')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> 12 900 kr / $1,290 <span className="line-through text-muted-foreground/60">(16 900 kr / $1,690)</span> — {t('Obegränsade sidor, 7 dagars leverans, obegränsade revisioner, flerspråk, bokningssystem, Google Analytics', 'Unlimited pages, 7-day delivery, unlimited revisions, multi-language, booking system, Google Analytics')}</li>
               </ul>
-              <p className="text-muted-foreground mt-3">{t('Tillägg: Bokningssystem €200 (ingår i Pro), Adminpanel €100, Kassasystem €50 (ingår i Standard & Pro).', 'Add-ons: Booking system €200 (included in Pro), Admin panel €100, Checkout system €50 (included in Standard & Pro).')}</p>
+              <p className="text-muted-foreground mt-3">{t('Tillägg: Bokningssystem +2 000 kr/$200 (ingår i Pro), Adminpanel +1 000 kr/$100, Kassasystem +500 kr/$50 (ingår i Standard & Pro).', 'Add-ons: Booking system +2,000 kr/$200 (included in Pro), Admin panel +1,000 kr/$100, Checkout system +500 kr/$50 (included in Standard & Pro).')}</p>
             </section>
           </AnimatedSection>
 
           <AnimatedSection animation="fade-up" delay={300}>
             <section>
-              <h2 className="text-xl font-heading font-semibold mb-3">{t('Månatlig webbvård (EUR)', 'Monthly Care Plans (EUR)')}</h2>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Månatlig webbvård', 'Monthly Care Plans')}</h2>
               <p className="text-muted-foreground mb-3">{t('Webbvårdsplaner faktureras separat som återkommande prenumerationer (månadsvis eller årsvis).', 'Care plans are billed separately as recurring subscriptions (monthly or yearly).')}</p>
               <ul className="space-y-3 text-muted-foreground">
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Basic:</strong> €25/{t('mån', 'mo')} (€240/{t('år', 'yr')} — {t('spara 20%', 'save 20%')}) — {t('Hosting, uppdateringar, säkerhetskopiering', 'Hosting, updates, backups')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Aktiv:</strong> €45/{t('mån', 'mo')} (€432/{t('år', 'yr')} — {t('spara 20%', 'save 20%')}) — {t('Allt i Basic + domän, e-post, 1h ändringar/mån', 'Everything in Basic + domain, email, 1h edits/month')}</li>
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> €75/{t('mån', 'mo')} (€720/{t('år', 'yr')} — {t('spara 20%', 'save 20%')}) — {t('Allt i Aktiv + 3h ändringar/mån, prioriterad support', 'Everything in Aktiv + 3h edits/month, priority support')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Basic:</strong> 250 kr/$25 {t('per mån', 'per mo')} (2 400 kr/$240 {t('per år', 'per yr')} — {t('spara 20%', 'save 20%')}) — {t('Hosting, uppdateringar, säkerhetskopiering', 'Hosting, updates, backups')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Aktiv:</strong> 450 kr/$45 {t('per mån', 'per mo')} (4 320 kr/$432 {t('per år', 'per yr')} — {t('spara 20%', 'save 20%')}) — {t('Allt i Basic + domän, e-post, 1h ändringar/mån', 'Everything in Basic + domain, email, 1h edits/month')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span><strong>Pro:</strong> 750 kr/$75 {t('per mån', 'per mo')} (7 200 kr/$720 {t('per år', 'per yr')} — {t('spara 20%', 'save 20%')}) — {t('Allt i Aktiv + 3h ändringar/mån, prioriterad support', 'Everything in Aktiv + 3h edits/month, priority support')}</li>
               </ul>
               <p className="text-muted-foreground mt-3">{t('Vårdplaner kan avslutas när som helst med 30 dagars uppsägning.', 'Care plans can be cancelled anytime with 30 days notice.')}</p>
             </section>
@@ -70,7 +70,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Leveranstider', 'Delivery Times')}</h2>
               <ul className="space-y-2 text-muted-foreground">
-                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Gratis koncept: 72 timmar efter betald verifieringsavgift (€50)', 'Free concept: 72 hours after paid verification fee (€50)')}</li>
+                <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Gratis koncept: 72 timmar efter betald verifieringsavgift (500 kr / $50)', 'Free concept: 72 hours after paid verification fee (500 kr / $50)')}</li>
                 <li className="flex items-start gap-2"><span className="font-semibold text-foreground">•</span>{t('Alla webbpaket: 7 arbetsdagar', 'All website packages: 7 business days')}</li>
               </ul>
             </section>
@@ -109,7 +109,7 @@ export default function TermsPage() {
           <AnimatedSection animation="fade-up" delay={550}>
             <section className="pt-8 border-t border-border">
               <p className="text-muted-foreground">{t('Har du frågor om våra villkor? Kontakta oss på nordicsite.help@gmail.com', 'Questions about our terms? Contact us at nordicsite.help@gmail.com')}</p>
-              <p className="text-sm text-muted-foreground mt-4">{t('Senast uppdaterad:', 'Last updated:')} 2024-12-31</p>
+              <p className="text-sm text-muted-foreground mt-4">{t('Senast uppdaterad:', 'Last updated:')} 2025-01-30</p>
             </section>
           </AnimatedSection>
         </div>
