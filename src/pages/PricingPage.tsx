@@ -41,12 +41,12 @@ const PricingCard = ({
         {/* Animated glow effect - pointer events disabled */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
         
-        {/* 25% SALE Badge */}
-        <div className="absolute -top-1 -right-1 z-20">
+        {/* 25% SALE Badge - Premium ribbon style */}
+        <div className="absolute top-4 -right-8 z-20">
           <div className="relative">
-            <div className="absolute inset-0 bg-red-500 blur-md opacity-50" />
-            <div className="relative bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg transform -rotate-12">
-              -25%
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-accent blur-lg opacity-60" />
+            <div className="relative bg-gradient-to-r from-accent via-amber-500 to-accent text-background text-xs font-bold px-8 py-1.5 shadow-lg transform rotate-45 uppercase tracking-wider">
+              25% {lang === 'sv' ? 'rabatt' : 'off'}
             </div>
           </div>
         </div>
