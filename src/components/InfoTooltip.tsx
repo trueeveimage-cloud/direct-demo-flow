@@ -30,12 +30,12 @@ export function InfoTooltip({ content, example }: InfoTooltipProps) {
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted hover:bg-accent/20 transition-colors ml-1"
+                className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent/20 hover:bg-accent/40 transition-all ml-1 animate-pulse hover:animate-none shadow-sm hover:shadow-accent/30"
               >
-                <Info className="w-3 h-3 text-muted-foreground" />
+                <Info className="w-3 h-3 text-accent" />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-xs p-3">
+            <TooltipContent side="top" className="max-w-xs p-3 bg-popover border-accent/30">
               <p className="text-sm">{content}</p>
               {example && (
                 <p className="text-xs text-muted-foreground mt-1 italic">
@@ -53,12 +53,12 @@ export function InfoTooltip({ content, example }: InfoTooltipProps) {
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted hover:bg-accent/20 transition-colors ml-1"
+              className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-accent/20 hover:bg-accent/40 transition-all ml-1 animate-pulse active:animate-none shadow-sm"
             >
-              <Info className="w-3 h-3 text-muted-foreground" />
+              <Info className="w-3.5 h-3.5 text-accent" />
             </button>
           </PopoverTrigger>
-          <PopoverContent side="top" className="max-w-xs p-3">
+          <PopoverContent side="top" className="max-w-xs p-3 bg-popover border-accent/30">
             <p className="text-sm">{content}</p>
             {example && (
               <p className="text-xs text-muted-foreground mt-1 italic">

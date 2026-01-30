@@ -54,6 +54,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
   const [lastAttemptedStep, setLastAttemptedStep] = useState<FormStep | null>(null);
   const [showCarePlanCompare, setShowCarePlanCompare] = useState(false);
   const [showPackageCompare, setShowPackageCompare] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   
   // Currency based on language
   const currency = getCurrencyFromLang(lang);
@@ -137,8 +138,8 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
         if (customerTypeData.customerType === 'business') {
           if (!customerTypeData.companyName?.trim()) newErrors.companyName = true;
           if (!customerTypeData.orgNumber?.trim()) newErrors.orgNumber = true;
-          if (!customerTypeData.country) newErrors.country = true;
         }
+        if (!acceptedTerms) newErrors.acceptedTerms = true;
         break;
     }
     
@@ -167,6 +168,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
       companyName: '[data-field="companyName"], #companyName, input[name="companyName"]',
       orgNumber: '[data-field="orgNumber"], #orgNumber, input[name="orgNumber"]',
       country: '[data-field="country"], #country, select[name="country"]',
+      acceptedTerms: '#accept-terms',
     };
     
     const selector = fieldSelectors[errorKey];
@@ -436,6 +438,8 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
               setFormData(prev => ({ ...prev, wantsAdminPanel: true }));
               setAddedAdminPanel(true);
             }}
+            acceptedTerms={acceptedTerms}
+            onAcceptTerms={setAcceptedTerms}
           />
         );
       default:

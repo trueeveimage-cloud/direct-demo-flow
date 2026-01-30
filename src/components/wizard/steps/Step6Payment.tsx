@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, CreditCard, Settings } from 'lucide-react';
+import { Sparkles, CreditCard, Settings, CheckCircle2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CheckoutUpsells } from '@/components/CheckoutUpsells';
 import { CustomerTypeSelection, CustomerTypeData, calculateVat, isNonVatCountry } from './CustomerTypeSelection';
 import { CheckoutTrustSection } from './CheckoutTrustSection';
 import { WizardFormData, packages, carePlans, getBookingAddonPrice, getVerificationFee, getCurrencyFromLang, formatPrice as formatPriceFn, getPackagePrice, getCarePlanPrice, getAddonPrice } from '../wizardConfig';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 interface Step6PaymentProps {
   formData: WizardFormData;
@@ -14,6 +18,8 @@ interface Step6PaymentProps {
   onCustomerTypeChange: (data: CustomerTypeData) => void;
   addedAdminPanel?: boolean;
   onAddAdminPanel?: () => void;
+  acceptedTerms?: boolean;
+  onAcceptTerms?: (accepted: boolean) => void;
 }
 
 export function Step6Payment({ 
@@ -23,7 +29,9 @@ export function Step6Payment({
   customerTypeData,
   onCustomerTypeChange,
   addedAdminPanel = false,
-  onAddAdminPanel
+  onAddAdminPanel,
+  acceptedTerms = false,
+  onAcceptTerms
 }: Step6PaymentProps) {
   const { t, lang } = useLanguage();
   const currency = getCurrencyFromLang(lang);
@@ -239,6 +247,61 @@ export function Step6Payment({
               </span>
             </div>
           )}
+        </div>
+      </motion.div>
+
+      {/* Terms Acceptance - Required before payment */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`p-4 rounded-xl border-2 transition-all ${
+          acceptedTerms ? 'border-accent/50 bg-accent/5' : 'border-border bg-secondary/30'
+        }`}
+      >
+        <div className="flex items-start gap-3">
+          <Checkbox
+            id="accept-terms"
+            checked={acceptedTerms}
+            onCheckedChange={(checked) => onAcceptTerms?.(checked === true)}
+            className="mt-0.5"
+          />
+          <div className="flex-1">
+            <Label 
+              htmlFor="accept-terms" 
+              className="text-sm font-medium cursor-pointer leading-relaxed"
+            >
+              {t(
+                'Jag har läst och godkänner ',
+                'I have read and accept the '
+              )}
+              <Link 
+                to="/villkor" 
+                target="_blank" 
+                className="text-accent hover:underline font-semibold"
+              >
+                {t('allmänna villkor', 'terms and conditions')}
+              </Link>
+              {t(' och ', ' and ')}
+              <Link 
+                to="/integritet" 
+                target="_blank" 
+                className="text-accent hover:underline font-semibold"
+              >
+                {t('integritetspolicy', 'privacy policy')}
+              </Link>
+              . *
+            </Label>
+            {acceptedTerms && (
+              <motion.p 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                className="text-xs text-accent mt-1 flex items-center gap-1"
+              >
+                <CheckCircle2 className="w-3 h-3" />
+                {t('Tack! Du kan nu fortsätta till betalning.', 'Thank you! You can now proceed to payment.')}
+              </motion.p>
+            )}
+          </div>
         </div>
       </motion.div>
 
