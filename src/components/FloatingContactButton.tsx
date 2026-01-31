@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { MessageCircle, HelpCircle, Mail } from 'lucide-react';
+import { MessageCircle, HelpCircle, Mail, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { motion } from 'framer-motion';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,27 +15,44 @@ export function FloatingContactButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button 
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-secondary/80 backdrop-blur-md border border-border/50 rounded-full shadow-lg hover:bg-secondary hover:border-accent/30 transition-all duration-300 group"
+        <motion.button 
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 1, type: "spring", stiffness: 200 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-accent to-accent/80 text-accent-foreground rounded-full shadow-2xl shadow-accent/30 hover:shadow-accent/50 transition-all duration-300 group border border-accent/50"
           aria-label={t('Hjälp & Kontakt', 'Help & Contact')}
         >
-          <MessageCircle className="w-5 h-5 text-accent" />
-          <span className="text-sm font-medium hidden sm:inline">
-            {t('Frågor?', 'Questions?')}
+          {/* Pulsing ring effect */}
+          <span className="absolute inset-0 rounded-full animate-ping bg-accent/30 opacity-75" style={{ animationDuration: '2s' }} />
+          <span className="absolute inset-0 rounded-full animate-pulse bg-accent/20" style={{ animationDuration: '3s' }} />
+          
+          {/* Icon with sparkle */}
+          <span className="relative flex items-center gap-2">
+            <Sparkles className="w-4 h-4 absolute -top-1 -right-1 text-white animate-pulse" />
+            <MessageCircle className="w-5 h-5 text-white" />
+            <span className="text-sm font-semibold text-white hidden sm:inline">
+              {t('Frågor?', 'Questions?')}
+            </span>
           </span>
-        </button>
+        </motion.button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 mb-2">
+      <DropdownMenuContent align="end" className="w-52 mb-2 bg-card/95 backdrop-blur-md border-accent/20">
         <DropdownMenuItem asChild>
-          <Link to="/faq" className="flex items-center gap-2 cursor-pointer">
-            <HelpCircle className="w-4 h-4 text-accent" />
-            <span>{t('Vanliga frågor (FAQ)', 'FAQ')}</span>
+          <Link to="/faq" className="flex items-center gap-3 cursor-pointer py-3">
+            <div className="p-2 rounded-full bg-accent/10">
+              <HelpCircle className="w-4 h-4 text-accent" />
+            </div>
+            <span className="font-medium">{t('Vanliga frågor (FAQ)', 'FAQ')}</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/kontakt" className="flex items-center gap-2 cursor-pointer">
-            <Mail className="w-4 h-4 text-accent" />
-            <span>{t('Kontakta oss', 'Contact us')}</span>
+          <Link to="/kontakt" className="flex items-center gap-3 cursor-pointer py-3">
+            <div className="p-2 rounded-full bg-accent/10">
+              <Mail className="w-4 h-4 text-accent" />
+            </div>
+            <span className="font-medium">{t('Kontakta oss', 'Contact us')}</span>
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
