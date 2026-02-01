@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { Shield, Clock, RefreshCw, CheckCircle, CreditCard, ShieldCheck, Lock } from 'lucide-react';
+import { Shield, Clock, RefreshCw, CheckCircle, CreditCard, ShieldCheck, Lock, Star, Award, BadgeCheck } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { packages } from '../wizardConfig';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 
 interface CheckoutTrustSectionProps {
   selectedPackage: string;
@@ -11,109 +12,143 @@ interface CheckoutTrustSectionProps {
 
 export function CheckoutTrustSection({ selectedPackage, isPostDemoFlow = false }: CheckoutTrustSectionProps) {
   const { t } = useLanguage();
+  const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
   
   const pkg = packages.find(p => p.id === selectedPackage);
   const deliveryDays = pkg?.delivery || 10;
 
   return (
     <div className="space-y-4">
-      {/* Limited Time Countdown */}
-      <CountdownTimer variant="compact" className="w-full justify-center" />
-      
-      {/* Main Trust Section */}
+      {/* Urgency Bar - Limited Spots + Countdown */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row items-center justify-center gap-3 p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-accent/5 to-amber-500/10 border border-amber-500/20"
+      >
+        {/* Spots Left */}
+        {!spotsLoading && remainingSpots > 0 && remainingSpots <= 5 && (
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+            </span>
+            <span className="text-amber-400">
+              {t('Endast', 'Only')} {remainingSpots} {t('platser kvar denna vecka', 'spots left this week')}
+            </span>
+          </div>
+        )}
+        
+        {/* Countdown */}
+        <CountdownTimer variant="compact" className="border-0 bg-transparent p-0" />
+      </motion.div>
+
+      {/* Premium Trust Badges */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-3 gap-2"
+      >
+        <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-secondary/50 border border-border/50">
+          <Lock className="w-5 h-5 text-accent" />
+          <span className="text-[10px] sm:text-xs text-center font-medium">{t('256-bit SSL', '256-bit SSL')}</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-secondary/50 border border-border/50">
+          <Shield className="w-5 h-5 text-accent" />
+          <span className="text-[10px] sm:text-xs text-center font-medium">{t('Stripe-säkrad', 'Stripe-secured')}</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+          <ShieldCheck className="w-5 h-5 text-green-500" />
+          <span className="text-[10px] sm:text-xs text-center font-medium text-green-400">{t('Pengarna tillbaka', 'Money back')}</span>
+        </div>
+      </motion.div>
+
+      {/* Money-Back Guarantee - Prominent */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="p-5 bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 rounded-xl border border-green-500/30"
+      >
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-green-500/20 rounded-full">
+            <Award className="w-6 h-6 text-green-400" />
+          </div>
+          <div className="flex-1">
+            <h4 className="font-bold text-green-400 mb-1">{t('100% Nöjd-garanti', '100% Satisfaction Guarantee')}</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {t(
+                'Älskar du inte resultatet? Få full återbetalning inom 5 dagar. Vi tar all risk – du betalar bara för det du gillar.',
+                "Don't love the result? Get a full refund within 5 days. We take all the risk – you only pay for what you love."
+              )}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Customer Testimonial - Social Proof */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="p-6 bg-gradient-to-br from-accent/5 to-accent/10 rounded-xl border border-accent/20 space-y-4"
+        className="p-4 rounded-xl bg-secondary/30 border border-border/50"
       >
-        {/* Trust Badges Row */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pb-4 border-b border-accent/10">
-          <div className="flex items-center gap-2 text-sm">
-            <Lock className="w-4 h-4 text-accent" />
-            <span>{t('256-bit SSL', '256-bit SSL')}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Shield className="w-4 h-4 text-accent" />
-            <span>{t('Stripe-säkrad', 'Stripe-secured')}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <ShieldCheck className="w-4 h-4 text-green-500" />
-            <span>{t('Pengarna tillbaka', 'Money back')}</span>
-          </div>
+        <div className="flex gap-0.5 mb-2">
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} className="w-3.5 h-3.5 fill-accent text-accent" />
+          ))}
         </div>
-
-        {/* Secure Payment Badge */}
-        <div className="flex items-center gap-3 pb-4 border-b border-accent/10">
-          <div className="p-2 bg-accent/20 rounded-lg">
-            <Shield className="w-5 h-5 text-accent" />
+        <blockquote className="text-sm italic text-foreground mb-2">
+          "{t(
+            'Jag var skeptisk till att beställa online, men de levererade precis vad jag ville. Fantastisk service!',
+            'I was skeptical about ordering online, but they delivered exactly what I wanted. Amazing service!'
+          )}"
+        </blockquote>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
+            <BadgeCheck className="w-4 h-4 text-accent" />
           </div>
-          <div>
-            <p className="font-semibold">{t('Säker betalning via Stripe', 'Secure payment via Stripe')}</p>
-            <p className="text-xs text-muted-foreground">{t('Bankkort, Klarna, Apple Pay & mer', 'Credit card, Klarna, Apple Pay & more')}</p>
-          </div>
-          <CreditCard className="w-8 h-8 ml-auto text-muted-foreground/50" />
+          <cite className="text-xs text-muted-foreground not-italic">
+            — Erik S., {t('Restaurangägare', 'Restaurant Owner')}
+          </cite>
         </div>
+      </motion.div>
 
-        {/* What Happens Next */}
-        <div>
-          <h4 className="font-medium text-sm mb-3 text-muted-foreground">
-            {t('Vad händer härnäst?', 'What happens next?')}
-          </h4>
-          <ul className="space-y-3">
-            {isPostDemoFlow && (
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-sm">{t('Koncept godkänt', 'Concept approved')}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t('Din konceptavgift är redan avdragen', 'Your concept fee has been deducted')}
-                  </p>
-                </div>
-              </li>
-            )}
-            
-            <li className="flex items-start gap-3">
-              <Clock className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-sm">
-                  {t('Leverans inom', 'Delivery within')} {deliveryDays} {t('dagar', 'days')}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {pkg?.name} {t('paket', 'package')} — {t('Alla paket levereras inom 7 dagar', 'All packages delivered within 7 days')}
-                </p>
-              </div>
+      {/* What Happens Next - Simplified */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="p-4 rounded-xl bg-secondary/20 border border-border/30"
+      >
+        <h4 className="font-medium text-sm mb-3 text-muted-foreground flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 text-accent" />
+          {t('Efter betalning', 'After payment')}
+        </h4>
+        <ul className="space-y-2 text-sm">
+          {isPostDemoFlow && (
+            <li className="flex items-center gap-2 text-accent">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{t('Din konceptavgift avdragen', 'Concept fee deducted')}</span>
             </li>
-
-            <li className="flex items-start gap-3">
-              <RefreshCw className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-sm">{t('Gratis revisioner ingår', 'Free revisions included')}</p>
-                <p className="text-xs text-muted-foreground">
-                  {pkg?.id === 'starter' && t('10 revisioner', '10 revisions')}
-                  {pkg?.id === 'standard' && t('20 revisioner', '20 revisions')}
-                  {pkg?.id === 'pro' && t('Obegränsade revisioner', 'Unlimited revisions')}
-                </p>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        {/* Money-Back Guarantee */}
-        <div className="pt-3 border-t border-accent/10 bg-green-500/5 -mx-6 px-6 pb-0 -mb-6 rounded-b-xl">
-          <div className="flex items-start gap-3 py-4">
-            <ShieldCheck className="w-6 h-6 text-green-500 flex-shrink-0" />
-            <div>
-              <p className="font-semibold text-sm mb-1">{t('100% Nöjd-garanti', '100% Satisfaction Guarantee')}</p>
-              <p className="text-xs text-muted-foreground">
-                {t(
-                  'Om du inte är nöjd med slutresultatet efter alla inkluderade revisioner, kontakta oss så löser vi det. 5 dagars full ångerrätt på konceptet.',
-                  "If you're not satisfied with the final result after all included revisions, contact us and we'll work it out. 5-day full refund on concept."
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
+          )}
+          <li className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-accent flex-shrink-0" />
+            <span>{t('Leverans inom', 'Delivery within')} {deliveryDays} {t('dagar', 'days')}</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <RefreshCw className="w-4 h-4 text-accent flex-shrink-0" />
+            <span>
+              {pkg?.id === 'starter' && t('10 revisioner ingår', '10 revisions included')}
+              {pkg?.id === 'standard' && t('20 revisioner ingår', '20 revisions included')}
+              {pkg?.id === 'pro' && t('Obegränsade revisioner', 'Unlimited revisions')}
+            </span>
+          </li>
+          <li className="flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-accent flex-shrink-0" />
+            <span>{t('Bekräftelsemail direkt', 'Confirmation email instantly')}</span>
+          </li>
+        </ul>
       </motion.div>
     </div>
   );
