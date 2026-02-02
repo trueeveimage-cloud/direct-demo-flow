@@ -1,29 +1,25 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
-import { ArrowRight, CheckCircle2, Clock, Shield, Star, Sparkles, Zap, Award, BadgeCheck, Users } from 'lucide-react';
+import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { motion, useInView } from 'framer-motion';
 import { trackEvent, getUtmParams } from '@/lib/posthog';
-import { useRemainingSpots } from '@/hooks/useRemainingSpots';
-import { CountdownTimer } from '@/components/CountdownTimer';
-import { useIsMobile } from '@/hooks/use-mobile';
 
-// Simple fade-up animation for mobile-friendly performance
-function RevealSection({ children, className = '', delay = 0 }: { 
+// Fade up reveal for sections
+function Reveal({ children, className = '', delay = 0 }: { 
   children: React.ReactNode; 
   className?: string; 
   delay?: number;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
   
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
     >
       {children}
@@ -31,376 +27,489 @@ function RevealSection({ children, className = '', delay = 0 }: {
   );
 }
 
+// Slow text reveal for emphasis
+function SlowReveal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0 }}
+      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+      transition={{ duration: 1.2, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Parallax section wrapper
+function ParallaxSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [60, -60]);
+  
+  return (
+    <div ref={ref} className={`relative overflow-hidden ${className}`}>
+      <motion.div style={{ y }} className="relative">
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
+// Timeline step component
+function TimelineStep({ 
+  number, 
+  title, 
+  description, 
+  isLast = false 
+}: { 
+  number: string; 
+  title: string; 
+  description: string;
+  isLast?: boolean;
+}) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: -20 }}
+      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="relative pl-12 pb-12 last:pb-0"
+    >
+      {/* Vertical line */}
+      {!isLast && (
+        <motion.div
+          initial={{ scaleY: 0 }}
+          animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="absolute left-[11px] top-6 w-px h-full bg-gradient-to-b from-accent/40 to-transparent origin-top"
+        />
+      )}
+      
+      {/* Number dot */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={isInView ? { scale: 1 } : { scale: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="absolute left-0 top-0 w-6 h-6 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center"
+      >
+        <span className="text-[10px] font-medium text-accent">{number}</span>
+      </motion.div>
+      
+      <h4 className="text-lg font-medium text-foreground mb-2">{title}</h4>
+      <p className="text-sm text-muted-foreground leading-relaxed max-w-md">{description}</p>
+    </motion.div>
+  );
+}
+
 export default function AdLandingPage() {
-  const { t, lang } = useLanguage();
-  const [searchParams] = useSearchParams();
+  const { t } = useLanguage();
   const hasTracked = useRef(false);
-  const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
-  const isMobile = useIsMobile();
   
   useEffect(() => {
     if (hasTracked.current) return;
     hasTracked.current = true;
-    
-    const utmParams = getUtmParams();
-    trackEvent('ad_landing_view', {
-      campaign_page: 'ad_landing',
-      ...utmParams,
-      ref: searchParams.get('ref') || undefined,
-      ad_id: searchParams.get('ad_id') || undefined,
-    });
-  }, [searchParams]);
-  
-  const price = lang === 'sv' ? '2 900 kr' : '$290';
+    trackEvent('ad_landing_view', { campaign_page: 'ad_landing', ...getUtmParams() });
+  }, []);
 
   const handleCTAClick = (button: string) => {
     trackEvent('ad_cta_click', { button, page: '/ad', ...getUtmParams() });
   };
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground">
       
-      {/* Minimal Header - Mobile optimized */}
-      <header className="sticky top-0 z-50 py-4 px-4 sm:px-6 bg-background/80 backdrop-blur-md border-b border-border/20">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="font-heading font-extrabold text-xl sm:text-2xl tracking-tighter">
-            Nomia<span className="text-accent">.</span>
-          </Link>
+      {/* ═══════════════════════════════════════════════════════════════
+          HERO — Above the fold
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="min-h-[90vh] flex flex-col justify-center px-6 sm:px-8 lg:px-16">
+        <div className="max-w-3xl mx-auto w-full">
           
-          {/* Urgency indicator - compact on mobile */}
-          {!spotsLoading && remainingSpots > 0 && remainingSpots <= 3 && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30"
-            >
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
-              </span>
-              <span className="text-[10px] sm:text-xs font-medium text-amber-400">
-                {remainingSpots} {t('kvar', 'left')}
-              </span>
-            </motion.div>
-          )}
-        </div>
-      </header>
-      
-      {/* ========== HERO SECTION - Mobile First ========== */}
-      <section className="relative px-4 sm:px-6 pt-8 sm:pt-16 pb-12 sm:pb-20">
-        {/* Subtle gradient background - no overlapping orbs */}
-        <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent pointer-events-none" />
-        
-        <div className="relative max-w-3xl mx-auto text-center">
-          
-          {/* Sale Badge - Compact */}
+          {/* Minimal header */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            className="mb-16"
           >
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs font-semibold">
-              <Sparkles className="w-3 h-3" />
-              {t('25% RABATT', '25% OFF')}
-            </span>
+            <Link to="/" className="font-heading font-bold text-xl tracking-tight">
+              Nomia<span className="text-accent">.</span>
+            </Link>
           </motion.div>
           
-          {/* Main Headline - Mobile optimized sizing */}
+          {/* Main headline */}
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-4 sm:mb-6"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight leading-[1.1] mb-6"
           >
-            <span className="text-foreground">{t('Hemsidor som', 'Websites that')}</span>
-            <br />
-            <span className="bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
-              {t('säljer.', 'sell.')}
+            {t('Hemsidor som konverterar', 'Websites that convert')}
+            <span className="text-muted-foreground"> — </span>
+            <br className="hidden sm:block" />
+            <span className="text-muted-foreground font-extralight">
+              {t('utan att kännas som marknadsföring.', 'without feeling like marketing.')}
             </span>
           </motion.h1>
           
-          {/* Subheadline */}
+          {/* Subline */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-base sm:text-lg text-muted-foreground max-w-md mx-auto mb-8 px-2"
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-lg text-muted-foreground font-light mb-10 max-w-xl"
           >
             {t(
-              'Se designen gratis innan du bestämmer dig. Leverans inom 7 dagar.',
-              'See the design free before you decide. Delivery within 7 days.'
+              'Designade för att bygga förtroende, inte jaga klick.',
+              'Designed to earn trust, not chase clicks.'
             )}
           </motion.p>
           
-          {/* CTA Buttons - Stacked on mobile */}
+          {/* CTAs */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="flex flex-col gap-3 mb-6 max-w-sm mx-auto"
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4"
           >
             <Button 
               asChild 
               size="lg" 
-              className="w-full h-14 text-base font-semibold bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:via-amber-500 hover:to-yellow-600 text-background shadow-lg shadow-amber-500/20 border-0"
-              onClick={() => handleCTAClick('hero_prototype')}
+              className="h-12 px-8 font-normal bg-foreground text-background hover:bg-foreground/90"
+              onClick={() => handleCTAClick('hero_concept')}
             >
               <Link to="/demo">
-                {t('Få gratis prototyp', 'Get free prototype')}
-                <ArrowRight className="w-4 h-4 ml-2" />
+                {t('Få ett gratis koncept', 'Get a free concept')}
               </Link>
             </Button>
             
             <Button 
               asChild 
               size="lg"
-              variant="outline"
-              className="w-full h-12 font-medium border-border/50 hover:bg-secondary/50"
-              onClick={() => handleCTAClick('hero_order')}
+              variant="ghost"
+              className="h-12 px-8 font-normal text-muted-foreground hover:text-foreground"
+              onClick={() => handleCTAClick('hero_pricing')}
             >
-              <Link to="/bestall">
-                {t('Beställ direkt', 'Order directly')}
+              <Link to="/priser">
+                {t('Se priser', 'View pricing')}
               </Link>
             </Button>
           </motion.div>
-          
-          {/* Price & Trust - Horizontal on mobile */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex items-center justify-center gap-4 text-sm text-muted-foreground"
-          >
-            <span>{t('Från', 'From')} <strong className="text-foreground">{price}</strong></span>
-            <span className="w-px h-3 bg-border" />
-            <span className="flex items-center gap-1">
-              <Shield className="w-3.5 h-3.5 text-green-500" />
-              {t('Nöjd-garanti', 'Money-back')}
-            </span>
-          </motion.div>
         </div>
-      </section>
-      
-      {/* ========== SOCIAL PROOF BAR - Cleaner grid ========== */}
-      <section className="py-6 sm:py-8 border-y border-border/20 bg-secondary/30">
-        <div className="max-w-lg mx-auto px-4">
-          <div className="grid grid-cols-4 gap-2 text-center">
-            {[
-              { value: '50+', label: t('Kunder', 'Clients') },
-              { value: '4.9', label: t('Betyg', 'Rating'), icon: Star },
-              { value: '7', label: t('Dagar', 'Days') },
-              { value: '100%', label: t('Garanti', 'Guarantee'), color: 'text-green-500' },
-            ].map((item, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <p className={`text-xl sm:text-2xl font-bold ${item.color || 'text-accent'}`}>
-                  {item.value}
-                </p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-0.5">
-                  {item.icon && <item.icon className="w-2.5 h-2.5 fill-accent text-accent" />}
-                  {item.label}
-                </p>
-              </div>
-            ))}
+        
+        {/* Trust layer — still above fold */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1 }}
+          className="max-w-3xl mx-auto w-full mt-20 pt-10 border-t border-border/30"
+        >
+          <p className="text-xs text-muted-foreground/60 mb-6 tracking-wide uppercase">
+            {t('Används av växande företag som värdesätter trovärdighet.', 'Used by growing businesses that care about credibility.')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-muted-foreground">
+            <span>• {t('Konverteringsfokuserad design', 'Conversion-focused design')}</span>
+            <span>• {t('Byggt för långsiktigt förtroende', 'Built for long-term trust')}</span>
+            <span>• {t('Genomtänkt genomförande', 'Measured, intentional execution')}</span>
           </div>
-        </div>
+        </motion.div>
       </section>
       
-      {/* ========== HOW IT WORKS - Clean cards ========== */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6">
-        <div className="max-w-2xl mx-auto">
-          <RevealSection className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
-              {t('Enkelt. Snabbt. Utan risk.', 'Simple. Fast. Risk-free.')}
+      {/* ═══════════════════════════════════════════════════════════════
+          SCROLL 1 — The Problem
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-3xl mx-auto">
+          <SlowReveal>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight mb-8">
+              {t('De flesta hemsidor pratar för mycket.', 'Most websites talk too much.')}
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-base">
-              {t('Tre steg till din nya hemsida', 'Three steps to your new website')}
-            </p>
-          </RevealSection>
+          </SlowReveal>
           
-          <div className="space-y-4">
-            {[
-              {
-                step: '01',
-                title: t('Berätta om dig', 'Tell us about you'),
-                desc: t('Fyll i ett kort formulär. Tar 5 minuter.', 'Fill out a short form. Takes 5 minutes.'),
-                icon: Users,
-              },
-              {
-                step: '02',
-                title: t('Se din design', 'See your design'),
-                desc: t('Vi skapar en unik prototyp inom 72 timmar. Helt gratis.', 'We create a unique prototype within 72 hours. Completely free.'),
-                icon: Sparkles,
-              },
-              {
-                step: '03',
-                title: t('Betala om du älskar den', 'Pay if you love it'),
-                desc: t('Ingen risk. Pengarna tillbaka om du inte är nöjd.', 'No risk. Money back if not satisfied.'),
-                icon: Shield,
-              },
-            ].map((item, i) => (
-              <RevealSection key={i} delay={i * 0.1}>
-                <div className="relative p-5 sm:p-6 rounded-2xl bg-secondary/40 border border-border/30">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-accent/15 flex items-center justify-center">
-                      <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-accent/60">{item.step}</span>
-                        <h3 className="text-base sm:text-lg font-semibold">{item.title}</h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                </div>
-              </RevealSection>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* ========== TESTIMONIAL - Clean card ========== */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6">
-        <div className="max-w-xl mx-auto">
-          <RevealSection>
-            <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-accent/10 via-accent/5 to-transparent border border-accent/20">
-              <div className="flex gap-0.5 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-accent text-accent" />
-                ))}
-              </div>
-              
-              <blockquote className="text-base sm:text-lg font-light italic leading-relaxed mb-5 text-foreground/90">
-                &quot;{t(
-                  'Inom 4 dagar hade vi 3x fler bokningar. Nomia förstod exakt vad vi behövde.',
-                  'Within 4 days we had 3x more bookings. Nomia understood exactly what we needed.'
-                )}&quot;
-              </blockquote>
-              
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                  <BadgeCheck className="w-5 h-5 text-accent" />
-                </div>
-                <div>
-                  <cite className="not-italic font-medium text-sm">Maria Lindberg</cite>
-                  <p className="text-xs text-muted-foreground">{t('Salongsägare', 'Salon Owner')}</p>
-                </div>
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-      
-      {/* ========== WHAT'S INCLUDED - Compact list ========== */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-secondary/20">
-        <div className="max-w-lg mx-auto">
-          <RevealSection className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2">
-              {t('Allt ingår', 'Everything included')}
-            </h2>
-          </RevealSection>
-          
-          <div className="grid grid-cols-1 gap-2.5">
-            {[
-              t('Mobilanpassad design', 'Mobile-responsive design'),
-              t('SEO-optimerad', 'SEO optimized'),
-              t('Snabb hosting', 'Fast hosting'),
-              t('SSL-certifikat', 'SSL certificate'),
-              t('Kontaktformulär', 'Contact form'),
-              t('Obegränsade ändringar', 'Unlimited revisions'),
-              t('Klar inom 7 dagar', 'Ready in 7 days'),
-              t('Support ingår', 'Support included'),
-            ].map((item, i) => (
-              <RevealSection key={i} delay={i * 0.03}>
-                <div className="flex items-center gap-3 p-3.5 rounded-xl bg-background/60 border border-border/30">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  <span className="text-sm font-medium">{item}</span>
-                </div>
-              </RevealSection>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* ========== GUARANTEE ========== */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6">
-        <div className="max-w-md mx-auto">
-          <RevealSection>
-            <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent border border-green-500/20 text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-500/15 mb-4">
-                <Award className="w-7 h-7 text-green-400" />
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-3 text-green-400">
-                {t('100% Nöjd-garanti', '100% Satisfaction Guarantee')}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {t(
-                  'Full återbetalning om du inte är nöjd. Ingen risk för dig.',
-                  'Full refund if not satisfied. Zero risk for you.'
-                )}
-              </p>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-      
-      {/* ========== FINAL CTA ========== */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-to-t from-accent/5 to-transparent">
-        <div className="max-w-md mx-auto text-center">
-          <RevealSection>
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-              {t('Redo att komma igång?', 'Ready to get started?')}
-            </h2>
-            <p className="text-sm text-muted-foreground mb-6">
+          <Reveal delay={0.3}>
+            <p className="text-xl sm:text-2xl text-muted-foreground font-extralight leading-relaxed">
               {t(
-                'Få din gratis prototyp idag.',
-                'Get your free prototype today.'
+                'De bästa låter designen göra jobbet.',
+                'The best ones let the design do the work.'
               )}
             </p>
-            
-            {/* Countdown Timer - Compact */}
-            <div className="mb-6">
-              <CountdownTimer variant="compact" className="justify-center" />
-            </div>
-            
-            <Button 
-              asChild 
-              size="lg" 
-              className="w-full max-w-xs h-14 text-base font-semibold bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:via-amber-500 hover:to-yellow-600 text-background shadow-lg shadow-amber-500/20 border-0"
-              onClick={() => handleCTAClick('final_cta')}
-            >
-              <Link to="/demo">
-                {t('Starta nu – gratis', "Start now – free")}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-            </Button>
-            
-            <div className="flex items-center justify-center gap-3 mt-5 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                72h
-              </span>
-              <span className="flex items-center gap-1">
-                <Shield className="w-3 h-3 text-green-500" />
-                {t('Ingen risk', 'No risk')}
-              </span>
-              <span className="flex items-center gap-1">
-                <Zap className="w-3 h-3 text-accent" />
-                {t('Gratis', 'Free')}
-              </span>
-            </div>
-          </RevealSection>
+          </Reveal>
+          
+          <Reveal delay={0.5}>
+            <p className="text-base text-muted-foreground/70 mt-12 max-w-lg">
+              {t(
+                'Röriga sidor konverterar inte. Tydliga upplevelser gör det.',
+                'Cluttered pages don\'t convert. Clear experiences do.'
+              )}
+            </p>
+          </Reveal>
         </div>
       </section>
       
-      {/* Footer - Minimal */}
-      <footer className="py-6 px-4 border-t border-border/20">
-        <div className="max-w-lg mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <Link to="/" className="font-heading font-bold text-base">
+      {/* ═══════════════════════════════════════════════════════════════
+          SCROLL 2 — Philosophy
+      ═══════════════════════════════════════════════════════════════ */}
+      <ParallaxSection className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16 bg-secondary/20">
+        <div className="max-w-3xl mx-auto">
+          <Reveal>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight mb-8">
+              {t('Vi börjar inte med mallar.', 'We don\'t start with templates.')}
+              <br />
+              <span className="text-muted-foreground">
+                {t('Vi börjar med hur människor känner.', 'We start with how people feel.')}
+              </span>
+            </h2>
+          </Reveal>
+          
+          <Reveal delay={0.3}>
+            <p className="text-base text-muted-foreground max-w-lg leading-relaxed">
+              {t(
+                'Varje layoutval görs för att minska friktion och öka förtroende.',
+                'Every layout choice is made to reduce friction and increase confidence.'
+              )}
+            </p>
+          </Reveal>
+        </div>
+      </ParallaxSection>
+      
+      {/* ═══════════════════════════════════════════════════════════════
+          SCROLL 3 — The Process (Timeline)
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-3xl mx-auto">
+          <Reveal className="mb-16">
+            <h3 className="text-xs text-muted-foreground/60 tracking-widest uppercase mb-4">
+              {t('Processen', 'The Process')}
+            </h3>
+          </Reveal>
+          
+          <div className="space-y-0">
+            <TimelineStep
+              number="01"
+              title={t('Förstå', 'Understand')}
+              description={t(
+                'Vi lär oss ditt företag innan vi rör designen.',
+                'We learn your business before touching design.'
+              )}
+            />
+            <TimelineStep
+              number="02"
+              title={t('Designa', 'Design')}
+              description={t(
+                'Ett fokuserat koncept byggt för att konvertera utan press.',
+                'A focused concept built to convert without pressure.'
+              )}
+            />
+            <TimelineStep
+              number="03"
+              title={t('Förfina', 'Refine')}
+              description={t(
+                'Detaljer, spacing, rörelse — inget förhastigt.',
+                'Details, spacing, motion — nothing rushed.'
+              )}
+            />
+            <TimelineStep
+              number="04"
+              title={t('Leverera', 'Deliver')}
+              description={t(
+                'En hemsida som känns färdig, genomtänkt och trovärdig.',
+                'A site that feels finished, intentional, and trustworthy.'
+              )}
+              isLast
+            />
+          </div>
+        </div>
+      </section>
+      
+      {/* ═══════════════════════════════════════════════════════════════
+          SCROLL 4 — Visual Proof
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16 bg-secondary/10">
+        <div className="max-w-4xl mx-auto text-center">
+          <Reveal>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight mb-6">
+              {t('Design som håller sig i bakgrunden', 'Design that stays out of the way')} —
+              <br />
+              <span className="text-muted-foreground">
+                {t('tills den behöver tala.', 'until it needs to speak.')}
+              </span>
+            </h2>
+          </Reveal>
+          
+          <Reveal delay={0.3}>
+            <p className="text-base text-muted-foreground/70 max-w-md mx-auto">
+              {t(
+                'Bra design märks inte. Dålig design minns man.',
+                'Good design isn\'t noticed. Bad design is remembered.'
+              )}
+            </p>
+          </Reveal>
+        </div>
+      </section>
+      
+      {/* ═══════════════════════════════════════════════════════════════
+          SCROLL 5 — Social Proof (One testimonial)
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-2xl mx-auto text-center">
+          <Reveal>
+            <blockquote className="text-xl sm:text-2xl font-light leading-relaxed mb-8 text-foreground/90">
+              &ldquo;{t(
+                'Inom några dagar kändes vår hemsida tydligare. Kunder litade på oss direkt.',
+                'Within days, our site felt clearer. Customers trusted us immediately.'
+              )}&rdquo;
+            </blockquote>
+          </Reveal>
+          
+          <Reveal delay={0.2}>
+            <cite className="text-sm text-muted-foreground not-italic">
+              — Maria Lindberg, {t('Salongsägare', 'Salon Owner')}
+            </cite>
+          </Reveal>
+        </div>
+      </section>
+      
+      {/* ═══════════════════════════════════════════════════════════════
+          SCROLL 6 — Choice Section (Split)
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16 border-t border-border/20">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-16">
+            
+            {/* Free concept */}
+            <Reveal>
+              <div className="space-y-6">
+                <h3 className="text-2xl font-light">
+                  {t('Få ett gratis koncept', 'Get a free concept')}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t(
+                    'Se hur vi skulle designa din hemsida — innan du bestämmer dig.',
+                    'See how we would design your site — before committing.'
+                  )}
+                </p>
+                <Button 
+                  asChild 
+                  className="h-11 px-6 font-normal bg-foreground text-background hover:bg-foreground/90"
+                  onClick={() => handleCTAClick('choice_concept')}
+                >
+                  <Link to="/demo">
+                    {t('Starta med ett gratis koncept', 'Start with a free concept')}
+                  </Link>
+                </Button>
+              </div>
+            </Reveal>
+            
+            {/* Pricing */}
+            <Reveal delay={0.2}>
+              <div className="space-y-6">
+                <h3 className="text-2xl font-light">
+                  {t('Se priser', 'View pricing')}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t(
+                    'Tydliga, transparenta paket. Inga merförsäljningar. Inga överraskningar.',
+                    'Clear, transparent packages. No upsells. No surprises.'
+                  )}
+                </p>
+                <Button 
+                  asChild 
+                  variant="outline"
+                  className="h-11 px-6 font-normal border-border/50 hover:bg-secondary/50"
+                  onClick={() => handleCTAClick('choice_pricing')}
+                >
+                  <Link to="/priser">
+                    {t('Se priser', 'View pricing')}
+                  </Link>
+                </Button>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+      
+      {/* ═══════════════════════════════════════════════════════════════
+          SCROLL 7 — Guarantee
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16 bg-secondary/10">
+        <div className="max-w-xl mx-auto text-center">
+          <Reveal>
+            <h3 className="text-xl sm:text-2xl font-light mb-4">
+              {t('100% nöjdhetsgaranti', '100% satisfaction guarantee')}
+            </h3>
+            <p className="text-muted-foreground">
+              {t(
+                'Om det inte känns rätt, fortsätter du inte. Så enkelt är det.',
+                'If it\'s not right, you don\'t continue. Simple as that.'
+              )}
+            </p>
+          </Reveal>
+        </div>
+      </section>
+      
+      {/* ═══════════════════════════════════════════════════════════════
+          FINAL — Close
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-3xl mx-auto text-center">
+          <Reveal>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight mb-4">
+              {t('Design ska kännas självklart.', 'Design should feel obvious.')}
+            </h2>
+            <p className="text-xl text-muted-foreground font-extralight mb-12">
+              {t(
+                'Om det inte gör det, är det inte färdigt.',
+                'If it doesn\'t, it isn\'t finished.'
+              )}
+            </p>
+          </Reveal>
+          
+          <Reveal delay={0.3}>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                asChild 
+                size="lg" 
+                className="h-12 px-8 font-normal bg-foreground text-background hover:bg-foreground/90"
+                onClick={() => handleCTAClick('final_concept')}
+              >
+                <Link to="/demo">
+                  {t('Få ett gratis koncept', 'Get a free concept')}
+                </Link>
+              </Button>
+              
+              <Button 
+                asChild 
+                size="lg"
+                variant="ghost"
+                className="h-12 px-8 font-normal text-muted-foreground hover:text-foreground"
+                onClick={() => handleCTAClick('final_pricing')}
+              >
+                <Link to="/priser">
+                  {t('Se priser', 'View pricing')}
+                </Link>
+              </Button>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+      
+      {/* Footer */}
+      <footer className="py-8 px-6 border-t border-border/20">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground/60">
+          <Link to="/" className="font-heading font-medium text-sm text-foreground">
             Nomia<span className="text-accent">.</span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <Link to="/villkor" className="hover:text-foreground transition-colors">
               {t('Villkor', 'Terms')}
             </Link>
