@@ -3,66 +3,30 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight, CheckCircle2, Clock, Shield, Star, Sparkles, Zap, Award, BadgeCheck, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { trackEvent, getUtmParams } from '@/lib/posthog';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
-import { GrainOverlay } from '@/components/PremiumEffects';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-// Cinematic scroll-reveal section wrapper
-function RevealSection({ children, className = '', delay = 0, direction = 'up' }: { 
+// Simple fade-up animation for mobile-friendly performance
+function RevealSection({ children, className = '', delay = 0 }: { 
   children: React.ReactNode; 
   className?: string; 
   delay?: number;
-  direction?: 'up' | 'left' | 'right';
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-  
-  const variants = {
-    hidden: {
-      opacity: 0,
-      x: direction === 'left' ? -80 : direction === 'right' ? 80 : 0,
-      y: direction === 'up' ? 60 : 0,
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      y: 0,
-    }
-  };
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
   
   return (
     <motion.div
       ref={ref}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      variants={variants}
-      transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 0.5, delay, ease: "easeOut" }}
       className={className}
     >
       {children}
-    </motion.div>
-  );
-}
-
-// Floating orb component for luxury feel
-function FloatingOrb({ className, delay = 0 }: { className: string; delay?: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.5 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 2, delay }}
-      className={className}
-    >
-      <motion.div
-        animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="w-full h-full rounded-full blur-[100px]"
-      />
     </motion.div>
   );
 }
@@ -72,15 +36,7 @@ export default function AdLandingPage() {
   const [searchParams] = useSearchParams();
   const hasTracked = useRef(false);
   const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
-  
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     if (hasTracked.current) return;
@@ -102,86 +58,74 @@ export default function AdLandingPage() {
   };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-background overflow-hidden relative">
-      <GrainOverlay />
+    <div className="min-h-screen bg-background overflow-hidden">
       
-      {/* Ambient Background Orbs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <FloatingOrb className="absolute top-[-15%] left-[-10%] w-[600px] h-[600px] bg-accent/30" delay={0} />
-        <FloatingOrb className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-accent/20" delay={0.5} />
-        <FloatingOrb className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-accent/10" delay={1} />
-      </div>
-      
-      {/* Minimal Header */}
-      <header className="relative z-50 py-6 px-6">
+      {/* Minimal Header - Mobile optimized */}
+      <header className="sticky top-0 z-50 py-4 px-4 sm:px-6 bg-background/80 backdrop-blur-md border-b border-border/20">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="font-heading font-extrabold text-2xl sm:text-3xl tracking-tighter hover:opacity-80 transition-opacity">
+          <Link to="/" className="font-heading font-extrabold text-xl sm:text-2xl tracking-tighter">
             Nomia<span className="text-accent">.</span>
           </Link>
           
-          {/* Urgency indicator */}
+          {/* Urgency indicator - compact on mobile */}
           {!spotsLoading && remainingSpots > 0 && remainingSpots <= 3 && (
             <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30"
             >
-              <span className="relative flex h-2 w-2">
+              <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
               </span>
-              <span className="text-xs font-medium text-amber-400">
-                {remainingSpots} {t('plats kvar', 'spot left')}
+              <span className="text-[10px] sm:text-xs font-medium text-amber-400">
+                {remainingSpots} {t('kvar', 'left')}
               </span>
             </motion.div>
           )}
         </div>
       </header>
       
-      {/* ========== HERO SECTION ========== */}
-      <motion.section 
-        style={{ opacity: heroOpacity, scale: heroScale }}
-        className="relative z-10 min-h-[85vh] flex flex-col items-center justify-center px-6 py-12"
-      >
-        <div className="max-w-4xl mx-auto text-center">
+      {/* ========== HERO SECTION - Mobile First ========== */}
+      <section className="relative px-4 sm:px-6 pt-8 sm:pt-16 pb-12 sm:pb-20">
+        {/* Subtle gradient background - no overlapping orbs */}
+        <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent pointer-events-none" />
+        
+        <div className="relative max-w-3xl mx-auto text-center">
           
-          {/* Sale Badge */}
+          {/* Sale Badge - Compact */}
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="mb-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-6"
           >
-            <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white text-sm font-bold shadow-xl shadow-red-500/25">
-              <Sparkles className="w-4 h-4" />
-              {t('25% RABATT – Begränsat erbjudande', '25% OFF – Limited offer')}
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs font-semibold">
+              <Sparkles className="w-3 h-3" />
+              {t('25% RABATT', '25% OFF')}
             </span>
           </motion.div>
           
-          {/* Main Headline - Cinematic */}
+          {/* Main Headline - Mobile optimized sizing */}
           <motion.h1 
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] mb-6"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-4 sm:mb-6"
           >
-            <span className="block text-foreground/90">{t('Hemsidor som', 'Websites that')}</span>
-            <motion.span 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="block bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent"
-            >
+            <span className="text-foreground">{t('Hemsidor som', 'Websites that')}</span>
+            <br />
+            <span className="bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
               {t('säljer.', 'sell.')}
-            </motion.span>
+            </span>
           </motion.h1>
           
           {/* Subheadline */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
-            className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-xl mx-auto mb-8 font-light"
+            transition={{ delay: 0.3 }}
+            className="text-base sm:text-lg text-muted-foreground max-w-md mx-auto mb-8 px-2"
           >
             {t(
               'Se designen gratis innan du bestämmer dig. Leverans inom 7 dagar.',
@@ -189,22 +133,22 @@ export default function AdLandingPage() {
             )}
           </motion.p>
           
-          {/* CTA Buttons */}
+          {/* CTA Buttons - Stacked on mobile */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9, duration: 0.5 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
+            transition={{ delay: 0.4 }}
+            className="flex flex-col gap-3 mb-6 max-w-sm mx-auto"
           >
             <Button 
               asChild 
               size="lg" 
-              className="w-full sm:w-auto h-16 px-10 text-lg font-semibold bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:via-amber-500 hover:to-yellow-600 text-background shadow-2xl shadow-amber-500/30 border-0 group"
+              className="w-full h-14 text-base font-semibold bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:via-amber-500 hover:to-yellow-600 text-background shadow-lg shadow-amber-500/20 border-0"
               onClick={() => handleCTAClick('hero_prototype')}
             >
               <Link to="/demo">
                 {t('Få gratis prototyp', 'Get free prototype')}
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
             
@@ -212,7 +156,7 @@ export default function AdLandingPage() {
               asChild 
               size="lg"
               variant="outline"
-              className="w-full sm:w-auto h-14 px-8 font-medium border-accent/40 hover:bg-accent/10 hover:border-accent"
+              className="w-full h-12 font-medium border-border/50 hover:bg-secondary/50"
               onClick={() => handleCTAClick('hero_order')}
             >
               <Link to="/bestall">
@@ -221,114 +165,93 @@ export default function AdLandingPage() {
             </Button>
           </motion.div>
           
-          {/* Price Tag */}
+          {/* Price & Trust - Horizontal on mobile */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.1 }}
-            className="flex items-center justify-center gap-6 text-sm text-muted-foreground"
+            transition={{ delay: 0.5 }}
+            className="flex items-center justify-center gap-4 text-sm text-muted-foreground"
           >
-            <span>{t('Från', 'From')} <strong className="text-foreground text-lg">{price}</strong></span>
-            <span className="w-px h-4 bg-border" />
-            <span className="flex items-center gap-1.5">
-              <Shield className="w-4 h-4 text-green-500" />
+            <span>{t('Från', 'From')} <strong className="text-foreground">{price}</strong></span>
+            <span className="w-px h-3 bg-border" />
+            <span className="flex items-center gap-1">
+              <Shield className="w-3.5 h-3.5 text-green-500" />
               {t('Nöjd-garanti', 'Money-back')}
             </span>
           </motion.div>
         </div>
-        
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-6 h-10 rounded-full border-2 border-accent/30 flex items-start justify-center p-2"
-          >
-            <motion.div className="w-1.5 h-2.5 bg-accent rounded-full" />
-          </motion.div>
-        </motion.div>
-      </motion.section>
+      </section>
       
-      {/* ========== SOCIAL PROOF BAR ========== */}
-      <section className="relative z-10 py-8 border-y border-border/30 bg-secondary/20 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 text-center">
-            <div>
-              <p className="text-3xl font-bold text-accent">50+</p>
-              <p className="text-xs text-muted-foreground">{t('Nöjda kunder', 'Happy clients')}</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-accent">4.9</p>
-              <p className="text-xs text-muted-foreground flex items-center gap-1 justify-center">
-                <Star className="w-3 h-3 fill-accent text-accent" />
-                {t('Betyg', 'Rating')}
-              </p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-accent">7</p>
-              <p className="text-xs text-muted-foreground">{t('Dagars leverans', 'Day delivery')}</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-green-500">100%</p>
-              <p className="text-xs text-muted-foreground">{t('Nöjd-garanti', 'Satisfaction')}</p>
-            </div>
+      {/* ========== SOCIAL PROOF BAR - Cleaner grid ========== */}
+      <section className="py-6 sm:py-8 border-y border-border/20 bg-secondary/30">
+        <div className="max-w-lg mx-auto px-4">
+          <div className="grid grid-cols-4 gap-2 text-center">
+            {[
+              { value: '50+', label: t('Kunder', 'Clients') },
+              { value: '4.9', label: t('Betyg', 'Rating'), icon: Star },
+              { value: '7', label: t('Dagar', 'Days') },
+              { value: '100%', label: t('Garanti', 'Guarantee'), color: 'text-green-500' },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <p className={`text-xl sm:text-2xl font-bold ${item.color || 'text-accent'}`}>
+                  {item.value}
+                </p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-0.5">
+                  {item.icon && <item.icon className="w-2.5 h-2.5 fill-accent text-accent" />}
+                  {item.label}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
       
-      {/* ========== HOW IT WORKS ========== */}
-      <section className="relative z-10 py-24 px-6">
-        <div className="max-w-5xl mx-auto">
-          <RevealSection className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+      {/* ========== HOW IT WORKS - Clean cards ========== */}
+      <section className="py-12 sm:py-20 px-4 sm:px-6">
+        <div className="max-w-2xl mx-auto">
+          <RevealSection className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
               {t('Enkelt. Snabbt. Utan risk.', 'Simple. Fast. Risk-free.')}
             </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-sm sm:text-base">
               {t('Tre steg till din nya hemsida', 'Three steps to your new website')}
             </p>
           </RevealSection>
           
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <div className="space-y-4">
             {[
               {
                 step: '01',
                 title: t('Berätta om dig', 'Tell us about you'),
-                desc: t('Fyll i ett kort formulär om din verksamhet. Tar 5 minuter.', 'Fill out a short form about your business. Takes 5 minutes.'),
+                desc: t('Fyll i ett kort formulär. Tar 5 minuter.', 'Fill out a short form. Takes 5 minutes.'),
                 icon: Users,
-                direction: 'left' as const,
               },
               {
                 step: '02',
                 title: t('Se din design', 'See your design'),
                 desc: t('Vi skapar en unik prototyp inom 72 timmar. Helt gratis.', 'We create a unique prototype within 72 hours. Completely free.'),
                 icon: Sparkles,
-                direction: 'up' as const,
               },
               {
                 step: '03',
                 title: t('Betala om du älskar den', 'Pay if you love it'),
-                desc: t('Ingen risk. Pengarna tillbaka om du inte är 100% nöjd.', 'No risk. Money back if you are not 100% satisfied.'),
+                desc: t('Ingen risk. Pengarna tillbaka om du inte är nöjd.', 'No risk. Money back if not satisfied.'),
                 icon: Shield,
-                direction: 'right' as const,
               },
             ].map((item, i) => (
-              <RevealSection key={i} delay={i * 0.15} direction={item.direction}>
-                <div className="relative p-8 rounded-2xl bg-gradient-to-br from-secondary/60 via-secondary/40 to-transparent border border-accent/10 hover:border-accent/30 transition-all duration-500 group h-full">
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
-                  
-                  <span className="absolute -top-4 left-6 text-5xl font-bold text-accent/20 font-mono">{item.step}</span>
-                  
-                  <div className="relative">
-                    <div className="w-14 h-14 rounded-2xl bg-accent/15 flex items-center justify-center mb-5 group-hover:bg-accent/25 transition-colors">
-                      <item.icon className="w-7 h-7 text-accent" />
+              <RevealSection key={i} delay={i * 0.1}>
+                <div className="relative p-5 sm:p-6 rounded-2xl bg-secondary/40 border border-border/30">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-accent/15 flex items-center justify-center">
+                      <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
                     </div>
-                    <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-mono text-accent/60">{item.step}</span>
+                        <h3 className="text-base sm:text-lg font-semibold">{item.title}</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
                   </div>
                 </div>
               </RevealSection>
@@ -337,37 +260,31 @@ export default function AdLandingPage() {
         </div>
       </section>
       
-      {/* ========== TESTIMONIAL ========== */}
-      <section className="relative z-10 py-24 px-6 overflow-hidden">
-        <div className="max-w-4xl mx-auto">
+      {/* ========== TESTIMONIAL - Clean card ========== */}
+      <section className="py-12 sm:py-20 px-4 sm:px-6">
+        <div className="max-w-xl mx-auto">
           <RevealSection>
-            <div className="relative p-10 md:p-16 rounded-3xl bg-gradient-to-br from-accent/15 via-accent/10 to-accent/5 border border-accent/20">
-              <div className="absolute top-6 left-6 opacity-20">
-                <svg className="w-16 h-16 text-accent" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-              </div>
-              
-              <div className="flex gap-1 mb-6">
+            <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-accent/10 via-accent/5 to-transparent border border-accent/20">
+              <div className="flex gap-0.5 mb-4">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-accent text-accent" />
+                  <Star key={i} className="w-4 h-4 fill-accent text-accent" />
                 ))}
               </div>
               
-              <blockquote className="text-xl sm:text-2xl md:text-3xl font-light italic leading-relaxed mb-8">
+              <blockquote className="text-base sm:text-lg font-light italic leading-relaxed mb-5 text-foreground/90">
                 &quot;{t(
-                  'Inom 4 dagar hade vi 3x fler bokningar. Nomia förstod exakt vad vi behövde och levererade över förväntan.',
-                  'Within 4 days we had 3x more bookings. Nomia understood exactly what we needed and delivered beyond expectations.'
+                  'Inom 4 dagar hade vi 3x fler bokningar. Nomia förstod exakt vad vi behövde.',
+                  'Within 4 days we had 3x more bookings. Nomia understood exactly what we needed.'
                 )}&quot;
               </blockquote>
               
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
-                  <BadgeCheck className="w-6 h-6 text-accent" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                  <BadgeCheck className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <cite className="not-italic font-semibold">Maria Lindberg</cite>
-                  <p className="text-sm text-muted-foreground">{t('Salongsägare, Stockholm', 'Salon Owner, Stockholm')}</p>
+                  <cite className="not-italic font-medium text-sm">Maria Lindberg</cite>
+                  <p className="text-xs text-muted-foreground">{t('Salongsägare', 'Salon Owner')}</p>
                 </div>
               </div>
             </div>
@@ -375,31 +292,30 @@ export default function AdLandingPage() {
         </div>
       </section>
       
-      {/* ========== WHAT'S INCLUDED ========== */}
-      <section className="relative z-10 py-24 px-6">
-        <div className="max-w-5xl mx-auto">
-          <RevealSection className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              {t('Allt du behöver ingår', 'Everything you need is included')}
+      {/* ========== WHAT'S INCLUDED - Compact list ========== */}
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-secondary/20">
+        <div className="max-w-lg mx-auto">
+          <RevealSection className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2">
+              {t('Allt ingår', 'Everything included')}
             </h2>
           </RevealSection>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-2.5">
             {[
-              { text: t('Mobilanpassad design', 'Mobile-responsive design'), icon: '📱' },
-              { text: t('SEO-optimerad', 'SEO optimized'), icon: '🔍' },
-              { text: t('Snabb hosting inkluderad', 'Fast hosting included'), icon: '⚡' },
-              { text: t('SSL-certifikat', 'SSL certificate'), icon: '🔒' },
-              { text: t('Kontaktformulär', 'Contact form'), icon: '✉️' },
-              { text: t('Obegränsade ändringar', 'Unlimited revisions'), icon: '♾️' },
-              { text: t('Klar inom 7 dagar', 'Ready in 7 days'), icon: '🚀' },
-              { text: t('Support ingår', 'Support included'), icon: '💬' },
-              { text: t('Google Analytics', 'Google Analytics'), icon: '📊' },
+              t('Mobilanpassad design', 'Mobile-responsive design'),
+              t('SEO-optimerad', 'SEO optimized'),
+              t('Snabb hosting', 'Fast hosting'),
+              t('SSL-certifikat', 'SSL certificate'),
+              t('Kontaktformulär', 'Contact form'),
+              t('Obegränsade ändringar', 'Unlimited revisions'),
+              t('Klar inom 7 dagar', 'Ready in 7 days'),
+              t('Support ingår', 'Support included'),
             ].map((item, i) => (
-              <RevealSection key={i} delay={i * 0.05}>
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-secondary/30 border border-border/50 hover:border-accent/30 transition-colors">
-                  <span className="text-xl">{item.icon}</span>
-                  <span className="font-medium">{item.text}</span>
+              <RevealSection key={i} delay={i * 0.03}>
+                <div className="flex items-center gap-3 p-3.5 rounded-xl bg-background/60 border border-border/30">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  <span className="text-sm font-medium">{item}</span>
                 </div>
               </RevealSection>
             ))}
@@ -408,20 +324,20 @@ export default function AdLandingPage() {
       </section>
       
       {/* ========== GUARANTEE ========== */}
-      <section className="relative z-10 py-24 px-6">
-        <div className="max-w-3xl mx-auto">
+      <section className="py-12 sm:py-20 px-4 sm:px-6">
+        <div className="max-w-md mx-auto">
           <RevealSection>
-            <div className="p-10 md:p-14 rounded-3xl bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 border border-green-500/30 text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20 mb-6">
-                <Award className="w-10 h-10 text-green-400" />
+            <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent border border-green-500/20 text-center">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-500/15 mb-4">
+                <Award className="w-7 h-7 text-green-400" />
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold mb-4 text-green-400">
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 text-green-400">
                 {t('100% Nöjd-garanti', '100% Satisfaction Guarantee')}
               </h3>
-              <p className="text-lg text-muted-foreground max-w-lg mx-auto leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {t(
-                  'Vi är så säkra på att du kommer älska din nya hemsida att vi ger full återbetalning om du inte är nöjd. Ingen risk för dig.',
-                  'We are so confident you will love your new website that we offer a full refund if you are not satisfied. Zero risk for you.'
+                  'Full återbetalning om du inte är nöjd. Ingen risk för dig.',
+                  'Full refund if not satisfied. Zero risk for you.'
                 )}
               </p>
             </div>
@@ -430,61 +346,61 @@ export default function AdLandingPage() {
       </section>
       
       {/* ========== FINAL CTA ========== */}
-      <section className="relative z-10 py-24 px-6">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-to-t from-accent/5 to-transparent">
+        <div className="max-w-md mx-auto text-center">
           <RevealSection>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">
               {t('Redo att komma igång?', 'Ready to get started?')}
             </h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-lg mx-auto">
+            <p className="text-sm text-muted-foreground mb-6">
               {t(
-                'Få din gratis prototyp idag. Betala bara om du älskar den.',
-                'Get your free prototype today. Pay only if you love it.'
+                'Få din gratis prototyp idag.',
+                'Get your free prototype today.'
               )}
             </p>
             
-            {/* Countdown Timer */}
-            <div className="mb-8">
-              <CountdownTimer variant="full" className="max-w-sm mx-auto" />
+            {/* Countdown Timer - Compact */}
+            <div className="mb-6">
+              <CountdownTimer variant="compact" className="justify-center" />
             </div>
             
             <Button 
               asChild 
               size="lg" 
-              className="h-16 px-12 text-lg font-semibold bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:via-amber-500 hover:to-yellow-600 text-background shadow-2xl shadow-amber-500/30 border-0 group"
+              className="w-full max-w-xs h-14 text-base font-semibold bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:via-amber-500 hover:to-yellow-600 text-background shadow-lg shadow-amber-500/20 border-0"
               onClick={() => handleCTAClick('final_cta')}
             >
               <Link to="/demo">
-                {t('Starta nu – det är gratis', "Start now – it's free")}
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                {t('Starta nu – gratis', "Start now – free")}
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
             
-            <div className="flex items-center justify-center gap-4 mt-6 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4" />
-                {t('72h leverans', '72h delivery')}
+            <div className="flex items-center justify-center gap-3 mt-5 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                72h
               </span>
-              <span className="flex items-center gap-1.5">
-                <Shield className="w-4 h-4 text-green-500" />
+              <span className="flex items-center gap-1">
+                <Shield className="w-3 h-3 text-green-500" />
                 {t('Ingen risk', 'No risk')}
               </span>
-              <span className="flex items-center gap-1.5">
-                <Zap className="w-4 h-4 text-accent" />
-                {t('Helt gratis', 'Totally free')}
+              <span className="flex items-center gap-1">
+                <Zap className="w-3 h-3 text-accent" />
+                {t('Gratis', 'Free')}
               </span>
             </div>
           </RevealSection>
         </div>
       </section>
       
-      {/* Footer */}
-      <footer className="relative z-10 py-8 px-6 border-t border-border/30">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <Link to="/" className="font-heading font-bold text-lg">
+      {/* Footer - Minimal */}
+      <footer className="py-6 px-4 border-t border-border/20">
+        <div className="max-w-lg mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <Link to="/" className="font-heading font-bold text-base">
             Nomia<span className="text-accent">.</span>
           </Link>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <Link to="/villkor" className="hover:text-foreground transition-colors">
               {t('Villkor', 'Terms')}
             </Link>
