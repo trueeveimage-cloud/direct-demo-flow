@@ -1,11 +1,81 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, useInView, useSpring, useMotionValue } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { trackEvent, getUtmParams } from '@/lib/posthog';
+import { ArrowRight, Check } from 'lucide-react';
+import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
 
-// Fade up reveal for sections
+// ═══════════════════════════════════════════════════════════════════
+// PARALLAX HERO BACKGROUND - Gold/Black premium feel
+// ═══════════════════════════════════════════════════════════════════
+function ParallaxHeroBackground() {
+  const { scrollY } = useScroll();
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  const springConfig = { damping: 25, stiffness: 150 };
+  const smoothMouseX = useSpring(mouseX, springConfig);
+  const smoothMouseY = useSpring(mouseY, springConfig);
+  
+  const y1 = useTransform(scrollY, [0, 500], [0, 150]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -100]);
+  const scale1 = useTransform(scrollY, [0, 300], [1, 1.3]);
+  const opacity1 = useTransform(scrollY, [0, 400], [1, 0]);
+  const rotate1 = useTransform(scrollY, [0, 500], [0, 45]);
+  
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      mouseX.set((clientX / innerWidth - 0.5) * 2);
+      mouseY.set((clientY / innerHeight - 0.5) * 2);
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [mouseX, mouseY]);
+  
+  const orbX1 = useTransform(smoothMouseX, [-1, 1], [-30, 30]);
+  const orbY1 = useTransform(smoothMouseY, [-1, 1], [-30, 30]);
+  const orbX2 = useTransform(smoothMouseX, [-1, 1], [40, -40]);
+  const orbY2 = useTransform(smoothMouseY, [-1, 1], [20, -20]);
+  
+  return (
+    <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0 overflow-hidden motion-reduce:hidden">
+      <div className="hidden md:block h-full">
+        <motion.div
+          style={{ y: y1, x: orbX1, scale: scale1, rotate: rotate1, opacity: opacity1 }}
+          className="absolute top-[-150px] left-[5%] w-[600px] h-[600px]"
+        >
+          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/30 via-accent/10 to-transparent blur-[100px] animate-orb-pulse" />
+        </motion.div>
+        
+        <motion.div
+          style={{ y: y2, x: orbX2, opacity: opacity1 }}
+          className="absolute top-[50px] right-[10%] w-[500px] h-[500px]"
+        >
+          <div className="w-full h-full bg-gradient-radial from-accent/25 via-accent/10 to-transparent blur-[80px] animate-morph" />
+        </motion.div>
+        
+        {/* Shimmer effect */}
+        <motion.div
+          style={{ opacity: opacity1 }}
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent shimmer"
+        />
+      </div>
+      
+      {/* Mobile: Simplified */}
+      <div className="md:hidden h-full">
+        <div className="absolute top-[-100px] left-[10%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[80px]" />
+        <div className="absolute top-[-50px] right-[10%] w-[200px] h-[200px] bg-accent/10 rounded-full blur-[60px]" />
+      </div>
+    </div>
+  );
+}
+
+// Reveal component for sections
 function Reveal({ children, className = '', delay = 0 }: { 
   children: React.ReactNode; 
   className?: string; 
@@ -27,17 +97,22 @@ function Reveal({ children, className = '', delay = 0 }: {
   );
 }
 
-// Slow text reveal for emphasis
-function SlowReveal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+// Side reveal for flowing animations
+function SideReveal({ children, className = '', direction = 'left', delay = 0 }: { 
+  children: React.ReactNode; 
+  className?: string; 
+  direction?: 'left' | 'right';
+  delay?: number;
+}) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
   
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-      transition={{ duration: 1.2, ease: "easeOut" }}
+      initial={{ opacity: 0, x: direction === 'left' ? -60 : 60 }}
+      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: direction === 'left' ? -60 : 60 }}
+      transition={{ duration: 0.8, delay, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
     >
       {children}
@@ -45,35 +120,39 @@ function SlowReveal({ children, className = '' }: { children: React.ReactNode; c
   );
 }
 
-// Parallax section wrapper
-function ParallaxSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+// Parallax section with flowing gradient
+function FlowingSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"]
   });
-  const y = useTransform(scrollYProgress, [0, 1], [60, -60]);
+  const y = useTransform(scrollYProgress, [0, 1], [40, -40]);
   
   return (
-    <div ref={ref} className={`relative overflow-hidden ${className}`}>
+    <section ref={ref} className={`relative overflow-hidden ${className}`}>
+      {/* Seamless gradient blend */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.02] to-transparent pointer-events-none" />
       <motion.div style={{ y }} className="relative">
         {children}
       </motion.div>
-    </div>
+    </section>
   );
 }
 
-// Timeline step component
+// Timeline step with animated line
 function TimelineStep({ 
   number, 
   title, 
   description, 
-  isLast = false 
+  isLast = false,
+  index 
 }: { 
   number: string; 
   title: string; 
   description: string;
   isLast?: boolean;
+  index: number;
 }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
@@ -81,33 +160,38 @@ function TimelineStep({
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, x: -20 }}
-      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="relative pl-12 pb-12 last:pb-0"
+      initial={{ opacity: 0, x: -30 }}
+      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+      transition={{ duration: 0.6, delay: index * 0.15, ease: "easeOut" }}
+      className="relative pl-14 pb-12 last:pb-0"
     >
-      {/* Vertical line */}
+      {/* Animated vertical line */}
       {!isLast && (
         <motion.div
           initial={{ scaleY: 0 }}
           animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="absolute left-[11px] top-6 w-px h-full bg-gradient-to-b from-accent/40 to-transparent origin-top"
+          transition={{ duration: 1, delay: 0.3 + index * 0.1, ease: "easeOut" }}
+          className="absolute left-[15px] top-10 w-px h-[calc(100%-24px)] bg-gradient-to-b from-accent/50 via-accent/20 to-transparent origin-top"
         />
       )}
       
-      {/* Number dot */}
+      {/* Number circle with glow */}
       <motion.div
-        initial={{ scale: 0 }}
-        animate={isInView ? { scale: 1 } : { scale: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        className="absolute left-0 top-0 w-6 h-6 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 + index * 0.1 }}
+        className="absolute left-0 top-0"
       >
-        <span className="text-[10px] font-medium text-accent">{number}</span>
+        <div className="relative">
+          <div className="absolute inset-0 bg-accent/30 rounded-full blur-md" />
+          <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/70 border border-accent/50 flex items-center justify-center shadow-lg shadow-accent/20">
+            <span className="text-xs font-bold text-accent-foreground">{number}</span>
+          </div>
+        </div>
       </motion.div>
       
-      <h4 className="text-lg font-medium text-foreground mb-2">{title}</h4>
-      <p className="text-sm text-muted-foreground leading-relaxed max-w-md">{description}</p>
+      <h4 className="text-xl font-medium text-foreground mb-2">{title}</h4>
+      <p className="text-muted-foreground leading-relaxed max-w-md">{description}</p>
     </motion.div>
   );
 }
@@ -127,55 +211,58 @@ export default function AdLandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden relative">
+      <GrainOverlay />
+      <FloatingParticles count={15} />
+      <ScrollingAmbientGlow />
+      <ParallaxHeroBackground />
       
       {/* ═══════════════════════════════════════════════════════════════
           HERO — Above the fold
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="min-h-[90vh] flex flex-col justify-center px-6 sm:px-8 lg:px-16">
-        <div className="max-w-3xl mx-auto w-full">
+      <section className="min-h-[90vh] flex flex-col justify-center px-6 sm:px-8 lg:px-16 relative">
+        <div className="max-w-4xl mx-auto w-full relative z-10">
           
-          {/* Minimal header */}
+          {/* Logo */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
-            className="mb-16"
+            className="mb-12 sm:mb-16"
           >
-            <Link to="/" className="font-heading font-bold text-xl tracking-tight">
+            <Link to="/" className="font-heading font-bold text-2xl tracking-tight">
               Nomia<span className="text-accent">.</span>
             </Link>
           </motion.div>
           
-          {/* Main headline */}
+          {/* Main headline - CHANGED */}
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight leading-[1.1] mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extralight tracking-tight leading-[1.1] mb-6"
           >
-            {t('Hemsidor som konverterar', 'Websites that convert')}
-            <span className="text-muted-foreground"> — </span>
-            <br className="hidden sm:block" />
-            <span className="text-muted-foreground font-extralight">
-              {t('utan att kännas som marknadsföring.', 'without feeling like marketing.')}
+            <span className="text-reveal-gradient">{t('Din vision.', 'Your vision.')}</span>
+            <br />
+            <span className="text-muted-foreground font-light">
+              {t('Professionellt utförande.', 'Professional execution.')}
             </span>
           </motion.h1>
           
-          {/* Subline */}
+          {/* Subline - CHANGED */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-lg text-muted-foreground font-light mb-10 max-w-xl"
+            className="text-lg sm:text-xl text-muted-foreground font-light mb-10 max-w-xl"
           >
             {t(
-              'Designade för att bygga förtroende, inte jaga klick.',
-              'Designed to earn trust, not chase clicks.'
+              'Webbplatser som bygger förtroende och driver resultat.',
+              'Websites that build trust and drive results.'
             )}
           </motion.p>
           
-          {/* CTAs */}
+          {/* CTAs with gold styling */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -185,19 +272,20 @@ export default function AdLandingPage() {
             <Button 
               asChild 
               size="lg" 
-              className="h-12 px-8 font-normal bg-foreground text-background hover:bg-foreground/90"
+              className="h-14 px-10 font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0 group"
               onClick={() => handleCTAClick('hero_concept')}
             >
               <Link to="/demo">
                 {t('Få ett gratis koncept', 'Get a free concept')}
+                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
             
             <Button 
               asChild 
               size="lg"
-              variant="ghost"
-              className="h-12 px-8 font-normal text-muted-foreground hover:text-foreground"
+              variant="outline"
+              className="h-14 px-10 font-normal border-accent/30 text-foreground hover:bg-accent/10 hover:border-accent/50"
               onClick={() => handleCTAClick('hero_pricing')}
             >
               <Link to="/priser">
@@ -207,46 +295,55 @@ export default function AdLandingPage() {
           </motion.div>
         </div>
         
-        {/* Trust layer — still above fold */}
+        {/* Trust layer */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 1 }}
-          className="max-w-3xl mx-auto w-full mt-20 pt-10 border-t border-border/30"
+          className="max-w-4xl mx-auto w-full mt-16 sm:mt-20 pt-8 border-t border-accent/20 relative z-10"
         >
-          <p className="text-xs text-muted-foreground/60 mb-6 tracking-wide uppercase">
-            {t('Används av växande företag som värdesätter trovärdighet.', 'Used by growing businesses that care about credibility.')}
+          <p className="text-xs text-accent/60 mb-4 tracking-widest uppercase">
+            {t('Förtroende från växande företag', 'Trusted by growing businesses')}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-muted-foreground">
-            <span>• {t('Konverteringsfokuserad design', 'Conversion-focused design')}</span>
-            <span>• {t('Byggt för långsiktigt förtroende', 'Built for long-term trust')}</span>
-            <span>• {t('Genomtänkt genomförande', 'Measured, intentional execution')}</span>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-8 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-accent" />
+              {t('Konverteringsfokuserad design', 'Conversion-focused design')}
+            </span>
+            <span className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-accent" />
+              {t('Byggt för långsiktigt förtroende', 'Built for long-term trust')}
+            </span>
+            <span className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-accent" />
+              {t('Genomtänkt genomförande', 'Measured execution')}
+            </span>
           </div>
         </motion.div>
       </section>
       
       {/* ═══════════════════════════════════════════════════════════════
-          SCROLL 1 — The Problem
+          SCROLL 1 — The Problem (flowing from hero)
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16">
-        <div className="max-w-3xl mx-auto">
-          <SlowReveal>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight mb-8">
+      <FlowingSection className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-4xl mx-auto">
+          <SideReveal direction="left">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extralight tracking-tight leading-tight mb-6">
               {t('De flesta hemsidor pratar för mycket.', 'Most websites talk too much.')}
             </h2>
-          </SlowReveal>
+          </SideReveal>
           
-          <Reveal delay={0.3}>
-            <p className="text-xl sm:text-2xl text-muted-foreground font-extralight leading-relaxed">
+          <SideReveal direction="right" delay={0.2}>
+            <p className="text-xl sm:text-2xl text-muted-foreground font-extralight leading-relaxed max-w-2xl">
               {t(
                 'De bästa låter designen göra jobbet.',
                 'The best ones let the design do the work.'
               )}
             </p>
-          </Reveal>
+          </SideReveal>
           
-          <Reveal delay={0.5}>
-            <p className="text-base text-muted-foreground/70 mt-12 max-w-lg">
+          <Reveal delay={0.4}>
+            <p className="text-base text-muted-foreground/60 mt-10 max-w-lg">
               {t(
                 'Röriga sidor konverterar inte. Tydliga upplevelser gör det.',
                 'Cluttered pages don\'t convert. Clear experiences do.'
@@ -254,43 +351,46 @@ export default function AdLandingPage() {
             </p>
           </Reveal>
         </div>
-      </section>
+      </FlowingSection>
       
       {/* ═══════════════════════════════════════════════════════════════
-          SCROLL 2 — Philosophy
+          SCROLL 2 — Philosophy (parallax effect)
       ═══════════════════════════════════════════════════════════════ */}
-      <ParallaxSection className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16 bg-secondary/20">
-        <div className="max-w-3xl mx-auto">
-          <Reveal>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight mb-8">
+      <FlowingSection className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-4xl mx-auto relative">
+          {/* Accent glow behind text */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] pointer-events-none" />
+          
+          <SideReveal direction="right" className="relative z-10">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extralight tracking-tight leading-tight mb-6">
               {t('Vi börjar inte med mallar.', 'We don\'t start with templates.')}
               <br />
-              <span className="text-muted-foreground">
-                {t('Vi börjar med hur människor känner.', 'We start with how people feel.')}
+              <span className="text-accent/80">
+                {t('Vi börjar med känsla.', 'We start with feeling.')}
               </span>
             </h2>
-          </Reveal>
+          </SideReveal>
           
-          <Reveal delay={0.3}>
+          <SideReveal direction="left" delay={0.2} className="relative z-10">
             <p className="text-base text-muted-foreground max-w-lg leading-relaxed">
               {t(
                 'Varje layoutval görs för att minska friktion och öka förtroende.',
                 'Every layout choice is made to reduce friction and increase confidence.'
               )}
             </p>
-          </Reveal>
+          </SideReveal>
         </div>
-      </ParallaxSection>
+      </FlowingSection>
       
       {/* ═══════════════════════════════════════════════════════════════
-          SCROLL 3 — The Process (Timeline)
+          SCROLL 3 — The Process (Timeline with animated line)
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16">
-        <div className="max-w-3xl mx-auto">
-          <Reveal className="mb-16">
-            <h3 className="text-xs text-muted-foreground/60 tracking-widest uppercase mb-4">
+      <FlowingSection className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-4xl mx-auto">
+          <Reveal className="mb-12">
+            <span className="text-xs text-accent tracking-widest uppercase">
               {t('Processen', 'The Process')}
-            </h3>
+            </span>
           </Reveal>
           
           <div className="space-y-0">
@@ -298,9 +398,10 @@ export default function AdLandingPage() {
               number="01"
               title={t('Förstå', 'Understand')}
               description={t(
-                'Vi lär oss ditt företag innan vi rör designen.',
+                'Vi lär känna ditt företag innan vi rör designen.',
                 'We learn your business before touching design.'
               )}
+              index={0}
             />
             <TimelineStep
               number="02"
@@ -309,6 +410,7 @@ export default function AdLandingPage() {
                 'Ett fokuserat koncept byggt för att konvertera utan press.',
                 'A focused concept built to convert without pressure.'
               )}
+              index={1}
             />
             <TimelineStep
               number="03"
@@ -317,6 +419,7 @@ export default function AdLandingPage() {
                 'Detaljer, spacing, rörelse — inget förhastigt.',
                 'Details, spacing, motion — nothing rushed.'
               )}
+              index={2}
             />
             <TimelineStep
               number="04"
@@ -326,18 +429,21 @@ export default function AdLandingPage() {
                 'A site that feels finished, intentional, and trustworthy.'
               )}
               isLast
+              index={3}
             />
           </div>
         </div>
-      </section>
+      </FlowingSection>
       
       {/* ═══════════════════════════════════════════════════════════════
           SCROLL 4 — Visual Proof
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16 bg-secondary/10">
-        <div className="max-w-4xl mx-auto text-center">
-          <Reveal>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight mb-6">
+      <FlowingSection className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-4xl mx-auto text-center relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-accent/5 rounded-full blur-[80px] pointer-events-none" />
+          
+          <Reveal className="relative z-10">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extralight tracking-tight leading-tight mb-6">
               {t('Design som håller sig i bakgrunden', 'Design that stays out of the way')} —
               <br />
               <span className="text-muted-foreground">
@@ -346,8 +452,8 @@ export default function AdLandingPage() {
             </h2>
           </Reveal>
           
-          <Reveal delay={0.3}>
-            <p className="text-base text-muted-foreground/70 max-w-md mx-auto">
+          <Reveal delay={0.3} className="relative z-10">
+            <p className="text-base text-muted-foreground/60 max-w-md mx-auto">
               {t(
                 'Bra design märks inte. Dålig design minns man.',
                 'Good design isn\'t noticed. Bad design is remembered.'
@@ -355,15 +461,15 @@ export default function AdLandingPage() {
             </p>
           </Reveal>
         </div>
-      </section>
+      </FlowingSection>
       
       {/* ═══════════════════════════════════════════════════════════════
           SCROLL 5 — Social Proof (One testimonial)
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16">
-        <div className="max-w-2xl mx-auto text-center">
+      <FlowingSection className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-3xl mx-auto text-center">
           <Reveal>
-            <blockquote className="text-xl sm:text-2xl font-light leading-relaxed mb-8 text-foreground/90">
+            <blockquote className="text-xl sm:text-2xl md:text-3xl font-extralight leading-relaxed mb-8 text-foreground/90">
               &ldquo;{t(
                 'Inom några dagar kändes vår hemsida tydligare. Kunder litade på oss direkt.',
                 'Within days, our site felt clearer. Customers trusted us immediately.'
@@ -372,27 +478,27 @@ export default function AdLandingPage() {
           </Reveal>
           
           <Reveal delay={0.2}>
-            <cite className="text-sm text-muted-foreground not-italic">
+            <cite className="text-sm text-accent not-italic">
               — Maria Lindberg, {t('Salongsägare', 'Salon Owner')}
             </cite>
           </Reveal>
         </div>
-      </section>
+      </FlowingSection>
       
       {/* ═══════════════════════════════════════════════════════════════
-          SCROLL 6 — Choice Section (Split)
+          SCROLL 6 — Choice Section (Split with equal weight)
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16 border-t border-border/20">
+      <FlowingSection className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16">
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 md:gap-16">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
             
             {/* Free concept */}
-            <Reveal>
-              <div className="space-y-6">
-                <h3 className="text-2xl font-light">
+            <SideReveal direction="left">
+              <div className="p-8 rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent hover:border-accent/40 transition-all duration-300 h-full">
+                <h3 className="text-2xl font-light mb-4">
                   {t('Få ett gratis koncept', 'Get a free concept')}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed mb-6">
                   {t(
                     'Se hur vi skulle designa din hemsida — innan du bestämmer dig.',
                     'See how we would design your site — before committing.'
@@ -400,90 +506,92 @@ export default function AdLandingPage() {
                 </p>
                 <Button 
                   asChild 
-                  className="h-11 px-6 font-normal bg-foreground text-background hover:bg-foreground/90"
+                  className="w-full h-12 font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0 group"
                   onClick={() => handleCTAClick('choice_concept')}
                 >
                   <Link to="/demo">
                     {t('Starta med ett gratis koncept', 'Start with a free concept')}
+                    <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
               </div>
-            </Reveal>
+            </SideReveal>
             
             {/* Pricing */}
-            <Reveal delay={0.2}>
-              <div className="space-y-6">
-                <h3 className="text-2xl font-light">
+            <SideReveal direction="right" delay={0.1}>
+              <div className="p-8 rounded-2xl border border-border/50 bg-gradient-to-br from-secondary/30 to-transparent hover:border-accent/30 transition-all duration-300 h-full">
+                <h3 className="text-2xl font-light mb-4">
                   {t('Se priser', 'View pricing')}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed mb-6">
                   {t(
-                    'Tydliga, transparenta paket. Inga merförsäljningar. Inga överraskningar.',
-                    'Clear, transparent packages. No upsells. No surprises.'
+                    'Tydliga, transparenta paket. Inga dolda avgifter eller överraskningar.',
+                    'Clear, transparent packages. No hidden fees or surprises.'
                   )}
                 </p>
                 <Button 
                   asChild 
                   variant="outline"
-                  className="h-11 px-6 font-normal border-border/50 hover:bg-secondary/50"
+                  className="w-full h-12 font-normal border-accent/30 hover:bg-accent/10 hover:border-accent/50"
                   onClick={() => handleCTAClick('choice_pricing')}
                 >
                   <Link to="/priser">
-                    {t('Se priser', 'View pricing')}
+                    {t('Se våra priser', 'View our pricing')}
                   </Link>
                 </Button>
               </div>
-            </Reveal>
+            </SideReveal>
           </div>
         </div>
-      </section>
+      </FlowingSection>
       
       {/* ═══════════════════════════════════════════════════════════════
           SCROLL 7 — Guarantee
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16 bg-secondary/10">
-        <div className="max-w-xl mx-auto text-center">
-          <Reveal>
-            <h3 className="text-xl sm:text-2xl font-light mb-4">
+      <FlowingSection className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16">
+        <div className="max-w-3xl mx-auto text-center relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent/10 rounded-full blur-[80px] pointer-events-none" />
+          
+          <Reveal className="relative z-10">
+            <h3 className="text-2xl sm:text-3xl font-light mb-4">
               {t('100% nöjdhetsgaranti', '100% satisfaction guarantee')}
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground max-w-md mx-auto">
               {t(
                 'Om det inte känns rätt, fortsätter du inte. Så enkelt är det.',
-                'If it\'s not right, you don\'t continue. Simple as that.'
+                'If it doesn\'t feel right, you don\'t continue. Simple as that.'
               )}
             </p>
           </Reveal>
         </div>
-      </section>
+      </FlowingSection>
       
       {/* ═══════════════════════════════════════════════════════════════
-          FINAL — Close
+          FINAL — Close without selling
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-32 sm:py-40 px-6 sm:px-8 lg:px-16">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="py-24 sm:py-32 px-6 sm:px-8 lg:px-16 border-t border-accent/10">
+        <div className="max-w-4xl mx-auto text-center">
           <Reveal>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight mb-4">
-              {t('Design ska kännas självklart.', 'Design should feel obvious.')}
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extralight tracking-tight leading-tight mb-6">
+              {t('Design ska kännas självklar.', 'Design should feel obvious.')}
+              <br />
+              <span className="text-muted-foreground">
+                {t('Annars är den inte färdig.', 'If it doesn\'t, it isn\'t finished.')}
+              </span>
             </h2>
-            <p className="text-xl text-muted-foreground font-extralight mb-12">
-              {t(
-                'Om det inte gör det, är det inte färdigt.',
-                'If it doesn\'t, it isn\'t finished.'
-              )}
-            </p>
           </Reveal>
           
           <Reveal delay={0.3}>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
               <Button 
                 asChild 
                 size="lg" 
-                className="h-12 px-8 font-normal bg-foreground text-background hover:bg-foreground/90"
+                className="h-14 px-10 font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0 group"
                 onClick={() => handleCTAClick('final_concept')}
               >
                 <Link to="/demo">
                   {t('Få ett gratis koncept', 'Get a free concept')}
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
               
@@ -491,7 +599,7 @@ export default function AdLandingPage() {
                 asChild 
                 size="lg"
                 variant="ghost"
-                className="h-12 px-8 font-normal text-muted-foreground hover:text-foreground"
+                className="h-14 px-10 font-normal text-muted-foreground hover:text-foreground"
                 onClick={() => handleCTAClick('final_pricing')}
               >
                 <Link to="/priser">
@@ -502,26 +610,6 @@ export default function AdLandingPage() {
           </Reveal>
         </div>
       </section>
-      
-      {/* Footer */}
-      <footer className="py-8 px-6 border-t border-border/20">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground/60">
-          <Link to="/" className="font-heading font-medium text-sm text-foreground">
-            Nomia<span className="text-accent">.</span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link to="/villkor" className="hover:text-foreground transition-colors">
-              {t('Villkor', 'Terms')}
-            </Link>
-            <Link to="/integritet" className="hover:text-foreground transition-colors">
-              {t('Integritet', 'Privacy')}
-            </Link>
-            <Link to="/kontakt" className="hover:text-foreground transition-colors">
-              {t('Kontakt', 'Contact')}
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

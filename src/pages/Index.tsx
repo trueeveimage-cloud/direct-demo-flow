@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Testimonials } from '@/components/Testimonials';
+import { TestimonialsCarousel } from '@/components/TestimonialsCarousel';
 import { TrustBadges } from '@/components/TrustBadges';
 import { ROICalculator } from '@/components/ROICalculator';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
@@ -191,7 +191,7 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
   const afterY = useTransform(scrollYProgress, [0, 1], [100, -100]);
   
   return (
-    <section ref={sectionRef} className="py-32 relative overflow-hidden scroll-snap-section">
+    <section ref={sectionRef} className="py-32 relative overflow-hidden">
       {/* Gradient fade overlay for seamless section blending */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background pointer-events-none" />
       {/* Asymmetric accent glow */}
@@ -311,7 +311,7 @@ export default function Index() {
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.5]);
 
   return (
-    <div className="overflow-hidden scroll-snap-container relative">
+    <div className="overflow-hidden relative">
       <GrainOverlay />
       <FloatingParticles count={15} />
       <ScrollingAmbientGlow />
@@ -323,7 +323,7 @@ export default function Index() {
       <ParallaxHeroBackground />
 
       {/* Hero Content with staggered animations - SCROLL SNAP */}
-      <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24 scroll-snap-section">
+      <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24">
         {/* Bottom gradient fade for seamless transition */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none z-20" />
         <div className="container-narrow text-center relative z-10 section-padding py-12">
@@ -507,7 +507,7 @@ export default function Index() {
           4. HOW IT WORKS - Simple process with steps preview + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.3} floatingElements accentGlow>
-        <section className="py-32 relative overflow-hidden scroll-snap-section">
+        <section className="py-32 relative overflow-hidden">
           {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/20 to-background pointer-events-none" />
           
@@ -582,7 +582,7 @@ export default function Index() {
           5. PROOF - Portfolio Showcase + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.4} scaleOnView>
-        <section className="py-32 relative overflow-hidden scroll-snap-section">
+        <section className="py-32 relative overflow-hidden">
           {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/15 to-background pointer-events-none" />
           
@@ -658,7 +658,7 @@ export default function Index() {
           ROI CALCULATOR - Show the pain + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.2} accentGlow>
-        <section className="py-32 relative scroll-snap-section">
+        <section className="py-32 relative">
           {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-destructive/5 to-background pointer-events-none" />
           
@@ -692,14 +692,14 @@ export default function Index() {
       {/* ═══════════════════════════════════════════════════════════════════
           6. SOCIAL PROOF - Testimonials
       ═══════════════════════════════════════════════════════════════════ */}
-      <Testimonials />
+      <TestimonialsCarousel />
 
 
       {/* ═══════════════════════════════════════════════════════════════════
           6. WHAT YOU GET - Features/Deliverables + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.35} floatingElements skewOnScroll>
-        <section className="py-32 relative overflow-hidden scroll-snap-section">
+        <section className="py-32 relative overflow-hidden">
           {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
           <div className="container-wide section-padding relative">
@@ -778,7 +778,7 @@ export default function Index() {
           8. FAQ - Handle objections + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.25}>
-        <section className="py-32 scroll-snap-section relative overflow-hidden">
+        <section className="py-32 relative overflow-hidden">
           {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
           <div className="container-narrow section-padding">
@@ -820,7 +820,7 @@ export default function Index() {
           9. FINAL CTA - Choose Your Path + PARALLAX
       ═══════════════════════════════════════════════════════════════════ */}
       <ParallaxSection speed={0.3} accentGlow rotate3D>
-        <section className="py-32 relative scroll-snap-section">
+        <section className="py-32 relative">
           {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/5 to-background pointer-events-none" />
           
