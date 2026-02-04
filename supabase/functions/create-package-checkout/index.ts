@@ -1,11 +1,30 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+// Allowed origins for CORS - restrict to your domains
+const ALLOWED_ORIGINS = [
+  "https://nomia.se",
+  "https://www.nomia.se",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return false;
+  if (origin.includes("lovableproject.com") || origin.includes("lovable.dev") || origin.includes("lovable.app")) {
+    return true;
+  }
+  return ALLOWED_ORIGINS.some(allowed => origin === allowed || origin.startsWith(allowed));
+}
+
+function getCorsHeaders(origin: string | null) {
+  const allowedOrigin = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin!,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
+}
 
 function isValidPackageId(id: unknown): id is string {
   return typeof id === "string" && ["starter", "standard", "pro"].includes(id);
@@ -143,8 +162,20 @@ function shouldApplyVat(customerCountry: string): boolean {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Block requests from non-allowed origins
+  if (!isAllowedOrigin(origin)) {
+    console.log("[CREATE-PACKAGE-CHECKOUT] Blocked request from unauthorized origin", { origin });
+    return new Response(
+      JSON.stringify({ error: "Forbidden" }),
+      { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
   }
 
   try {
