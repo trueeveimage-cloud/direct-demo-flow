@@ -66,7 +66,25 @@ serve(async (req) => {
       });
     }
 
-    if (email !== "38kqgt@gmail.com") {
+    // Require a strong password - no fallback allowed
+    if (!newPassword || typeof newPassword !== "string" || newPassword.length < 12) {
+      return new Response(JSON.stringify({ error: "Password must be at least 12 characters" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // Get admin email from environment variable
+    const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL");
+    if (!ADMIN_EMAIL) {
+      console.error("[RESET-ADMIN-PASSWORD] ADMIN_EMAIL environment variable not set");
+      return new Response(JSON.stringify({ error: "Server misconfiguration" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
+
+    if (email !== ADMIN_EMAIL) {
       return new Response(JSON.stringify({ error: "Invalid email" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
@@ -86,7 +104,7 @@ serve(async (req) => {
       // User doesn't exist, create them
       const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
         email: email,
-        password: newPassword || "Guemir1453",
+        password: newPassword,
         email_confirm: true,
       });
 
@@ -109,7 +127,7 @@ serve(async (req) => {
     // Update the user's password
     const { error: updateError } = await supabase.auth.admin.updateUserById(
       adminUser.id,
-      { password: newPassword || "Guemir1453" }
+      { password: newPassword }
     );
 
     if (updateError) {
