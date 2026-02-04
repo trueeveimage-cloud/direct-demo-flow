@@ -525,3 +525,43 @@
 .animate-gradient {
   animation: gradient 4s ease infinite;
 }
+
+/* Shimmer effect for badges */
+@keyframes shimmer {
+  0% { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Orb pulse animation */
+@keyframes orbPulse {
+  0%, 100% { 
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.animate-orb-pulse {
+  animation: orbPulse 4s ease-in-out infinite;
+}
+
+/* Subtle glow pulse for interactive elements */
+@keyframes glowPulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px hsl(var(--accent) / 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 40px hsl(var(--accent) / 0.5);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}

@@ -140,7 +140,7 @@ function FlowingSection({ children, className = '' }: { children: React.ReactNod
   );
 }
 
-// Timeline step with animated line
+// Timeline step with animated line and hover glow effects
 function TimelineStep({ 
   number, 
   title, 
@@ -163,7 +163,7 @@ function TimelineStep({
       initial={{ opacity: 0, x: -30 }}
       animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
       transition={{ duration: 0.6, delay: index * 0.15, ease: "easeOut" }}
-      className="relative pl-14 pb-12 last:pb-0"
+      className="relative pl-14 pb-12 last:pb-0 group/step"
     >
       {/* Animated vertical line */}
       {!isLast && (
@@ -175,23 +175,90 @@ function TimelineStep({
         />
       )}
       
-      {/* Number circle with glow */}
+      {/* Number circle with enhanced hover glow */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
         transition={{ duration: 0.4, delay: 0.1 + index * 0.1 }}
         className="absolute left-0 top-0"
       >
-        <div className="relative">
-          <div className="absolute inset-0 bg-accent/30 rounded-full blur-md" />
-          <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/70 border border-accent/50 flex items-center justify-center shadow-lg shadow-accent/20">
+        <div className="relative cursor-pointer">
+          {/* Outer glow - intensifies on hover */}
+          <div className="absolute -inset-2 bg-accent/20 rounded-full blur-xl opacity-50 group-hover/step:opacity-100 group-hover/step:bg-accent/40 transition-all duration-500" />
+          {/* Inner glow */}
+          <div className="absolute inset-0 bg-accent/30 rounded-full blur-md group-hover/step:blur-lg group-hover/step:bg-accent/50 transition-all duration-300" />
+          {/* Circle with pulse on hover */}
+          <motion.div 
+            whileHover={{ scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            className="relative w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/70 border border-accent/50 flex items-center justify-center shadow-lg shadow-accent/20 group-hover/step:shadow-accent/50 group-hover/step:shadow-xl group-hover/step:border-accent transition-all duration-300"
+          >
             <span className="text-xs font-bold text-accent-foreground">{number}</span>
-          </div>
+          </motion.div>
         </div>
       </motion.div>
       
-      <h4 className="text-xl font-medium text-foreground mb-2">{title}</h4>
-      <p className="text-muted-foreground leading-relaxed max-w-md">{description}</p>
+      {/* Title with subtle glow on hover */}
+      <h4 className="text-xl font-medium text-foreground mb-2 group-hover/step:text-accent transition-colors duration-300">{title}</h4>
+      <p className="text-muted-foreground leading-relaxed max-w-md group-hover/step:text-muted-foreground/90 transition-colors duration-300">{description}</p>
+    </motion.div>
+  );
+}
+
+// Glowing CTA Button component
+function GlowingButton({ 
+  children, 
+  to, 
+  variant = 'primary',
+  onClick 
+}: { 
+  children: React.ReactNode; 
+  to: string; 
+  variant?: 'primary' | 'secondary';
+  onClick?: () => void;
+}) {
+  if (variant === 'primary') {
+    return (
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="relative group/btn"
+      >
+        {/* Glow effect behind button */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 via-accent to-amber-500 rounded-xl blur-lg opacity-40 group-hover/btn:opacity-70 transition-opacity duration-300" />
+        <Button 
+          asChild 
+          size="lg" 
+          className="relative h-14 px-10 font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0 group-hover/btn:shadow-amber-500/50 group-hover/btn:shadow-xl transition-all duration-300"
+          onClick={onClick}
+        >
+          <Link to={to}>
+            {children}
+          </Link>
+        </Button>
+      </motion.div>
+    );
+  }
+  
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="relative group/btn"
+    >
+      {/* Subtle glow for secondary */}
+      <div className="absolute -inset-0.5 bg-accent/20 rounded-xl opacity-0 group-hover/btn:opacity-100 blur-md transition-opacity duration-300" />
+      <Button 
+        asChild 
+        size="lg"
+        variant="outline"
+        className="relative h-14 px-10 font-normal border-accent/30 text-foreground hover:bg-accent/10 hover:border-accent/50 transition-all duration-300"
+        onClick={onClick}
+      >
+        <Link to={to}>
+          {children}
+        </Link>
+      </Button>
     </motion.div>
   );
 }
@@ -262,36 +329,29 @@ export default function AdLandingPage() {
             )}
           </motion.p>
           
-          {/* CTAs with gold styling */}
+          {/* CTAs with gold styling and hover glow */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4"
           >
-            <Button 
-              asChild 
-              size="lg" 
-              className="h-14 px-10 font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0 group"
+            <GlowingButton 
+              to="/demo" 
+              variant="primary" 
               onClick={() => handleCTAClick('hero_concept')}
             >
-              <Link to="/demo">
-                {t('Få ett gratis koncept', 'Get a free concept')}
-                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
+              {t('Få ett gratis koncept', 'Get a free concept')}
+              <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover/btn:translate-x-1" />
+            </GlowingButton>
             
-            <Button 
-              asChild 
-              size="lg"
-              variant="outline"
-              className="h-14 px-10 font-normal border-accent/30 text-foreground hover:bg-accent/10 hover:border-accent/50"
+            <GlowingButton 
+              to="/priser" 
+              variant="secondary" 
               onClick={() => handleCTAClick('hero_pricing')}
             >
-              <Link to="/priser">
-                {t('Se priser', 'View pricing')}
-              </Link>
-            </Button>
+              {t('Se priser', 'View pricing')}
+            </GlowingButton>
           </motion.div>
         </div>
         
@@ -494,7 +554,10 @@ export default function AdLandingPage() {
             
             {/* Free concept */}
             <SideReveal direction="left">
-              <div className="p-8 rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent hover:border-accent/40 transition-all duration-300 h-full">
+              <div className="p-8 rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent hover:border-accent/40 transition-all duration-300 h-full group/card">
+                {/* Card glow on hover */}
+                <div className="absolute inset-0 -z-10 rounded-2xl bg-accent/5 opacity-0 group-hover/card:opacity-100 blur-xl transition-opacity duration-500" />
+                
                 <h3 className="text-2xl font-light mb-4">
                   {t('Få ett gratis koncept', 'Get a free concept')}
                 </h3>
@@ -504,22 +567,27 @@ export default function AdLandingPage() {
                     'See how we would design your site — before committing.'
                   )}
                 </p>
-                <Button 
-                  asChild 
-                  className="w-full h-12 font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0 group"
-                  onClick={() => handleCTAClick('choice_concept')}
-                >
-                  <Link to="/demo">
-                    {t('Starta med ett gratis koncept', 'Start with a free concept')}
-                    <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
+                
+                {/* Primary CTA with glow */}
+                <div className="relative group/btn">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 via-accent to-amber-500 rounded-xl blur opacity-30 group-hover/btn:opacity-60 transition-opacity duration-300" />
+                  <Button 
+                    asChild 
+                    className="relative w-full h-12 font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0 group-hover/btn:shadow-amber-500/50 transition-all duration-300"
+                    onClick={() => handleCTAClick('choice_concept')}
+                  >
+                    <Link to="/demo">
+                      {t('Starta med ett gratis koncept', 'Start with a free concept')}
+                      <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </SideReveal>
             
             {/* Pricing */}
             <SideReveal direction="right" delay={0.1}>
-              <div className="p-8 rounded-2xl border border-border/50 bg-gradient-to-br from-secondary/30 to-transparent hover:border-accent/30 transition-all duration-300 h-full">
+              <div className="p-8 rounded-2xl border border-border/50 bg-gradient-to-br from-secondary/30 to-transparent hover:border-accent/30 transition-all duration-300 h-full group/card">
                 <h3 className="text-2xl font-light mb-4">
                   {t('Se priser', 'View pricing')}
                 </h3>
@@ -529,16 +597,21 @@ export default function AdLandingPage() {
                     'Clear, transparent packages. No hidden fees or surprises.'
                   )}
                 </p>
-                <Button 
-                  asChild 
-                  variant="outline"
-                  className="w-full h-12 font-normal border-accent/30 hover:bg-accent/10 hover:border-accent/50"
-                  onClick={() => handleCTAClick('choice_pricing')}
-                >
-                  <Link to="/priser">
-                    {t('Se våra priser', 'View our pricing')}
-                  </Link>
-                </Button>
+                
+                {/* Secondary CTA with subtle glow */}
+                <div className="relative group/btn">
+                  <div className="absolute -inset-0.5 bg-accent/10 rounded-xl opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />
+                  <Button 
+                    asChild 
+                    variant="outline"
+                    className="relative w-full h-12 font-normal border-accent/30 hover:bg-accent/10 hover:border-accent/50 transition-all duration-300"
+                    onClick={() => handleCTAClick('choice_pricing')}
+                  >
+                    <Link to="/priser">
+                      {t('Se våra priser', 'View our pricing')}
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </SideReveal>
           </div>
@@ -583,29 +656,37 @@ export default function AdLandingPage() {
           
           <Reveal delay={0.3}>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
-              <Button 
-                asChild 
-                size="lg" 
-                className="h-14 px-10 font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0 group"
-                onClick={() => handleCTAClick('final_concept')}
-              >
-                <Link to="/demo">
-                  {t('Få ett gratis koncept', 'Get a free concept')}
-                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
+              {/* Primary CTA with glow effect */}
+              <div className="relative group/btn">
+                <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 via-accent to-amber-500 rounded-xl blur-lg opacity-40 group-hover/btn:opacity-70 transition-opacity duration-300" />
+                <Button 
+                  asChild 
+                  size="lg" 
+                  className="relative h-14 px-10 font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0 group-hover/btn:shadow-amber-500/50 group-hover/btn:shadow-xl transition-all duration-300"
+                  onClick={() => handleCTAClick('final_concept')}
+                >
+                  <Link to="/demo">
+                    {t('Få ett gratis koncept', 'Get a free concept')}
+                    <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                  </Link>
+                </Button>
+              </div>
               
-              <Button 
-                asChild 
-                size="lg"
-                variant="ghost"
-                className="h-14 px-10 font-normal text-muted-foreground hover:text-foreground"
-                onClick={() => handleCTAClick('final_pricing')}
-              >
-                <Link to="/priser">
-                  {t('Se priser', 'View pricing')}
-                </Link>
-              </Button>
+              {/* Secondary CTA with subtle glow */}
+              <div className="relative group/btn2">
+                <div className="absolute -inset-0.5 bg-accent/10 rounded-xl opacity-0 group-hover/btn2:opacity-100 blur transition-opacity duration-300" />
+                <Button 
+                  asChild 
+                  size="lg"
+                  variant="ghost"
+                  className="relative h-14 px-10 font-normal text-muted-foreground hover:text-foreground transition-all duration-300"
+                  onClick={() => handleCTAClick('final_pricing')}
+                >
+                  <Link to="/priser">
+                    {t('Se priser', 'View pricing')}
+                  </Link>
+                </Button>
+              </div>
             </div>
           </Reveal>
         </div>
