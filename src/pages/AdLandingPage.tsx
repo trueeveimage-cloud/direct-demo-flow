@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { trackEvent, getUtmParams } from '@/lib/posthog';
@@ -43,6 +43,7 @@ export default function AdLandingPage() {
       <PricingSection onCTAClick={handleCTAClick} />
       <UrgencySection />
       <FinalCTASection onCTAClick={handleCTAClick} />
+      <FloatingMobileCTA onCTAClick={handleCTAClick} />
     </div>
   );
 }
@@ -448,28 +449,8 @@ function ProofSection() {
           </h2>
         </motion.div>
 
-        {/* Before/After comparison */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={isInView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-16"
-        >
-          <div className="grid md:grid-cols-2 gap-4 p-2 rounded-2xl bg-secondary/20 border border-border/30">
-            <div className="relative rounded-xl overflow-hidden">
-              <img src={beforeImage} alt="Before" className="w-full h-auto" />
-              <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm text-xs font-medium">
-                {t('Fore', 'Before')}
-              </div>
-            </div>
-            <div className="relative rounded-xl overflow-hidden">
-              <img src={afterImage} alt="After" className="w-full h-auto" />
-              <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-medium">
-                {t('Efter', 'After')}
-              </div>
-            </div>
-          </div>
-        </motion.div>
+        {/* Before/After comparison with parallax */}
+        <ParallaxBeforeAfter beforeImage={beforeImage} afterImage={afterImage} isInView={isInView} />
 
         {/* Case cards */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -492,6 +473,84 @@ function ProofSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+// ============================================
+// PARALLAX BEFORE/AFTER - Subtle depth effect
+// ============================================
+function ParallaxBeforeAfter({ beforeImage, afterImage, isInView }: { beforeImage: string; afterImage: string; isInView: boolean }) {
+  const { t } = useLanguage();
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  const beforeY = useTransform(scrollYProgress, [0, 1], [30, -30]);
+  const afterY = useTransform(scrollYProgress, [0, 1], [-20, 20]);
+  const beforeScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.97, 1, 0.97]);
+  const afterScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.03, 1, 1.03]);
+
+  return (
+    <motion.div
+      ref={containerRef}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 0.8, delay: 0.2 }}
+      className="mb-16"
+    >
+      <div className="grid md:grid-cols-2 gap-4 p-2 rounded-2xl bg-secondary/20 border border-border/30">
+        <motion.div style={{ y: beforeY, scale: beforeScale }} className="relative rounded-xl overflow-hidden">
+          <img src={beforeImage} alt="Before website design" className="w-full h-auto" />
+          <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm text-xs font-medium">
+            {t('Fore', 'Before')}
+          </div>
+        </motion.div>
+        <motion.div style={{ y: afterY, scale: afterScale }} className="relative rounded-xl overflow-hidden">
+          <img src={afterImage} alt="After website redesign" className="w-full h-auto" />
+          <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-medium">
+            {t('Efter', 'After')}
+          </div>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// FLOATING MOBILE CTA - Appears after hero
+// ============================================
+function FloatingMobileCTA({ onCTAClick }: { onCTAClick: (button: string) => void }) {
+  const { t } = useLanguage();
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShow(window.scrollY > window.innerHeight * 0.8);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ y: 100 }}
+      animate={{ y: show ? 0 : 100 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-background/80 backdrop-blur-xl border-t border-border/30 md:hidden"
+    >
+      <Button
+        asChild
+        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground py-5 rounded-full font-medium shadow-lg shadow-accent/20"
+        onClick={() => onCTAClick('floating_cta')}
+      >
+        <Link to="/gratis-demo">
+          {t('Fa gratis koncept', 'Get free concept')}
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Link>
+      </Button>
+    </motion.div>
   );
 }
 

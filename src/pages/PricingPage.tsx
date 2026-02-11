@@ -41,23 +41,10 @@ const PricingCard = ({
         {/* Animated glow effect - pointer events disabled */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
         
-        {/* 25% SALE Badge - Premium floating badge with shimmer */}
-        <div className="absolute -top-3 -right-3 z-20">
-          <div className="relative">
-            {/* Outer glow */}
-            <div className="absolute -inset-2 bg-gradient-to-r from-amber-400 via-accent to-amber-500 rounded-full blur-xl opacity-60 animate-pulse" />
-            {/* Badge container */}
-            <div className="relative">
-              {/* Shimmer effect overlay */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 animate-shimmer overflow-hidden" />
-              {/* Main badge */}
-              <div className="relative flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-background text-sm font-bold shadow-lg shadow-amber-500/40 border border-amber-300/50">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <span className="tracking-wide">-25%</span>
-              </div>
-            </div>
+        {/* 25% Discount - Minimal luxury line badge */}
+        <div className="absolute top-4 right-4 z-20">
+          <div className="px-3 py-1.5 rounded-md bg-accent/10 border border-accent/30 backdrop-blur-sm">
+            <span className="text-xs font-medium tracking-widest uppercase text-accent">-25%</span>
           </div>
         </div>
         
@@ -287,9 +274,10 @@ export default function PricingPage() {
                 className="flex flex-wrap items-center justify-center gap-3 mb-8"
               >
                 {/* 25% SALE Badge */}
-                <div className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-red-500 text-white text-sm font-bold shadow-lg shadow-red-500/30">
-                  <Sparkles className="w-4 h-4" />
-                  {t('25% RABATT', '25% SALE')}
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent/10 border border-accent/30 backdrop-blur-sm">
+                  <span className="text-sm font-medium tracking-widest uppercase text-accent">
+                    {t('25% rabatt', '25% off')}
+                  </span>
                 </div>
                 <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 border border-accent/20">
                   <span className="text-sm font-medium text-accent">
