@@ -354,9 +354,11 @@ export default function Index() {
             className="flex flex-wrap items-center justify-center gap-3 mb-8"
           >
             {/* 25% SALE Badge */}
-            <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-red-600 to-red-500 text-white text-sm font-bold shadow-lg shadow-red-500/30">
-              <Sparkles className="w-4 h-4" />
-              {t('25% RABATT', '25% SALE')}
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-accent/15 to-accent/5 border border-accent/30 shadow-sm shadow-accent/10">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              <span className="text-sm font-medium tracking-wide text-accent">
+                {t('25% rabatt', '25% off')}
+              </span>
             </div>
             
             {/* Spots Badge - Clickable */}
