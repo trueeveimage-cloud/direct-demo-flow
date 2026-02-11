@@ -41,10 +41,11 @@ const PricingCard = ({
         {/* Animated glow effect - pointer events disabled */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
         
-        {/* 25% Discount - Minimal luxury line badge */}
-        <div className="absolute top-4 right-4 z-20">
-          <div className="px-3 py-1.5 rounded-md bg-accent/10 border border-accent/30 backdrop-blur-sm">
-            <span className="text-xs font-medium tracking-widest uppercase text-accent">-25%</span>
+        {/* 25% Discount badge */}
+        <div className="absolute top-5 right-5 z-20">
+          <div className="relative px-3.5 py-1.5 rounded-lg bg-gradient-to-br from-accent/20 to-accent/5 border border-accent/40 backdrop-blur-sm shadow-sm shadow-accent/10">
+            <div className="absolute inset-0 rounded-lg bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <span className="relative text-[11px] font-semibold tracking-[0.2em] uppercase text-accent">save 25%</span>
           </div>
         </div>
         
@@ -273,10 +274,11 @@ export default function PricingPage() {
                 transition={{ duration: 0.5 }}
                 className="flex flex-wrap items-center justify-center gap-3 mb-8"
               >
-                {/* 25% SALE Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent/10 border border-accent/30 backdrop-blur-sm">
-                  <span className="text-sm font-medium tracking-widest uppercase text-accent">
-                    {t('25% rabatt', '25% off')}
+                {/* Hero badges */}
+                <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-accent/15 to-accent/5 border border-accent/30 shadow-sm shadow-accent/10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                  <span className="text-sm font-medium tracking-wide text-accent">
+                    {t('25% rabatt pa alla paket', '25% off all packages')}
                   </span>
                 </div>
                 <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 border border-accent/20">
@@ -293,7 +295,7 @@ export default function PricingPage() {
                 className="text-4xl sm:text-5xl lg:text-7xl font-extralight mb-6 tracking-tight"
               >
                 {t('Välj ditt ', 'Choose your ')}
-                <span className="bg-gradient-to-r from-accent via-amber-400 to-accent bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
+                <span className="text-accent">
                   {t('paket', 'package')}
                 </span>
               </motion.h1>
