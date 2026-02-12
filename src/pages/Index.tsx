@@ -353,70 +353,13 @@ export default function Index() {
             transition={{ delay: 0.7, duration: 0.5, ease: 'easeOut' }}
             className="flex flex-wrap items-center justify-center gap-3 mb-8"
           >
-            {/* 25% SALE Badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-accent/15 to-accent/5 border border-accent/30 shadow-sm shadow-accent/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              <span className="text-sm font-medium tracking-wide text-accent">
+            {/* 25% SALE Badge - Gold */}
+            <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-amber-500/20 via-yellow-400/15 to-amber-500/20 border border-amber-400/40 shadow-lg shadow-amber-500/15 backdrop-blur-sm">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-sm shadow-amber-400/50" />
+              <span className="text-sm font-bold tracking-[0.15em] uppercase bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
                 {t('25% rabatt', '25% off')}
               </span>
             </div>
-            
-            {/* Spots Badge - Clickable */}
-            <Dialog open={showSpotsDialog} onOpenChange={setShowSpotsDialog}>
-              <DialogTrigger asChild>
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium backdrop-blur-sm border border-accent/20 hover:bg-accent/20 hover:border-accent/30 transition-colors cursor-pointer">
-                  <Clock className="w-4 h-4" />
-                  {spotsLoading ? (
-                    <span className="animate-pulse">{t('Laddar...', 'Loading...')}</span>
-                  ) : remainingSpots > 0 ? (
-                    <span>{remainingSpots} {remainingSpots === 1 ? t('plats kvar', 'spot left') : t('platser kvar', 'spots left')}</span>
-                  ) : (
-                    <span className="text-warning">{t('Fullbokat', 'Fully booked')}</span>
-                  )}
-                </button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-accent">
-                  <Calendar className="w-5 h-5" />
-                  {t('Veckans platser', 'Weekly Spots')}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <p className="text-muted-foreground">
-                  {t(
-                    'Vi tar endast emot 7 nya koncept per vecka för att säkerställa högsta kvalitet på varje design.',
-                    'We only accept 7 new concepts per week to ensure the highest quality for each design.'
-                  )}
-                </p>
-                <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
-                  <div className="text-center mb-4">
-                    <span className="text-4xl font-bold text-accent">{remainingSpots}</span>
-                    <span className="text-lg text-muted-foreground ml-2">{remainingSpots === 1 ? t('plats kvar', 'spot left') : t('platser kvar', 'spots left')}</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    {[...Array(7)].map((_, i) => (
-                      <div 
-                        key={i} 
-                        className={`w-6 h-6 rounded-full border-2 border-background transition-colors ${
-                          i < (7 - remainingSpots) ? 'bg-muted-foreground/40' : 'bg-accent'
-                        }`} 
-                      />
-                    ))}
-                  </div>
-                  <p className="text-center text-xs text-muted-foreground mt-3">
-                    {7 - remainingSpots}/7 {t('bokade denna vecka', 'booked this week')}
-                  </p>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {t(
-                    'Platserna återställs varje måndag. Boka din plats nu för att garantera leverans.',
-                    'Spots reset every Monday. Book your spot now to guarantee delivery.'
-                  )}
-                </p>
-              </div>
-            </DialogContent>
-          </Dialog>
           </motion.div>
 
           <motion.h1 
@@ -481,13 +424,76 @@ export default function Index() {
               </Button>
             </MagneticButton>
           </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2, duration: 0.5 }}
-            className="mt-6"
+
+          {/* Spots indicator - prominent button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.6, duration: 0.5 }}
+            className="mt-8 flex flex-col items-center gap-3"
           >
+            <Dialog open={showSpotsDialog} onOpenChange={setShowSpotsDialog}>
+              <DialogTrigger asChild>
+                <button className="group flex items-center gap-3 px-6 py-3 rounded-full bg-accent/10 border border-accent/30 hover:bg-accent/20 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 cursor-pointer">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-accent" />
+                  </span>
+                  <span className="text-sm font-semibold text-accent">
+                    {spotsLoading ? (
+                      t('Laddar...', 'Loading...')
+                    ) : remainingSpots > 0 ? (
+                      `${remainingSpots} ${remainingSpots === 1 ? t('plats kvar denna vecka', 'spot left this week') : t('platser kvar denna vecka', 'spots left this week')}`
+                    ) : (
+                      t('Fullbokat denna vecka', 'Fully booked this week')
+                    )}
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-accent opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-accent">
+                    <Calendar className="w-5 h-5" />
+                    {t('Veckans platser', 'Weekly Spots')}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <p className="text-muted-foreground">
+                    {t(
+                      'Vi tar endast emot 7 nya koncept per vecka för att säkerställa högsta kvalitet på varje design.',
+                      'We only accept 7 new concepts per week to ensure the highest quality for each design.'
+                    )}
+                  </p>
+                  <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
+                    <div className="text-center mb-4">
+                      <span className="text-4xl font-bold text-accent">{remainingSpots}</span>
+                      <span className="text-lg text-muted-foreground ml-2">{remainingSpots === 1 ? t('plats kvar', 'spot left') : t('platser kvar', 'spots left')}</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      {[...Array(7)].map((_, i) => (
+                        <div 
+                          key={i} 
+                          className={`w-6 h-6 rounded-full border-2 border-background transition-colors ${
+                            i < (7 - remainingSpots) ? 'bg-muted-foreground/40' : 'bg-accent'
+                          }`} 
+                        />
+                      ))}
+                    </div>
+                    <p className="text-center text-xs text-muted-foreground mt-3">
+                      {7 - remainingSpots}/7 {t('bokade denna vecka', 'booked this week')}
+                    </p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {t(
+                      'Platserna återställs varje måndag. Boka din plats nu för att garantera leverans.',
+                      'Spots reset every Monday. Book your spot now to guarantee delivery.'
+                    )}
+                  </p>
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <Link to="/efter-demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               {t('Har du fått ditt koncept?', 'Have you received your concept?')}
             </Link>
