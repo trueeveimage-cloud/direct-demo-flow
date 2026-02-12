@@ -15,7 +15,7 @@ export function WizardFooterControls() {
   const isDark = mounted && theme === 'dark';
 
   return (
-    <div className="flex items-center justify-center gap-4 py-4 mt-8 border-t border-border/30">
+    <div className="flex items-center justify-center gap-4 py-4 mt-8 mb-4 border-t border-border/30">
       {/* Language Toggle */}
       <button
         onClick={() => setLang(lang === 'sv' ? 'en' : 'sv')}
@@ -23,7 +23,7 @@ export function WizardFooterControls() {
         aria-label={t('Byt språk', 'Change language')}
       >
         <Globe className="w-4 h-4" />
-        <span>{lang === 'sv' ? '🇸🇪 Svenska' : '🇺🇸 English'}</span>
+        <span className="inline-flex items-center gap-1.5">{lang === 'sv' ? '🇸🇪 Svenska' : '🇺🇸 English'}</span>
       </button>
 
       {/* Theme Toggle */}

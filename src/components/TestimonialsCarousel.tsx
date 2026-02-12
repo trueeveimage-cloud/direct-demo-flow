@@ -123,9 +123,10 @@ export function TestimonialsCarousel() {
           {/* Right fade */}
           <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           
-          <div 
+        <div 
             ref={containerRef}
-            className="flex gap-4 sm:gap-6 overflow-x-hidden py-4"
+            className="flex gap-4 sm:gap-6 overflow-x-auto py-4 scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onTouchStart={() => setIsPaused(true)}

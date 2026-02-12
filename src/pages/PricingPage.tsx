@@ -57,9 +57,10 @@ const PricingCard = ({
 
         <h3 className="font-heading font-light text-2xl mb-2 relative z-10">{pkg.name}</h3>
         
-        {/* Animated price */}
-        <div className="flex items-baseline gap-1 mb-2 relative z-10">
+        {/* Animated price with old price */}
+        <div className="flex items-baseline gap-2 mb-2 relative z-10">
           <span className="text-4xl sm:text-5xl font-bold text-accent">{pkg.price}</span>
+          <span className="text-lg text-muted-foreground/60 line-through">{pkg.oldPrice}</span>
         </div>
         <p className="text-sm text-muted-foreground mb-2 relative z-10">{pkg.delivery}</p>
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2 relative z-10">{pkg.description}</p>
@@ -148,11 +149,20 @@ export default function PricingPage() {
 
   const currency = getCurrencyFromLang(lang);
 
+  // Calculate original prices (before 25% discount)
+  const getOldPrice = (packageId: string) => {
+    const current = getPackagePrice(packageId, currency);
+    const original = Math.round(current / 0.75);
+    const rounded = currency === 'USD' ? Math.round(original / 5) * 5 : Math.round(original / 100) * 100;
+    return formatPrice(rounded, currency);
+  };
+
   const packages = [
     { 
       id: 'starter',
       name: 'Starter', 
       price: formatPrice(getPackagePrice('starter', currency), currency),
+      oldPrice: getOldPrice('starter'),
       delivery: t('7 dagar', '7 days'),
       description: t('Perfekt för dig som behöver en tydlig och professionell närvaro online.', 'Perfect for those who need a clear and professional online presence.'),
       pages: t('Upp till 3 sidor', 'Up to 3 pages'), 
@@ -169,6 +179,7 @@ export default function PricingPage() {
       id: 'standard',
       name: 'Standard', 
       price: formatPrice(getPackagePrice('standard', currency), currency),
+      oldPrice: getOldPrice('standard'),
       delivery: t('7 dagar', '7 days'),
       description: t('Bästa värdet för de flesta företag.', 'Best value for most businesses.'),
       pages: t('Upp till 5 sidor', 'Up to 5 pages'), 
@@ -187,6 +198,7 @@ export default function PricingPage() {
       id: 'pro',
       name: 'Pro', 
       price: formatPrice(getPackagePrice('pro', currency), currency),
+      oldPrice: getOldPrice('pro'),
       delivery: t('7 dagar', '7 days'),
       description: t('För företag som vill ha bokning + mer tillväxt.', 'For businesses wanting booking + more growth.'),
       pages: t('Obegränsade sidor', 'Unlimited pages'), 

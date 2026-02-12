@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
-import { Shield, Clock, RefreshCw, CheckCircle, CreditCard, ShieldCheck, Lock, Star, Award, BadgeCheck } from 'lucide-react';
+import { Shield, Clock, RefreshCw, CheckCircle, CreditCard, ShieldCheck, Lock, Award } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { packages } from '../wizardConfig';
 import { CountdownTimer } from '@/components/CountdownTimer';
-import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 
 interface CheckoutTrustSectionProps {
   selectedPackage: string;
@@ -12,33 +11,18 @@ interface CheckoutTrustSectionProps {
 
 export function CheckoutTrustSection({ selectedPackage, isPostDemoFlow = false }: CheckoutTrustSectionProps) {
   const { t } = useLanguage();
-  const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
   
   const pkg = packages.find(p => p.id === selectedPackage);
   const deliveryDays = pkg?.delivery || 10;
 
   return (
     <div className="space-y-4">
-      {/* Urgency Bar - Limited Spots + Countdown */}
+      {/* Urgency Bar - Time left for 25% discount */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-center justify-center gap-3 p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-accent/5 to-amber-500/10 border border-amber-500/20"
+        className="flex items-center justify-center gap-3 p-3 rounded-xl bg-gradient-to-r from-accent/10 via-accent/5 to-accent/10 border border-accent/20"
       >
-        {/* Spots Left */}
-        {!spotsLoading && remainingSpots > 0 && remainingSpots <= 5 && (
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-            </span>
-            <span className="text-amber-400">
-              {t('Endast', 'Only')} {remainingSpots} {t('platser kvar denna vecka', 'spots left this week')}
-            </span>
-          </div>
-        )}
-        
-        {/* Countdown */}
         <CountdownTimer variant="compact" className="border-0 bg-transparent p-0" />
       </motion.div>
 
@@ -86,33 +70,6 @@ export function CheckoutTrustSection({ selectedPackage, isPostDemoFlow = false }
         </div>
       </motion.div>
 
-      {/* Customer Testimonial - Social Proof */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="p-4 rounded-xl bg-secondary/30 border border-border/50"
-      >
-        <div className="flex gap-0.5 mb-2">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-3.5 h-3.5 fill-accent text-accent" />
-          ))}
-        </div>
-        <blockquote className="text-sm italic text-foreground mb-2">
-          "{t(
-            'Jag var skeptisk till att beställa online, men de levererade precis vad jag ville. Fantastisk service!',
-            'I was skeptical about ordering online, but they delivered exactly what I wanted. Amazing service!'
-          )}"
-        </blockquote>
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
-            <BadgeCheck className="w-4 h-4 text-accent" />
-          </div>
-          <cite className="text-xs text-muted-foreground not-italic">
-            — Erik S., {t('Restaurangägare', 'Restaurant Owner')}
-          </cite>
-        </div>
-      </motion.div>
 
       {/* What Happens Next - Simplified */}
       <motion.div
