@@ -50,7 +50,7 @@ export function CountdownTimer({ className = '', variant = 'compact' }: Countdow
       >
         <div className="flex items-center justify-center gap-2 text-accent text-sm font-medium mb-2">
           <Timer className="w-4 h-4" />
-          <span>{t('Erbjudandet slutar om:', 'Offer ends in:')}</span>
+          <span>{t('25% rabatt slutar om:', '25% off ends in:')}</span>
         </div>
         <div className="flex items-center justify-center gap-3">
           <TimeBlock value={formatNumber(timeLeft.hours)} label={t('tim', 'hrs')} />
@@ -71,7 +71,7 @@ export function CountdownTimer({ className = '', variant = 'compact' }: Countdow
       className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-sm ${className}`}
     >
       <Timer className="w-3.5 h-3.5 text-accent" />
-      <span className="text-muted-foreground">{t('Slutar om:', 'Ends in:')}</span>
+      <span className="text-muted-foreground">{t('25% rabatt slutar om:', '25% off ends in:')}</span>
       <span className="font-mono font-bold text-accent">
         {formatNumber(timeLeft.hours)}:{formatNumber(timeLeft.minutes)}:{formatNumber(timeLeft.seconds)}
       </span>
