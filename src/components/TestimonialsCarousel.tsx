@@ -54,30 +54,39 @@ const testimonials = [
 export function TestimonialsCarousel() {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
+  const isPausedRef = useRef(false);
   const [isPaused, setIsPaused] = useState(false);
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+
+  // Sync ref with state
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
+
+  const scrollPosRef = useRef(0);
 
   // Auto-scroll effect
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || isPaused) return;
+    if (!container) return;
 
     let animationFrame: number;
-    let scrollPos = 0;
     const scrollSpeed = 0.5;
 
     const scroll = () => {
-      if (!container || isPaused) return;
+      if (!container) return;
       
-      scrollPos += scrollSpeed;
-      
-      // Reset when we've scrolled half (since we duplicate items)
-      const halfWidth = container.scrollWidth / 2;
-      if (scrollPos >= halfWidth) {
-        scrollPos = 0;
+      if (!isPausedRef.current) {
+        scrollPosRef.current += scrollSpeed;
+        
+        const halfWidth = container.scrollWidth / 2;
+        if (scrollPosRef.current >= halfWidth) {
+          scrollPosRef.current = 0;
+        }
+        
+        container.scrollLeft = scrollPosRef.current;
       }
       
-      container.scrollLeft = scrollPos;
       animationFrame = requestAnimationFrame(scroll);
     };
 
@@ -88,7 +97,7 @@ export function TestimonialsCarousel() {
         cancelAnimationFrame(animationFrame);
       }
     };
-  }, [isPaused]);
+  }, []);
 
   // Duplicate testimonials for infinite scroll effect
   const duplicatedTestimonials = [...testimonials, ...testimonials];
@@ -127,10 +136,10 @@ export function TestimonialsCarousel() {
             ref={containerRef}
             className="flex gap-4 sm:gap-6 overflow-x-auto py-4 scrollbar-hide"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-            onTouchStart={() => setIsPaused(true)}
-            onTouchEnd={() => setIsPaused(false)}
+            onMouseEnter={() => { setIsPaused(true); }}
+            onMouseLeave={() => { if (containerRef.current) scrollPosRef.current = containerRef.current.scrollLeft; setIsPaused(false); }}
+            onTouchStart={() => { setIsPaused(true); }}
+            onTouchEnd={() => { if (containerRef.current) scrollPosRef.current = containerRef.current.scrollLeft; setIsPaused(false); }}
           >
             {duplicatedTestimonials.map((testimonial, index) => (
               <motion.div

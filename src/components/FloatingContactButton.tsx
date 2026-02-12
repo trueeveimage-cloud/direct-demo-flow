@@ -34,10 +34,10 @@ export function FloatingContactButton() {
             {isOpen ? (
               <motion.span
                 key="open"
-                initial={{ rotate: -90, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                exit={{ rotate: 90, opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.15 }}
                 className="relative flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4 text-white animate-pulse" />
@@ -46,10 +46,10 @@ export function FloatingContactButton() {
             ) : (
               <motion.span
                 key="closed"
-                initial={{ rotate: 90, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                exit={{ rotate: -90, opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.15 }}
                 className="flex items-center gap-2"
               >
                 <MessageCircle className="w-5 h-5 text-accent" />
