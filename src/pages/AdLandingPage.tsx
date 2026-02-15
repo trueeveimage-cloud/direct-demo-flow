@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { trackEvent, getUtmParams } from '@/lib/posthog';
-import { ArrowRight, Check, Shield, Zap, Smartphone, Star } from 'lucide-react';
+import { trackEvent, trackFunnelEvent, getUtmParams } from '@/lib/posthog';
+import { ArrowRight, Check, Shield, Zap, Smartphone, Star, ShieldCheck, RefreshCw } from 'lucide-react';
 import { GrainOverlay } from '@/components/PremiumEffects';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 import { SEOHead } from '@/components/SEOHead';
@@ -21,10 +21,14 @@ export default function AdLandingPage() {
     if (hasTracked.current) return;
     hasTracked.current = true;
     trackEvent('ad_landing_view', { campaign_page: 'ad_landing', ...getUtmParams() });
+    trackFunnelEvent('LANDING_VIEW', { source: 'ad_page', ...getUtmParams() });
   }, []);
 
   const handleCTAClick = (button: string) => {
     trackEvent('ad_cta_click', { button, page: '/ad', ...getUtmParams() });
+    if (button.includes('concept')) {
+      trackFunnelEvent('DEMO_REQUEST', { source: 'ad_page', cta: button, ...getUtmParams() });
+    }
   };
 
   return (
@@ -40,6 +44,7 @@ export default function AdLandingPage() {
       <SolutionSection />
       <TrustSection />
       <ProofSection />
+      <MoneyBackSection />
       <PricingSection onCTAClick={handleCTAClick} />
       <UrgencySection />
       <FinalCTASection onCTAClick={handleCTAClick} />
@@ -49,7 +54,7 @@ export default function AdLandingPage() {
 }
 
 // ============================================
-// HERO SECTION - Emotional hook
+// HERO SECTION - Emotional hook (mobile-optimized)
 // ============================================
 function HeroSection({ onCTAClick }: { onCTAClick: (button: string) => void }) {
   const { t } = useLanguage();
@@ -57,7 +62,7 @@ function HeroSection({ onCTAClick }: { onCTAClick: (button: string) => void }) {
   const isInView = useInView(ref, { once: true });
 
   return (
-    <section ref={ref} className="relative min-h-[90vh] flex items-center justify-center py-20 px-4 sm:px-6">
+    <section ref={ref} className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center justify-center py-16 sm:py-20 px-4 sm:px-6">
       {/* Ambient glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[400px] bg-accent/10 rounded-full blur-[120px] pointer-events-none" />
       
@@ -78,7 +83,7 @@ function HeroSection({ onCTAClick }: { onCTAClick: (button: string) => void }) {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-extralight tracking-tight mb-6"
+          className="text-3xl sm:text-5xl lg:text-6xl font-extralight tracking-tight mb-5 sm:mb-6"
         >
           {t(
             'Webbsidor som gor besokare till kunder.',
@@ -102,16 +107,17 @@ function HeroSection({ onCTAClick }: { onCTAClick: (button: string) => void }) {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col sm:flex-row gap-4 justify-center mb-8"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-6 sm:mb-8"
         >
           <Button
             asChild
             size="lg"
-            className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-base font-medium rounded-full shadow-lg shadow-accent/20 hover:shadow-xl hover:shadow-accent/30 transition-all duration-300"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-base font-medium rounded-full shadow-lg shadow-accent/20 hover:shadow-xl hover:shadow-accent/30 transition-all duration-300 min-h-[56px]"
             onClick={() => onCTAClick('hero_concept')}
           >
             <Link to="/gratis-demo">
               {t('Fa gratis koncept', 'Get free concept')}
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </Button>
           
@@ -517,6 +523,57 @@ function ParallaxBeforeAfter({ beforeImage, afterImage, isInView }: { beforeImag
     </motion.div>
   );
 }
+// ============================================
+// MONEY-BACK GUARANTEE SECTION
+// ============================================
+function MoneyBackSection() {
+  const { t } = useLanguage();
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    if (isInView) {
+      trackEvent('ad_section_view', { section: 'money_back_guarantee', page: '/ad' });
+    }
+  }, [isInView]);
+
+  return (
+    <section ref={ref} className="py-16 sm:py-20 px-4 sm:px-6 relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-green-500/5 to-background" />
+      
+      <div className="relative z-10 max-w-3xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 border border-green-500/30"
+        >
+          <div className="flex flex-col sm:flex-row items-start gap-5">
+            <div className="p-4 bg-green-500/20 rounded-2xl flex-shrink-0">
+              <ShieldCheck className="w-8 h-8 text-green-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl sm:text-2xl font-medium mb-3">
+                {t('100% Nöjd-garanti', '100% Satisfaction Guarantee')}
+              </h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                {t(
+                  'Älskar du inte resultatet? Få full återbetalning inom 5 dagar. Vi tar all risk – du betalar bara för det du gillar.',
+                  "Don't love the result? Get a full refund within 5 days. We take all the risk – you only pay for what you love."
+                )}
+              </p>
+              <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
+                <RefreshCw className="w-4 h-4" />
+                <span>{t('5 dagars ångerrätt', '5-day refund period')}</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 
 // ============================================
 // FLOATING MOBILE CTA - Appears after hero

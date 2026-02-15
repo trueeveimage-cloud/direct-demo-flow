@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ArrowRight, Info, Sparkles, Zap, Crown, Star, ChevronRight } from 'lucide-react';
+import { Check, ArrowRight, Info, Sparkles, Zap, Crown, Star, ChevronRight, ShieldCheck, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PackageCompareModal } from '@/components/PackageCompareModal';
@@ -471,6 +471,39 @@ export default function PricingPage() {
           </div>
         </section>
       </ParallaxSection>
+
+      {/* Money-Back Guarantee */}
+      <section className="pb-16 relative z-10">
+        <div className="container-wide section-padding">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-green-500/15 via-green-500/10 to-green-500/5 border border-green-500/30"
+          >
+            <div className="flex flex-col sm:flex-row items-start gap-5">
+              <div className="p-4 bg-green-500/20 rounded-2xl flex-shrink-0">
+                <ShieldCheck className="w-8 h-8 text-green-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl sm:text-2xl font-medium mb-3">
+                  {t('100% Nöjd-garanti', '100% Satisfaction Guarantee')}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  {t(
+                    'Älskar du inte resultatet? Få full återbetalning inom 5 dagar. Vi tar all risk – du betalar bara för det du gillar.',
+                    "Don't love the result? Get a full refund within 5 days. We take all the risk – you only pay for what you love."
+                  )}
+                </p>
+                <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
+                  <RefreshCw className="w-4 h-4" />
+                  <span>{t('5 dagars ångerrätt', '5-day refund period')}</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Final CTA with dramatic styling */}
       <section className="py-20 relative overflow-hidden">
