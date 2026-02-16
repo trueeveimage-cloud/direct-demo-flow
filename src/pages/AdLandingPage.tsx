@@ -34,8 +34,10 @@ export default function AdLandingPage() {
       />
       <GrainOverlay />
       
-      {/* Ambient glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[500px] bg-accent/8 rounded-full blur-[150px] pointer-events-none" />
+      {/* Gold ambient glows */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[600px] bg-accent/10 rounded-full blur-[180px] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-accent/6 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-0 right-1/4 w-[300px] h-[300px] bg-accent/5 rounded-full blur-[120px] pointer-events-none" />
       
       <div className="relative z-10 max-w-3xl mx-auto text-center px-5 py-16">
         {/* Logo */}
@@ -96,43 +98,39 @@ export default function AdLandingPage() {
             </Link>
           </Button>
 
-          {/* Get free concept */}
+          {/* Get free concept - also gold */}
           <Button
             asChild
-            variant="outline"
             size="lg"
-            className="px-8 py-6 text-base sm:text-lg font-medium rounded-full border-accent/40 hover:border-accent hover:bg-accent/10 transition-all duration-300 min-h-[56px]"
+            className="bg-accent/90 hover:bg-accent text-accent-foreground px-8 py-6 text-base sm:text-lg font-medium rounded-full shadow-lg shadow-accent/15 hover:shadow-xl hover:shadow-accent/25 transition-all duration-300 min-h-[56px]"
             onClick={() => handleCTAClick('hero_concept')}
           >
-            <Link to="/demo">
-              {t('Få gratis koncept', 'Get free concept')}
+            <Link to="/demo" className="flex flex-col items-center gap-0.5 leading-tight">
+              <span>{t('Få gratis koncept', 'Get free concept')}</span>
+              <span className="text-xs font-normal opacity-80">{lang === 'sv' ? 'Från 2 900 kr' : 'From $290'}</span>
             </Link>
           </Button>
         </motion.div>
 
-        {/* Price indicator */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="text-sm text-muted-foreground mb-10"
-        >
-          {lang === 'sv' ? 'Från 2 900 kr' : 'From $290'}
-        </motion.p>
-        
-        {/* Read more link */}
+        {/* Read more link - more obvious */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          className="mt-8"
         >
-          <Link 
-            to="/mer-info"
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-accent transition-colors duration-300"
             onClick={() => handleCTAClick('hero_read_more')}
-            className="text-sm text-muted-foreground hover:text-accent transition-colors duration-300 underline underline-offset-4 decoration-border hover:decoration-accent"
           >
-            {t('Läs mer', 'Read more')}
-          </Link>
+            <Link to="/mer-info" className="flex items-center gap-1.5 text-sm">
+              {t('Läs mer', 'Read more')}
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </Button>
         </motion.div>
       </div>
     </div>
