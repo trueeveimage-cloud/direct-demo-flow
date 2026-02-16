@@ -25,6 +25,18 @@ function getCorsHeaders(origin: string | null) {
   };
 }
 
+// Simple hash for IP anonymization
+async function hashIP(ip: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(ip + "reset-admin-salt");
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("").substring(0, 16);
+}
+
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_MINUTES = 60;
+
 serve(async (req) => {
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
@@ -54,12 +66,46 @@ serve(async (req) => {
       auth: { persistSession: false }
     });
 
+    // --- Server-side rate limiting ---
+    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
+                     req.headers.get("cf-connecting-ip") || "unknown";
+    const ipHash = await hashIP(clientIP);
+    const endpoint = "reset-admin-password";
+
+    // Clean up old attempts
+    await supabase.from("rate_limit_attempts")
+      .delete()
+      .lt("attempted_at", new Date(Date.now() - LOCKOUT_MINUTES * 60 * 1000).toISOString());
+
+    // Check recent attempts
+    const cutoff = new Date(Date.now() - LOCKOUT_MINUTES * 60 * 1000).toISOString();
+    const { count } = await supabase
+      .from("rate_limit_attempts")
+      .select("*", { count: "exact", head: true })
+      .eq("endpoint", endpoint)
+      .eq("ip_hash", ipHash)
+      .gte("attempted_at", cutoff);
+
+    if ((count ?? 0) >= MAX_ATTEMPTS) {
+      console.log("[RESET-ADMIN-PASSWORD] Rate limited", { ipHash });
+      return new Response(JSON.stringify({ error: "Too many attempts. Try again later." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 429,
+      });
+    }
+
     // Get the admin email and new password from request
     const { email, newPassword, adminSecret } = await req.json();
     
     // Secure secret check using environment variable
     const expectedSecret = Deno.env.get("ADMIN_RESET_SECRET");
     if (!expectedSecret || adminSecret !== expectedSecret) {
+      // Record failed attempt
+      await supabase.from("rate_limit_attempts").insert({
+        endpoint,
+        ip_hash: ipHash,
+      });
+
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 403,
@@ -85,6 +131,12 @@ serve(async (req) => {
     }
 
     if (email !== ADMIN_EMAIL) {
+      // Record failed attempt for wrong email too
+      await supabase.from("rate_limit_attempts").insert({
+        endpoint,
+        ip_hash: ipHash,
+      });
+
       return new Response(JSON.stringify({ error: "Invalid email" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
@@ -147,7 +199,7 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("[RESET-ADMIN-PASSWORD] Error", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

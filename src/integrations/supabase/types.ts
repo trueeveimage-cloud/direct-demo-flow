@@ -498,6 +498,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_attempts: {
+        Row: {
+          attempted_at: string
+          endpoint: string
+          id: string
+          ip_hash: string
+        }
+        Insert: {
+          attempted_at?: string
+          endpoint: string
+          id?: string
+          ip_hash: string
+        }
+        Update: {
+          attempted_at?: string
+          endpoint?: string
+          id?: string
+          ip_hash?: string
+        }
+        Relationships: []
+      }
       spots_config: {
         Row: {
           current_spots: number
@@ -527,6 +548,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_rate_limits: { Args: never; Returns: undefined }
       get_remaining_spots: { Args: never; Returns: number }
       is_admin_user: { Args: never; Returns: boolean }
     }
