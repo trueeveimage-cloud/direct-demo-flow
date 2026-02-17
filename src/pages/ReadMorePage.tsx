@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ArrowRight, Palette, DollarSign, Briefcase, HelpCircle, Phone, FolderOpen } from 'lucide-react';
+import { ArrowRight, DollarSign, FolderOpen, Palette, Briefcase, HelpCircle, Phone, ShoppingCart, FileText, Shield, Utensils, Scissors, Store, BookOpen, Sparkles } from 'lucide-react';
 import { GrainOverlay } from '@/components/PremiumEffects';
 import { SEOHead } from '@/components/SEOHead';
 
@@ -23,10 +23,22 @@ export default function ReadMorePage() {
       icon: DollarSign,
     },
     {
+      title: t('Gratis koncept', 'Free concept'),
+      description: t('Få ett designförslag utan kostnad.', 'Get a design proposal at no cost.'),
+      href: '/demo',
+      icon: Sparkles,
+    },
+    {
       title: t('Vårt arbete', 'Our work'),
       description: t('Se tidigare projekt och resultat.', 'See previous projects and results.'),
       href: '/portfolio',
       icon: FolderOpen,
+    },
+    {
+      title: t('Kundcase', 'Case studies'),
+      description: t('Läs om hur vi hjälpt andra.', 'Read how we\'ve helped others.'),
+      href: '/kundcase',
+      icon: BookOpen,
     },
     {
       title: t('Hur det fungerar', 'How it works'),
@@ -41,6 +53,30 @@ export default function ReadMorePage() {
       icon: Briefcase,
     },
     {
+      title: t('Restauranger', 'Restaurants'),
+      description: t('Webbsidor för restauranger och caféer.', 'Websites for restaurants and cafés.'),
+      href: '/tjanster/restauranger',
+      icon: Utensils,
+    },
+    {
+      title: t('Salonger', 'Salons'),
+      description: t('Webbsidor för skönhet och frisörer.', 'Websites for beauty and hair salons.'),
+      href: '/tjanster/salonger',
+      icon: Scissors,
+    },
+    {
+      title: t('E-handel', 'E-commerce'),
+      description: t('Webbsidor för onlinebutiker.', 'Websites for online stores.'),
+      href: '/tjanster/e-handel',
+      icon: Store,
+    },
+    {
+      title: t('Beställ', 'Order'),
+      description: t('Beställ din hemsida direkt.', 'Order your website directly.'),
+      href: '/bestall',
+      icon: ShoppingCart,
+    },
+    {
       title: t('Vanliga frågor', 'FAQ'),
       description: t('Svar på de vanligaste frågorna.', 'Answers to the most common questions.'),
       href: '/faq',
@@ -51,6 +87,18 @@ export default function ReadMorePage() {
       description: t('Har du frågor? Hör av dig.', 'Have questions? Get in touch.'),
       href: '/kontakt',
       icon: Phone,
+    },
+    {
+      title: t('Villkor', 'Terms'),
+      description: t('Läs våra allmänna villkor.', 'Read our terms and conditions.'),
+      href: '/villkor',
+      icon: FileText,
+    },
+    {
+      title: t('Integritetspolicy', 'Privacy policy'),
+      description: t('Hur vi hanterar dina uppgifter.', 'How we handle your data.'),
+      href: '/integritet',
+      icon: Shield,
     },
   ];
 
@@ -63,15 +111,15 @@ export default function ReadMorePage() {
       <GrainOverlay />
 
       {/* Gold ambient glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-accent/8 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-accent/8 rounded-full blur-[160px] pointer-events-none" />
 
-      <div className="max-w-2xl mx-auto px-5 py-16 sm:py-24">
+      <div className="max-w-2xl mx-auto px-5 py-14 sm:py-20">
         {/* Top bar */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="flex items-center justify-between mb-16"
+          className="flex items-center justify-between mb-12"
         >
           <Link 
             to="/ad" 
@@ -89,7 +137,7 @@ export default function ReadMorePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-3xl sm:text-5xl font-extralight tracking-tight mb-3"
+          className="text-3xl sm:text-4xl font-extralight tracking-tight mb-2"
         >
           {t('Utforska mer', 'Explore more')}
         </motion.h1>
@@ -98,55 +146,39 @@ export default function ReadMorePage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-muted-foreground font-light mb-14 text-lg"
+          className="text-muted-foreground font-light mb-10"
         >
           {t('Välj vad du vill veta mer om.', 'Choose what you want to learn more about.')}
         </motion.p>
 
-        <div className="grid gap-2.5">
+        <div className="grid gap-1.5">
           {pages.map((page, i) => (
             <motion.div
               key={page.href}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.15 + i * 0.05 }}
+              transition={{ duration: 0.35, delay: 0.12 + i * 0.03 }}
             >
               <Link
                 to={page.href}
-                className="group flex items-center gap-4 p-4 sm:p-5 rounded-xl bg-secondary/20 border border-border/20 hover:border-accent/40 hover:bg-accent/5 transition-all duration-300"
+                className="group flex items-center gap-3.5 px-4 py-3 rounded-lg hover:bg-accent/5 transition-all duration-300"
               >
-                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors duration-300">
-                  <page.icon className="w-4.5 h-4.5 text-accent" />
+                <div className="w-8 h-8 rounded-md bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors duration-300">
+                  <page.icon className="w-4 h-4 text-accent" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium group-hover:text-accent transition-colors duration-300">
                     {page.title}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground">
                     {page.description}
                   </p>
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/50 group-hover:text-accent group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
+                <ArrowRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-accent group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0" />
               </Link>
             </motion.div>
           ))}
         </div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-14 text-center"
-        >
-          <Link
-            to="/bestall"
-            className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 rounded-full text-sm font-medium shadow-lg shadow-accent/20 hover:shadow-xl hover:shadow-accent/30 transition-all duration-300"
-          >
-            {t('Beställ nu', 'Order now')}
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </motion.div>
       </div>
     </div>
   );
