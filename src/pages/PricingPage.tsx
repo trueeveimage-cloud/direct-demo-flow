@@ -37,39 +37,39 @@ const PricingCard = ({
       transition={{ duration: 0.6, delay: index * 0.15 }}
       className="h-full"
     >
-      <div className="relative p-3 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl border-2 h-full flex flex-col overflow-hidden border-accent/50 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent shadow-xl shadow-accent/10 hover:border-accent hover:shadow-2xl hover:shadow-accent/20 group transition-all duration-300">
+      <div className="relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col overflow-hidden border-accent/50 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent shadow-xl shadow-accent/10 hover:border-accent hover:shadow-2xl hover:shadow-accent/20 group transition-all duration-300">
         {/* Animated glow effect - pointer events disabled */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
         
         {/* 25% Discount badge */}
-        <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20">
-          <div className="relative px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg bg-gradient-to-br from-amber-500/25 via-yellow-400/15 to-amber-500/10 border border-amber-400/50 backdrop-blur-sm shadow-md shadow-amber-500/15">
+        <div className="absolute top-5 right-5 z-20">
+          <div className="relative px-3.5 py-1.5 rounded-lg bg-gradient-to-br from-amber-500/25 via-yellow-400/15 to-amber-500/10 border border-amber-400/50 backdrop-blur-sm shadow-md shadow-amber-500/15">
             <div className="absolute inset-0 rounded-lg bg-amber-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <span className="relative text-[8px] sm:text-[11px] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-amber-600 dark:text-transparent dark:bg-gradient-to-r dark:from-amber-300 dark:via-yellow-200 dark:to-amber-400 dark:bg-clip-text">-25%</span>
+            <span className="relative text-[11px] font-bold tracking-[0.2em] uppercase bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">save 25%</span>
           </div>
         </div>
         
         {/* Icon with glow */}
-        <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-5 bg-accent/20 group-hover:bg-accent/30 transition-colors z-10">
+        <div className="relative w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-accent/20 group-hover:bg-accent/30 transition-colors z-10">
           <div className="absolute inset-0 bg-accent/30 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-          <Icon className="w-5 h-5 sm:w-7 sm:h-7 text-accent relative z-10" />
+          <Icon className="w-7 h-7 text-accent relative z-10" />
         </div>
 
-        <h3 className="font-heading font-light text-base sm:text-2xl mb-1 sm:mb-2 relative z-10">{pkg.name}</h3>
+        <h3 className="font-heading font-light text-2xl mb-2 relative z-10">{pkg.name}</h3>
         
         {/* Animated price with old price */}
-        <div className="flex flex-col sm:flex-row sm:items-baseline gap-0 sm:gap-2 mb-1 sm:mb-2 relative z-10">
-          <span className="text-xl sm:text-4xl lg:text-5xl font-bold text-accent">{pkg.price}</span>
-          <span className="text-xs sm:text-lg text-muted-foreground/60 line-through">{pkg.oldPrice}</span>
+        <div className="flex items-baseline gap-2 mb-2 relative z-10">
+          <span className="text-4xl sm:text-5xl font-bold text-accent">{pkg.price}</span>
+          <span className="text-lg text-muted-foreground/60 line-through">{pkg.oldPrice}</span>
         </div>
-        <p className="text-[10px] sm:text-sm text-muted-foreground mb-1 sm:mb-2 relative z-10">{pkg.delivery}</p>
-        <p className="text-[10px] sm:text-sm text-muted-foreground mb-2 sm:mb-4 line-clamp-2 relative z-10 hidden sm:block">{pkg.description}</p>
-        <p className="text-[10px] sm:text-sm font-medium text-foreground mb-3 sm:mb-5 flex items-center gap-1 sm:gap-2 relative z-10">
-          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-accent rounded-full" />
+        <p className="text-sm text-muted-foreground mb-2 relative z-10">{pkg.delivery}</p>
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 relative z-10">{pkg.description}</p>
+        <p className="text-sm font-medium text-foreground mb-5 flex items-center gap-2 relative z-10">
+          <span className="w-2 h-2 bg-accent rounded-full" />
           {pkg.pages}
         </p>
         
-        <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-8 flex-grow relative z-10 hidden sm:block">
+        <ul className="space-y-3 mb-8 flex-grow relative z-10">
           {pkg.features.map((feature: any, i: number) => {
             const tooltip = getTooltip(feature.key, lang);
             return (
@@ -109,21 +109,18 @@ const PricingCard = ({
         {/* CTA Buttons - simple, no complex z-index */}
         <div className="space-y-2 mt-auto relative">
           <Button 
-            className="w-full rounded-lg sm:rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground text-xs sm:text-sm py-2 sm:py-2.5"
-            size="sm"
+            className="w-full rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground"
             onClick={() => window.location.href = `/demo?package=${pkg.id}`}
           >
-            <span className="hidden sm:inline">{t('Få koncept', 'Get concept')}</span>
-            <span className="sm:hidden">{t('Koncept', 'Concept')}</span>
-            <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
+            {t('Få koncept', 'Get concept')}
+            <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
           <Button 
             variant="ghost" 
-            size="sm"
-            className="w-full text-[10px] sm:text-sm hover:bg-accent/10"
+            className="w-full text-sm hover:bg-accent/10"
             onClick={() => window.location.href = `/bestall?package=${pkg.id}`}
           >
-            {t('Beställ', 'Order')}
+            {t('Beställ direkt', 'Order directly')}
           </Button>
         </div>
       </div>
@@ -290,9 +287,9 @@ export default function PricingPage() {
                 className="flex flex-wrap items-center justify-center gap-3 mb-8"
               >
                 {/* Hero badge - Gold 25% */}
-                <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-amber-500/25 via-yellow-400/20 to-amber-500/25 border border-amber-400/50 shadow-lg shadow-amber-500/15 backdrop-blur-sm">
+                <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-amber-500/20 via-yellow-400/15 to-amber-500/20 border border-amber-400/40 shadow-lg shadow-amber-500/15 backdrop-blur-sm">
                   <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-sm shadow-amber-400/50" />
-                  <span className="text-sm font-bold tracking-[0.15em] uppercase text-amber-600 dark:text-transparent dark:bg-gradient-to-r dark:from-amber-300 dark:via-yellow-200 dark:to-amber-400 dark:bg-clip-text">
+                  <span className="text-sm font-bold tracking-[0.15em] uppercase bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
                     {t('25% rabatt på alla paket', '25% off all packages')}
                   </span>
                 </div>
@@ -365,7 +362,7 @@ export default function PricingPage() {
               </Button>
             </div>
             
-            <div className="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
               {packages.map((pkg, index) => (
                 <PricingCard key={index} pkg={pkg} index={index} t={t} lang={lang} />
               ))}
