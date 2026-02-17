@@ -40,15 +40,23 @@ export default function AdLandingPage() {
       <div className="absolute top-0 right-1/4 w-[300px] h-[300px] bg-accent/5 rounded-full blur-[120px] pointer-events-none" />
       
       <div className="relative z-10 max-w-3xl mx-auto text-center px-5 py-16">
-        {/* Logo */}
+        {/* Top bar: Logo + Read more link */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="mb-14"
+          className="flex items-center justify-between mb-14"
         >
           <Link to="/" className="font-heading font-bold text-2xl tracking-tight">
             Nomia<span className="text-accent">.</span>
+          </Link>
+          <Link 
+            to="/mer-info" 
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-accent transition-colors duration-300"
+            onClick={() => handleCTAClick('topbar_read_more')}
+          >
+            {t('Läs mer', 'Read more')}
+            <ArrowRight className="w-3 h-3" />
           </Link>
         </motion.div>
 
@@ -112,26 +120,6 @@ export default function AdLandingPage() {
           </Button>
         </motion.div>
 
-        {/* Read more link - more obvious */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="mt-8"
-        >
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-accent transition-colors duration-300"
-            onClick={() => handleCTAClick('hero_read_more')}
-          >
-            <Link to="/mer-info" className="flex items-center gap-1.5 text-sm">
-              {t('Läs mer', 'Read more')}
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </Button>
-        </motion.div>
       </div>
     </div>
   );
