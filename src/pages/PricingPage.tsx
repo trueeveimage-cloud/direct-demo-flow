@@ -164,15 +164,15 @@ export default function PricingPage() {
       price: formatPrice(getPackagePrice('starter', currency), currency),
       oldPrice: getOldPrice('starter'),
       delivery: t('7 dagar', '7 days'),
-      description: t('Perfekt för dig som behöver en tydlig och professionell närvaro online.', 'Perfect for those who need a clear and professional online presence.'),
+      description: t('Perfekt för dig som vill ha en tydlig, professionell närvaro på nätet.', 'Perfect for those who need a clear and professional online presence.'),
       pages: t('Upp till 3 sidor', 'Up to 3 pages'), 
       features: [
         { text: t('Mobilanpassad design', 'Mobile-responsive design'), key: 'Mobilanpassad design' },
         { text: t('Kontaktformulär', 'Contact form'), key: 'Kontaktformulär' },
-        { text: t('Google Maps (om relevant)', 'Google Maps (if relevant)'), key: 'Google Maps' },
+        { text: t('Google Maps (vid behov)', 'Google Maps (if relevant)'), key: 'Google Maps' },
         { text: t('Grundläggande SEO', 'Basic SEO'), key: 'Grundläggande SEO' },
-        { text: t('10 revisionsrundor', '10 revision rounds'), key: '10 revisionsrunda' },
-        { text: t('Lansering + genomgång', 'Launch + walkthrough'), key: 'Lansering' }
+        { text: t('10 ändringsrundor', '10 revision rounds'), key: '10 revisionsrunda' },
+        { text: t('Driftsättning + genomgång', 'Launch + walkthrough'), key: 'Lansering' }
       ]
     },
     { 
@@ -186,12 +186,12 @@ export default function PricingPage() {
       popular: true, 
       features: [
         { text: t('Allt i Starter', 'Everything in Starter'), key: 'Allt i Starter' },
-        { text: t('20 revisionsrundor', '20 revision rounds'), key: '20 revisionsrundor' },
-        { text: t('Bildgalleri/sektioner', 'Image gallery/sections'), key: 'Bildgalleri/sektioner' },
-        { text: t('Sociala länkar + klickbar telefon/mail', 'Social links + clickable phone/email'), key: 'Sociala' },
+        { text: t('20 ändringsrundor', '20 revision rounds'), key: '20 revisionsrundor' },
+        { text: t('Bildgalleri och sektioner', 'Image gallery/sections'), key: 'Bildgalleri/sektioner' },
+        { text: t('Sociala medier + klickbar telefon/e-post', 'Social links + clickable phone/email'), key: 'Sociala' },
         { text: t('Google Analytics', 'Google Analytics'), key: 'Google Analytics' },
-        { text: t('Nyhetsbrev setup', 'Newsletter setup'), key: 'Nyhetsbrev setup' },
-        { text: t('Flerspråkig', 'Multi-language'), key: 'Flerspråkig' }
+        { text: t('Nyhetsbrev-integration', 'Newsletter setup'), key: 'Nyhetsbrev setup' },
+        { text: t('Flerspråkig sida', 'Multi-language'), key: 'Flerspråkig' }
       ]
     },
     { 
@@ -200,15 +200,15 @@ export default function PricingPage() {
       price: formatPrice(getPackagePrice('pro', currency), currency),
       oldPrice: getOldPrice('pro'),
       delivery: t('7 dagar', '7 days'),
-      description: t('För företag som vill ha bokning + mer tillväxt.', 'For businesses wanting booking + more growth.'),
+      description: t('För företag som vill ha bokningssystem och mer.', 'For businesses wanting booking + more growth.'),
       pages: t('Obegränsade sidor', 'Unlimited pages'), 
       features: [
         { text: t('Allt i Standard', 'Everything in Standard'), key: 'Allt i Standard' },
-        { text: t('Obegränsade revisioner', 'Unlimited revisions'), key: 'Obegränsade revisioner' },
+        { text: t('Obegränsade ändringar', 'Unlimited revisions'), key: 'Obegränsade revisioner' },
         { text: t('Bokningssystem', 'Booking system'), key: 'Bokningssystem' },
         { text: t('Avancerad SEO', 'Advanced SEO'), key: 'Avancerad SEO' },
         { text: t('Prioriterad support', 'Priority support'), key: 'Prioriterad support' },
-        { text: t('Custom integrationer', 'Custom integrations'), key: 'Custom integrationer' }
+        { text: t('Skräddarsydda integrationer', 'Custom integrations'), key: 'Custom integrationer' }
       ] 
     },
   ];
@@ -217,39 +217,39 @@ export default function PricingPage() {
     { 
       id: 'basic',
       name: 'Basic',
-      description: t('Du behöver inte tänka på teknik.', 'You don\'t need to think about tech.'),
-      note: t('De flesta på Basic uppgraderar inom 60 dagar.', 'Most clients on Basic upgrade within 60 days.'),
+      description: t('Slipp tänka på teknik — vi sköter det åt dig.', 'You don\'t need to think about tech.'),
+      note: t('De flesta uppgraderar till Standard inom 60 dagar.', 'Most clients on Basic upgrade within 60 days.'),
       features: [
         t('Domän ingår', 'Domain included'),
         t('Hosting (snabb + SSL)', 'Hosting (fast + SSL)'), 
         t('Säkerhetsuppdateringar', 'Security updates'), 
-        t('Dagliga/veckovisa backups', 'Daily/weekly backups'), 
-        t('Prestanda/säkerhetscheck 1x/mån', 'Performance/security check 1x/month')
+        t('Dagliga/veckovisa säkerhetskopior', 'Daily/weekly backups'), 
+        t('Prestanda- och säkerhetsgenomgång 1×/mån', 'Performance/security check 1x/month')
       ] 
     },
     { 
       id: 'standard',
       name: 'Standard', 
-      description: t('Allt i Basic + sidan kan alltid ändras utan krångel.', 'Everything in Basic + the site can always be changed without hassle.'),
+      description: t('Allt i Basic — och sidan kan uppdateras när som helst utan krångel.', 'Everything in Basic + the site can always be changed without hassle.'),
       popular: true, 
       features: [
         t('Allt i Basic', 'Everything in Basic'), 
-        t('Företagsmail (1–3 adresser)', 'Business email (1-3 addresses)'), 
-        t('Hastighetsoptimering', 'Speed optimization'),
-        t('Skadedjursrensning', 'Malware cleanup'),
+        t('Företags-e-post (1–3 adresser)', 'Business email (1-3 addresses)'), 
+        t('Hastighets- och prestandaoptimering', 'Speed optimization'),
+        t('Skadlig kod-rensning', 'Malware cleanup'),
         t('Support inom 24–48h', 'Support within 24-48h')
       ] 
     },
     { 
       id: 'pro',
       name: 'Pro',
-      description: t('För företag som växer och vill ha mer fart + prioritet.', 'For growing businesses wanting more speed + priority.'),
+      description: t('För växande företag som vill ha snabbare svar och prioriterad hantering.', 'For growing businesses wanting more speed + priority.'),
       features: [
         t('Allt i Standard', 'Everything in Standard'), 
-        t('Uptime-övervakning', 'Uptime monitoring'),
-        t('Rollback / återställ', 'Rollback / restore'),
+        t('Driftsövervakning dygnet runt', 'Uptime monitoring'),
+        t('Återställning och säkerhetskopiering', 'Rollback / restore'),
         t('Prioriterad support', 'Priority support'), 
-        t('Basic SEO-check 1x/mån', 'Basic SEO check 1x/month')
+        t('SEO-genomgång 1×/mån', 'Basic SEO check 1x/month')
       ] 
     },
   ];

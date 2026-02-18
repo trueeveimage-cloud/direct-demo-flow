@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ArrowRight, DollarSign, FolderOpen, Palette, Briefcase, HelpCircle, Phone, ShoppingCart, FileText, Shield, Utensils, Scissors, Store, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowRight, DollarSign, FolderOpen, Palette, Briefcase, HelpCircle, Phone, ShoppingCart, FileText, Shield, MessageSquare, Sparkles, Home, Info } from 'lucide-react';
 import { GrainOverlay } from '@/components/PremiumEffects';
 import { SEOHead } from '@/components/SEOHead';
 
@@ -10,71 +10,59 @@ interface PageLink {
   description: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  highlight?: boolean;
 }
 
 export default function ReadMorePage() {
   const { t } = useLanguage();
 
-  const pages: PageLink[] = [
+  const primaryPages: PageLink[] = [
+    {
+      title: t('Beställ nu', 'Order now'),
+      description: t('Kom igång direkt — välj paket och betala.', 'Get started right away — pick a package and pay.'),
+      href: '/bestall',
+      icon: ShoppingCart,
+      highlight: true,
+    },
+    {
+      title: t('Fått ditt koncept?', 'Received your concept?'),
+      description: t('Godkänn designen och gå vidare till betalning.', 'Approve the design and proceed to payment.'),
+      href: '/efter-demo',
+      icon: Sparkles,
+      highlight: true,
+    },
+    {
+      title: t('Gratis designförslag', 'Free design proposal'),
+      description: t('Se hur din sida kan se ut — utan kostnad.', 'See how your site could look — at no cost.'),
+      href: '/demo',
+      icon: Palette,
+    },
+  ];
+
+  const infoPages: PageLink[] = [
     {
       title: t('Priser', 'Pricing'),
-      description: t('Se våra paket och vad som ingår.', 'See our packages and what\'s included.'),
+      description: t('Paket från 2 900 kr — 25% rabatt just nu.', 'Packages from $290 — 25% off right now.'),
       href: '/priser',
       icon: DollarSign,
     },
     {
-      title: t('Gratis koncept', 'Free concept'),
-      description: t('Få ett designförslag utan kostnad.', 'Get a design proposal at no cost.'),
-      href: '/demo',
-      icon: Sparkles,
+      title: t('Hur det fungerar', 'How it works'),
+      description: t('Från idé till lansering på 7 dagar.', 'From idea to launch in 7 days.'),
+      href: '/hur-det-fungerar',
+      icon: Info,
     },
     {
       title: t('Vårt arbete', 'Our work'),
-      description: t('Se tidigare projekt och resultat.', 'See previous projects and results.'),
+      description: t('Se exempel på sidor vi byggt.', 'See examples of sites we\'ve built.'),
       href: '/portfolio',
       icon: FolderOpen,
-    },
-    {
-      title: t('Kundcase', 'Case studies'),
-      description: t('Läs om hur vi hjälpt andra.', 'Read how we\'ve helped others.'),
-      href: '/kundcase',
-      icon: BookOpen,
-    },
-    {
-      title: t('Hur det fungerar', 'How it works'),
-      description: t('Steg för steg, från idé till lansering.', 'Step by step, from idea to launch.'),
-      href: '/hur-det-fungerar',
-      icon: Palette,
     },
     {
       title: t('Om oss', 'About us'),
       description: t('Vilka vi är och varför vi gör det här.', 'Who we are and why we do this.'),
       href: '/om-oss',
       icon: Briefcase,
-    },
-    {
-      title: t('Restauranger', 'Restaurants'),
-      description: t('Webbsidor för restauranger och caféer.', 'Websites for restaurants and cafés.'),
-      href: '/tjanster/restauranger',
-      icon: Utensils,
-    },
-    {
-      title: t('Salonger', 'Salons'),
-      description: t('Webbsidor för skönhet och frisörer.', 'Websites for beauty and hair salons.'),
-      href: '/tjanster/salonger',
-      icon: Scissors,
-    },
-    {
-      title: t('E-handel', 'E-commerce'),
-      description: t('Webbsidor för onlinebutiker.', 'Websites for online stores.'),
-      href: '/tjanster/e-handel',
-      icon: Store,
-    },
-    {
-      title: t('Beställ', 'Order'),
-      description: t('Beställ din hemsida direkt.', 'Order your website directly.'),
-      href: '/bestall',
-      icon: ShoppingCart,
     },
     {
       title: t('Vanliga frågor', 'FAQ'),
@@ -84,23 +72,72 @@ export default function ReadMorePage() {
     },
     {
       title: t('Kontakt', 'Contact'),
-      description: t('Har du frågor? Hör av dig.', 'Have questions? Get in touch.'),
+      description: t('Har du frågor? Vi svarar inom 24h.', 'Have questions? We respond within 24h.'),
       href: '/kontakt',
       icon: Phone,
     },
     {
+      title: t('Startsida', 'Homepage'),
+      description: t('Tillbaka till hemsidan.', 'Back to the main site.'),
+      href: '/',
+      icon: Home,
+    },
+  ];
+
+  const legalPages: PageLink[] = [
+    {
       title: t('Villkor', 'Terms'),
-      description: t('Läs våra allmänna villkor.', 'Read our terms and conditions.'),
+      description: t('Allmänna villkor och återbetalningspolicy.', 'General terms and refund policy.'),
       href: '/villkor',
       icon: FileText,
     },
     {
       title: t('Integritetspolicy', 'Privacy policy'),
-      description: t('Hur vi hanterar dina uppgifter.', 'How we handle your data.'),
+      description: t('Hur vi hanterar dina uppgifter (GDPR).', 'How we handle your data (GDPR).'),
       href: '/integritet',
       icon: Shield,
     },
+    {
+      title: t('Kontakta oss', 'Contact us'),
+      description: t('Mejl, frågor och support.', 'Email, questions and support.'),
+      href: '/kontakt',
+      icon: MessageSquare,
+    },
   ];
+
+  const renderLinks = (links: PageLink[], delay = 0) =>
+    links.map((page, i) => (
+      <motion.div
+        key={page.href}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: delay + i * 0.04 }}
+      >
+        <Link
+          to={page.href}
+          className={`group flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-300 ${
+            page.highlight
+              ? 'bg-accent/10 border border-accent/25 hover:bg-accent/18 hover:border-accent/50'
+              : 'hover:bg-accent/5 border border-transparent'
+          }`}
+        >
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
+            page.highlight ? 'bg-accent/20 group-hover:bg-accent/35' : 'bg-muted group-hover:bg-accent/20'
+          }`}>
+            <page.icon className={`w-4 h-4 ${page.highlight ? 'text-accent' : 'text-muted-foreground group-hover:text-accent transition-colors'}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className={`text-sm font-medium transition-colors duration-300 ${page.highlight ? 'text-accent' : 'group-hover:text-accent'}`}>
+              {page.title}
+            </h3>
+            <p className="text-xs text-muted-foreground leading-tight">
+              {page.description}
+            </p>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-accent group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0" />
+        </Link>
+      </motion.div>
+    ));
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
@@ -113,13 +150,13 @@ export default function ReadMorePage() {
       {/* Gold ambient glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-accent/8 rounded-full blur-[160px] pointer-events-none" />
 
-      <div className="max-w-2xl mx-auto px-5 py-14 sm:py-20">
+      <div className="max-w-sm mx-auto px-4 py-12">
         {/* Top bar */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="flex items-center justify-between mb-12"
+          className="flex items-center justify-between mb-10"
         >
           <Link 
             to="/ad" 
@@ -134,50 +171,59 @@ export default function ReadMorePage() {
         </motion.div>
 
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-3xl sm:text-4xl font-extralight tracking-tight mb-2"
-        >
-          {t('Utforska mer', 'Explore more')}
-        </motion.h1>
-
-        <motion.p
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-muted-foreground font-light mb-10"
+          transition={{ duration: 0.5 }}
+          className="text-2xl font-extralight tracking-tight mb-1"
         >
-          {t('Välj vad du vill veta mer om.', 'Choose what you want to learn more about.')}
+          {t('Vad vill du göra?', 'What would you like to do?')}
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.08 }}
+          className="text-sm text-muted-foreground font-light mb-6"
+        >
+          {t('Välj ett alternativ nedan.', 'Choose an option below.')}
         </motion.p>
 
-        <div className="grid gap-1.5">
-          {pages.map((page, i) => (
-            <motion.div
-              key={page.href}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.12 + i * 0.03 }}
-            >
-              <Link
-                to={page.href}
-                className="group flex items-center gap-3.5 px-4 py-3 rounded-lg hover:bg-accent/5 transition-all duration-300"
-              >
-                <div className="w-8 h-8 rounded-md bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors duration-300">
-                  <page.icon className="w-4 h-4 text-accent" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium group-hover:text-accent transition-colors duration-300">
-                    {page.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    {page.description}
-                  </p>
-                </div>
-                <ArrowRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-accent group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0" />
-              </Link>
-            </motion.div>
-          ))}
+        {/* Primary actions */}
+        <div className="space-y-1.5 mb-6">
+          {renderLinks(primaryPages, 0.1)}
+        </div>
+
+        {/* Divider */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex items-center gap-3 mb-4"
+        >
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground">{t('Mer information', 'More info')}</span>
+          <div className="h-px flex-1 bg-border" />
+        </motion.div>
+
+        {/* Info pages */}
+        <div className="space-y-0.5 mb-6">
+          {renderLinks(infoPages, 0.25)}
+        </div>
+
+        {/* Divider */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="flex items-center gap-3 mb-4"
+        >
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground">{t('Juridiskt', 'Legal')}</span>
+          <div className="h-px flex-1 bg-border" />
+        </motion.div>
+
+        {/* Legal pages */}
+        <div className="space-y-0.5">
+          {renderLinks(legalPages, 0.45)}
         </div>
       </div>
     </div>

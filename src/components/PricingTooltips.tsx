@@ -73,12 +73,20 @@ export const featureTooltips: Record<string, { sv: string; en: string }> = {
     en: '1-3 email addresses like info@yourcompany.com.'
   },
   'Prestandaoptimering': {
-    sv: 'Månatlig optimering av laddtid och Core Web Vitals.',
-    en: 'Monthly optimization of load time and Core Web Vitals.'
+    sv: 'Månatlig optimering av laddtid och Core Web Vitals för snabbare sida.',
+    en: 'Monthly optimization of load time and Core Web Vitals for a faster site.'
+  },
+  'Hastighets- och prestandaoptimering': {
+    sv: 'Vi optimerar din sidas laddtid och prestanda varje månad så att den alltid är snabb.',
+    en: 'We optimize your site\'s load time and performance every month to keep it fast.'
   },
   'Performance optimization': {
-    sv: 'Månatlig optimering av laddtid och Core Web Vitals.',
-    en: 'Monthly optimization of load time and Core Web Vitals.'
+    sv: 'Månatlig optimering av laddtid och Core Web Vitals för snabbare sida.',
+    en: 'Monthly optimization of load time and Core Web Vitals for a faster site.'
+  },
+  'SEO-genomgång 1×/mån': {
+    sv: 'Varje månad går vi igenom metadata, indexering och trasiga länkar.',
+    en: 'Every month we review metadata, indexing and broken links.'
   },
   'SEO-check': {
     sv: 'Månatlig kontroll av metadata, indexering och trasiga länkar.',
