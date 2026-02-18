@@ -242,7 +242,7 @@ export default function PrivacyPage() {
                 )}
               </p>
               <p className="text-sm text-muted-foreground mt-4">
-                {t('Senast uppdaterad:', 'Last updated:')} 2025-01-30
+                {t('Senast uppdaterad:', 'Last updated:')} 2026-02-18
               </p>
             </section>
           </AnimatedSection>

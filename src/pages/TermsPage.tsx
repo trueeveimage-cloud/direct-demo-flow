@@ -109,7 +109,7 @@ export default function TermsPage() {
           <AnimatedSection animation="fade-up" delay={550}>
             <section className="pt-8 border-t border-border">
               <p className="text-muted-foreground">{t('Har du frågor om våra villkor? Kontakta oss på nordicsite.help@gmail.com', 'Questions about our terms? Contact us at nordicsite.help@gmail.com')}</p>
-              <p className="text-sm text-muted-foreground mt-4">{t('Senast uppdaterad:', 'Last updated:')} 2025-01-30</p>
+              <p className="text-sm text-muted-foreground mt-4">{t('Senast uppdaterad:', 'Last updated:')} 2026-02-18</p>
             </section>
           </AnimatedSection>
         </div>

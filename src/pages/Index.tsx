@@ -448,7 +448,7 @@ export default function Index() {
                       t('Fullbokat denna vecka', 'Fully booked this week')
                     )}
                   </span>
-                  <ArrowRight className="w-4 h-4 text-accent opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  <ArrowRight className="w-4 h-4 text-accent transition-transform duration-300 group-hover:translate-x-0.5" />
                 </button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
