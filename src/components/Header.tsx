@@ -191,17 +191,27 @@ export function Header() {
             </Link>
           ))}
           
-          {/* Pricing Link (renamed from Services) */}
-          <Link
-            to="/priser"
-            className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all ${
-              location.pathname === '/priser'
-                ? 'text-foreground bg-background/50'
-                : 'text-muted-foreground hover:text-foreground hover:bg-background/30'
-            }`}
-          >
-            {t('Priser', 'Pricing')}
-          </Link>
+          {/* Pricing Link with arrow to /mer-info */}
+          <div className="flex items-center gap-0.5">
+            <Link
+              to="/priser"
+              className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all ${
+                location.pathname === '/priser'
+                  ? 'text-foreground bg-background/50'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/30'
+              }`}
+            >
+              {t('Priser', 'Pricing')}
+            </Link>
+            <Link
+              to="/mer-info"
+              className="w-5 h-5 flex items-center justify-center rounded-full text-muted-foreground hover:text-accent hover:bg-background/30 transition-all"
+              title={t('Mer information', 'More info')}
+              aria-label={t('Mer information', 'More info')}
+            >
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
         </div>
 
         {/* Divider */}

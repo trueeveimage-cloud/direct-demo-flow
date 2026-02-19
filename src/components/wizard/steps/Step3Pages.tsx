@@ -307,30 +307,43 @@ Sön: Stängt`}
               </div>
               <div className="space-y-2">
                 {formData.bookingServices.map((service, index) => (
-                  <div key={index} className="flex gap-2 items-center">
-                    <Input 
-                      value={service.name} 
-                      onChange={(e) => updateBookingService(index, 'name', e.target.value)} 
-                      placeholder={t('Tjänstnamn', 'Service name')} 
-                      className="h-10 flex-1"
-                    />
-                    <Input 
-                      value={service.duration} 
-                      onChange={(e) => updateBookingService(index, 'duration', e.target.value)} 
-                      placeholder={t('Längd', 'Duration')} 
-                      className="h-10 w-24"
-                    />
-                    <Input 
-                      value={service.price} 
-                      onChange={(e) => updateBookingService(index, 'price', e.target.value)} 
-                      placeholder={t('Pris', 'Price')} 
-                      className="h-10 w-24"
-                    />
-                    {formData.bookingServices.length > 1 && (
-                      <Button variant="ghost" size="icon" onClick={() => removeBookingService(index)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
+                <div key={index} className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex-1 min-w-0">
+                      <Label className="text-xs text-muted-foreground mb-1 block">{t('Tjänst', 'Service')}</Label>
+                      <Input 
+                        value={service.name} 
+                        onChange={(e) => updateBookingService(index, 'name', e.target.value)} 
+                        placeholder={t('T.ex. Herrklipp', 'E.g. Haircut')} 
+                        className="h-10 w-full"
+                      />
+                    </div>
+                    <div className="flex gap-2 sm:gap-2">
+                      <div className="flex-1 sm:w-24">
+                        <Label className="text-xs text-muted-foreground mb-1 block">{t('Längd', 'Duration')}</Label>
+                        <Input 
+                          value={service.duration} 
+                          onChange={(e) => updateBookingService(index, 'duration', e.target.value)} 
+                          placeholder="30 min" 
+                          className="h-10 w-full"
+                        />
+                      </div>
+                      <div className="flex-1 sm:w-24">
+                        <Label className="text-xs text-muted-foreground mb-1 block">{t('Pris', 'Price')}</Label>
+                        <Input 
+                          value={service.price} 
+                          onChange={(e) => updateBookingService(index, 'price', e.target.value)} 
+                          placeholder="350 kr" 
+                          className="h-10 w-full"
+                        />
+                      </div>
+                      {formData.bookingServices.length > 1 && (
+                        <div className="flex items-end pb-0.5">
+                          <Button variant="ghost" size="icon" onClick={() => removeBookingService(index)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
                 <Button variant="outline" size="sm" onClick={addBookingService}>

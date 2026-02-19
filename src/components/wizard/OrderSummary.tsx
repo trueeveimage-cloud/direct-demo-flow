@@ -41,7 +41,12 @@ function OrderSummaryComponent({
   
   const pkg = packages.find(p => p.id === formData.selectedPackage);
   const carePlan = carePlans.find(c => c.id === formData.selectedCarePlan);
+  const carePlanMonthlyPrice = carePlan ? getCarePlanPrice(carePlan.id, false, currency) : 0;
   const carePlanPriceValue = carePlan ? getCarePlanPrice(carePlan.id, formData.isYearlyCarePlan, currency) : 0;
+  // For yearly billing, the first charge is the annual total (monthly rate × 12)
+  const carePlanFirstPayment = carePlan 
+    ? (formData.isYearlyCarePlan ? carePlanPriceValue * 12 : carePlanPriceValue)
+    : 0;
   
   // Get prices based on currency
   const packagePrice = pkg ? getPackagePrice(pkg.id, currency) : 0;
@@ -59,7 +64,8 @@ function OrderSummaryComponent({
   const oneTimeNet = isPostDemoFlow ? packageTotal - verificationFee : packageTotal;
   
   // Total today = one-time items + first care plan payment (both charged at checkout)
-  const totalNetToday = oneTimeNet + carePlanPriceValue;
+  // For yearly care plans, the first payment is the full annual amount
+  const totalNetToday = oneTimeNet + carePlanFirstPayment;
 
   // Calculate VAT using the new country-based logic
   const customerCountry = customerTypeData?.country || (lang === 'sv' ? 'SE' : 'US');
@@ -266,12 +272,27 @@ function OrderSummaryComponent({
                   <span className="text-sm font-medium">{carePlan.name} {t('Webbvård', 'Web Care')}</span>
                 </div>
                 <span className="text-sm font-medium">
-                  {formatPrice(carePlanPriceValue)}/{formData.isYearlyCarePlan ? t('år', 'year') : t('mån', 'mo')}
+                  {formData.isYearlyCarePlan 
+                    ? `${formatPrice(carePlanPriceValue)}/${t('mån', 'mo')}`
+                    : `${formatPrice(carePlanPriceValue)}/${t('mån', 'mo')}`
+                  }
                 </span>
               </div>
+              {formData.isYearlyCarePlan && (
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{t('Årsbelopp (faktureras nu)', 'Annual amount (billed now)')}</span>
+                  <span className="text-xs font-medium text-accent">{formatPrice(carePlanPriceValue * 12)}/{t('år', 'yr')}</span>
+                </div>
+              )}
+              {formData.isYearlyCarePlan && carePlanMonthlyPrice > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{t('Du sparar', 'You save')}</span>
+                  <span className="text-xs font-semibold text-accent">{formatPrice((carePlanMonthlyPrice - carePlanPriceValue) * 12)}/{t('år', 'yr')}</span>
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">
                 {formData.isYearlyCarePlan 
-                  ? t('Faktureras årligen', 'Billed yearly')
+                  ? t('Faktureras årsvis — nästa år om 12 månader', 'Billed yearly — next charge in 12 months')
                   : t('Faktureras månadsvis', 'Billed monthly')
                 }
               </p>

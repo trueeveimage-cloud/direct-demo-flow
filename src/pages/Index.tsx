@@ -84,7 +84,7 @@ function ParallaxHeroBackground() {
           }}
           className="absolute top-[-150px] left-[5%] w-[600px] h-[600px]"
         >
-          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/30 via-accent/10 to-transparent blur-[100px] animate-orb-pulse" />
+          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/15 via-accent/5 to-transparent blur-[100px] animate-orb-pulse" />
         </motion.div>
         
         {/* Secondary orb - medium speed with morph */}
@@ -97,7 +97,7 @@ function ParallaxHeroBackground() {
           }}
           className="absolute top-[50px] right-[10%] w-[500px] h-[500px]"
         >
-          <div className="w-full h-full bg-gradient-radial from-accent/25 via-accent/10 to-transparent blur-[80px] animate-morph" />
+          <div className="w-full h-full bg-gradient-radial from-accent/12 via-accent/5 to-transparent blur-[80px] animate-morph" />
         </motion.div>
         
         {/* Tertiary orb - fastest parallax */}
@@ -109,7 +109,7 @@ function ParallaxHeroBackground() {
           }}
           className="absolute top-[300px] left-[35%] w-[400px] h-[400px]"
         >
-          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/20 via-accent/5 to-transparent blur-[60px] animate-float-3d" />
+          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/10 via-accent/5 to-transparent blur-[60px] animate-float-3d" />
         </motion.div>
         
         {/* Removed floating geometric shapes for cleaner aesthetic */}
@@ -169,10 +169,10 @@ function ParallaxHeroBackground() {
         />
       </div>
       
-      {/* Mobile: Simplified static gradient */}
+      {/* Mobile: Simplified static gradient — reduced opacity for light mode */}
       <div className="md:hidden h-full">
-        <div className="absolute top-[-100px] left-[10%] w-[300px] h-[300px] bg-accent/15 rounded-full blur-[80px]" />
-        <div className="absolute top-[-50px] right-[10%] w-[200px] h-[200px] bg-accent/10 rounded-full blur-[60px]" />
+        <div className="absolute top-[-100px] left-[10%] w-[300px] h-[300px] bg-accent/8 rounded-full blur-[80px]" />
+        <div className="absolute top-[-50px] right-[10%] w-[200px] h-[200px] bg-accent/6 rounded-full blur-[60px]" />
       </div>
     </div>
   );
@@ -353,10 +353,10 @@ export default function Index() {
             transition={{ delay: 0.7, duration: 0.5, ease: 'easeOut' }}
             className="flex flex-wrap items-center justify-center gap-3 mb-8"
           >
-            {/* 25% SALE Badge - Gold */}
-            <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-amber-500/20 via-yellow-400/15 to-amber-500/20 border border-amber-400/40 shadow-lg shadow-amber-500/15 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-sm shadow-amber-400/50" />
-              <span className="text-sm font-bold tracking-[0.15em] uppercase bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
+            {/* 25% SALE Badge - Gold - visible in both light and dark mode */}
+            <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-accent/15 border border-accent/40 shadow-lg shadow-accent/15 backdrop-blur-sm">
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse shadow-sm shadow-accent/50" />
+              <span className="text-sm font-bold tracking-[0.15em] uppercase text-accent">
                 {t('25% rabatt', '25% off')}
               </span>
             </div>
@@ -368,7 +368,7 @@ export default function Index() {
             transition={{ delay: 0.9, duration: 0.6, ease: 'easeOut' }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extralight leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4"
           >
-            <span className="text-reveal-gradient">{t('Prissmarta webbsidor.', 'Websites that sell.')}</span>
+            <span className="text-reveal-gradient">{t('Webbsidor som säljer.', 'Websites that sell.')}</span>
           </motion.h1>
 
           <motion.p 
@@ -377,7 +377,7 @@ export default function Index() {
             transition={{ delay: 1.1, duration: 0.5, ease: 'easeOut' }}
             className="text-xl sm:text-2xl text-muted-foreground max-w-xl mx-auto"
           >
-            {t('Få ett gratis designkoncept inom 72 timmar.', 'Get a free design concept in 72 hours.')}
+            {t('Få ett designkoncept gratis — klart inom 72 timmar.', 'Get a free design concept in 72 hours.')}
           </motion.p>
 
           <motion.div 

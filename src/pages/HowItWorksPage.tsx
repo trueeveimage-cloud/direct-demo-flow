@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { ArrowRight, Palette, Code, Rocket, CheckCircle2, Zap, MessageSquare, ChevronDown, Gift } from 'lucide-react';
+import { ArrowRight, Palette, Code, Rocket, CheckCircle2, MessageSquare, ChevronDown, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
+import { ParallaxSection, TiltCard } from '@/components/ParallaxSection';
 import { MagneticButton } from '@/components/MagneticButton';
 import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
 
@@ -270,73 +270,57 @@ export default function HowItWorksPage() {
   return (
     <div className="relative overflow-hidden">
       <GrainOverlay />
-      <FloatingParticles count={12} />
+      <FloatingParticles count={20} />
       <ScrollingAmbientGlow />
-      {/* Hero Section with full parallax */}
-      <section ref={heroRef} className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-24">
-        {/* Background with parallax */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-transparent" />
-          <motion.div 
-            style={{ y: useTransform(scrollYProgress, [0, 1], [0, -150]) }}
-            className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[150px]" 
-          />
-          <motion.div 
-            style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }}
-            className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px]" 
-          />
-        </div>
 
-        {/* Grid pattern */}
-        <motion.div 
-          style={{ opacity: useTransform(scrollYProgress, [0, 0.5], [0.03, 0]) }}
-          className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" 
-        />
-        
-        {/* Floating shapes */}
-        <FloatingShapes />
+      {/* Cinematic ambient glows — same vibe as About Us */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-accent/6 rounded-full blur-[180px]" />
+        <div className="absolute bottom-1/3 left-1/4 w-[400px] h-[400px] bg-accent/4 rounded-full blur-[140px]" />
+      </div>
+
+      {/* Hero Section with full parallax */}
+      <section ref={heroRef} className="relative min-h-[80vh] flex items-center justify-center overflow-hidden pt-24">
+        {/* Cinematic dark gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(var(--accent)/0.06)_0%,_transparent_65%)]" />
 
         <motion.div 
           style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
           className="relative z-10 container mx-auto px-4 text-center"
         >
-          {/* Badge */}
+          {/* Cinematic label */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 border border-accent/20 mb-10"
+            initial={{ opacity: 0, letterSpacing: '0.5em' }}
+            animate={{ opacity: 1, letterSpacing: '0.3em' }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-10"
           >
-            <Zap className="w-4 h-4 text-accent" />
-            <span className="text-sm font-medium text-accent">
-              {t("Från idé till lansering på dagar", "From idea to launch in days")}
+            <span className="text-xs font-semibold tracking-[0.3em] uppercase text-accent/70">
+              {t("Fyra steg. Sju dagar.", "Four steps. Seven days.")}
             </span>
           </motion.div>
 
-          {/* Main headline with stagger */}
+          {/* Main headline — cinematic film-title style */}
           <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-extralight mb-8 tracking-tight"
+            transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            className="text-6xl md:text-8xl lg:text-9xl font-extralight mb-8 tracking-tighter leading-none"
           >
-            <span className="block">
-              {t("Så fungerar", "How it")}
-            </span>
-            <span className="block bg-gradient-to-r from-accent via-orange-400 to-accent bg-clip-text text-transparent">
-              {t("det", "works")}
-            </span>
+            <span className="block">{t("Så fungerar", "How it")}</span>
+            <span className="block text-accent">{t("det.", "works.")}</span>
           </motion.h1>
 
           <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-14"
+            initial={{ opacity: 0, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-14 font-light"
           >
             {t(
-              "Fyra enkla steg. Från första kontakt till färdig hemsida.",
-              "Four simple steps. From first contact to finished website."
+              "Från första kontakt till färdig hemsida på sju dagar — utan krångel.",
+              "From first contact to finished website in seven days — no fuss."
             )}
           </motion.p>
 
@@ -344,21 +328,21 @@ export default function HowItWorksPage() {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.8 }}
             className="flex flex-col items-center gap-2"
           >
-            <span className="text-sm text-muted-foreground">{t("Scrolla för att utforska", "Scroll to explore")}</span>
+            <span className="text-xs text-muted-foreground/60 tracking-widest uppercase">{t("Scrolla", "Scroll")}</span>
             <motion.div
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
-              <ChevronDown className="w-5 h-5 text-accent" />
+              <ChevronDown className="w-4 h-4 text-accent/50" />
             </motion.div>
           </motion.div>
         </motion.div>
         
         {/* Fade transition overlay */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-background pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent to-background pointer-events-none" />
       </section>
 
       {/* Process Steps with parallax */}
