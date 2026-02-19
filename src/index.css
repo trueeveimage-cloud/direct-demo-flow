@@ -25,7 +25,8 @@
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 38 88% 40%;
+    /* Darker gold accent for light mode — visible on white */
+    --accent: 38 80% 36%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -33,12 +34,12 @@
 
     --border: 0 0% 88%;
     --input: 0 0% 88%;
-    --ring: 38 88% 40%;
+    --ring: 38 80% 36%;
 
     --radius: 0.5rem;
 
     /* Custom tokens */
-    --accent-soft: 38 88% 92%;
+    --accent-soft: 38 80% 93%;
     --surface-elevated: 0 0% 99%;
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
