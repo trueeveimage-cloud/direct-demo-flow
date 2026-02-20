@@ -26,6 +26,7 @@ import { Step3Pages } from './steps/Step3Pages';
 import { Step4CarePlan } from './steps/Step4CarePlan';
 import { Step5ProjectDetails } from './steps/Step5ProjectDetails';
 import { Step6Payment } from './steps/Step6Payment';
+import { DemoPaymentIntro } from './steps/DemoPaymentIntro';
 import { OrderSummary } from './OrderSummary';
 import { CustomerTypeSelection, CustomerTypeData, initialCustomerTypeData } from './steps/CustomerTypeSelection';
 
@@ -55,6 +56,8 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
   const [showCarePlanCompare, setShowCarePlanCompare] = useState(false);
   const [showPackageCompare, setShowPackageCompare] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showDemoIntro, setShowDemoIntro] = useState(false);
+  const [demoIntroDone, setDemoIntroDone] = useState(false);
   
   // Currency based on language
   const currency = getCurrencyFromLang(lang);
@@ -75,6 +78,10 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
     // Track checkout start when reaching payment step
     if (step === 6) {
       trackFunnelEvent('CHECKOUT_START', { wizard_type: isPostDemoFlow ? 'post_demo' : 'direct' });
+      // Show cinematic intro only for the free demo flow
+      if (isPostDemoFlow && !demoIntroDone) {
+        setShowDemoIntro(true);
+      }
     }
   }, [step, isPostDemoFlow]);
 
@@ -426,6 +433,19 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
       case 5:
         return <Step5ProjectDetails formData={formData} setFormData={setFormData} />;
       case 6:
+        // Show cinematic intro for demo flow until dismissed
+        if (isPostDemoFlow && showDemoIntro) {
+          const feeAmt = currency === 'SEK' ? '500 kr' : '$50';
+          return (
+            <DemoPaymentIntro
+              feeAmount={feeAmt}
+              onContinue={() => {
+                setShowDemoIntro(false);
+                setDemoIntroDone(true);
+              }}
+            />
+          );
+        }
         return (
           <Step6Payment 
             formData={formData}
@@ -523,8 +543,8 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
                   </div>
                 )}
                 
-                {/* Payment Step Submit */}
-                {step === 6 && (
+                {/* Payment Step Submit — hidden while intro is playing */}
+                {step === 6 && !(isPostDemoFlow && showDemoIntro) && (
                   <div className="flex justify-between mt-8 pt-6 border-t border-border">
                     <Button variant="outline" onClick={handleBack}>
                       <ArrowLeft className="w-4 h-4 mr-2" />
