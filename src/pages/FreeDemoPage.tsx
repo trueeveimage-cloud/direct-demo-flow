@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { DemoPaymentIntro } from '@/components/wizard/steps/DemoPaymentIntro';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, ArrowRight, ArrowLeft, Check, 
@@ -93,6 +94,8 @@ export default function FreeDemoPage() {
   const [step, setStep] = useState(1);
   const totalSteps = 6; // Added package selection step
   const hasTrackedStart = useRef(false);
+  const [showIntro, setShowIntro] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
 
   // Track demo wizard start on mount
   useEffect(() => {
@@ -102,9 +105,12 @@ export default function FreeDemoPage() {
     }
   }, []);
 
-  // Track step changes
+  // Track step changes + show cinematic intro when reaching step 6
   useEffect(() => {
     trackFunnelEvent('WIZARD_STEP', { wizard_type: 'demo', step });
+    if (step === 6 && !introDone) {
+      setShowIntro(true);
+    }
   }, [step]);
   
   // Form state
@@ -1083,8 +1089,19 @@ export default function FreeDemoPage() {
                 </div>
               )}
 
+              {/* Step 6: Cinematic Intro then Payment */}
+              {step === 6 && showIntro && (
+                <DemoPaymentIntro
+                  feeAmount={formattedVerificationFee}
+                  onContinue={() => {
+                    setShowIntro(false);
+                    setIntroDone(true);
+                  }}
+                />
+              )}
+
               {/* Step 6: Additional Info & Payment */}
-              {step === 6 && (
+              {step === 6 && !showIntro && (
                 <div className="space-y-6">
                   <div className="text-center mb-6">
                     <h2 className="text-xl sm:text-2xl font-light tracking-tight mb-2">
@@ -1204,7 +1221,7 @@ export default function FreeDemoPage() {
                 ) : (
                   <Button 
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || (step === 6 && showIntro)}
                     className="bg-accent hover:bg-accent/90 text-accent-foreground"
                   >
                     {isSubmitting ? (
@@ -1222,7 +1239,7 @@ export default function FreeDemoPage() {
                 )}
               </div>
             </div>
-          </motion.div>
+           </motion.div>
 
           {/* Trust Badges */}
           <div className="max-w-2xl mx-auto mt-8 text-center">
