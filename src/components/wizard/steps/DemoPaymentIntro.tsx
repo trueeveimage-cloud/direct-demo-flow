@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { ArrowRight, ArrowLeft, RefreshCw, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, RefreshCw, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DemoPaymentIntroProps {
@@ -14,29 +14,23 @@ type Slide = 0 | 1 | 2 | 3;
 const slideVariants = {
   enter: (direction: number) => ({
     opacity: 0,
-    y: direction > 0 ? 60 : -60,
-    scale: 0.92,
-    filter: 'blur(12px)',
-    rotateX: direction > 0 ? 8 : -8,
+    y: direction > 0 ? 30 : -30,
+    scale: 0.97,
   }),
   center: {
     opacity: 1,
     y: 0,
     scale: 1,
-    filter: 'blur(0px)',
-    rotateX: 0,
   },
   exit: (direction: number) => ({
     opacity: 0,
-    y: direction > 0 ? -40 : 40,
-    scale: 0.95,
-    filter: 'blur(8px)',
-    rotateX: direction > 0 ? -5 : 5,
+    y: direction > 0 ? -20 : 20,
+    scale: 0.98,
   }),
 };
 
 const cinematicTransition = {
-  duration: 0.9,
+  duration: 0.5,
   ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
 };
 
@@ -50,12 +44,11 @@ const containerVariants = {
 };
 
 const childVariants = {
-  hidden: { opacity: 0, y: 20, filter: 'blur(6px)' },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
 };
 
@@ -79,7 +72,6 @@ export function DemoPaymentIntro({ onContinue, feeAmount }: DemoPaymentIntroProp
 
   return (
     <div className="relative min-h-[65vh] flex flex-col items-center justify-center px-4 text-center select-none overflow-hidden"
-      style={{ perspective: '1200px' }}
     >
       {/* Cinematic grain overlay */}
       <div
@@ -111,32 +103,32 @@ export function DemoPaymentIntro({ onContinue, feeAmount }: DemoPaymentIntroProp
         transition={{ duration: 1.5, ease: 'easeInOut' }}
       />
 
-      {/* Navigation arrows */}
+      {/* Subtle navigation arrows */}
       <AnimatePresence>
         {slide > 0 && (
           <motion.button
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 0.5, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            whileHover={{ opacity: 1, scale: 1.1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.3 }}
+            exit={{ opacity: 0 }}
+            whileHover={{ opacity: 0.7 }}
             onClick={goBack}
-            className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full border border-border/30 bg-background/50 backdrop-blur-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 p-2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </motion.button>
         )}
       </AnimatePresence>
       <AnimatePresence>
         {slide < 3 && (
           <motion.button
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 0.5, x: 0 }}
-            exit={{ opacity: 0, x: 10 }}
-            whileHover={{ opacity: 1, scale: 1.1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.3 }}
+            exit={{ opacity: 0 }}
+            whileHover={{ opacity: 0.7 }}
             onClick={advance}
-            className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full border border-border/30 bg-background/50 backdrop-blur-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 p-2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -153,7 +145,6 @@ export function DemoPaymentIntro({ onContinue, feeAmount }: DemoPaymentIntroProp
             exit="exit"
             transition={cinematicTransition}
             className="max-w-lg z-10"
-            style={{ transformStyle: 'preserve-3d' }}
           >
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-5">
               <motion.div variants={childVariants} className="text-5xl sm:text-6xl mb-6">✦</motion.div>
@@ -176,7 +167,7 @@ export function DemoPaymentIntro({ onContinue, feeAmount }: DemoPaymentIntroProp
           </motion.div>
         )}
 
-        {/* Slide 1 — Effort */}
+        {/* Slide 1 — Handcrafted value */}
         {slide === 1 && (
           <motion.div
             key="slide1"
@@ -187,18 +178,23 @@ export function DemoPaymentIntro({ onContinue, feeAmount }: DemoPaymentIntroProp
             exit="exit"
             transition={cinematicTransition}
             className="max-w-lg z-10"
-            style={{ transformStyle: 'preserve-3d' }}
           >
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-5">
               <motion.p variants={childVariants} className="text-muted-foreground text-sm uppercase tracking-widest font-medium">
-                {t('Varför kostar det något?', 'Why is there a fee?')}
+                {t('Handgjord design', 'Handcrafted design')}
               </motion.p>
               <motion.h2 variants={childVariants} className="text-2xl sm:text-3xl font-light tracking-tight leading-snug">
                 {t(
-                  'Det tar tid och arbete att skapa varje gratis koncept.',
-                  'Creating each free concept takes real time and effort.'
+                  'Varje koncept designas för hand av vårt team — inte genererat av AI.',
+                  'Every concept is handcrafted by our design team — not AI-generated.'
                 )}
               </motion.h2>
+              <motion.p variants={childVariants} className="text-muted-foreground text-sm">
+                {t(
+                  'En liten designinsats säkerställer att vi lägger vår fulla energi på just ditt projekt.',
+                  'A small design deposit ensures we dedicate our full energy to your project.'
+                )}
+              </motion.p>
               <motion.button variants={childVariants} onClick={advance} className="mt-6 text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors">
                 {t('Fortsätt', 'Continue')}
               </motion.button>
@@ -217,7 +213,6 @@ export function DemoPaymentIntro({ onContinue, feeAmount }: DemoPaymentIntroProp
             exit="exit"
             transition={cinematicTransition}
             className="max-w-lg z-10"
-            style={{ transformStyle: 'preserve-3d' }}
           >
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-5">
               <motion.h2 variants={childVariants} className="text-2xl sm:text-3xl font-light tracking-tight leading-snug">
@@ -280,7 +275,6 @@ export function DemoPaymentIntro({ onContinue, feeAmount }: DemoPaymentIntroProp
             exit="exit"
             transition={cinematicTransition}
             className="max-w-md z-10 flex flex-col items-center"
-            style={{ transformStyle: 'preserve-3d' }}
           >
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8 flex flex-col items-center">
               <motion.div variants={childVariants} className="space-y-3 text-center">
