@@ -375,17 +375,28 @@ export function Header() {
               ))}
               
               {/* Pricing link in mobile */}
-              <Link
-                to="/priser"
-                onClick={handleLinkClick}
-                className={`block py-3 px-4 rounded-xl text-sm font-medium transition-colors ${
-                  isActive('/priser') 
-                    ? 'text-foreground bg-background/50' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-background/30'
-                }`}
-              >
-                {t('Priser', 'Pricing')}
-              </Link>
+              <div className="flex items-center gap-1">
+                <Link
+                  to="/priser"
+                  onClick={handleLinkClick}
+                  className={`flex-1 block py-3 px-4 rounded-xl text-sm font-medium transition-colors ${
+                    isActive('/priser') 
+                      ? 'text-foreground bg-background/50' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-background/30'
+                  }`}
+                >
+                  {t('Priser', 'Pricing')}
+                </Link>
+                <Link
+                  to="/mer-info"
+                  onClick={handleLinkClick}
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-muted-foreground hover:text-accent hover:bg-background/30 transition-all"
+                  title={t('Mer information', 'More info')}
+                  aria-label={t('Mer information', 'More info')}
+                >
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
               
               <div className="pt-3 mt-3 border-t border-border space-y-2">
                 <Button asChild variant="outline" className="w-full rounded-xl group">
