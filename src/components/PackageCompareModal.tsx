@@ -47,6 +47,7 @@ const freeInclusions = {
 
 export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalProps) {
   const { t, lang } = useLanguage();
+  const textLang = (lang === 'en' ? 'en' : 'sv') as 'sv' | 'en';
   const currency = getCurrencyFromLang(lang);
   
   // Build packages with dynamic pricing
@@ -124,7 +125,7 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
         </button>
       </PopoverTrigger>
       <PopoverContent side="top" className="max-w-xs p-2">
-        <p className="text-xs">{tooltips[tooltipKey][lang]}</p>
+        <p className="text-xs">{tooltips[tooltipKey][textLang]}</p>
       </PopoverContent>
     </Popover>
   );
@@ -159,7 +160,7 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 <td className="p-3 font-medium">{t('Antal sidor', 'Pages')}</td>
                 {packages.map(pkg => (
                   <td key={pkg.id} className={`text-center p-3 ${pkg.popular ? 'bg-accent/5' : ''}`}>
-                    {lang === 'sv' ? pkg.pages.sv : pkg.pages.en}
+                    {textLang === 'sv' ? pkg.pages.sv : pkg.pages.en}
                   </td>
                 ))}
               </tr>
@@ -284,7 +285,7 @@ export function PackageCompareModal({ open, onOpenChange }: PackageCompareModalP
                 <td colSpan={4} className="p-3 pt-6">
                   <div className="font-semibold text-sm text-accent mb-2">{t('Alltid inkluderat (gratis)', 'Always included (free)')}</div>
                   <div className="flex flex-wrap gap-2">
-                    {freeInclusions[lang].map((item, i) => (
+                    {freeInclusions[textLang].map((item, i) => (
                       <span key={i} className="text-xs bg-background/50 px-2 py-1 rounded-full text-muted-foreground">
                         {item}
                       </span>
