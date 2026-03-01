@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
+import { GrainOverlay } from '@/components/PremiumEffects';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -522,8 +522,6 @@ export default function PortfolioPage() {
   return (
     <div className="section-padding pt-28 pb-20 relative overflow-hidden">
       <GrainOverlay />
-      <FloatingParticles count={12} />
-      <ScrollingAmbientGlow />
       
       {/* Gradient transition overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background pointer-events-none z-0" />

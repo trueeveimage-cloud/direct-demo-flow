@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ParallaxSection, TiltCard } from '@/components/ParallaxSection';
-import { MagneticButton } from '@/components/MagneticButton';
-import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
+import { GrainOverlay } from '@/components/PremiumEffects';
 
 // Step component with parallax
 const StepCard = ({ 
@@ -164,14 +163,12 @@ const PathCard = ({
               ))}
             </div>
             
-            <MagneticButton className="w-full">
-              <Button asChild className="w-full rounded-xl group">
-                <Link to={buttonLink}>
-                  {buttonText}
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-            </MagneticButton>
+            <Button asChild className="w-full rounded-xl group">
+              <Link to={buttonLink}>
+                {buttonText}
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
           </div>
         </div>
       </TiltCard>
@@ -270,9 +267,6 @@ export default function HowItWorksPage() {
   return (
     <div className="relative overflow-hidden">
       <GrainOverlay />
-      <FloatingParticles count={20} />
-      <ScrollingAmbientGlow />
-
       {/* Cinematic ambient glows — same vibe as About Us */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-accent/6 rounded-full blur-[180px]" />
@@ -476,22 +470,18 @@ export default function HowItWorksPage() {
               transition={{ delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <MagneticButton>
-                <Button asChild size="lg" className="group h-14 px-10 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0">
-                  <Link to="/demo">
-                    {t("Få gratis koncept", "Get free concept")}
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </MagneticButton>
-              <MagneticButton>
-                <Button asChild size="lg" variant="outline" className="group h-14 px-10 border-amber-500/50 text-amber-400 hover:bg-amber-500/10">
-                  <Link to="/bestall">
-                    {t("Beställ direkt", "Order directly")}
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </MagneticButton>
+              <Button asChild size="lg" className="group h-14 px-10 bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/30 border-0">
+                <Link to="/demo">
+                  {t("Få gratis koncept", "Get free concept")}
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="group h-14 px-10 border-accent/50 hover:bg-accent/10">
+                <Link to="/bestall">
+                  {t("Beställ direkt", "Order directly")}
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
             </motion.div>
           </div>
         </section>
