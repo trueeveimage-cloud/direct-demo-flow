@@ -12,11 +12,11 @@ import { useEmailCapture } from '@/hooks/useEmailCapture';
 
 // Only 5 countries supported with their VAT rates
 export const SUPPORTED_COUNTRIES = [
-  { code: 'SE', name: { sv: 'Sverige', en: 'Sweden' }, vatRate: 25, currency: 'SEK' },
-  { code: 'NO', name: { sv: 'Norge', en: 'Norway' }, vatRate: 25, currency: 'SEK' },
-  { code: 'DK', name: { sv: 'Danmark', en: 'Denmark' }, vatRate: 25, currency: 'SEK' },
-  { code: 'US', name: { sv: 'USA', en: 'United States' }, vatRate: 0, currency: 'USD' },
-  { code: 'CA', name: { sv: 'Kanada', en: 'Canada' }, vatRate: 0, currency: 'USD' },
+  { code: 'SE', name: { sv: 'Sverige', en: 'Sweden' }, vatRate: 25, currency: 'SEK' as const },
+  { code: 'NO', name: { sv: 'Norge', en: 'Norway' }, vatRate: 25, currency: 'NOK' as const },
+  { code: 'DK', name: { sv: 'Danmark', en: 'Denmark' }, vatRate: 25, currency: 'DKK' as const },
+  { code: 'US', name: { sv: 'USA', en: 'United States' }, vatRate: 0, currency: 'USD' as const },
+  { code: 'CA', name: { sv: 'Kanada', en: 'Canada' }, vatRate: 0, currency: 'USD' as const },
 ] as const;
 
 export type SupportedCountryCode = typeof SUPPORTED_COUNTRIES[number]['code'];
@@ -26,9 +26,9 @@ export function getCountryVatRate(countryCode: string): number {
   return country?.vatRate ?? 0;
 }
 
-export function getCountryCurrency(countryCode: string): 'SEK' | 'USD' {
+export function getCountryCurrency(countryCode: string): 'SEK' | 'USD' | 'NOK' | 'DKK' {
   const country = SUPPORTED_COUNTRIES.find(c => c.code === countryCode);
-  return (country?.currency as 'SEK' | 'USD') ?? 'USD';
+  return country?.currency ?? 'USD';
 }
 
 interface Step1ContactProps {

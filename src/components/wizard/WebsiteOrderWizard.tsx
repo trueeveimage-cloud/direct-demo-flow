@@ -18,7 +18,7 @@ import {
   initialFormData, 
   FormStep
 } from './wizardConfig';
-import { getCurrencyFromLang, getPackagePrice, getAddonPrice } from '@/config/currency';
+import { getCurrencyFromLang, getPackagePrice, getAddonPrice, toStripeCurrency } from '@/config/currency';
 import { trackFunnelEvent, FunnelEvents } from '@/lib/posthog';
 import { Step1Contact } from './steps/Step1Contact';
 import { Step2Package } from './steps/Step2Package';
@@ -379,7 +379,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
           vatNumber: customerTypeData.vatNumber || '',
           vatVerified: customerTypeData.vatVerified,
           country: customerTypeData.country || 'SE',
-          currency,
+          currency: toStripeCurrency(currency),
           selectedStyle: formData.selectedStyle || '',
           selectedLanguage: formData.selectedLanguage || lang,
           wantsCheckoutSystem: formData.wantsCheckoutSystem,

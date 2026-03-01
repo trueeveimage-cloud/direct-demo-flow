@@ -39,6 +39,9 @@ import CaseStudiesPage from "./pages/CaseStudiesPage";
 import CampaignLandingPage from "./pages/CampaignLandingPage";
 import AdLandingPage from "./pages/AdLandingPage";
 import ReadMorePage from "./pages/ReadMorePage";
+import PortalLoginPage from "./pages/PortalLoginPage";
+import PortalDashboardPage from "./pages/PortalDashboardPage";
+import PortalResetPasswordPage from "./pages/PortalResetPasswordPage";
 // Exit intent popup disabled
 
 const queryClient = new QueryClient();
@@ -73,6 +76,9 @@ function AnimatedRoutes() {
         <Route path="/kampanj" element={<CampaignLandingPage />} />
         <Route path="/ad" element={<AdLandingPage />} />
         <Route path="/mer-info" element={<ReadMorePage />} />
+        <Route path="/portal/login" element={<PortalLoginPage />} />
+        <Route path="/portal/reset-password" element={<PortalResetPasswordPage />} />
+        <Route path="/portal" element={<PortalDashboardPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </PageTransition>
