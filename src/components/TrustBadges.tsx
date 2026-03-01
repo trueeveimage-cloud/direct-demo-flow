@@ -9,49 +9,56 @@ export function TrustBadges() {
   const badges = [
     {
       icon: Shield,
-      title: t('100% pengarna tillbaka', '100% money-back'),
-      desc: t('Om du inte gillar demon', 'If you don\'t like the demo'),
+      title: t('100% pengarna tillbaka', '100% money-back', { no: '100% pengene tilbake', dk: '100% pengene tilbage' }),
+      desc: t('Om du inte gillar demon', 'If you don\'t like the demo', { no: 'Hvis du ikke liker demoen', dk: 'Hvis du ikke kan lide demoen' }),
       hasCounter: true,
       counterValue: 100,
       counterSuffix: '%',
       labelSv: 'pengarna tillbaka',
-      labelEn: 'money-back'
+      labelEn: 'money-back',
+      labelNo: 'pengene tilbake',
+      labelDk: 'pengene tilbage'
     },
     {
       icon: Clock,
-      title: t('Svar inom 24h', 'Reply within 24h'),
-      desc: t('Snabb och personlig service', 'Fast and personal service'),
+      title: t('Svar inom 24h', 'Reply within 24h', { no: 'Svar innen 24t', dk: 'Svar inden 24t' }),
+      desc: t('Snabb och personlig service', 'Fast and personal service', { no: 'Rask og personlig service', dk: 'Hurtig og personlig service' }),
       hasCounter: true,
       counterValue: 24,
       counterSuffix: 'h',
       labelSv: 'svar',
-      labelEn: 'reply'
+      labelEn: 'reply',
+      labelNo: 'svar',
+      labelDk: 'svar'
     },
     {
       icon: Users,
-      title: t('50+ nöjda kunder', '50+ happy customers'),
-      desc: t('Företag som litar på oss', 'Businesses that trust us'),
+      title: t('50+ nöjda kunder', '50+ happy customers', { no: '50+ fornøyde kunder', dk: '50+ tilfredse kunder' }),
+      desc: t('Företag som litar på oss', 'Businesses that trust us', { no: 'Bedrifter som stoler på oss', dk: 'Virksomheder der stoler på os' }),
       hasCounter: true,
       counterValue: 50,
       counterSuffix: '+',
       labelSv: 'nöjda kunder',
-      labelEn: 'happy customers'
+      labelEn: 'happy customers',
+      labelNo: 'fornøyde kunder',
+      labelDk: 'tilfredse kunder'
     },
     {
       icon: RefreshCcw,
-      title: t('Demo inom 72h', 'Demo in 72h'),
-      desc: t('Snabb leverans garanterad', 'Fast delivery guaranteed'),
+      title: t('Demo inom 72h', 'Demo in 72h', { no: 'Demo innen 72t', dk: 'Demo inden 72t' }),
+      desc: t('Snabb leverans garanterad', 'Fast delivery guaranteed', { no: 'Rask levering garantert', dk: 'Hurtig levering garanteret' }),
       hasCounter: true,
       counterValue: 72,
       counterSuffix: 'h',
       labelSv: 'demo',
-      labelEn: 'demo'
+      labelEn: 'demo',
+      labelNo: 'demo',
+      labelDk: 'demo'
     }
   ];
 
   return (
     <section className="section-padding py-12 relative overflow-hidden">
-      {/* Gradient fade overlay for seamless section blending */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/30 to-background pointer-events-none" />
       <div className="container-wide relative">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -77,7 +84,7 @@ export function TrustBadges() {
                         suffix={badge.counterSuffix}
                         className="text-accent"
                       />
-                      {' '}{t(badge.labelSv, badge.labelEn)}
+                      {' '}{t(badge.labelSv, badge.labelEn, { no: badge.labelNo, dk: badge.labelDk })}
                     </>
                   ) : badge.title}
                 </p>

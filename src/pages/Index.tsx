@@ -42,19 +42,16 @@ function HeroBackground() {
 }
 
 // Before/After Section with Parallax Effect
-function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: string) => string; beforeImg: string; afterImg: string }) {
+function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: string, overrides?: { no?: string; dk?: string }) => string; beforeImg: string; afterImg: string }) {
   return (
     <section className="py-32 relative overflow-hidden">
-      {/* Gradient fade overlay for seamless section blending */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background pointer-events-none" />
-      {/* Asymmetric accent glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 right-0 w-1/2 h-1/2 bg-gradient-to-l from-accent/5 to-transparent blur-3xl" />
       </div>
       
       <div className="container-wide section-padding relative">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left: Text content */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -63,14 +60,14 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6">
               <Eye className="w-4 h-4" />
-              {t('Transformation', 'Transformation')}
+              {t('Transformation', 'Transformation', { no: 'Transformasjon', dk: 'Transformation' })}
             </div>
             
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-6 leading-tight tracking-tight">
-              {t('Från föråldrad till professionell', 'From outdated to professional')}
+              {t('Från föråldrad till professionell', 'From outdated to professional', { no: 'Fra utdatert til profesjonell', dk: 'Fra forældet til professionel' })}
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              {t('Vi förvandlar webbplatser som skrämmer bort kunder till webbplatser som konverterar besökare till bokningar.', 'We transform websites that scare away customers into websites that convert visitors into bookings.')}
+              {t('Vi förvandlar webbplatser som skrämmer bort kunder till webbplatser som konverterar besökare till bokningar.', 'We transform websites that scare away customers into websites that convert visitors into bookings.', { no: 'Vi forvandler nettsider som skremmer bort kunder til nettsider som konverterer besøkende til bestillinger.', dk: 'Vi forvandler hjemmesider der skræmmer kunder væk til hjemmesider der konverterer besøgende til bookinger.' })}
             </p>
             
             <div className="mb-8">
@@ -78,65 +75,61 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
                 <span className="font-semibold text-foreground">Sweden Car AB</span>
               </p>
               <p className="text-sm text-muted-foreground">
-                {t('Från gammaldags design till modernt och professionellt intryck.', 'From outdated design to a modern, professional impression.')}
+                {t('Från gammaldags design till modernt och professionellt intryck.', 'From outdated design to a modern, professional impression.', { no: 'Fra gammeldags design til et moderne og profesjonelt inntrykk.', dk: 'Fra gammeldags design til et moderne og professionelt indtryk.' })}
               </p>
             </div>
             
             <Button asChild variant="outline" className="group">
               <Link to="/portfolio">
-                {t('Se fler transformationer', 'See more transformations')}
+                {t('Se fler transformationer', 'See more transformations', { no: 'Se flere transformasjoner', dk: 'Se flere transformationer' })}
                 <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </motion.div>
           
-          {/* Right: Before/After Images with Parallax */}
+          {/* Right: Before/After Images */}
           <div className="relative">
-            {/* Before - positioned back and left, slower parallax */}
             <div className="relative z-10 hidden md:block">
               <div className="absolute -top-3 left-4 z-20">
                 <span className="bg-muted-foreground/80 text-background px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
-                  {t('Före', 'Before')}
+                  {t('Före', 'Before', { no: 'Før', dk: 'Før' })}
                 </span>
               </div>
               <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-border/50 shadow-xl">
-                <img src={beforeImg} alt={t('Före transformation', 'Before transformation')} className="w-full h-full object-cover object-top" />
+                <img src={beforeImg} alt={t('Före transformation', 'Before transformation', { no: 'Før transformasjon', dk: 'Før transformation' })} className="w-full h-full object-cover object-top" />
               </div>
             </div>
             
-            {/* Mobile: Static before image */}
             <div className="relative z-10 md:hidden">
               <div className="absolute -top-3 left-4 z-20">
                 <span className="bg-muted-foreground/80 text-background px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
-                  {t('Före', 'Before')}
+                  {t('Före', 'Before', { no: 'Før', dk: 'Før' })}
                 </span>
               </div>
               <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-border/50 shadow-xl">
-                <img src={beforeImg} alt={t('Före transformation', 'Before transformation')} className="w-full h-full object-cover object-top" />
+                <img src={beforeImg} alt={t('Före transformation', 'Before transformation', { no: 'Før transformasjon', dk: 'Før transformation' })} className="w-full h-full object-cover object-top" />
               </div>
             </div>
             
-            {/* After - overlapping, faster parallax */}
             <div className="relative z-20 -mt-24 ml-12 lg:ml-20 hidden md:block">
               <div className="absolute -top-3 left-4 z-20">
                 <span className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
-                  {t('Efter', 'After')}
+                  {t('Efter', 'After', { no: 'Etter', dk: 'Efter' })}
                 </span>
               </div>
               <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-accent/50 shadow-2xl shadow-accent/20">
-                <img src={afterImg} alt={t('Efter transformation', 'After transformation')} className="w-full h-full object-cover object-top" />
+                <img src={afterImg} alt={t('Efter transformation', 'After transformation', { no: 'Etter transformasjon', dk: 'Efter transformation' })} className="w-full h-full object-cover object-top" />
               </div>
             </div>
             
-            {/* Mobile: Static after image */}
             <div className="relative z-20 -mt-16 ml-8 md:hidden">
               <div className="absolute -top-3 left-4 z-20">
                 <span className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
-                  {t('Efter', 'After')}
+                  {t('Efter', 'After', { no: 'Etter', dk: 'Efter' })}
                 </span>
               </div>
               <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-accent/50 shadow-2xl shadow-accent/20">
-                <img src={afterImg} alt={t('Efter transformation', 'After transformation')} className="w-full h-full object-cover object-top" />
+                <img src={afterImg} alt={t('Efter transformation', 'After transformation', { no: 'Etter transformasjon', dk: 'Efter transformation' })} className="w-full h-full object-cover object-top" />
               </div>
             </div>
           </div>
@@ -157,17 +150,14 @@ export default function Index() {
       <GrainOverlay />
       <HeroBackground />
 
-      {/* Hero Content with staggered animations - SCROLL SNAP */}
+      {/* Hero Content */}
       <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24">
-        {/* Bottom gradient fade for seamless transition */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none z-20" />
         <div className="container-narrow text-center relative z-10 section-padding py-12">
-          {/* Hero Logo with simplified mobile animation */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            
             className="pb-6"
           >
             <span className="font-heading font-light text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tighter">
@@ -181,18 +171,17 @@ export default function Index() {
             </span>
           </motion.div>
 
-          {/* Sale Badge + Urgency Badge */}
+          {/* Sale Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5, ease: 'easeOut' }}
             className="flex flex-wrap items-center justify-center gap-3 mb-8"
           >
-            {/* 25% SALE Badge - Gold - visible in both light and dark mode */}
             <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-accent/15 border border-accent/40 shadow-lg shadow-accent/15 backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse shadow-sm shadow-accent/50" />
               <span className="text-sm font-bold tracking-[0.15em] uppercase text-accent">
-                {t('25% rabatt', '25% off')}
+                {t('25% rabatt', '25% off', { no: '25% rabatt', dk: '25% rabat' })}
               </span>
             </div>
           </motion.div>
@@ -203,7 +192,7 @@ export default function Index() {
             transition={{ delay: 0.9, duration: 0.6, ease: 'easeOut' }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extralight leading-[1.1] tracking-tight max-w-3xl mx-auto mb-4"
           >
-            <span className="text-reveal-gradient">{t('Webbsidor som säljer.', 'Websites that sell.')}</span>
+            <span className="text-reveal-gradient">{t('Webbsidor som säljer.', 'Websites that sell.', { no: 'Nettsider som selger.', dk: 'Hjemmesider der sælger.' })}</span>
           </motion.h1>
 
           <motion.p 
@@ -212,7 +201,7 @@ export default function Index() {
             transition={{ delay: 1.1, duration: 0.5, ease: 'easeOut' }}
             className="text-xl sm:text-2xl text-muted-foreground max-w-xl mx-auto"
           >
-            {t('Få ett designkoncept gratis — klart inom 72 timmar.', 'Get a free design concept in 72 hours.')}
+            {t('Få ett designkoncept gratis — klart inom 72 timmar.', 'Get a free design concept in 72 hours.', { no: 'Få et gratis designkonsept — klart innen 72 timer.', dk: 'Få et gratis designkoncept — klar inden 72 timer.' })}
           </motion.p>
 
           <motion.div 
@@ -232,7 +221,7 @@ export default function Index() {
               }}
             >
               <Link to="/demo">
-                {t('Få ditt gratis koncept', 'Get your free concept')}
+                {t('Få ditt gratis koncept', 'Get your free concept', { no: 'Få ditt gratis konsept', dk: 'Få dit gratis koncept' })}
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
@@ -248,15 +237,15 @@ export default function Index() {
             >
               <Link to="/bestall">
                 <span className="flex flex-col items-start leading-tight">
-                  <span>{t('Beställ direkt', 'Order directly')}</span>
-                  <span className="text-xs opacity-80">{t('Hemsida från 2 900 kr', 'Website from $290')}</span>
+                  <span>{t('Beställ direkt', 'Order directly', { no: 'Bestill direkte', dk: 'Bestil direkte' })}</span>
+                  <span className="text-xs opacity-80">{t('Hemsida från 2 900 kr', 'Website from $290', { no: 'Nettside fra 2 900 NOK', dk: 'Hjemmeside fra 2 900 DKK' })}</span>
                 </span>
                   <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
           </motion.div>
 
-          {/* Spots indicator - prominent button */}
+          {/* Spots indicator */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -272,11 +261,11 @@ export default function Index() {
                   </span>
                   <span className="text-sm font-semibold text-accent">
                     {spotsLoading ? (
-                      t('Laddar...', 'Loading...')
+                      t('Laddar...', 'Loading...', { no: 'Laster...', dk: 'Indlæser...' })
                     ) : remainingSpots > 0 ? (
-                      `${remainingSpots} ${remainingSpots === 1 ? t('plats kvar denna vecka', 'spot left this week') : t('platser kvar denna vecka', 'spots left this week')}`
+                      `${remainingSpots} ${remainingSpots === 1 ? t('plats kvar denna vecka', 'spot left this week', { no: 'plass igjen denne uken', dk: 'plads tilbage denne uge' }) : t('platser kvar denna vecka', 'spots left this week', { no: 'plasser igjen denne uken', dk: 'pladser tilbage denne uge' })}`
                     ) : (
-                      t('Fullbokat denna vecka', 'Fully booked this week')
+                      t('Fullbokat denna vecka', 'Fully booked this week', { no: 'Fullbooket denne uken', dk: 'Fuldt booket denne uge' })
                     )}
                   </span>
                   <ArrowRight className="w-4 h-4 text-accent transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -286,20 +275,21 @@ export default function Index() {
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2 text-accent">
                     <Calendar className="w-5 h-5" />
-                    {t('Veckans platser', 'Weekly Spots')}
+                    {t('Veckans platser', 'Weekly Spots', { no: 'Ukens plasser', dk: 'Ugens pladser' })}
                   </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <p className="text-muted-foreground">
                     {t(
                       'Vi tar endast emot 7 nya koncept per vecka för att säkerställa högsta kvalitet på varje design.',
-                      'We only accept 7 new concepts per week to ensure the highest quality for each design.'
+                      'We only accept 7 new concepts per week to ensure the highest quality for each design.',
+                      { no: 'Vi tar kun imot 7 nye konsepter per uke for å sikre høyeste kvalitet på hvert design.', dk: 'Vi tager kun imod 7 nye koncepter per uge for at sikre højeste kvalitet på hvert design.' }
                     )}
                   </p>
                   <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
                     <div className="text-center mb-4">
                       <span className="text-4xl font-bold text-accent">{remainingSpots}</span>
-                      <span className="text-lg text-muted-foreground ml-2">{remainingSpots === 1 ? t('plats kvar', 'spot left') : t('platser kvar', 'spots left')}</span>
+                      <span className="text-lg text-muted-foreground ml-2">{remainingSpots === 1 ? t('plats kvar', 'spot left', { no: 'plass igjen', dk: 'plads tilbage' }) : t('platser kvar', 'spots left', { no: 'plasser igjen', dk: 'pladser tilbage' })}</span>
                     </div>
                     <div className="flex items-center justify-center gap-2">
                       {[...Array(7)].map((_, i) => (
@@ -312,13 +302,14 @@ export default function Index() {
                       ))}
                     </div>
                     <p className="text-center text-xs text-muted-foreground mt-3">
-                      {7 - remainingSpots}/7 {t('bokade denna vecka', 'booked this week')}
+                      {7 - remainingSpots}/7 {t('bokade denna vecka', 'booked this week', { no: 'booket denne uken', dk: 'booket denne uge' })}
                     </p>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {t(
                       'Platserna återställs varje måndag. Boka din plats nu för att garantera leverans.',
-                      'Spots reset every Monday. Book your spot now to guarantee delivery.'
+                      'Spots reset every Monday. Book your spot now to guarantee delivery.',
+                      { no: 'Plassene tilbakestilles hver mandag. Book din plass nå for å garantere levering.', dk: 'Pladserne nulstilles hver mandag. Book din plads nu for at garantere levering.' }
                     )}
                   </p>
                 </div>
@@ -326,28 +317,21 @@ export default function Index() {
             </Dialog>
 
             <Link to="/efter-demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {t('Har du fått ditt koncept?', 'Have you received your concept?')}
+              {t('Har du fått ditt koncept?', 'Have you received your concept?', { no: 'Har du fått konseptet ditt?', dk: 'Har du fået dit koncept?' })}
             </Link>
           </motion.div>
         </div>
       </section>
 
-      {/* Trust Badges - Quick credibility */}
+      {/* Trust Badges */}
       <TrustBadges />
 
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          2. THE SOLUTION - Before/After Transformation with Parallax
-      ═══════════════════════════════════════════════════════════════════ */}
+      {/* 2. THE SOLUTION - Before/After Transformation */}
       <BeforeAfterSection t={t} beforeImg={beforeSwedenCarImg} afterImg={afterSwedenCarImg} />
 
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          4. HOW IT WORKS - Simple process with steps preview + PARALLAX
-      ═══════════════════════════════════════════════════════════════════ */}
+      {/* 4. HOW IT WORKS */}
       <ParallaxSection speed={0.3} floatingElements accentGlow>
         <section className="py-32 relative overflow-hidden">
-          {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/20 to-background pointer-events-none" />
           
           <div className="container-wide section-padding relative">
@@ -360,23 +344,22 @@ export default function Index() {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6">
                 <Zap className="w-4 h-4" />
-                {t('Snabb & enkel process', 'Fast & simple process')}
+                {t('Snabb & enkel process', 'Fast & simple process', { no: 'Rask & enkel prosess', dk: 'Hurtig & enkel proces' })}
               </div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-4 tracking-tight">
-                {t('Så här fungerar det', 'How it works')}
+                {t('Så här fungerar det', 'How it works', { no: 'Slik fungerer det', dk: 'Sådan fungerer det' })}
               </h2>
               <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                {t('Från idé till färdig webbplats på några dagar.', 'From idea to finished website in just days.')}
+                {t('Från idé till färdig webbplats på några dagar.', 'From idea to finished website in just days.', { no: 'Fra idé til ferdig nettside på noen dager.', dk: 'Fra idé til færdig hjemmeside på få dage.' })}
               </p>
             </motion.div>
 
-            {/* Steps Grid with 3D tilt cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
               {[
-                { num: '01', title: t('Beskriv', 'Describe'), desc: t('Berätta om ditt företag', 'Tell us about your business'), icon: FileText },
-                { num: '02', title: t('Granska', 'Review'), desc: t('Få ditt koncept inom 72h', 'Get your concept within 72h'), icon: Eye, counterValue: 72 },
-                { num: '03', title: t('Finjustera', 'Refine'), desc: t('Vi anpassar efter dina önskemål', 'We adapt to your wishes'), icon: Sparkles, counterValue: null },
-                { num: '04', title: t('Lansera', 'Launch'), desc: t('Din webbplats är live!', 'Your website is live!'), icon: CheckCircle2 },
+                { num: '01', title: t('Beskriv', 'Describe', { no: 'Beskriv', dk: 'Beskriv' }), desc: t('Berätta om ditt företag', 'Tell us about your business', { no: 'Fortell oss om bedriften din', dk: 'Fortæl os om din virksomhed' }), icon: FileText },
+                { num: '02', title: t('Granska', 'Review', { no: 'Gjennomgå', dk: 'Gennemgå' }), desc: t('Få ditt koncept inom 72h', 'Get your concept within 72h', { no: 'Få konseptet ditt innen 72t', dk: 'Få dit koncept inden 72t' }), icon: Eye, counterValue: 72 },
+                { num: '03', title: t('Finjustera', 'Refine', { no: 'Finjuster', dk: 'Finjuster' }), desc: t('Vi anpassar efter dina önskemål', 'We adapt to your wishes', { no: 'Vi tilpasser etter dine ønsker', dk: 'Vi tilpasser efter dine ønsker' }), icon: Sparkles, counterValue: null },
+                { num: '04', title: t('Lansera', 'Launch', { no: 'Lanser', dk: 'Lancér' }), desc: t('Din webbplats är live!', 'Your website is live!', { no: 'Nettsiden din er live!', dk: 'Din hjemmeside er live!' }), icon: CheckCircle2 },
               ].map((step, index) => (
                 <motion.div
                   key={index}
@@ -407,7 +390,7 @@ export default function Index() {
             >
               <Button asChild className="group bg-accent text-accent-foreground hover:bg-accent/90">
                 <Link to="/hur-det-fungerar">
-                  {t('Läs mer om processen', 'Learn more about the process')}
+                  {t('Läs mer om processen', 'Learn more about the process', { no: 'Les mer om prosessen', dk: 'Læs mere om processen' })}
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -416,13 +399,9 @@ export default function Index() {
         </section>
       </ParallaxSection>
 
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          5. PROOF - Portfolio Showcase + PARALLAX
-      ═══════════════════════════════════════════════════════════════════ */}
+      {/* 5. PROOF - Portfolio Showcase */}
       <ParallaxSection speed={0.4} scaleOnView>
         <section className="py-32 relative overflow-hidden">
-          {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/15 to-background pointer-events-none" />
           
           <div className="container-wide section-padding">
@@ -434,12 +413,12 @@ export default function Index() {
               className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-16 gap-4"
             >
               <div>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight">{t('Våra projekt', 'Our Work')}</h2>
-                <p className="text-muted-foreground mt-3 text-lg">{t('Riktiga resultat för riktiga företag', 'Real results for real businesses')}</p>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight">{t('Våra projekt', 'Our Work', { no: 'Våre prosjekter', dk: 'Vores projekter' })}</h2>
+                <p className="text-muted-foreground mt-3 text-lg">{t('Riktiga resultat för riktiga företag', 'Real results for real businesses', { no: 'Ekte resultater for ekte bedrifter', dk: 'Ægte resultater for ægte virksomheder' })}</p>
               </div>
               <Button asChild variant="outline" className="group hidden sm:flex">
                 <Link to="/portfolio">
-                  {t('Se alla projekt', 'View all projects')}
+                  {t('Se alla projekt', 'View all projects', { no: 'Se alle prosjekter', dk: 'Se alle projekter' })}
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -447,9 +426,9 @@ export default function Index() {
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {[
-                { name: "Gail's Hair", type: t('Frisörsalong', 'Hair Salon'), stat: '+89%', statLabel: t('bokningar', 'bookings'), url: 'https://gailshairgallery.lovable.app/book', image: gailsHairImg },
-                { name: 'Oh My Coffee', type: t('Café & Restaurang', 'Café & Restaurant'), stat: null, url: 'https://ohmycoffee-gbg-web.lovable.app/', image: ohMyCoffeeImg },
-                { name: 'Bamba', type: t('Restaurang', 'Restaurant'), stat: '+177%', statLabel: t('bokningar/vecka', 'bookings/week'), url: 'https://bamba.lovable.app/', image: bambaImg },
+                { name: "Gail's Hair", type: t('Frisörsalong', 'Hair Salon', { no: 'Frisørsalong', dk: 'Frisørsalon' }), stat: '+89%', statLabel: t('bokningar', 'bookings', { no: 'bestillinger', dk: 'bookinger' }), url: 'https://gailshairgallery.lovable.app/book', image: gailsHairImg },
+                { name: 'Oh My Coffee', type: t('Café & Restaurang', 'Café & Restaurant', { no: 'Kafé & Restaurang', dk: 'Café & Restaurant' }), stat: null, url: 'https://ohmycoffee-gbg-web.lovable.app/', image: ohMyCoffeeImg },
+                { name: 'Bamba', type: t('Restaurang', 'Restaurant'), stat: '+177%', statLabel: t('bokningar/vecka', 'bookings/week', { no: 'bestillinger/uke', dk: 'bookinger/uge' }), url: 'https://bamba.lovable.app/', image: bambaImg },
                 { name: 'En Deli Haga', type: t('Delikatess & Café', 'Deli & Café'), stat: null, url: 'https://en-deli-cozy-vibes.lovable.app/', image: enDeliHagaImg },
               ].map((project, index) => (
                 <motion.div 
@@ -482,7 +461,7 @@ export default function Index() {
             <div className="mt-10 text-center sm:hidden">
               <Button asChild variant="outline" className="group">
                 <Link to="/portfolio">
-                  {t('Se alla projekt', 'View all projects')}
+                  {t('Se alla projekt', 'View all projects', { no: 'Se alle prosjekter', dk: 'Se alle projekter' })}
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -491,13 +470,9 @@ export default function Index() {
         </section>
       </ParallaxSection>
 
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          ROI CALCULATOR - Show the pain + PARALLAX
-      ═══════════════════════════════════════════════════════════════════ */}
+      {/* ROI CALCULATOR */}
       <ParallaxSection speed={0.2} accentGlow>
         <section className="py-32 relative">
-          {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-destructive/5 to-background pointer-events-none" />
           
           <div className="container-narrow section-padding relative">
@@ -510,14 +485,14 @@ export default function Index() {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 text-destructive text-sm font-medium mb-6">
                 <TrendingDown className="w-4 h-4" />
-                {t('Varje dag utan hemsida kostar dig', 'Every day without a website costs you')}
+                {t('Varje dag utan hemsida kostar dig', 'Every day without a website costs you', { no: 'Hver dag uten nettside koster deg', dk: 'Hver dag uden hjemmeside koster dig' })}
               </div>
               
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-6 tracking-tight">
-                {t('Hur mycket intäkter förlorar du?', 'How much revenue are you losing?')}
+                {t('Hur mycket intäkter förlorar du?', 'How much revenue are you losing?', { no: 'Hvor mye inntekter taper du?', dk: 'Hvor mange indtægter taber du?' })}
               </h2>
               <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
-                {t('En föråldrad eller saknad webbplats kostar mer än du tror.', 'An outdated or missing website costs more than you think.')}
+                {t('En föråldrad eller saknad webbplats kostar mer än du tror.', 'An outdated or missing website costs more than you think.', { no: 'En utdatert eller manglende nettside koster mer enn du tror.', dk: 'En forældet eller manglende hjemmeside koster mere end du tror.' })}
               </p>
               
               <ROICalculator />
@@ -526,19 +501,12 @@ export default function Index() {
         </section>
       </ParallaxSection>
 
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          6. SOCIAL PROOF - Testimonials
-      ═══════════════════════════════════════════════════════════════════ */}
+      {/* 6. SOCIAL PROOF */}
       <TestimonialsCarousel />
 
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          6. WHAT YOU GET - Features/Deliverables + PARALLAX
-      ═══════════════════════════════════════════════════════════════════ */}
+      {/* WHAT YOU GET */}
       <ParallaxSection speed={0.35} floatingElements skewOnScroll>
         <section className="py-32 relative overflow-hidden">
-          {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
           <div className="container-wide section-padding relative">
             <motion.div
@@ -549,21 +517,21 @@ export default function Index() {
               className="text-center mb-16"
             >
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-4 tracking-tight">
-                {t('Vad ingår i din webbplats', 'What\'s included in your website')}
+                {t('Vad ingår i din webbplats', 'What\'s included in your website', { no: 'Hva er inkludert i nettsiden din', dk: 'Hvad er inkluderet i din hjemmeside' })}
               </h2>
               <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                {t('En komplett lösning redo att ta emot kunder från dag ett.', 'A complete solution ready to receive customers from day one.')}
+                {t('En komplett lösning redo att ta emot kunder från dag ett.', 'A complete solution ready to receive customers from day one.', { no: 'En komplett løsning klar til å ta imot kunder fra dag én.', dk: 'En komplet løsning klar til at modtage kunder fra dag ét.' })}
               </p>
             </motion.div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[
-                { title: t('Responsiv design', 'Responsive design'), desc: t('Ser perfekt ut på mobil, surfplatta och dator.', 'Looks perfect on mobile, tablet, and desktop.') },
-                { title: t('Snabb leverans', 'Fast delivery'), desc: t('7-14 dagars leverans beroende på paket.', '7-14 day delivery depending on package.') },
-                { title: t('SEO-optimerad', 'SEO optimized'), desc: t('Grundläggande sökmotoroptimering för bättre synlighet.', 'Basic search engine optimization for better visibility.') },
-                { title: t('Kontaktformulär', 'Contact form'), desc: t('Få leads direkt till din inbox.', 'Get leads directly to your inbox.') },
-                { title: t('Revisioner ingår', 'Revisions included'), desc: t('1-3 revideringsrundor beroende på paket.', '1-3 revision rounds depending on package.') },
-                { title: t('Fast pris', 'Fixed price'), desc: t('Inga dolda kostnader eller överraskningar.', 'No hidden costs or surprises.') },
+                { title: t('Responsiv design', 'Responsive design', { no: 'Responsivt design', dk: 'Responsivt design' }), desc: t('Ser perfekt ut på mobil, surfplatta och dator.', 'Looks perfect on mobile, tablet, and desktop.', { no: 'Ser perfekt ut på mobil, nettbrett og PC.', dk: 'Ser perfekt ud på mobil, tablet og computer.' }) },
+                { title: t('Snabb leverans', 'Fast delivery', { no: 'Rask levering', dk: 'Hurtig levering' }), desc: t('7-14 dagars leverans beroende på paket.', '7-14 day delivery depending on package.', { no: '7-14 dagers levering avhengig av pakke.', dk: '7-14 dages levering afhængigt af pakke.' }) },
+                { title: t('SEO-optimerad', 'SEO optimized', { no: 'SEO-optimalisert', dk: 'SEO-optimeret' }), desc: t('Grundläggande sökmotoroptimering för bättre synlighet.', 'Basic search engine optimization for better visibility.', { no: 'Grunnleggende søkemotoroptimalisering for bedre synlighet.', dk: 'Grundlæggende søgemaskineoptimering for bedre synlighed.' }) },
+                { title: t('Kontaktformulär', 'Contact form', { no: 'Kontaktskjema', dk: 'Kontaktformular' }), desc: t('Få leads direkt till din inbox.', 'Get leads directly to your inbox.', { no: 'Få leads direkte til innboksen din.', dk: 'Få leads direkte til din indbakke.' }) },
+                { title: t('Revisioner ingår', 'Revisions included', { no: 'Revisjoner inkludert', dk: 'Revisioner inkluderet' }), desc: t('1-3 revideringsrundor beroende på paket.', '1-3 revision rounds depending on package.', { no: '1-3 revisjonsrunder avhengig av pakke.', dk: '1-3 revisionsrunder afhængigt af pakke.' }) },
+                { title: t('Fast pris', 'Fixed price', { no: 'Fastpris', dk: 'Fast pris' }), desc: t('Inga dolda kostnader eller överraskningar.', 'No hidden costs or surprises.', { no: 'Ingen skjulte kostnader eller overraskelser.', dk: 'Ingen skjulte omkostninger eller overraskelser.' }) },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -603,7 +571,7 @@ export default function Index() {
             >
               <Button asChild variant="outline" className="group">
                 <Link to="/priser">
-                  {t('Se alla paket och priser', 'See all packages and prices')}
+                  {t('Se alla paket och priser', 'See all packages and prices', { no: 'Se alle pakker og priser', dk: 'Se alle pakker og priser' })}
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -612,19 +580,16 @@ export default function Index() {
         </section>
       </ParallaxSection>
 
-      {/* ═══════════════════════════════════════════════════════════════════
-          8. FAQ - Handle objections + PARALLAX
-      ═══════════════════════════════════════════════════════════════════ */}
+      {/* FAQ */}
       <ParallaxSection speed={0.25}>
         <section className="py-32 relative overflow-hidden">
-          {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background pointer-events-none" />
           <div className="container-narrow section-padding">
             <div className="flex items-center justify-between mb-12 animate-fade-in">
               <h2 className="text-3xl sm:text-4xl font-light tracking-tight">FAQ</h2>
               <Button asChild variant="ghost" className="group">
                 <Link to="/faq">
-                  {t('Se alla', 'View all')}
+                  {t('Se alla', 'View all', { no: 'Se alle', dk: 'Se alle' })}
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -632,9 +597,9 @@ export default function Index() {
 
             <div className="space-y-4">
               {[
-                { q: t('Är konceptet verkligen gratis?', 'Is the concept really free?'), a: t('Ja! Du betalar endast €50 i verifieringsavgift som dras av från priset om du fortsätter, eller återbetalas helt om du tackar nej.', 'Yes! You only pay a €50 verification fee that\'s deducted from the price if you continue, or fully refunded if you decline.') },
-                { q: t('Hur lång tid tar leveransen?', 'How long does delivery take?'), a: t('Beroende på paket: Starter 14 dagar, Standard 10 dagar, Pro 7 dagar. Koncept levereras inom 72h.', 'Depending on package: Starter 14 days, Standard 10 days, Pro 7 days. Concepts delivered within 72h.') },
-                { q: t('Erbjuder ni Klarna?', 'Do you offer Klarna?'), a: t('Ja! Delbetala med Klarna – betala senare eller dela upp i 3 delbetalningar.', 'Yes! Pay in installments with Klarna – pay later or split into 3 payments.') },
+                { q: t('Är konceptet verkligen gratis?', 'Is the concept really free?', { no: 'Er konseptet virkelig gratis?', dk: 'Er konceptet virkelig gratis?' }), a: t('Ja! Du betalar endast €50 i verifieringsavgift som dras av från priset om du fortsätter, eller återbetalas helt om du tackar nej.', 'Yes! You only pay a €50 verification fee that\'s deducted from the price if you continue, or fully refunded if you decline.', { no: 'Ja! Du betaler kun en verifikasjonsavgift på €50 som trekkes fra prisen hvis du fortsetter, eller refunderes fullt ut hvis du takker nei.', dk: 'Ja! Du betaler kun et bekræftelsesgebyr på €50 som trækkes fra prisen hvis du fortsætter, eller refunderes fuldt ud hvis du takker nej.' }) },
+                { q: t('Hur lång tid tar leveransen?', 'How long does delivery take?', { no: 'Hvor lang tid tar leveringen?', dk: 'Hvor lang tid tager leveringen?' }), a: t('Beroende på paket: Starter 14 dagar, Standard 10 dagar, Pro 7 dagar. Koncept levereras inom 72h.', 'Depending on package: Starter 14 days, Standard 10 days, Pro 7 days. Concepts delivered within 72h.', { no: 'Avhengig av pakke: Starter 14 dager, Standard 10 dager, Pro 7 dager. Konsepter leveres innen 72t.', dk: 'Afhængigt af pakke: Starter 14 dage, Standard 10 dage, Pro 7 dage. Koncepter leveres inden 72t.' }) },
+                { q: t('Erbjuder ni Klarna?', 'Do you offer Klarna?', { no: 'Tilbyr dere Klarna?', dk: 'Tilbyder I Klarna?' }), a: t('Ja! Delbetala med Klarna – betala senare eller dela upp i 3 delbetalningar.', 'Yes! Pay in installments with Klarna – pay later or split into 3 payments.', { no: 'Ja! Delbetal med Klarna – betal senere eller del opp i 3 delbetalinger.', dk: 'Ja! Delbetal med Klarna – betal senere eller del op i 3 delbetalinger.' }) },
               ].map((faq, index) => (
                 <motion.div 
                   key={index}
@@ -653,13 +618,9 @@ export default function Index() {
         </section>
       </ParallaxSection>
 
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          9. FINAL CTA - Choose Your Path + PARALLAX
-      ═══════════════════════════════════════════════════════════════════ */}
+      {/* FINAL CTA */}
       <ParallaxSection speed={0.3} accentGlow rotate3D>
         <section className="py-32 relative">
-          {/* Gradient fade overlay for seamless section blending */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/5 to-background pointer-events-none" />
           
           <div className="container-wide section-padding relative">
@@ -671,10 +632,10 @@ export default function Index() {
               className="text-center mb-16"
             >
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light mb-4 tracking-tight">
-                {t('Välj din väg', 'Choose your path')}
+                {t('Välj din väg', 'Choose your path', { no: 'Velg din vei', dk: 'Vælg din vej' })}
               </h2>
               <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                {t('Två sätt att komma igång – välj det som passar dig bäst.', 'Two ways to get started – choose what suits you best.')}
+                {t('Två sätt att komma igång – välj det som passar dig bäst.', 'Two ways to get started – choose what suits you best.', { no: 'To måter å komme i gang – velg det som passer deg best.', dk: 'To måder at komme i gang – vælg det der passer dig bedst.' })}
               </p>
             </motion.div>
 
@@ -693,16 +654,16 @@ export default function Index() {
                         <Sparkles className="w-6 h-6 text-accent" />
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold">{t('Gratis koncept', 'Free Concept')}</h3>
-                        <p className="text-muted-foreground text-sm">{t('Se din framtida webbplats innan du bestämmer dig.', 'See your future website before you decide.')}</p>
+                        <h3 className="text-2xl font-bold">{t('Gratis koncept', 'Free Concept', { no: 'Gratis konsept', dk: 'Gratis koncept' })}</h3>
+                        <p className="text-muted-foreground text-sm">{t('Se din framtida webbplats innan du bestämmer dig.', 'See your future website before you decide.', { no: 'Se din fremtidige nettside før du bestemmer deg.', dk: 'Se din fremtidige hjemmeside før du beslutter dig.' })}</p>
                       </div>
                     </div>
                     <div className="space-y-4 mb-8">
                       {[
-                        t('Berätta om ditt företag och välj stil', 'Tell us about your business and choose style'),
-                        t('Betala €50 verifieringsavgift (återbetalbar)', 'Pay €50 verification fee (refundable)'),
-                        t('Få ett custom koncept inom 72h', 'Get a custom concept within 72h'),
-                        t('Gillar du det? Avgiften dras från priset. Gillar inte? Full återbetalning.', 'Like it? Fee deducted from price. Don\'t like it? Full refund.'),
+                        t('Berätta om ditt företag och välj stil', 'Tell us about your business and choose style', { no: 'Fortell om bedriften din og velg stil', dk: 'Fortæl om din virksomhed og vælg stil' }),
+                        t('Betala €50 verifieringsavgift (återbetalbar)', 'Pay €50 verification fee (refundable)', { no: 'Betal €50 verifikasjonsavgift (refunderbar)', dk: 'Betal €50 bekræftelsesgebyr (refunderbart)' }),
+                        t('Få ett custom koncept inom 72h', 'Get a custom concept within 72h', { no: 'Få et skreddersydd konsept innen 72t', dk: 'Få et skræddersyet koncept inden 72t' }),
+                        t('Gillar du det? Avgiften dras från priset. Gillar inte? Full återbetalning.', 'Like it? Fee deducted from price. Don\'t like it? Full refund.', { no: 'Liker du det? Avgiften trekkes fra prisen. Liker ikke? Full refusjon.', dk: 'Kan du lide det? Gebyret trækkes fra prisen. Kan du ikke lide det? Fuld refundering.' }),
                       ].map((step, i) => (
                         <div key={i} className="flex items-start gap-3">
                           <span className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-sm font-bold text-accent flex-shrink-0">
@@ -714,7 +675,7 @@ export default function Index() {
                     </div>
                     <Button asChild variant="outline" className="w-full group">
                       <Link to="/demo">
-                        {t('Få gratis koncept', 'Get free concept')}
+                        {t('Få gratis koncept', 'Get free concept', { no: 'Få gratis konsept', dk: 'Få gratis koncept' })}
                         <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                       </Link>
                     </Button>
@@ -736,16 +697,16 @@ export default function Index() {
                         <Zap className="w-6 h-6 text-accent" />
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold">{t('Direktbeställning', 'Direct Order')}</h3>
-                        <p className="text-muted-foreground text-sm">{t('Vet du redan vad du vill ha? Hoppa direkt till beställning.', 'Already know what you want? Skip straight to ordering.')}</p>
+                        <h3 className="text-2xl font-bold">{t('Direktbeställning', 'Direct Order', { no: 'Direkte bestilling', dk: 'Direkte bestilling' })}</h3>
+                        <p className="text-muted-foreground text-sm">{t('Vet du redan vad du vill ha? Hoppa direkt till beställning.', 'Already know what you want? Skip straight to ordering.', { no: 'Vet du allerede hva du vil ha? Hopp rett til bestilling.', dk: 'Ved du allerede hvad du vil have? Spring direkte til bestilling.' })}</p>
                       </div>
                     </div>
                     <div className="space-y-4 mb-8">
                       {[
-                        t('Välj paket och anpassa din beställning', 'Choose package and customize your order'),
-                        t('Ladda upp material och beskriv dina önskemål', 'Upload materials and describe your wishes'),
-                        t('Betala och vi börjar bygga direkt', 'Pay and we start building immediately'),
-                        t('Din webbplats levererad inom 7-14 dagar', 'Your website delivered within 7-14 days'),
+                        t('Välj paket och anpassa din beställning', 'Choose package and customize your order', { no: 'Velg pakke og tilpass bestillingen din', dk: 'Vælg pakke og tilpas din bestilling' }),
+                        t('Ladda upp material och beskriv dina önskemål', 'Upload materials and describe your wishes', { no: 'Last opp materialer og beskriv dine ønsker', dk: 'Upload materialer og beskriv dine ønsker' }),
+                        t('Betala och vi börjar bygga direkt', 'Pay and we start building immediately', { no: 'Betal og vi begynner å bygge med en gang', dk: 'Betal og vi begynder at bygge med det samme' }),
+                        t('Din webbplats levererad inom 7-14 dagar', 'Your website delivered within 7-14 days', { no: 'Nettsiden din levert innen 7-14 dager', dk: 'Din hjemmeside leveret inden 7-14 dage' }),
                       ].map((step, i) => (
                         <div key={i} className="flex items-start gap-3">
                           <span className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-sm font-bold text-accent flex-shrink-0">
@@ -757,7 +718,7 @@ export default function Index() {
                     </div>
                     <Button asChild variant="outline" className="w-full group">
                       <Link to="/bestall">
-                        {t('Beställ direkt', 'Order directly')}
+                        {t('Beställ direkt', 'Order directly', { no: 'Bestill direkte', dk: 'Bestil direkte' })}
                         <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                       </Link>
                     </Button>
@@ -777,7 +738,7 @@ export default function Index() {
                 to="/efter-demo" 
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2"
               >
-                {t('Har du redan fått ditt koncept?', 'Already received your concept?')}
+                {t('Har du redan fått ditt koncept?', 'Already received your concept?', { no: 'Har du allerede fått konseptet ditt?', dk: 'Har du allerede fået dit koncept?' })}
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </motion.div>

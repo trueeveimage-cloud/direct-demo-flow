@@ -44,10 +44,10 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, error
         <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
           <Clock className="w-8 h-8 text-accent" />
         </div>
-        <h2 className="text-2xl font-bold mb-2">{t('Lägg till månatlig webbvård?', 'Add monthly care?')}</h2>
-        <p className="text-muted-foreground">{t('Håll din webbplats uppdaterad och säker.', 'Keep your website updated and secure.')}</p>
+        <h2 className="text-2xl font-bold mb-2">{t('Lägg till månatlig webbvård?', 'Add monthly care?', { no: 'Legg til månedlig nettpleie?', dk: 'Tilføj månedlig webpleje?' })}</h2>
+        <p className="text-muted-foreground">{t('Håll din webbplats uppdaterad och säker.', 'Keep your website updated and secure.', { no: 'Hold nettsiden din oppdatert og sikker.', dk: 'Hold din hjemmeside opdateret og sikker.' })}</p>
         <Button variant="ghost" size="sm" onClick={onCompareCarePlans} className="mt-2">
-          {t('Jämför vårdplaner', 'Compare care plans')}
+          {t('Jämför vårdplaner', 'Compare care plans', { no: 'Sammenlign pleieplaner', dk: 'Sammenlign plejeplaner' })}
         </Button>
       </motion.div>
 
@@ -59,7 +59,7 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, error
         className="flex items-center justify-center gap-4 mb-8 p-4 bg-secondary/50 rounded-xl w-fit mx-auto"
       >
         <span className={`text-sm transition-all ${!formData.isYearlyCarePlan ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-          {t('Månadsvis', 'Monthly')}
+          {t('Månadsvis', 'Monthly', { no: 'Månedlig', dk: 'Månedlig' })}
         </span>
         <Switch 
           checked={formData.isYearlyCarePlan} 
@@ -67,13 +67,13 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, error
           className="data-[state=checked]:bg-accent" 
         />
         <span className={`text-sm transition-all ${formData.isYearlyCarePlan ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-          {t('Årsvis', 'Yearly')}
+          {t('Årsvis', 'Yearly', { no: 'Årlig', dk: 'Årligt' })}
           <motion.span 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             className="ml-2 text-xs text-accent font-semibold bg-accent/10 px-2 py-0.5 rounded-full"
           >
-            {t('Spara 20%', 'Save 20%')}
+            {t('Spara 20%', 'Save 20%', { no: 'Spar 20%', dk: 'Spar 20%' })}
           </motion.span>
         </span>
       </motion.div>
@@ -86,7 +86,7 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, error
           className="text-center mb-4"
         >
           <p className="text-sm text-destructive font-medium">
-            {t('Vänligen välj en vårdplan för att fortsätta', 'Please select a care plan to continue')}
+            {t('Vänligen välj en vårdplan för att fortsätta', 'Please select a care plan to continue', { no: 'Vennligst velg en pleieplan for å fortsette', dk: 'Vælg venligst en plejeplan for at fortsætte' })}
           </p>
         </motion.div>
       )}
@@ -126,7 +126,7 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, error
                   transition={{ type: "spring", stiffness: 400 }}
                   className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full"
                 >
-                  {t('Rekommenderas', 'Recommended')}
+                  {t('Rekommenderas', 'Recommended', { no: 'Anbefales', dk: 'Anbefales' })}
                 </motion.span>
               )}
               
@@ -151,10 +151,10 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, error
               <h3 className="font-semibold text-xl mb-2">{c.name}</h3>
               <div className="mb-4">
                 <span className="text-2xl font-bold text-accent">{formatPrice(price, currency)}</span>
-                <span className="text-muted-foreground">/{lang === 'sv' ? 'mån' : 'mo'}</span>
+                <span className="text-muted-foreground">/{lang === 'no' ? 'mnd' : lang === 'dk' ? 'md' : lang === 'en' ? 'mo' : 'mån'}</span>
                 {formData.isYearlyCarePlan && (
                   <span className="ml-2 text-xs text-muted-foreground line-through">
-                    {formatPrice(oldPrice, currency)}/{lang === 'sv' ? 'mån' : 'mo'}
+                    {formatPrice(oldPrice, currency)}/{lang === 'no' ? 'mnd' : lang === 'dk' ? 'md' : lang === 'en' ? 'mo' : 'mån'}
                   </span>
                 )}
               </div>
@@ -190,7 +190,7 @@ export function Step4CarePlan({ formData, setFormData, onCompareCarePlans, error
         className="text-center mt-6"
       >
         <p className="text-sm text-muted-foreground">
-          {t('Webbvård krävs för att hålla din webbplats uppdaterad och säker.', 'Web care is required to keep your website updated and secure.')}
+          {t('Webbvård krävs för att hålla din webbplats uppdaterad och säker.', 'Web care is required to keep your website updated and secure.', { no: 'Nettpleie er påkrevd for å holde nettsiden din oppdatert og sikker.', dk: 'Webpleje er påkrævet for at holde din hjemmeside opdateret og sikker.' })}
         </p>
       </motion.div>
     </div>
