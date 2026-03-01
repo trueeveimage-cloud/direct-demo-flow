@@ -1,7 +1,10 @@
 // Currency configuration based on language selection
-// SEK for Swedish, USD for English (targeting US market)
+// SEK for Swedish, NOK for Norwegian, DKK for Danish, USD for English
 
-export type Currency = 'SEK' | 'USD';
+export type Currency = 'SEK' | 'USD' | 'NOK' | 'DKK';
+
+// Stripe only has SEK and USD prices, so NOK/DKK map to SEK at checkout
+export type StripeCurrency = 'SEK' | 'USD';
 
 // Exchange rate: 1 USD = ~10.5 SEK (approximate, can be adjusted)
 const USD_TO_SEK_RATE = 10.5;
@@ -9,49 +12,76 @@ const USD_TO_SEK_RATE = 10.5;
 export interface PriceConfig {
   usd: number;
   sek: number;
+  nok: number;
+  dkk: number;
 }
 
 // Package prices
 export const packagePrices: Record<string, PriceConfig> = {
-  starter: { usd: 290, sek: 2900 },
-  standard: { usd: 590, sek: 5900 },
-  pro: { usd: 1290, sek: 12900 },
+  starter: { usd: 290, sek: 2900, nok: 3100, dkk: 2100 },
+  standard: { usd: 590, sek: 5900, nok: 6300, dkk: 4200 },
+  pro: { usd: 1290, sek: 12900, nok: 13800, dkk: 9200 },
 };
 
 // Care plan prices (monthly)
 export const carePlanMonthlyPrices: Record<string, PriceConfig> = {
-  basic: { usd: 25, sek: 249 },
-  standard: { usd: 45, sek: 449 },
-  pro: { usd: 75, sek: 749 },
+  basic: { usd: 25, sek: 249, nok: 269, dkk: 179 },
+  standard: { usd: 45, sek: 449, nok: 479, dkk: 319 },
+  pro: { usd: 75, sek: 749, nok: 799, dkk: 529 },
 };
 
 // Care plan prices (yearly - 20% discount)
 export const carePlanYearlyPrices: Record<string, PriceConfig> = {
-  basic: { usd: 20, sek: 199 },
-  standard: { usd: 36, sek: 359 },
-  pro: { usd: 60, sek: 599 },
+  basic: { usd: 20, sek: 199, nok: 215, dkk: 145 },
+  standard: { usd: 36, sek: 359, nok: 385, dkk: 259 },
+  pro: { usd: 60, sek: 599, nok: 639, dkk: 429 },
 };
 
 // Add-on prices
 export const addonPrices: Record<string, PriceConfig> = {
-  booking: { usd: 200, sek: 1990 },
-  adminPanel: { usd: 100, sek: 990 },
-  verification: { usd: 50, sek: 499 },
-  checkout: { usd: 50, sek: 499 },
+  booking: { usd: 200, sek: 1990, nok: 2130, dkk: 1420 },
+  adminPanel: { usd: 100, sek: 990, nok: 1060, dkk: 710 },
+  verification: { usd: 50, sek: 499, nok: 535, dkk: 359 },
+  checkout: { usd: 50, sek: 499, nok: 535, dkk: 359 },
 };
 
 // Get currency based on language
 export function getCurrencyFromLang(lang: string): Currency {
-  // Scandinavian countries use SEK pricing, others use USD
-  return (lang === 'sv' || lang === 'no' || lang === 'dk') ? 'SEK' : 'USD';
+  switch (lang) {
+    case 'no': return 'NOK';
+    case 'dk': return 'DKK';
+    case 'en': return 'USD';
+    default: return 'SEK';
+  }
+}
+
+// Map display currency to Stripe checkout currency (only SEK and USD supported in Stripe)
+export function toStripeCurrency(currency: Currency): StripeCurrency {
+  return (currency === 'USD') ? 'USD' : 'SEK';
 }
 
 // Format price with currency symbol
 export function formatPrice(amount: number, currency: Currency): string {
-  if (currency === 'USD') {
-    return `$${amount.toLocaleString('en-US')}`;
-  } else {
-    return `${amount.toLocaleString('sv-SE')} kr`;
+  switch (currency) {
+    case 'USD': return `$${amount.toLocaleString('en-US')}`;
+    case 'NOK': return `${amount.toLocaleString('nb-NO')} kr`;
+    case 'DKK': return `${amount.toLocaleString('da-DK')} kr`;
+    default: return `${amount.toLocaleString('sv-SE')} kr`;
+  }
+}
+
+// Get currency symbol for display
+export function getCurrencySymbol(currency: Currency): string {
+  return currency === 'USD' ? '$' : 'kr';
+}
+
+// Helper to pick price from config based on currency
+function pickPrice(config: PriceConfig, currency: Currency): number {
+  switch (currency) {
+    case 'USD': return config.usd;
+    case 'NOK': return config.nok;
+    case 'DKK': return config.dkk;
+    default: return config.sek;
   }
 }
 
@@ -59,7 +89,7 @@ export function formatPrice(amount: number, currency: Currency): string {
 export function getPackagePrice(packageId: string, currency: Currency): number {
   const prices = packagePrices[packageId];
   if (!prices) return 0;
-  return currency === 'USD' ? prices.usd : prices.sek;
+  return pickPrice(prices, currency);
 }
 
 // Get package price display string
@@ -72,7 +102,7 @@ export function getPackagePriceDisplay(packageId: string, currency: Currency): s
 export function getCarePlanPrice(planId: string, isYearly: boolean, currency: Currency): number {
   const prices = isYearly ? carePlanYearlyPrices[planId] : carePlanMonthlyPrices[planId];
   if (!prices) return 0;
-  return currency === 'USD' ? prices.usd : prices.sek;
+  return pickPrice(prices, currency);
 }
 
 // Get care plan price display string
@@ -85,7 +115,7 @@ export function getCarePlanPriceDisplay(planId: string, isYearly: boolean, curre
 export function getAddonPrice(addonId: string, currency: Currency): number {
   const prices = addonPrices[addonId];
   if (!prices) return 0;
-  return currency === 'USD' ? prices.usd : prices.sek;
+  return pickPrice(prices, currency);
 }
 
 // Get addon price display string
@@ -132,11 +162,12 @@ export const stripePriceIds = {
   },
 };
 
-// Get Stripe price ID for package
+// Get Stripe price ID for package (NOK/DKK fall back to SEK at checkout)
 export function getPackageStripePriceId(packageId: string, currency: Currency): string {
   const priceIds = stripePriceIds.packages[packageId as keyof typeof stripePriceIds.packages];
   if (!priceIds) return '';
-  return currency === 'USD' ? priceIds.usd : priceIds.sek;
+  const sc = toStripeCurrency(currency);
+  return sc === 'USD' ? priceIds.usd : priceIds.sek;
 }
 
 // Get Stripe price ID for care plan
@@ -144,12 +175,14 @@ export function getCarePlanStripePriceId(planId: string, isYearly: boolean, curr
   const plan = stripePriceIds.carePlans[planId as keyof typeof stripePriceIds.carePlans];
   if (!plan) return '';
   const period = isYearly ? 'yearly' : 'monthly';
-  return currency === 'USD' ? plan[period].usd : plan[period].sek;
+  const sc = toStripeCurrency(currency);
+  return sc === 'USD' ? plan[period].usd : plan[period].sek;
 }
 
 // Get Stripe price ID for addon
 export function getAddonStripePriceId(addonId: string, currency: Currency): string {
   const priceIds = stripePriceIds.addons[addonId as keyof typeof stripePriceIds.addons];
   if (!priceIds) return '';
-  return currency === 'USD' ? priceIds.usd : priceIds.sek;
+  const sc = toStripeCurrency(currency);
+  return sc === 'USD' ? priceIds.usd : priceIds.sek;
 }
