@@ -1,56 +1,70 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Language = 'sv' | 'en';
+export type Language = 'sv' | 'en' | 'no' | 'dk';
 
 interface LanguageContextType {
   lang: Language;
   setLang: (lang: Language) => void;
-  t: (sv: string, en: string) => string;
+  t: (sv: string, en: string, overrides?: { no?: string; dk?: string }) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// Detect if user is likely from Sweden based on browser settings
-function detectSwedishUser(): boolean {
-  if (typeof navigator === 'undefined') return false;
+// Detect user's likely language based on browser settings
+function detectLanguage(): Language {
+  if (typeof navigator === 'undefined') return 'en';
   
-  // Check browser language preferences
   const languages = navigator.languages || [navigator.language];
-  const isSwedish = languages.some(lang => 
-    lang.toLowerCase().startsWith('sv')
+  
+  // Check for Norwegian
+  const isNorwegian = languages.some(lang => 
+    lang.toLowerCase().startsWith('nb') || lang.toLowerCase().startsWith('nn') || lang.toLowerCase() === 'no'
   );
+  if (isNorwegian) return 'no';
+
+  // Check for Danish
+  const isDanish = languages.some(lang => lang.toLowerCase().startsWith('da'));
+  if (isDanish) return 'dk';
+
+  // Check for Swedish
+  const isSwedish = languages.some(lang => lang.toLowerCase().startsWith('sv'));
+  if (isSwedish) return 'sv';
   
-  if (isSwedish) return true;
-  
-  // Also check timezone as a backup indicator
+  // Timezone fallback
   try {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (timezone === 'Europe/Stockholm') return true;
+    if (timezone === 'Europe/Stockholm') return 'sv';
+    if (timezone === 'Europe/Oslo') return 'no';
+    if (timezone === 'Europe/Copenhagen') return 'dk';
   } catch {
     // Ignore timezone detection errors
   }
   
-  return false;
+  return 'en';
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  // Initialize with null to prevent flash, then detect
   const [lang, setLang] = useState<Language>(() => {
-    // Check localStorage first for returning users
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('nomia_lang');
-      if (saved === 'sv' || saved === 'en') return saved;
+      if (saved === 'sv' || saved === 'en' || saved === 'no' || saved === 'dk') return saved;
     }
-    // For new users: Swedish for Swedish browsers, English for everyone else
-    return detectSwedishUser() ? 'sv' : 'en';
+    return detectLanguage();
   });
 
-  // Persist language choice
   useEffect(() => {
     localStorage.setItem('nomia_lang', lang);
   }, [lang]);
 
-  const t = (sv: string, en: string) => (lang === 'sv' ? sv : en);
+  const t = (sv: string, en: string, overrides?: { no?: string; dk?: string }) => {
+    switch (lang) {
+      case 'en': return en;
+      case 'no': return overrides?.no ?? sv; // Default to Swedish
+      case 'dk': return overrides?.dk ?? sv; // Default to Swedish
+      case 'sv':
+      default: return sv;
+    }
+  };
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>

@@ -23,8 +23,8 @@ const PricingCard = ({
 }: { 
   pkg: any; 
   index: number; 
-  t: (sv: string, en: string) => string;
-  lang: 'en' | 'sv';
+  t: (sv: string, en: string, overrides?: { no?: string; dk?: string }) => string;
+  lang: string;
 }) => {
   const icons = [Zap, Crown, Star];
   const Icon = icons[index];

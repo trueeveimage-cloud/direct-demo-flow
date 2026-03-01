@@ -41,8 +41,9 @@ export const addonPrices: Record<string, PriceConfig> = {
 };
 
 // Get currency based on language
-export function getCurrencyFromLang(lang: 'sv' | 'en'): Currency {
-  return lang === 'sv' ? 'SEK' : 'USD';
+export function getCurrencyFromLang(lang: string): Currency {
+  // Scandinavian countries use SEK pricing, others use USD
+  return (lang === 'sv' || lang === 'no' || lang === 'dk') ? 'SEK' : 'USD';
 }
 
 // Format price with currency symbol
