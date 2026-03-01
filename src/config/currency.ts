@@ -64,15 +64,20 @@ export function toStripeCurrency(currency: Currency): StripeCurrency {
 export function formatPrice(amount: number, currency: Currency): string {
   switch (currency) {
     case 'USD': return `$${amount.toLocaleString('en-US')}`;
-    case 'NOK': return `${amount.toLocaleString('nb-NO')} kr`;
-    case 'DKK': return `${amount.toLocaleString('da-DK')} kr`;
+    case 'NOK': return `${amount.toLocaleString('nb-NO')} NOK`;
+    case 'DKK': return `${amount.toLocaleString('da-DK')} DKK`;
     default: return `${amount.toLocaleString('sv-SE')} kr`;
   }
 }
 
 // Get currency symbol for display
 export function getCurrencySymbol(currency: Currency): string {
-  return currency === 'USD' ? '$' : 'kr';
+  switch (currency) {
+    case 'USD': return '$';
+    case 'NOK': return 'NOK';
+    case 'DKK': return 'DKK';
+    default: return 'kr';
+  }
 }
 
 // Helper to pick price from config based on currency
@@ -108,7 +113,8 @@ export function getCarePlanPrice(planId: string, isYearly: boolean, currency: Cu
 // Get care plan price display string
 export function getCarePlanPriceDisplay(planId: string, isYearly: boolean, currency: Currency): string {
   const price = getCarePlanPrice(planId, isYearly, currency);
-  return `${formatPrice(price, currency)}/${currency === 'USD' ? 'mo' : 'mån'}`;
+  const perMonth = currency === 'USD' ? 'mo' : currency === 'NOK' ? 'mnd' : currency === 'DKK' ? 'md' : 'mån';
+  return `${formatPrice(price, currency)}/${perMonth}`;
 }
 
 // Get addon price
