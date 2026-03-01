@@ -45,10 +45,10 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-lg flex items-center gap-2">
             <Package className="w-5 h-5 text-accent" />
-            {t('Välj paket', 'Choose package')} *
+            {t('Välj paket', 'Choose package', { no: 'Velg pakke', dk: 'Vælg pakke' })} *
           </h2>
           <Button variant="ghost" size="sm" onClick={onComparePackages}>
-            {t('Jämför paket', 'Compare packages')}
+            {t('Jämför paket', 'Compare packages', { no: 'Sammenlign pakker', dk: 'Sammenlign pakker' })}
           </Button>
         </div>
         <div className="grid md:grid-cols-3 gap-4 package-selection" data-field="package">
@@ -75,7 +75,7 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
             >
               {p.popular && (
                 <span className="absolute -top-3 left-4 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded">
-                  {t('Populärast', 'Popular')}
+                  {t('Populärast', 'Popular', { no: 'Mest populær', dk: 'Mest populær' })}
                 </span>
               )}
               
@@ -114,7 +114,7 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
       >
         <h2 className="font-semibold text-lg flex items-center gap-2 mb-4">
           <Palette className="w-5 h-5 text-accent" />
-          {t('Välj stil', 'Choose style')} *
+          {t('Välj stil', 'Choose style', { no: 'Velg stil', dk: 'Vælg stil' })} *
         </h2>
         <div className="flex flex-wrap gap-3">
           {styles.map((style, i) => (
@@ -152,13 +152,13 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
         className="p-6 bg-secondary/50 rounded-xl"
       >
         <div className="flex items-center gap-2 mb-4">
-          <h2 className="font-semibold text-lg">{t('Färgpreferenser', 'Color preferences')}</h2>
+          <h2 className="font-semibold text-lg">{t('Färgpreferenser', 'Color preferences', { no: 'Fargepreferanser', dk: 'Farvepræferencer' })}</h2>
           <InfoTooltip content={t('Färger används för knappar, highlights och varumärkeskänsla.', 'Colors are used for buttons, highlights, and brand feel.')} />
         </div>
         <div className="space-y-4">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label>{t('Primärfärg', 'Primary color')}</Label>
+              <Label>{t('Primärfärg', 'Primary color', { no: 'Primærfarge', dk: 'Primærfarve' })}</Label>
               <Input 
                 value={formData.primaryColor} 
                 onChange={(e) => updateField('primaryColor', e.target.value)} 
@@ -168,7 +168,7 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
               />
             </div>
             <div>
-              <Label>{t('Accentfärg', 'Accent color')}</Label>
+              <Label>{t('Accentfärg', 'Accent color', { no: 'Aksentfarge', dk: 'Accentfarve' })}</Label>
               <Input 
                 value={formData.accentColor} 
                 onChange={(e) => updateField('accentColor', e.target.value)} 
@@ -184,7 +184,7 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
               onCheckedChange={(c) => updateField('noColorPreference', c === true)} 
             />
             <span className="text-sm group-hover:text-foreground transition-colors">
-              {t('Ingen preferens – Nomia väljer', 'No preference – Nomia chooses')}
+              {t('Ingen preferens – Nomia väljer', 'No preference – Nomia chooses', { no: 'Ingen preferanse – Nomia velger', dk: 'Ingen præference – Nomia vælger' })}
             </span>
           </label>
         </div>
@@ -198,7 +198,7 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
       >
         <h2 className="font-semibold text-lg flex items-center gap-2 mb-4">
           <Globe className="w-5 h-5 text-accent" />
-          {t('Webbplatsens språk', 'Website language')}
+          {t('Webbplatsens språk', 'Website language', { no: 'Nettsidespråk', dk: 'Hjemmesidens sprog' })}
         </h2>
         <div className="flex flex-wrap gap-3">
           {languages.map((l) => (
@@ -261,11 +261,11 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
       >
         <div className="flex items-center gap-2 mb-2">
           <Check className="w-5 h-5 text-accent" />
-          <h2 className="font-semibold text-lg">{t('Gratis funktioner', 'FREE features')}</h2>
+          <h2 className="font-semibold text-lg">{t('Gratis funktioner', 'FREE features', { no: 'Gratisfunksjoner', dk: 'Gratis funktioner' })}</h2>
           <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full font-medium">INGÅR</span>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          {t('Välj vilka gratisfunktioner du vill ha på din webbplats.', 'Choose which free features you want on your website.')}
+          {t('Välj vilka gratisfunktioner du vill ha på din webbplats.', 'Choose which free features you want on your website.', { no: 'Velg hvilke gratisfunksjoner du vil ha på nettsiden din.', dk: 'Vælg hvilke gratis funktioner du vil have på din hjemmeside.' })}
         </p>
         
         <div className="space-y-3">
@@ -391,7 +391,7 @@ function Step2PackageComponent({ formData, setFormData, errors, onComparePackage
       >
         <div className="flex items-center gap-2 mb-4">
           <Calendar className="w-5 h-5 text-accent" />
-          <h2 className="font-semibold text-lg">{t('Vill du ha ett bokningssystem?', 'Do you want a booking system?')}</h2>
+          <h2 className="font-semibold text-lg">{t('Vill du ha ett bokningssystem?', 'Do you want a booking system?', { no: 'Vil du ha et bookingsystem?', dk: 'Vil du have et bookingsystem?' })}</h2>
           <InfoTooltip content={t('Vi bygger ditt helt egna bokningssystem – inga avgifter till tredjeparter som Bokadirekt.', 'We build your very own booking system – no fees to third parties like Bokadirekt.')} />
         </div>
         <p className="text-sm text-muted-foreground mb-4">
