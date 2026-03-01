@@ -142,7 +142,7 @@ const calculationSteps = [
 ];
 
 // Goal-based recommendations per industry
-const getRecommendations = (goal: string, businessType: string, lang: 'sv' | 'en') => {
+const getRecommendations = (goal: string, businessType: string, lang: string) => {
   const baseRecs: Record<string, { sv: string[]; en: string[] }> = {
     bookings: {
       sv: ['Tydlig bokningsknapp på varje sida', 'Visa lediga tider direkt', 'Snabb mobilvänlig upplevelse'],
@@ -174,11 +174,13 @@ const getRecommendations = (goal: string, businessType: string, lang: 'sv' | 'en
     realestate: { sv: 'Objektlistning med sökfunktion', en: 'Property listings with search' },
   };
 
-  const recs = baseRecs[goal]?.[lang] || baseRecs.trust[lang];
+  // NO/DK fall back to Swedish text
+  const textLang = (lang === 'en' ? 'en' : 'sv') as 'sv' | 'en';
+  const recs = baseRecs[goal]?.[textLang] || baseRecs.trust[textLang];
   const industryRec = industryRecs[businessType];
   
   if (industryRec) {
-    return [industryRec[lang], ...recs.slice(0, 2)];
+    return [industryRec[textLang], ...recs.slice(0, 2)];
   }
   return recs;
 };

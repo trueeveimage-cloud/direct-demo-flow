@@ -98,15 +98,16 @@ export const featureTooltips: Record<string, { sv: string; en: string }> = {
   },
 };
 
-export function getTooltip(feature: string, lang: 'sv' | 'en'): string | undefined {
+export function getTooltip(feature: string, lang: string): string | undefined {
+  const textLang = (lang === 'en' ? 'en' : 'sv') as 'sv' | 'en';
   const tooltip = featureTooltips[feature];
   if (tooltip) {
-    return tooltip[lang];
+    return tooltip[textLang];
   }
   // Check partial matches
   for (const key of Object.keys(featureTooltips)) {
     if (feature.includes(key) || key.includes(feature.split(' ')[0])) {
-      return featureTooltips[key][lang];
+      return featureTooltips[key][textLang];
     }
   }
   return undefined;
