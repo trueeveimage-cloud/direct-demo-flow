@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
-import { MagneticButton } from '@/components/MagneticButton';
-import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
+import { GrainOverlay } from '@/components/PremiumEffects';
 
 // Static floating element component
 const FloatingIcon = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -144,8 +143,6 @@ export default function FAQPage() {
   return (
     <div className="relative overflow-hidden">
       <GrainOverlay />
-      <FloatingParticles count={12} />
-      <ScrollingAmbientGlow />
 
       <div className="section-padding pt-28 pb-20 relative z-10">
         <div className="container-narrow">
@@ -235,19 +232,15 @@ export default function FAQPage() {
                   </p>
                   
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <MagneticButton>
-                      <Button asChild variant="outline" size="lg" className="rounded-full px-8">
+                    <Button asChild variant="outline" size="lg" className="rounded-full px-8">
                         <Link to="/kontakt">{t('Kontakta oss', 'Contact us')}</Link>
                       </Button>
-                    </MagneticButton>
-                    <MagneticButton>
                       <Button asChild variant="outline" size="lg" className="rounded-full px-8 group">
                         <Link to="/demo">
                           {t('Få ditt gratis koncept', 'Get your free concept')}
                           <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </Link>
                       </Button>
-                    </MagneticButton>
                   </div>
                 </div>
               </TiltCard>

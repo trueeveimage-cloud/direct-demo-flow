@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { ScrollingAmbientGlow } from '@/components/PremiumEffects';
+// Using local GrainOverlay defined below
 import { useState } from 'react';
 
 // Cinematic text reveal with blur and 3D effect
@@ -129,49 +129,7 @@ function AnimatedLine({ className = '' }: { className?: string }) {
   );
 }
 
-// Floating particle effect with depth layers
-function FloatingParticles() {
-  const particles = useMemo(() => 
-    [...Array(30)].map((_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
-      duration: 5 + Math.random() * 8,
-      delay: Math.random() * 3,
-      opacity: Math.random() * 0.3 + 0.1,
-    })), []
-  );
-
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute rounded-full bg-accent"
-          style={{
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: p.size,
-            height: p.size,
-            opacity: p.opacity,
-          }}
-          animate={{
-            y: [0, -40, 0],
-            x: [0, Math.random() * 20 - 10, 0],
-            opacity: [p.opacity, p.opacity * 2, p.opacity],
-          }}
-          transition={{
-            duration: p.duration,
-            repeat: Infinity,
-            delay: p.delay,
-            ease: "easeInOut"
-          }}
-        />
-      ))}
-    </div>
-  );
-}
+// Removed FloatingParticles - was causing 30 framer-motion infinite animations
 
 // Film grain overlay
 function GrainOverlay() {
@@ -290,9 +248,7 @@ export default function AboutPage() {
 
   return (
     <div ref={containerRef} className="relative bg-background min-h-screen overflow-hidden">
-      <FloatingParticles />
       <GrainOverlay />
-      <ScrollingAmbientGlow />
       
       {/* Progress bar */}
       <motion.div 

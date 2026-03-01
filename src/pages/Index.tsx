@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield, Info, Sparkles, TrendingDown, Eye, Calendar } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -8,12 +8,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { TestimonialsCarousel } from '@/components/TestimonialsCarousel';
 import { TrustBadges } from '@/components/TrustBadges';
 import { ROICalculator } from '@/components/ROICalculator';
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
-import { ParallaxSection, FloatingShapes, AnimatedText, TiltCard } from '@/components/ParallaxSection';
-import { MagneticButton } from '@/components/MagneticButton';
+import { ParallaxSection, AnimatedText, TiltCard } from '@/components/ParallaxSection';
 import { ScrollTriggeredCounter } from '@/components/ScrollTriggeredCounter';
-import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
+import { GrainOverlay } from '@/components/PremiumEffects';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
@@ -25,151 +24,15 @@ import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
 import beforeSwedenCarImg from '@/assets/before-swedencar.png';
 import afterSwedenCarImg from '@/assets/after-swedencar.png';
 
-// ═══════════════════════════════════════════════════════════════════
-// ADVANCED PARALLAX HERO BACKGROUND - "Holy shit" effect
-// ═══════════════════════════════════════════════════════════════════
-function ParallaxHeroBackground() {
-  const { scrollY } = useScroll();
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  
-  // Smooth spring physics for mouse movement
-  const springConfig = { damping: 25, stiffness: 150 };
-  const smoothMouseX = useSpring(mouseX, springConfig);
-  const smoothMouseY = useSpring(mouseY, springConfig);
-  
-  // Scroll-based parallax transforms
-  const y1 = useTransform(scrollY, [0, 500], [0, 150]);
-  const y2 = useTransform(scrollY, [0, 500], [0, -100]);
-  const y3 = useTransform(scrollY, [0, 500], [0, 200]);
-  const scale1 = useTransform(scrollY, [0, 300], [1, 1.3]);
-  const opacity1 = useTransform(scrollY, [0, 400], [1, 0]);
-  const rotate1 = useTransform(scrollY, [0, 500], [0, 45]);
-  const rotate2 = useTransform(scrollY, [0, 500], [0, -30]);
-  const gridOpacity = useTransform(scrollY, [0, 300], [0.03, 0]);
-  
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const { innerWidth, innerHeight } = window;
-      // Normalize mouse position to -1 to 1
-      mouseX.set((clientX / innerWidth - 0.5) * 2);
-      mouseY.set((clientY / innerHeight - 0.5) * 2);
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY]);
-  
-  // Combine scroll and mouse for 3D parallax
-  const orbX1 = useTransform(smoothMouseX, [-1, 1], [-30, 30]);
-  const orbY1 = useTransform(smoothMouseY, [-1, 1], [-30, 30]);
-  const orbX2 = useTransform(smoothMouseX, [-1, 1], [40, -40]);
-  const orbY2 = useTransform(smoothMouseY, [-1, 1], [20, -20]);
-  const orbX3 = useTransform(smoothMouseX, [-1, 1], [-20, 20]);
-  const orbY3 = useTransform(smoothMouseY, [-1, 1], [-40, 40]);
-  
+// Simplified hero background - static CSS only
+function HeroBackground() {
   return (
     <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0 overflow-hidden motion-reduce:hidden">
-      {/* Desktop: Full parallax experience - hidden on mobile for performance */}
       <div className="hidden md:block h-full">
-        {/* Primary glow orb - largest, slowest */}
-        <motion.div
-          style={{ 
-            y: y1, 
-            x: orbX1, 
-            scale: scale1,
-            rotate: rotate1,
-            opacity: opacity1
-          }}
-          className="absolute top-[-150px] left-[5%] w-[600px] h-[600px]"
-        >
-          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/15 via-accent/5 to-transparent blur-[100px] animate-orb-pulse" />
-        </motion.div>
-        
-        {/* Secondary orb - medium speed with morph */}
-        <motion.div
-          style={{ 
-            y: y2, 
-            x: orbX2,
-            rotate: rotate2,
-            opacity: opacity1
-          }}
-          className="absolute top-[50px] right-[10%] w-[500px] h-[500px]"
-        >
-          <div className="w-full h-full bg-gradient-radial from-accent/12 via-accent/5 to-transparent blur-[80px] animate-morph" />
-        </motion.div>
-        
-        {/* Tertiary orb - fastest parallax */}
-        <motion.div
-          style={{ 
-            y: y3,
-            x: orbX3,
-            opacity: opacity1
-          }}
-          className="absolute top-[300px] left-[35%] w-[400px] h-[400px]"
-        >
-          <div className="w-full h-full rounded-full bg-gradient-radial from-accent/10 via-accent/5 to-transparent blur-[60px] animate-float-3d" />
-        </motion.div>
-        
-        {/* Removed floating geometric shapes for cleaner aesthetic */}
-        
-        {/* Floating particles - CSS animated dots */}
-        <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              style={{ opacity: opacity1 }}
-              className="absolute rounded-full bg-accent"
-              initial={false}
-            >
-              <div 
-                className="rounded-full bg-accent animate-pulse"
-                style={{
-                  position: 'absolute',
-                  left: `${5 + (i * 4.5) % 90}%`,
-                  top: `${3 + (i * 7) % 60}%`,
-                  width: 2 + (i % 4) * 2,
-                  height: 2 + (i % 4) * 2,
-                  opacity: 0.2 + (i % 5) * 0.1,
-                  animationDelay: `${i * 0.15}s`
-                }}
-              />
-            </motion.div>
-          ))}
-        </div>
-        
-        {/* Animated gradient mesh overlay */}
-        <motion.div 
-          style={{ opacity: opacity1 }}
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent"
-        />
-        
-        {/* Grid lines for tech feel */}
-        <motion.div 
-          style={{ opacity: gridOpacity }}
-          className="absolute inset-0"
-        >
-          <div className="absolute inset-0" style={{
-            backgroundImage: `
-              linear-gradient(to right, hsl(var(--accent) / 0.1) 1px, transparent 1px),
-              linear-gradient(to bottom, hsl(var(--accent) / 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '80px 80px'
-          }} />
-        </motion.div>
-        
-        {/* Horizontal scan line effect */}
-        <motion.div
-          style={{ 
-            y: useTransform(scrollY, [0, 1000], [0, 500]),
-            opacity: useTransform(scrollY, [0, 300], [0.3, 0])
-          }}
-          className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"
-        />
+        <div className="absolute top-[-150px] left-[5%] w-[600px] h-[600px] rounded-full bg-accent/10 blur-[100px]" />
+        <div className="absolute top-[50px] right-[10%] w-[500px] h-[500px] bg-accent/8 blur-[80px]" />
+        <div className="absolute top-[300px] left-[35%] w-[400px] h-[400px] rounded-full bg-accent/6 blur-[60px]" />
       </div>
-      
-      {/* Mobile: Simplified static gradient — reduced opacity for light mode */}
       <div className="md:hidden h-full">
         <div className="absolute top-[-100px] left-[10%] w-[300px] h-[300px] bg-accent/8 rounded-full blur-[80px]" />
         <div className="absolute top-[-50px] right-[10%] w-[200px] h-[200px] bg-accent/6 rounded-full blur-[60px]" />
@@ -180,18 +43,8 @@ function ParallaxHeroBackground() {
 
 // Before/After Section with Parallax Effect
 function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: string) => string; beforeImg: string; afterImg: string }) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  });
-  
-  // Parallax transforms - before moves slower, after moves faster
-  const beforeY = useTransform(scrollYProgress, [0, 1], [60, -60]);
-  const afterY = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  
   return (
-    <section ref={sectionRef} className="py-32 relative overflow-hidden">
+    <section className="py-32 relative overflow-hidden">
       {/* Gradient fade overlay for seamless section blending */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background pointer-events-none" />
       {/* Asymmetric accent glow */}
@@ -240,10 +93,7 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
           {/* Right: Before/After Images with Parallax */}
           <div className="relative">
             {/* Before - positioned back and left, slower parallax */}
-            <motion.div 
-              style={{ y: beforeY }} 
-              className="relative z-10 hidden md:block"
-            >
+            <div className="relative z-10 hidden md:block">
               <div className="absolute -top-3 left-4 z-20">
                 <span className="bg-muted-foreground/80 text-background px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
                   {t('Före', 'Before')}
@@ -252,7 +102,7 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
               <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-border/50 shadow-xl">
                 <img src={beforeImg} alt={t('Före transformation', 'Before transformation')} className="w-full h-full object-cover object-top" />
               </div>
-            </motion.div>
+            </div>
             
             {/* Mobile: Static before image */}
             <div className="relative z-10 md:hidden">
@@ -267,10 +117,7 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
             </div>
             
             {/* After - overlapping, faster parallax */}
-            <motion.div 
-              style={{ y: afterY }} 
-              className="relative z-20 -mt-24 ml-12 lg:ml-20 hidden md:block"
-            >
+            <div className="relative z-20 -mt-24 ml-12 lg:ml-20 hidden md:block">
               <div className="absolute -top-3 left-4 z-20">
                 <span className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
                   {t('Efter', 'After')}
@@ -279,7 +126,7 @@ function BeforeAfterSection({ t, beforeImg, afterImg }: { t: (sv: string, en: st
               <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-accent/50 shadow-2xl shadow-accent/20">
                 <img src={afterImg} alt={t('Efter transformation', 'After transformation')} className="w-full h-full object-cover object-top" />
               </div>
-            </motion.div>
+            </div>
             
             {/* Mobile: Static after image */}
             <div className="relative z-20 -mt-16 ml-8 md:hidden">
@@ -305,22 +152,10 @@ export default function Index() {
   const { remainingSpots, isLoading: spotsLoading } = useRemainingSpots();
   const [showSpotsDialog, setShowSpotsDialog] = useState(false);
 
-  // Scroll progress for global effects
-  const { scrollY } = useScroll();
-  const heroTextY = useTransform(scrollY, [0, 300], [0, 50]);
-  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.5]);
-
   return (
     <div className="overflow-hidden relative">
       <GrainOverlay />
-      <FloatingParticles count={15} />
-      <ScrollingAmbientGlow />
-      {/* ═══════════════════════════════════════════════════════════════════
-          1. HERO - Hook + Promise - SCROLL SNAP SECTION
-      ═══════════════════════════════════════════════════════════════════ */}
-      
-      {/* ADVANCED PARALLAX HERO BACKGROUND */}
-      <ParallaxHeroBackground />
+      <HeroBackground />
 
       {/* Hero Content with staggered animations - SCROLL SNAP */}
       <section className="min-h-[60vh] flex items-center relative overflow-hidden pt-24">
@@ -332,7 +167,7 @@ export default function Index() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            style={{ y: heroTextY, opacity: heroOpacity }}
+            
             className="pb-6"
           >
             <span className="font-heading font-light text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tighter">
@@ -386,43 +221,39 @@ export default function Index() {
             transition={{ delay: 1.3, duration: 0.5, ease: 'easeOut' }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
-            <MagneticButton strength={0.4}>
-              <Button 
-                asChild 
-                size="lg" 
-                className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0"
-                onClick={() => {
-                  import('@/lib/posthog').then(({ trackEvent, getUtmParams }) => {
-                    trackEvent('cta_click', { button: 'hero_get_concept', page: 'index', ...getUtmParams() });
-                  });
-                }}
-              >
-                <Link to="/demo">
-                  {t('Få ditt gratis koncept', 'Get your free concept')}
+            <Button 
+              asChild 
+              size="lg" 
+              className="group h-14 px-10 text-base font-medium bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/30 border-0"
+              onClick={() => {
+                import('@/lib/posthog').then(({ trackEvent, getUtmParams }) => {
+                  trackEvent('cta_click', { button: 'hero_get_concept', page: 'index', ...getUtmParams() });
+                });
+              }}
+            >
+              <Link to="/demo">
+                {t('Få ditt gratis koncept', 'Get your free concept')}
+                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button 
+              asChild 
+              size="lg" 
+              className="group h-14 px-10 text-base font-medium bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/30 border-0"
+              onClick={() => {
+                import('@/lib/posthog').then(({ trackEvent, getUtmParams }) => {
+                  trackEvent('cta_click', { button: 'hero_order_directly', page: 'index', ...getUtmParams() });
+                });
+              }}
+            >
+              <Link to="/bestall">
+                <span className="flex flex-col items-start leading-tight">
+                  <span>{t('Beställ direkt', 'Order directly')}</span>
+                  <span className="text-xs opacity-80">{t('Hemsida från 2 900 kr', 'Website from $290')}</span>
+                </span>
                   <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
-            </MagneticButton>
-            <MagneticButton strength={0.4}>
-              <Button 
-                asChild 
-                size="lg" 
-                className="group h-14 px-10 text-base font-medium bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-foreground hover:from-amber-400 hover:via-amber-300 hover:to-yellow-400 shadow-lg shadow-amber-500/30 border-0"
-                onClick={() => {
-                  import('@/lib/posthog').then(({ trackEvent, getUtmParams }) => {
-                    trackEvent('cta_click', { button: 'hero_order_directly', page: 'index', ...getUtmParams() });
-                  });
-                }}
-              >
-                <Link to="/bestall">
-                  <span className="flex flex-col items-start leading-tight">
-                    <span>{t('Beställ direkt', 'Order directly')}</span>
-                    <span className="text-xs opacity-80">{t('Hemsida från 2 900 kr', 'Website from $290')}</span>
-                  </span>
-                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </MagneticButton>
           </motion.div>
 
           {/* Spots indicator - prominent button */}
@@ -623,11 +454,10 @@ export default function Index() {
               ].map((project, index) => (
                 <motion.div 
                   key={index} 
-                  initial={{ opacity: 0, y: 50, rotateY: -10 }}
-                  whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.15 }}
-                  whileHover={{ y: -12, scale: 1.02 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="group"
                 >
                   <TiltCard>
@@ -851,10 +681,10 @@ export default function Index() {
             <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {/* Free Concept Path */}
               <motion.div
-                initial={{ opacity: 0, x: -50, rotateY: 10 }}
-                whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: 0.1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
               >
                 <TiltCard className="h-full">
                   <div className="relative p-8 rounded-2xl border border-border/50 bg-background/80 backdrop-blur-sm hover:border-accent/30 transition-all duration-300 h-full glass-premium spotlight">
@@ -894,10 +724,10 @@ export default function Index() {
 
               {/* Direct Order Path */}
               <motion.div
-                initial={{ opacity: 0, x: 50, rotateY: -10 }}
-                whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: 0.2 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
               >
                 <TiltCard className="h-full">
                   <div className="relative p-8 rounded-2xl border border-border/50 bg-background/80 backdrop-blur-sm hover:border-accent/30 transition-all duration-300 h-full glass-premium spotlight">

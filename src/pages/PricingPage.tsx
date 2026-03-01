@@ -12,7 +12,7 @@ import { getCurrencyFromLang, formatPrice, getPackagePrice, getCarePlanPrice } f
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ScrollTriggeredCounter } from '@/components/ScrollTriggeredCounter';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
-import { GrainOverlay, FloatingParticles, ScrollingAmbientGlow } from '@/components/PremiumEffects';
+import { GrainOverlay } from '@/components/PremiumEffects';
 
 // Animated pricing card with 3D effects
 const PricingCard = ({ 
@@ -269,8 +269,6 @@ export default function PricingPage() {
   return (
     <div className="relative overflow-hidden">
       <GrainOverlay />
-      <FloatingParticles count={12} />
-      <ScrollingAmbientGlow />
 
       {/* Hero with parallax */}
       <div ref={heroRef} className="relative">
