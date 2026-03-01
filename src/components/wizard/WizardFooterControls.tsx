@@ -34,7 +34,7 @@ export function WizardFooterControls() {
       <button
         onClick={nextLang}
         className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/50 text-muted-foreground hover:text-foreground hover:border-border transition-colors text-sm"
-        aria-label={t('Byt språk', 'Change language')}
+        aria-label={t('Byt språk', 'Change language', { no: 'Bytt språk', dk: 'Skift sprog' })}
       >
         <Globe className="w-4 h-4" />
         <span className="inline-flex items-center gap-1.5">{langLabels[lang]}</span>
