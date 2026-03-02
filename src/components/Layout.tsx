@@ -18,10 +18,11 @@ export function Layout({ children }: LayoutProps) {
   // Hide layout elements on admin page
   const isAdminPage = location.pathname === '/admin';
   
-  // Hide header/footer on ordering pages (they have their own standalone layout)
+  // Hide header/footer on ordering pages and portal (they have their own standalone layout)
   const isOrderingPage = ['/bestall', '/efter-demo', '/demo'].includes(location.pathname);
+  const isPortalPage = location.pathname.startsWith('/portal');
 
-  if (isAdminPage || isOrderingPage) {
+  if (isAdminPage || isOrderingPage || isPortalPage) {
     return (
       <div className="min-h-screen">
         {children}
