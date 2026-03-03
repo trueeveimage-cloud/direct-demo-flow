@@ -38,6 +38,9 @@ const PricingCard = ({
 }) => {
   const icons = [Zap, Crown, Star];
   const Icon = icons[index];
+  const isPopular = pkg.popular;
+  const isStarter = pkg.id === 'starter';
+  const isPro = pkg.id === 'pro';
 
   return (
     <motion.div 
@@ -45,34 +48,66 @@ const PricingCard = ({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: index * 0.15 }}
-      className="h-full"
+      className={`h-full ${isPopular ? 'md:-mt-4 md:mb-4' : ''} ${isStarter ? 'md:mt-4' : ''}`}
     >
-      <div className="relative p-6 sm:p-8 rounded-2xl border-2 h-full flex flex-col overflow-hidden border-accent/50 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent shadow-xl shadow-accent/10 hover:border-accent hover:shadow-2xl hover:shadow-accent/20 group transition-all duration-300">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.2),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+      <div className={`relative rounded-2xl h-full flex flex-col overflow-hidden group transition-all duration-300 ${
+        isPopular 
+          ? 'p-6 sm:p-8 border-2 border-accent bg-gradient-to-br from-accent/20 via-accent/10 to-accent/5 shadow-2xl shadow-accent/20 ring-1 ring-accent/30' 
+          : isStarter
+            ? 'p-5 sm:p-6 border border-border/60 bg-secondary/30 shadow-md hover:border-accent/30 hover:shadow-lg'
+            : 'p-6 sm:p-8 border-2 border-accent/40 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent shadow-xl shadow-accent/10 hover:border-accent/60 hover:shadow-2xl hover:shadow-accent/15'
+      }`}>
+        {isPopular && (
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.25),transparent_60%)] pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+        )}
+        {isPro && (
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--accent)/0.12),transparent_60%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+        )}
         
-        {/* 25% Discount badge */}
-        <div className="absolute top-5 right-5 z-20">
-          <div className="relative px-3.5 py-1.5 rounded-lg bg-gradient-to-br from-amber-500/25 via-yellow-400/15 to-amber-500/10 border border-amber-400/50 backdrop-blur-sm shadow-md shadow-amber-500/15">
-            <div className="absolute inset-0 rounded-lg bg-amber-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <span className="relative text-[11px] font-bold tracking-[0.2em] uppercase bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">save 25%</span>
+        {/* Popular badge */}
+        {isPopular && (
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+            <div className="px-5 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-bold tracking-[0.15em] uppercase shadow-lg shadow-accent/30">
+              {t('Mest populär', 'Most popular', { no: 'Mest populær', dk: 'Mest populær' })}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Premium badge for Pro */}
+        {isPro && (
+          <div className="absolute top-5 right-5 z-20">
+            <div className="px-3 py-1 rounded-full bg-accent/15 border border-accent/40 text-[10px] font-bold tracking-[0.2em] uppercase text-accent">
+              Premium
+            </div>
+          </div>
+        )}
+
+        {/* 25% Discount badge - only on popular */}
+        {isPopular && (
+          <div className="absolute top-5 right-5 z-20">
+            <div className="relative px-3.5 py-1.5 rounded-lg bg-gradient-to-br from-amber-500/25 via-yellow-400/15 to-amber-500/10 border border-amber-400/50 backdrop-blur-sm shadow-md shadow-amber-500/15">
+              <span className="relative text-[11px] font-bold tracking-[0.2em] uppercase bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">save 25%</span>
+            </div>
+          </div>
+        )}
         
-        <div className="relative w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-accent/20 group-hover:bg-accent/30 transition-colors z-10">
-          <div className="absolute inset-0 bg-accent/30 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-          <Icon className="w-7 h-7 text-accent relative z-10" />
+        <div className={`relative rounded-xl flex items-center justify-center mb-5 z-10 ${
+          isPopular ? 'w-14 h-14 bg-accent/25' : isStarter ? 'w-12 h-12 bg-muted' : 'w-14 h-14 bg-accent/20'
+        } group-hover:bg-accent/30 transition-colors`}>
+          {isPopular && <div className="absolute inset-0 bg-accent/30 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />}
+          <Icon className={`relative z-10 ${isPopular ? 'w-7 h-7 text-accent' : isStarter ? 'w-6 h-6 text-muted-foreground' : 'w-7 h-7 text-accent'}`} />
         </div>
 
-        <h3 className="font-heading font-light text-2xl mb-2 relative z-10">{pkg.name}</h3>
+        <h3 className={`font-heading mb-2 relative z-10 ${isPopular ? 'font-medium text-2xl' : isStarter ? 'font-light text-xl' : 'font-light text-2xl'}`}>{pkg.name}</h3>
         
         <div className="flex items-baseline gap-2 mb-2 relative z-10">
-          <span className="text-4xl sm:text-5xl font-bold text-accent">{pkg.price}</span>
-          <span className="text-lg text-muted-foreground/60 line-through">{pkg.oldPrice}</span>
+          <span className={`font-bold ${isPopular ? 'text-4xl sm:text-5xl text-accent' : isStarter ? 'text-3xl sm:text-4xl text-foreground' : 'text-4xl sm:text-5xl text-accent'}`}>{pkg.price}</span>
+          <span className={`line-through ${isStarter ? 'text-base text-muted-foreground/40' : 'text-lg text-muted-foreground/60'}`}>{pkg.oldPrice}</span>
         </div>
         <p className="text-sm text-muted-foreground mb-2 relative z-10">{pkg.delivery}</p>
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2 relative z-10">{pkg.description}</p>
         <p className="text-sm font-medium text-foreground mb-5 flex items-center gap-2 relative z-10">
-          <span className="w-2 h-2 bg-accent rounded-full" />
+          <span className={`w-2 h-2 rounded-full ${isStarter ? 'bg-muted-foreground/50' : 'bg-accent'}`} />
           {pkg.pages}
         </p>
         
@@ -88,7 +123,7 @@ const PricingCard = ({
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 + i * 0.05 }}
               >
-                <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-accent" />
+                <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isStarter ? 'text-muted-foreground' : 'text-accent'}`} />
                 <span className="leading-tight flex items-center gap-1 flex-wrap">
                   {feature.text}
                   {tooltip && (
@@ -114,20 +149,32 @@ const PricingCard = ({
         </ul>
         
         <div className="space-y-2 mt-auto relative">
-          <Button 
-            className="w-full rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground"
-            onClick={() => window.location.href = `/demo?package=${pkg.id}`}
-          >
-            {t('Få koncept', 'Get concept', { no: 'Få konsept', dk: 'Få koncept' })}
-            <ArrowRight className="w-4 h-4 ml-1" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="w-full text-sm hover:bg-accent/10"
-            onClick={() => window.location.href = `/bestall?package=${pkg.id}`}
-          >
-            {t('Beställ direkt', 'Order directly', { no: 'Bestill direkte', dk: 'Bestil direkte' })}
-          </Button>
+          {isPopular ? (
+            <Button 
+              className="w-full rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground h-12 text-base font-semibold shadow-lg shadow-accent/25"
+              onClick={() => window.location.href = `/bestall?package=${pkg.id}`}
+            >
+              {t('Beställ nu', 'Order now', { no: 'Bestill nå', dk: 'Bestil nu' })}
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          ) : (
+            <Button 
+              className={`w-full rounded-xl ${isStarter ? 'bg-secondary hover:bg-secondary/80 text-foreground' : 'bg-accent/80 hover:bg-accent/70 text-accent-foreground'}`}
+              onClick={() => window.location.href = `/demo?package=${pkg.id}`}
+            >
+              {t('Få koncept', 'Get concept', { no: 'Få konsept', dk: 'Få koncept' })}
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+          {isPopular && (
+            <Button 
+              variant="ghost" 
+              className="w-full text-sm hover:bg-accent/10"
+              onClick={() => window.location.href = `/demo?package=${pkg.id}`}
+            >
+              {t('Eller få gratis koncept först', 'Or get free concept first', { no: 'Eller få gratis konsept først', dk: 'Eller få gratis koncept først' })}
+            </Button>
+          )}
         </div>
       </div>
     </motion.div>
