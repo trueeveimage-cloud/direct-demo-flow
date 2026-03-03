@@ -102,23 +102,23 @@ export default function AdLandingPage() {
           )}
         </motion.p>
         
-        {/* PRIMARY CTA: Order now — big gold, conversion-first */}
+        {/* PRIMARY CTA: Order Standard — single clear action */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col gap-2 max-w-xs mx-auto"
+          className="flex flex-col gap-2.5 max-w-xs mx-auto"
         >
           <Link
-            to="/bestall"
-            onClick={() => handleCTAClick('hero_order')}
+            to="/bestall?package=standard"
+            onClick={() => handleCTAClick('hero_order_standard')}
             className="group relative flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-4 text-base font-semibold rounded-2xl shadow-xl shadow-accent/30 hover:shadow-2xl hover:shadow-accent/40 transition-all duration-300 overflow-hidden"
           >
             {/* Shimmer */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
             <span className="flex flex-col items-center leading-tight relative z-10">
-              <span className="text-base font-semibold">{t('Beställ nu', 'Order now')}</span>
-              <span className="text-[11px] font-normal opacity-80">{lang === 'sv' ? 'Från 2 900 kr' : 'From $290'}</span>
+              <span className="text-base font-semibold">{t('Beställ Standard', 'Order Standard')}</span>
+              <span className="text-[11px] font-normal opacity-80">{t('5 sidor · Mest populär', '5 pages · Most popular', { no: '5 sider · Mest populær', dk: '5 sider · Mest populær' })}</span>
             </span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform relative z-10" />
           </Link>
@@ -127,9 +127,9 @@ export default function AdLandingPage() {
           <Link
             to="/demo"
             onClick={() => handleCTAClick('hero_concept')}
-            className="group flex items-center justify-center gap-2 border border-accent/40 hover:border-accent/70 hover:bg-accent/8 text-foreground px-6 py-3.5 text-sm font-medium rounded-2xl transition-all duration-300"
+            className="group flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground px-6 py-2.5 text-sm font-medium transition-all duration-300"
           >
-            {t('Få gratis koncept först', 'Get free concept first')}
+            {t('Eller få gratis koncept först', 'Or get free concept first', { no: 'Eller få gratis konsept først', dk: 'Eller få gratis koncept først' })}
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </motion.div>

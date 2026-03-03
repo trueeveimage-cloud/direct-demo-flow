@@ -208,12 +208,31 @@ export default function Index() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.3, duration: 0.5, ease: 'easeOut' }}
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
+            className="mt-10 flex flex-col items-center gap-3"
           >
             <Button 
               asChild 
               size="lg" 
-              className="group h-14 px-10 text-base font-medium bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/30 border-0"
+              className="group h-14 px-10 text-base font-semibold bg-accent text-accent-foreground hover:bg-accent/90 shadow-xl shadow-accent/30 border-0"
+              onClick={() => {
+                import('@/lib/posthog').then(({ trackEvent, getUtmParams }) => {
+                  trackEvent('cta_click', { button: 'hero_order_standard', page: 'index', ...getUtmParams() });
+                });
+              }}
+            >
+              <Link to="/bestall?package=standard">
+                <span className="flex flex-col items-center leading-tight">
+                  <span>{t('Beställ Standard', 'Order Standard', { no: 'Bestill Standard', dk: 'Bestil Standard' })}</span>
+                  <span className="text-xs opacity-80 font-normal">{t('5 sidor · Mest populär', '5 pages · Most popular', { no: '5 sider · Mest populær', dk: '5 sider · Mest populær' })}</span>
+                </span>
+                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button 
+              asChild 
+              size="lg" 
+              variant="ghost"
+              className="group h-12 px-8 text-sm font-medium text-muted-foreground hover:text-foreground"
               onClick={() => {
                 import('@/lib/posthog').then(({ trackEvent, getUtmParams }) => {
                   trackEvent('cta_click', { button: 'hero_get_concept', page: 'index', ...getUtmParams() });
@@ -221,28 +240,10 @@ export default function Index() {
               }}
             >
               <Link to="/demo">
-                {t('Få ditt gratis koncept', 'Get your free concept', { no: 'Få ditt gratis konsept', dk: 'Få dit gratis koncept' })}
-                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                {t('Eller få gratis koncept först', 'Or get free concept first', { no: 'Eller få gratis konsept først', dk: 'Eller få gratis koncept først' })}
+                <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button 
-              asChild 
-              size="lg" 
-              className="group h-14 px-10 text-base font-medium bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/30 border-0"
-              onClick={() => {
-                import('@/lib/posthog').then(({ trackEvent, getUtmParams }) => {
-                  trackEvent('cta_click', { button: 'hero_order_directly', page: 'index', ...getUtmParams() });
-                });
-              }}
-            >
-              <Link to="/bestall">
-                <span className="flex flex-col items-start leading-tight">
-                  <span>{t('Beställ direkt', 'Order directly', { no: 'Bestill direkte', dk: 'Bestil direkte' })}</span>
-                  <span className="text-xs opacity-80">{t('Hemsida från 2 900 kr', 'Website from $290', { no: 'Nettside fra 2 900 NOK', dk: 'Hjemmeside fra 2 900 DKK' })}</span>
-                </span>
-                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
           </motion.div>
 
           {/* Spots indicator */}
