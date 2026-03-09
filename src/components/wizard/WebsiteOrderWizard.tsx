@@ -41,10 +41,15 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
   const { lang } = useLanguage();
   const t = (sv: string, en: string) => lang === 'sv' ? sv : en;
 
+  // Pre-select package from URL params (e.g. /bestall?package=standard)
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectedPackage = urlParams.get('package') || '';
+
   const [step, setStep] = useState<FormStep>(1);
   const [formData, setFormData] = useState<WizardFormData>(() => ({
     ...initialFormData,
-    conceptLink: conceptLink || ''
+    conceptLink: conceptLink || '',
+    selectedPackage: preselectedPackage,
   }));
   const [customerTypeData, setCustomerTypeData] = useState<CustomerTypeData>(initialCustomerTypeData);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
