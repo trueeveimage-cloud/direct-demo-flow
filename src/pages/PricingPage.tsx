@@ -50,6 +50,16 @@ const PricingCard = ({
       transition={{ duration: 0.6, delay: index * 0.15 }}
       className={`h-full ${isPopular ? 'md:-mt-4 md:mb-4' : ''} ${isStarter ? 'md:mt-4' : ''}`}
     >
+      {/* Subtle pulse highlight for Standard card on scroll */}
+      {isPopular && (
+        <motion.div
+          className="absolute -inset-[2px] rounded-2xl bg-accent/20 blur-md z-0 pointer-events-none"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: [0, 0.6, 0.3] }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+        />
+      )}
       <div className={`relative rounded-2xl h-full flex flex-col overflow-hidden group transition-all duration-300 ${
         isPopular 
           ? 'p-6 sm:p-8 border-2 border-accent bg-gradient-to-br from-accent/20 via-accent/10 to-accent/5 shadow-2xl shadow-accent/20 ring-1 ring-accent/30' 
