@@ -128,6 +128,7 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
         if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = true;
         if (!formData.businessName.trim()) newErrors.businessName = true;
         if (!formData.contactPerson.trim()) newErrors.contactPerson = true;
+        if (!formData.websiteGoal) newErrors.websiteGoal = true;
         break;
       case 2:
         if (!formData.selectedPackage) newErrors.selectedPackage = true;
