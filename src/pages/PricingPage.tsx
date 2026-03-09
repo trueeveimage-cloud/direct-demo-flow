@@ -60,7 +60,7 @@ const PricingCard = ({
           transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
         />
       )}
-      <div className={`relative rounded-2xl h-full flex flex-col overflow-hidden group transition-all duration-300 ${
+      <div className={`relative rounded-2xl h-full flex flex-col overflow-visible group transition-all duration-300 ${
         isPopular 
           ? 'p-6 sm:p-8 border-2 border-accent bg-gradient-to-br from-accent/20 via-accent/10 to-accent/5 shadow-2xl shadow-accent/20 ring-1 ring-accent/30' 
           : isStarter
