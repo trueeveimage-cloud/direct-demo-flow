@@ -311,6 +311,34 @@ export function Step6Payment({
         isPostDemoFlow={isPostDemoFlow} 
       />
 
+      {/* Custom Features for Website */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="p-6 bg-secondary/40 rounded-2xl border border-border/50"
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-5 h-5 text-accent" />
+          <h3 className="font-semibold text-lg">{t('Anpassade funktioner för webbsidan', 'Custom features for the website')}</h3>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          {t(
+            'Behöver du något extra? Beskriv vilka specialfunktioner du vill ha på din webbplats så återkommer vi med ett prisförslag.',
+            'Need something extra? Describe what special features you want on your website and we\'ll get back with a quote.'
+          )}
+        </p>
+        <textarea
+          className="w-full min-h-[100px] rounded-xl border border-border bg-background/60 p-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 resize-y"
+          placeholder={t(
+            't.ex. kundportal, flerspråkig sida, e-handelsfunktion, API-integration...',
+            'e.g. customer portal, multilingual site, e-commerce feature, API integration...'
+          )}
+          value={formData.extraNotes || ''}
+          onChange={(e) => setFormData({ ...formData, extraNotes: e.target.value })}
+        />
+      </motion.div>
+
       {/* Additional Upsells (Booking) */}
       <CheckoutUpsells 
         businessType={formData.businessType}
