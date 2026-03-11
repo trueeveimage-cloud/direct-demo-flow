@@ -159,30 +159,20 @@ const PricingCard = ({
         </ul>
         
         <div className="space-y-2 mt-auto relative">
-          {isPopular ? (
-            <Button 
-              className="w-full rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground h-12 text-base font-semibold shadow-lg shadow-accent/25"
-              onClick={() => window.location.href = `/bestall?package=${pkg.id}`}
-            >
-              {t('Beställ nu', 'Order now', { no: 'Bestill nå', dk: 'Bestil nu' })}
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          ) : (
-            <Button 
-              className={`w-full rounded-xl ${isStarter ? 'bg-secondary hover:bg-secondary/80 text-foreground' : 'bg-accent/80 hover:bg-accent/70 text-accent-foreground'}`}
-              onClick={() => window.location.href = `/demo?package=${pkg.id}`}
-            >
-              {t('Få koncept', 'Get concept', { no: 'Få konsept', dk: 'Få koncept' })}
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
+          <Button 
+            className={`w-full rounded-xl h-12 text-base font-semibold ${isPopular ? 'bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/25' : isStarter ? 'bg-accent/70 hover:bg-accent/80 text-accent-foreground' : 'bg-accent/80 hover:bg-accent/70 text-accent-foreground'}`}
+            onClick={() => window.location.href = `/bestall?package=${pkg.id}`}
+          >
+            {t('Beställ nu', 'Order now', { no: 'Bestill nå', dk: 'Bestil nu' })}
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </Button>
           {isPopular && (
             <Button 
               variant="ghost" 
               className="w-full text-sm hover:bg-accent/10"
               onClick={() => window.location.href = `/demo?package=${pkg.id}`}
             >
-              {t('Eller få gratis koncept först', 'Or get free concept first', { no: 'Eller få gratis konsept først', dk: 'Eller få gratis koncept først' })}
+              {t('Eller få gratis koncept först', 'Or get free concept first', { no: 'Eller få gratis konsept först', dk: 'Eller få gratis koncept først' })}
             </Button>
           )}
         </div>
