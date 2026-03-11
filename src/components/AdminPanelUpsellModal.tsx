@@ -20,7 +20,6 @@ export function AdminPanelUpsellModal({
   const { t } = useLanguage();
 
   const features = [
-    { sv: 'Redigera texter och bilder själv', en: 'Edit texts and images yourself' },
     { sv: 'Se besöksstatistik i realtid', en: 'View visitor statistics in real-time' },
     { sv: 'Lägg till och ta bort sidor', en: 'Add and remove pages' },
     { sv: 'Uppdatera priser och erbjudanden', en: 'Update prices and offers' },
