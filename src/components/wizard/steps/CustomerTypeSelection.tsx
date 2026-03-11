@@ -208,7 +208,7 @@ export function CustomerTypeSelection({ data, onChange }: CustomerTypeSelectionP
   const [isVerifyingVat, setIsVerifyingVat] = useState(false);
   const [vatError, setVatError] = useState<string | null>(null);
   const [orgError, setOrgError] = useState<string | null>(null);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const updateField = <K extends keyof CustomerTypeData>(field: K, value: CustomerTypeData[K]) => {
     onChange({ ...data, [field]: value });

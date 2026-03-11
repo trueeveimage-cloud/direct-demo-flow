@@ -62,7 +62,7 @@ export function useAutoSave() {
   const [hasSavedData, setHasSavedData] = useState(false);
   const [savedData, setSavedData] = useState<IntakeData | null>(null);
   const [lastSaveTime, setLastSaveTime] = useState<number | null>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check for saved data on mount - show resume prompt if data exists regardless of session
   useEffect(() => {
