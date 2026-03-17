@@ -282,7 +282,7 @@ export function Header() {
           <ThemeToggle />
           
           {/* Mobile Language Dropdown */}
-          <div className="relative" ref={langDropdownRef}>
+          <div className="relative" ref={mobileLangDropdownRef}>
             <button
               onClick={() => setLangDropdownOpen(!langDropdownOpen)}
               className="w-8 h-8 flex items-center justify-center rounded-full transition-all overflow-hidden"
