@@ -123,7 +123,10 @@ export function Header() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setProjectDropdownOpen(false);
       }
-      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+      if (
+        langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node) &&
+        mobileLangDropdownRef.current && !mobileLangDropdownRef.current.contains(event.target as Node)
+      ) {
         setLangDropdownOpen(false);
       }
     };
