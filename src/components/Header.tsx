@@ -94,6 +94,7 @@ export function Header() {
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const langDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileLangDropdownRef = useRef<HTMLDivElement>(null);
   const { lang, setLang, t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
@@ -122,7 +123,10 @@ export function Header() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setProjectDropdownOpen(false);
       }
-      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+      if (
+        langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node) &&
+        mobileLangDropdownRef.current && !mobileLangDropdownRef.current.contains(event.target as Node)
+      ) {
         setLangDropdownOpen(false);
       }
     };
@@ -278,7 +282,7 @@ export function Header() {
           <ThemeToggle />
           
           {/* Mobile Language Dropdown */}
-          <div className="relative" ref={langDropdownRef}>
+          <div className="relative" ref={mobileLangDropdownRef}>
             <button
               onClick={() => setLangDropdownOpen(!langDropdownOpen)}
               className="w-8 h-8 flex items-center justify-center rounded-full transition-all overflow-hidden"

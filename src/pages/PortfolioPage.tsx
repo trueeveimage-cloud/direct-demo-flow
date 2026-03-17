@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ExternalLink, Star, Users, TrendingUp, Calendar, Utensils, Sparkles, Car, Heart } from 'lucide-react';
+import { ArrowRight, ExternalLink, Star, Users, TrendingUp, Calendar, Utensils, Sparkles, Car, Heart, Stethoscope } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
@@ -14,8 +14,9 @@ import bambaImg from '@/assets/portfolio-bamba.png';
 import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
 import trueEveImg from '@/assets/portfolio-trueeve.png';
 import swedenCarImg from '@/assets/after-swedencar.png';
+import tandklinikenImg from '@/assets/portfolio-tandkliniken.png';
 
-type Category = 'all' | 'food' | 'beauty' | 'automotive' | 'lifestyle';
+type Category = 'all' | 'food' | 'beauty' | 'automotive' | 'lifestyle' | 'health';
 
 export default function PortfolioPage() {
   const { t } = useLanguage();
@@ -26,6 +27,7 @@ export default function PortfolioPage() {
     { id: 'food', label: t('Mat & Dryck', 'Food & Drink'), icon: <Utensils className="w-4 h-4" /> },
     { id: 'beauty', label: t('Skönhet', 'Beauty'), icon: <Sparkles className="w-4 h-4" /> },
     { id: 'automotive', label: t('Fordon', 'Automotive'), icon: <Car className="w-4 h-4" /> },
+    { id: 'health', label: t('Hälsa', 'Health'), icon: <Stethoscope className="w-4 h-4" /> },
     { id: 'lifestyle', label: t('Livsstil', 'Lifestyle'), icon: <Heart className="w-4 h-4" /> },
   ];
 
@@ -101,6 +103,18 @@ export default function PortfolioPage() {
       resultBadge: t('+62% fler förfrågningar', '+62% more inquiries'),
       stats: { inquiries: '+62%', inventory: '150+', leads: '+48%' },
     },
+    {
+      slug: 'tandkliniken-norden',
+      name: 'Tandkliniken Norden',
+      category: 'health' as Category,
+      type: t('Tandvårdsklinik', 'Dental Clinic'),
+      description: t('Modern tandklinik med online-bokning, patientportal och behandlingsöversikt.', 'Modern dental clinic with online booking, patient portal and treatment overview.'),
+      tags: [t('Bokning', 'Booking'), t('Patientportal', 'Patient portal'), 'SEO'],
+      externalUrl: '#',
+      image: tandklinikenImg,
+      resultBadge: t('+52% fler patienter', '+52% more patients'),
+      stats: { patients: '+52%', bookings: '3.2k/mo', rating: '4.9' },
+    },
   ];
 
   const filteredProjects = activeCategory === 'all' 
@@ -116,6 +130,8 @@ export default function PortfolioPage() {
         return renderBeautyLayout();
       case 'automotive':
         return renderAutomotiveLayout();
+      case 'health':
+        return renderHealthLayout();
       case 'lifestyle':
         return renderLifestyleLayout();
       default:
@@ -412,6 +428,69 @@ export default function PortfolioPage() {
                   </div>
                   
                   <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-blue-500 transition-colors">
+                    <span>{t('Se projektet', 'View project')}</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.a>
+        ))}
+      </div>
+    );
+  };
+
+  // HEALTH - Clean clinical style
+  const renderHealthLayout = () => {
+    const healthProjects = projects.filter(p => p.category === 'health');
+    
+    return (
+      <div className="space-y-8">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-500/10 rounded-full text-teal-500 mb-4">
+            <Stethoscope className="w-4 h-4" />
+            <span className="text-sm font-medium">{t('Hälsa', 'Health')}</span>
+          </div>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            {t('Professionella webbplatser för kliniker och vårdgivare som bygger förtroende.', 'Professional websites for clinics and healthcare providers that build trust.')}
+          </p>
+        </motion.div>
+
+        {healthProjects.map((project, index) => (
+          <motion.a
+            key={project.slug}
+            href={project.externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="group block"
+          >
+            <div className="relative rounded-3xl overflow-hidden border border-border hover:border-teal-500/50 transition-all bg-gradient-to-br from-teal-500/5 to-emerald-500/5">
+              <div className="grid md:grid-cols-2 gap-0">
+                <div className="aspect-[4/3] md:aspect-auto overflow-hidden">
+                  <img src={project.image} alt={project.name} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" />
+                </div>
+                <div className="p-8 flex flex-col justify-center">
+                  {project.resultBadge && (
+                    <span className="inline-block w-fit bg-teal-500 text-white text-sm font-bold px-4 py-1.5 rounded-full mb-4">
+                      {project.resultBadge}
+                    </span>
+                  )}
+                  <h3 className="text-2xl font-bold mb-2 group-hover:text-teal-500 transition-colors">{project.name}</h3>
+                  <p className="text-muted-foreground mb-6">{project.description}</p>
+                  
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    {project.stats && Object.entries(project.stats).slice(0, 3).map(([key, value]) => (
+                      <div key={key} className="text-center p-3 rounded-xl bg-background/50">
+                        <p className="text-lg font-bold text-teal-500">{value}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{key}</p>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-teal-500 transition-colors">
                     <span>{t('Se projektet', 'View project')}</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
