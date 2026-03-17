@@ -14,8 +14,9 @@ import bambaImg from '@/assets/portfolio-bamba.png';
 import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
 import trueEveImg from '@/assets/portfolio-trueeve.png';
 import swedenCarImg from '@/assets/after-swedencar.png';
+import tandklinikenImg from '@/assets/portfolio-tandkliniken.png';
 
-type Category = 'all' | 'food' | 'beauty' | 'automotive' | 'lifestyle';
+type Category = 'all' | 'food' | 'beauty' | 'automotive' | 'lifestyle' | 'health';
 
 export default function PortfolioPage() {
   const { t } = useLanguage();
