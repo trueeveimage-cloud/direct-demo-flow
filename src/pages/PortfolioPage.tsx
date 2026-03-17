@@ -103,6 +103,18 @@ export default function PortfolioPage() {
       resultBadge: t('+62% fler förfrågningar', '+62% more inquiries'),
       stats: { inquiries: '+62%', inventory: '150+', leads: '+48%' },
     },
+    {
+      slug: 'tandkliniken-norden',
+      name: 'Tandkliniken Norden',
+      category: 'health' as Category,
+      type: t('Tandvårdsklinik', 'Dental Clinic'),
+      description: t('Modern tandklinik med online-bokning, patientportal och behandlingsöversikt.', 'Modern dental clinic with online booking, patient portal and treatment overview.'),
+      tags: [t('Bokning', 'Booking'), t('Patientportal', 'Patient portal'), 'SEO'],
+      externalUrl: '#',
+      image: tandklinikenImg,
+      resultBadge: t('+52% fler patienter', '+52% more patients'),
+      stats: { patients: '+52%', bookings: '3.2k/mo', rating: '4.9' },
+    },
   ];
 
   const filteredProjects = activeCategory === 'all' 
