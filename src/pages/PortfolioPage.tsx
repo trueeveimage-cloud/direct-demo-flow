@@ -15,6 +15,7 @@ import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
 import trueEveImg from '@/assets/portfolio-trueeve.png';
 import swedenCarImg from '@/assets/after-swedencar.png';
 import tandklinikenImg from '@/assets/portfolio-tandkliniken.png';
+import voltNordImg from '@/assets/portfolio-voltnord.png';
 
 type Category = 'all' | 'food' | 'beauty' | 'automotive' | 'lifestyle' | 'health';
 
@@ -102,6 +103,18 @@ export default function PortfolioPage() {
       image: swedenCarImg,
       resultBadge: t('+62% fler förfrågningar', '+62% more inquiries'),
       stats: { inquiries: '+62%', inventory: '150+', leads: '+48%' },
+    },
+    {
+      slug: 'volt-nord-bilservice',
+      name: 'Volt Nord Bilservice',
+      category: 'automotive' as Category,
+      type: t('Bilverkstad', 'Auto Repair Shop'),
+      description: t('Professionell bilverkstad i Helsingborg med service, felsökning och däckbyte.', 'Professional auto repair shop in Helsingborg with service, diagnostics and tire changes.'),
+      tags: [t('Service', 'Service'), t('Bokning', 'Booking'), 'SEO'],
+      externalUrl: 'https://voltnordbilservice.se/',
+      image: voltNordImg,
+      resultBadge: t('+71% fler kunder', '+71% more customers'),
+      stats: { customers: '+71%', rating: '4.6', reviews: '20+' },
     },
     {
       slug: 'tandkliniken-norden',
