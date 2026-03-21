@@ -115,6 +115,7 @@ export default function PortfolioPage() {
       image: voltNordImg,
       resultBadge: t('+71% fler kunder', '+71% more customers'),
       stats: { customers: '+71%', rating: '4.6', reviews: '20+' },
+    },
     {
       slug: 'tandkliniken-norden',
       name: 'Tandkliniken Norden',
