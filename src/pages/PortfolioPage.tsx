@@ -105,6 +105,17 @@ export default function PortfolioPage() {
       stats: { inquiries: '+62%', inventory: '150+', leads: '+48%' },
     },
     {
+      slug: 'volt-nord-bilservice',
+      name: 'Volt Nord Bilservice',
+      category: 'automotive' as Category,
+      type: t('Bilverkstad', 'Auto Repair Shop'),
+      description: t('Professionell bilverkstad i Helsingborg med service, felsökning och däckbyte.', 'Professional auto repair shop in Helsingborg with service, diagnostics and tire changes.'),
+      tags: [t('Service', 'Service'), t('Bokning', 'Booking'), 'SEO'],
+      externalUrl: 'https://voltnordbilservice.se/',
+      image: voltNordImg,
+      resultBadge: t('+71% fler kunder', '+71% more customers'),
+      stats: { customers: '+71%', rating: '4.6', reviews: '20+' },
+    {
       slug: 'tandkliniken-norden',
       name: 'Tandkliniken Norden',
       category: 'health' as Category,
