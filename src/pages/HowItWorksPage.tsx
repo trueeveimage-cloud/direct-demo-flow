@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ParallaxSection, TiltCard } from '@/components/ParallaxSection';
 import { GrainOverlay } from '@/components/PremiumEffects';
+import { SEOHead } from '@/components/SEOHead';
 
 // Step component with parallax
 const StepCard = ({ 
@@ -266,6 +267,10 @@ export default function HowItWorksPage() {
 
   return (
     <div className="relative overflow-hidden">
+      <SEOHead 
+        title={t('Hur det fungerar – 3 enkla steg | Nomia', 'How It Works – 3 Simple Steps | Nomia')}
+        description={t('Beställ din hemsida i 3 steg: välj paket, få designkoncept på 72 timmar, och din hemsida klar inom 7 dagar.', 'Order your website in 3 steps: choose a package, get a design concept in 72 hours, and your website ready in 7 days.')}
+      />
       <GrainOverlay />
       {/* Cinematic ambient glows — same vibe as About Us */}
       <div className="fixed inset-0 pointer-events-none z-0">

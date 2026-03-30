@@ -13,6 +13,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ScrollTriggeredCounter } from '@/components/ScrollTriggeredCounter';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
 import { GrainOverlay } from '@/components/PremiumEffects';
+import { SEOHead } from '@/components/SEOHead';
 
 // Helper for per-month suffix
 function perMonthSuffix(lang: string): string {
@@ -320,6 +321,10 @@ export default function PricingPage() {
 
   return (
     <div className="relative overflow-hidden">
+      <SEOHead 
+        title={t('Priser & Paket – Hemsida från 2 900 kr | Nomia', 'Pricing & Packages – Website from €290 | Nomia')}
+        description={t('Välj bland Starter, Standard och Pro. Professionella hemsidor med pengarna-tillbaka-garanti. Gratis koncept på 72 timmar.', 'Choose from Starter, Standard and Pro. Professional websites with money-back guarantee. Free concept in 72 hours.')}
+      />
       <GrainOverlay />
 
       {/* Hero with parallax */}

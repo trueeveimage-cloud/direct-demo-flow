@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowRight, Sparkles } from 'lucide-react';
-// Using local GrainOverlay defined below
+import { SEOHead } from '@/components/SEOHead';
 import { useState } from 'react';
 
 // Cinematic text reveal with blur and 3D effect
@@ -248,6 +248,10 @@ export default function AboutPage() {
 
   return (
     <div ref={containerRef} className="relative bg-background min-h-screen overflow-hidden">
+      <SEOHead 
+        title={t('Om Nomia – Webbyrå i Göteborg | Nomia', 'About Nomia – Web Design Agency')}
+        description={t('Vi designar hemsidor som konverterar besökare till kunder. Lär känna teamet bakom Nomia.', 'We design websites that convert visitors into customers. Meet the team behind Nomia.')}
+      />
       <GrainOverlay />
       
       {/* Progress bar */}

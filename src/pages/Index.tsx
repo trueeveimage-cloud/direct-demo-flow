@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield, Info, Sparkles, TrendingDown, Eye, Calendar } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -147,6 +148,10 @@ export default function Index() {
 
   return (
     <div className="overflow-hidden relative">
+      <SEOHead 
+        title={t('Nomia | Webbyrå – Professionell hemsida på 7 dagar', 'Nomia | Web Design Agency – Professional Website in 7 Days')}
+        description={t('Få ett gratis designkoncept på 72 timmar. Hemsidor för företag från 2 900 kr. Pengarna tillbaka om du inte är nöjd.', 'Get a free design concept in 72 hours. Websites for businesses from €290. Money-back guarantee.')}
+      />
       <GrainOverlay />
       <HeroBackground />
 

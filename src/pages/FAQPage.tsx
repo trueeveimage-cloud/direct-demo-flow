@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
 import { GrainOverlay } from '@/components/PremiumEffects';
+import { SEOHead } from '@/components/SEOHead';
 
 // Static floating element component
 const FloatingIcon = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -142,6 +143,10 @@ export default function FAQPage() {
 
   return (
     <div className="relative overflow-hidden">
+      <SEOHead 
+        title={t('Vanliga frågor om webbdesign | Nomia', 'FAQ – Web Design Questions | Nomia')}
+        description={t('Svar på vanliga frågor om priser, leveranstider, gratis koncept och pengarna-tillbaka-garanti.', 'Answers to common questions about pricing, delivery times, free concepts and money-back guarantee.')}
+      />
       <GrainOverlay />
 
       <div className="section-padding pt-28 pb-20 relative z-10">
