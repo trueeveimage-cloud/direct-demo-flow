@@ -37,42 +37,45 @@ const localBusinessSchema = {
   name: 'Nomia',
   url: 'https://nomia.se',
   image: 'https://nomia.se/og-image.png',
-  description: 'Web design agency specializing in fast, beautiful websites for growing businesses.',
+  description: 'Webbyrå i Göteborg. Professionella hemsidor för företag – klara på 7 dagar med pengarna-tillbaka-garanti.',
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Gothenburg',
+    addressRegion: 'Västra Götaland',
     addressCountry: 'SE'
   },
-  priceRange: '€490-€1290',
+  priceRange: '2900 - 12900 SEK',
   openingHours: 'Mo-Fr 09:00-17:00',
-  areaServed: {
-    '@type': 'Country',
-    name: 'Sweden'
-  },
+  areaServed: [
+    { '@type': 'Country', name: 'Sweden' },
+    { '@type': 'Country', name: 'Norway' },
+    { '@type': 'Country', name: 'Denmark' }
+  ],
+  knowsLanguage: ['sv', 'en', 'no', 'da'],
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
-    name: 'Website Packages',
+    name: 'Webbpaket',
     itemListElement: [
       {
         '@type': 'Offer',
-        name: 'Starter Package',
-        description: 'Up to 3 pages, mobile-responsive design, basic SEO',
-        price: '490',
-        priceCurrency: 'EUR'
+        name: 'Starter',
+        description: 'Upp till 3 sidor, mobilanpassad design, SEO-optimering',
+        price: '2900',
+        priceCurrency: 'SEK'
       },
       {
         '@type': 'Offer',
-        name: 'Standard Package',
-        description: 'Up to 5 pages, multi-language, image gallery',
-        price: '790',
-        priceCurrency: 'EUR'
+        name: 'Standard',
+        description: 'Upp till 5 sidor, flerspråkig, bildgalleri, Google Reviews',
+        price: '5900',
+        priceCurrency: 'SEK'
       },
       {
         '@type': 'Offer',
-        name: 'Pro Package',
-        description: 'Up to 8 pages, booking system, Google Analytics',
-        price: '1290',
-        priceCurrency: 'EUR'
+        name: 'Pro',
+        description: 'Upp till 8 sidor, bokningssystem, Google Analytics, adminpanel',
+        price: '12900',
+        priceCurrency: 'SEK'
       }
     ]
   }
@@ -85,40 +88,67 @@ const faqSchema = {
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'How does the free concept work?',
+      name: 'Hur fungerar det gratis konceptet?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'You get a free design concept for your website. You pay a €50 verification fee to book your spot. If you don\'t like the concept, the fee is fully refunded. If you proceed, it\'s deducted from the final price.'
+        text: 'Du betalar en verifieringsavgift på 500 kr för att boka din plats. Om du inte gillar konceptet, får du full återbetalning. Om du fortsätter dras avgiften från slutpriset.'
       }
     },
     {
       '@type': 'Question',
-      name: 'What packages do you offer?',
+      name: 'Vilka paket erbjuder ni?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'We have three packages: Starter (€490, 3 pages), Standard (€790, 5 pages, multi-language), and Pro (€1,290, 8 pages, multi-language, booking system, Google Analytics).'
+        text: 'Vi har tre paket: Starter (2 900 kr, 3 sidor), Standard (5 900 kr, 5 sidor, flerspråkig), och Pro (12 900 kr, 8 sidor, bokningssystem, Google Analytics).'
       }
     },
     {
       '@type': 'Question',
-      name: 'What\'s the delivery time?',
+      name: 'Vad är leveranstiden?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Delivery time depends on package: Starter 14 days, Standard 10 days, Pro 7 days. For concept, we deliver within 72 hours after you pay the verification fee.'
+        text: 'Leveranstid beror på paket: Starter 14 dagar, Standard 10 dagar, Pro 7 dagar. Gratis designkoncept levereras inom 72 timmar.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Ingår hosting i priset?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Ja, hosting ingår i våra serviceplaner som börjar från 250 kr/mån. Du kan också välja att hosta hemsidan själv.'
       }
     }
   ]
+};
+
+// WebSite schema for sitelinks searchbox
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Nomia',
+  url: 'https://nomia.se',
+  description: 'Professionell webbdesign för företag. Gratis designkoncept på 72 timmar.',
+  inLanguage: ['sv', 'en'],
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://nomia.se/?q={search_term_string}',
+    'query-input': 'required name=search_term_string'
+  }
 };
 
 export function SEOHead({ title, description, type = 'website', image }: SEOHeadProps) {
   const location = useLocation();
   const { lang } = useLanguage();
   
-  const defaultTitle = 'Nomia | Web Design in 72 Hours';
-  const defaultDescription = 'Get a free website concept in 72 hours. Professional websites for ambitious businesses. €50 verification, 100% refund if you don\'t like the demo.';
+  const defaultTitle = lang === 'sv' 
+    ? 'Nomia | Webbdesign på 72 timmar – Gratis koncept'
+    : 'Nomia | Web Design in 72 Hours – Free Concept';
+  const defaultDescription = lang === 'sv'
+    ? 'Få ett gratis designkoncept för din hemsida på 72 timmar. Professionella hemsidor för företag från 2 900 kr. Pengarna-tillbaka-garanti.'
+    : 'Get a free website design concept in 72 hours. Professional websites for businesses from €290. Money-back guarantee.';
   const defaultImage = 'https://nomia.se/og-image.png';
   
-  const pageTitle = title ? `${title} | Nomia` : defaultTitle;
+  const pageTitle = title || defaultTitle;
   const pageDescription = description || defaultDescription;
   const pageImage = image || defaultImage;
   const pageUrl = `https://nomia.se${location.pathname}`;
@@ -162,29 +192,52 @@ export function SEOHead({ title, description, type = 'website', image }: SEOHead
     }
     
     // Update HTML lang attribute
-    document.documentElement.lang = lang;
+    document.documentElement.lang = lang === 'sv' ? 'sv' : lang === 'no' ? 'nb' : lang === 'dk' ? 'da' : 'en';
     
-    // Update JSON-LD structured data
-    let existingScript = document.querySelector('script[type="application/ld+json"]');
+    // Add/update hreflang links
+    const hreflangData = [
+      { lang: 'sv', href: pageUrl },
+      { lang: 'en', href: pageUrl },
+      { lang: 'x-default', href: pageUrl },
+    ];
     
-    // Determine which schema to use based on page
+    // Remove existing hreflang links
+    document.querySelectorAll('link[hreflang]').forEach(el => el.remove());
+    
+    // Add new hreflang links
+    hreflangData.forEach(({ lang: hLang, href }) => {
+      const link = document.createElement('link');
+      link.rel = 'alternate';
+      link.hreflang = hLang;
+      link.href = href;
+      document.head.appendChild(link);
+    });
+    
+    // Update JSON-LD structured data - remove all existing and add fresh
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(el => el.remove());
+    
+    // Always add WebSite schema on homepage
+    if (location.pathname === '/') {
+      const wsScript = document.createElement('script');
+      wsScript.type = 'application/ld+json';
+      wsScript.textContent = JSON.stringify(websiteSchema);
+      document.head.appendChild(wsScript);
+    }
+    
+    // Page-specific schema
     let schema;
     if (location.pathname === '/faq') {
       schema = faqSchema;
-    } else if (location.pathname === '/priser') {
+    } else if (location.pathname === '/priser' || location.pathname === '/') {
       schema = localBusinessSchema;
     } else {
       schema = organizationSchema;
     }
     
-    if (existingScript) {
-      existingScript.textContent = JSON.stringify(schema);
-    } else {
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.textContent = JSON.stringify(schema);
-      document.head.appendChild(script);
-    }
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
   }, [pageTitle, pageDescription, pageImage, pageUrl, type, location.pathname, lang]);
   
   return null;
