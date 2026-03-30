@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { ArrowRight, FileText, Zap, CheckCircle2, Clock, Shield, Info, Sparkles, TrendingDown, Eye, Calendar } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
