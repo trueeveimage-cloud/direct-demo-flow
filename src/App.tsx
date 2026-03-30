@@ -42,6 +42,7 @@ import ReadMorePage from "./pages/ReadMorePage";
 import PortalLoginPage from "./pages/PortalLoginPage";
 import PortalDashboardPage from "./pages/PortalDashboardPage";
 import PortalResetPasswordPage from "./pages/PortalResetPasswordPage";
+import BlogPage from "./pages/BlogPage";
 // Exit intent popup disabled
 
 const queryClient = new QueryClient();
