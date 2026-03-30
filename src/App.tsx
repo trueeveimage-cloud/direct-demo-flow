@@ -42,6 +42,7 @@ import ReadMorePage from "./pages/ReadMorePage";
 import PortalLoginPage from "./pages/PortalLoginPage";
 import PortalDashboardPage from "./pages/PortalDashboardPage";
 import PortalResetPasswordPage from "./pages/PortalResetPasswordPage";
+import BlogPage from "./pages/BlogPage";
 // Exit intent popup disabled
 
 const queryClient = new QueryClient();
@@ -79,6 +80,8 @@ function AnimatedRoutes() {
         <Route path="/portal/login" element={<PortalLoginPage />} />
         <Route path="/portal/reset-password" element={<PortalResetPasswordPage />} />
         <Route path="/portal" element={<PortalDashboardPage />} />
+        <Route path="/blogg" element={<BlogPage />} />
+        <Route path="/blogg/:slug" element={<BlogPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </PageTransition>
