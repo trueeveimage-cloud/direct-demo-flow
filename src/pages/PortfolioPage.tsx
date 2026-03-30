@@ -614,6 +614,10 @@ export default function PortfolioPage() {
 
   return (
     <div className="section-padding pt-28 pb-20 relative overflow-hidden">
+      <SEOHead 
+        title={t('Portfolio – Våra hemsidor | Nomia', 'Portfolio – Our Websites | Nomia')}
+        description={t('Se exempel på hemsidor vi skapat för restauranger, salonger, bilverkstäder och fler branscher.', 'See examples of websites we built for restaurants, salons, auto shops and more.')}
+      />
       <GrainOverlay />
       
       {/* Gradient transition overlay */}

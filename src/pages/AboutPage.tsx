@@ -248,6 +248,10 @@ export default function AboutPage() {
 
   return (
     <div ref={containerRef} className="relative bg-background min-h-screen overflow-hidden">
+      <SEOHead 
+        title={t('Om Nomia – Webbyrå i Göteborg | Nomia', 'About Nomia – Web Design Agency')}
+        description={t('Vi designar hemsidor som konverterar besökare till kunder. Lär känna teamet bakom Nomia.', 'We design websites that convert visitors into customers. Meet the team behind Nomia.')}
+      />
       <GrainOverlay />
       
       {/* Progress bar */}

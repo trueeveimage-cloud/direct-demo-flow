@@ -143,6 +143,10 @@ export default function FAQPage() {
 
   return (
     <div className="relative overflow-hidden">
+      <SEOHead 
+        title={t('Vanliga frågor om webbdesign | Nomia', 'FAQ – Web Design Questions | Nomia')}
+        description={t('Svar på vanliga frågor om priser, leveranstider, gratis koncept och pengarna-tillbaka-garanti.', 'Answers to common questions about pricing, delivery times, free concepts and money-back guarantee.')}
+      />
       <GrainOverlay />
 
       <div className="section-padding pt-28 pb-20 relative z-10">

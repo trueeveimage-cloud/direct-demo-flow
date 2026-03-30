@@ -63,6 +63,10 @@ export default function ContactPage() {
 
   return (
     <div className="relative overflow-hidden">
+      <SEOHead 
+        title={t('Kontakta oss | Nomia', 'Contact Us | Nomia')}
+        description={t('Kontakta Nomia för frågor om webbdesign, priser eller ditt projekt. Vi svarar inom 24 timmar.', 'Contact Nomia for questions about web design, pricing or your project. We reply within 24 hours.')}
+      />
       <GrainOverlay />
       
       {/* Seamless gradient transition at top */}

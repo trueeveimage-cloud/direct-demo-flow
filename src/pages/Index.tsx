@@ -148,6 +148,10 @@ export default function Index() {
 
   return (
     <div className="overflow-hidden relative">
+      <SEOHead 
+        title={t('Nomia | Webbyrå – Professionell hemsida på 7 dagar', 'Nomia | Web Design Agency – Professional Website in 7 Days')}
+        description={t('Få ett gratis designkoncept på 72 timmar. Hemsidor för företag från 2 900 kr. Pengarna tillbaka om du inte är nöjd.', 'Get a free design concept in 72 hours. Websites for businesses from €290. Money-back guarantee.')}
+      />
       <GrainOverlay />
       <HeroBackground />
 
