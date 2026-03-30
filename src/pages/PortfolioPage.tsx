@@ -15,7 +15,7 @@ import bambaImg from '@/assets/portfolio-bamba.png';
 import enDeliHagaImg from '@/assets/portfolio-endelihaga.png';
 import trueEveImg from '@/assets/portfolio-trueeve.png';
 import swedenCarImg from '@/assets/after-swedencar.png';
-import tandklinikenImg from '@/assets/portfolio-tandkliniken.png';
+
 import voltNordImg from '@/assets/portfolio-voltnord.png';
 
 type Category = 'all' | 'food' | 'beauty' | 'automotive' | 'lifestyle' | 'health';
@@ -117,19 +117,8 @@ export default function PortfolioPage() {
       resultBadge: t('+71% fler kunder', '+71% more customers'),
       stats: { customers: '+71%', rating: '4.6', reviews: '20+' },
     },
-    {
-      slug: 'tandkliniken-norden',
-      name: 'Tandkliniken Norden',
-      category: 'health' as Category,
-      type: t('Tandvårdsklinik', 'Dental Clinic'),
-      description: t('Modern tandklinik med online-bokning, patientportal och behandlingsöversikt.', 'Modern dental clinic with online booking, patient portal and treatment overview.'),
-      tags: [t('Bokning', 'Booking'), t('Patientportal', 'Patient portal'), 'SEO'],
-      externalUrl: '#',
-      image: tandklinikenImg,
-      resultBadge: t('+52% fler patienter', '+52% more patients'),
-      stats: { patients: '+52%', bookings: '3.2k/mo', rating: '4.9' },
-    },
   ];
+
 
   const filteredProjects = activeCategory === 'all' 
     ? projects 
