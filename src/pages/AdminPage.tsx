@@ -7,8 +7,10 @@ import {
   LogOut, Mail, MessageSquare, ExternalLink, Check, Trash2,
   LayoutDashboard, Inbox, LineChart, Settings, ChevronLeft,
   ChevronRight, X, Server, Database, Zap, Activity,
-  FileText, ChevronDown, ChevronUp, Sparkles, Download, Target
+  FileText, ChevronDown, ChevronUp, Sparkles, Download, Target,
+  Send, Loader2
 } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
