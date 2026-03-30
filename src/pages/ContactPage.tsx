@@ -10,6 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { GrainOverlay } from '@/components/PremiumEffects';
+import { SEOHead } from '@/components/SEOHead';
 
 const contactReasons = [
   { value: 'concept-received', labelSv: 'Jag har fått mitt koncept', labelEn: 'I received my concept' },
