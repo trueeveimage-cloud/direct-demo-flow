@@ -2190,6 +2190,40 @@ function MessageDetails({ message, reasonLabels, onDelete }: {
   reasonLabels: Record<string, string>;
   onDelete: () => void;
 }) {
+  const [replyText, setReplyText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [replySent, setReplySent] = useState(false);
+
+  // Reset reply state when message changes
+  useEffect(() => {
+    setReplyText('');
+    setReplySent(false);
+  }, [message.id]);
+
+  const handleSendReply = async (email: string, name: string, originalMsg: string) => {
+    if (!replyText.trim()) return;
+    setIsSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-admin-reply', {
+        body: {
+          to: email,
+          customerName: name,
+          subject: `Re: Your message to Nomia`,
+          message: replyText,
+          originalMessage: originalMsg,
+        },
+      });
+      if (error) throw error;
+      setReplySent(true);
+      setReplyText('');
+    } catch (err: any) {
+      console.error('Failed to send reply:', err);
+      alert('Failed to send reply. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   if (message.type === 'contact') {
     const contact = message as ContactSubmission;
     return (
@@ -2226,13 +2260,48 @@ function MessageDetails({ message, reasonLabels, onDelete }: {
         <div className="p-4 bg-secondary/50 rounded-lg">
           <p className="whitespace-pre-wrap">{contact.message}</p>
         </div>
-        
-        <Button asChild className="w-full">
-          <a href={`mailto:${contact.email}?subject=Re: Your message to Nomia`}>
-            <Mail className="w-4 h-4 mr-2" />
-            Reply via Email
-          </a>
-        </Button>
+
+        {/* Inline Reply */}
+        <div className="border rounded-lg p-4 space-y-3">
+          <h4 className="text-sm font-semibold flex items-center gap-2">
+            <Send className="w-4 h-4" />
+            Reply to {contact.name}
+          </h4>
+          {replySent ? (
+            <div className="flex items-center gap-2 text-sm text-green-600">
+              <CheckCircle className="w-4 h-4" />
+              Reply sent successfully!
+            </div>
+          ) : (
+            <>
+              <Textarea
+                placeholder="Write your reply..."
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => handleSendReply(contact.email, contact.name, contact.message)}
+                  disabled={!replyText.trim() || isSending}
+                  className="flex-1"
+                >
+                  {isSending ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending...</>
+                  ) : (
+                    <><Send className="w-4 h-4 mr-2" /> Send Reply</>
+                  )}
+                </Button>
+                <Button variant="outline" asChild>
+                  <a href={`mailto:${contact.email}?subject=Re: Your message to Nomia`}>
+                    <Mail className="w-4 h-4" />
+                  </a>
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     );
   }
