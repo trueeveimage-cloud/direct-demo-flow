@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
 import { GrainOverlay } from '@/components/PremiumEffects';
+import { SEOHead } from '@/components/SEOHead';
 
 // Static floating element component
 const FloatingIcon = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
