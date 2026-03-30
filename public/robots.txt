@@ -1,13 +1,16 @@
 User-agent: *
 Allow: /
 
-# Disallow admin and checkout pages
+# Disallow admin, checkout, and portal pages
 Disallow: /admin
 Disallow: /bestall
 Disallow: /efter-demo
-Disallow: /betalning-lyckades
+Disallow: /betalning-klar
 Disallow: /betalning-avbruten
 Disallow: /direct-checkout
+Disallow: /portal
+Disallow: /kampanj
+Disallow: /ad
 
 # Crawl delay for politeness
 Crawl-delay: 1
