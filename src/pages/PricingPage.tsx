@@ -13,6 +13,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ScrollTriggeredCounter } from '@/components/ScrollTriggeredCounter';
 import { ParallaxSection, FloatingShapes, TiltCard } from '@/components/ParallaxSection';
 import { GrainOverlay } from '@/components/PremiumEffects';
+import { SEOHead } from '@/components/SEOHead';
 
 // Helper for per-month suffix
 function perMonthSuffix(lang: string): string {
