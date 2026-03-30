@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GrainOverlay } from '@/components/PremiumEffects';
+import { SEOHead } from '@/components/SEOHead';
 
 // Import portfolio images
 import gailsHairImg from '@/assets/portfolio-gailshair.png';
