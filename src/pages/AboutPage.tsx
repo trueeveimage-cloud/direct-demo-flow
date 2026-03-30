@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowRight, Sparkles } from 'lucide-react';
-// Using local GrainOverlay defined below
+import { SEOHead } from '@/components/SEOHead';
 import { useState } from 'react';
 
 // Cinematic text reveal with blur and 3D effect
