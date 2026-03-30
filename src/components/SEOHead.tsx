@@ -224,6 +224,41 @@ export function SEOHead({ title, description, type = 'website', image }: SEOHead
       document.head.appendChild(wsScript);
     }
     
+    // Blog article schema
+    if (location.pathname.startsWith('/blogg/') && type === 'article') {
+      const articleSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: pageTitle,
+        description: pageDescription,
+        image: pageImage,
+        url: pageUrl,
+        datePublished: new Date().toISOString(),
+        author: { '@type': 'Organization', name: 'Nomia', url: 'https://nomia.se' },
+        publisher: { '@type': 'Organization', name: 'Nomia', logo: { '@type': 'ImageObject', url: 'https://nomia.se/og-image.png' } }
+      };
+      const artScript = document.createElement('script');
+      artScript.type = 'application/ld+json';
+      artScript.textContent = JSON.stringify(articleSchema);
+      document.head.appendChild(artScript);
+    }
+    
+    // Blog listing - BreadcrumbList
+    if (location.pathname === '/blogg') {
+      const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://nomia.se/' },
+          { '@type': 'ListItem', position: 2, name: 'Blogg', item: 'https://nomia.se/blogg' }
+        ]
+      };
+      const bcScript = document.createElement('script');
+      bcScript.type = 'application/ld+json';
+      bcScript.textContent = JSON.stringify(breadcrumbSchema);
+      document.head.appendChild(bcScript);
+    }
+    
     // Page-specific schema
     let schema;
     if (location.pathname === '/faq') {
