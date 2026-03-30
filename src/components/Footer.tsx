@@ -71,6 +71,7 @@ export function Footer() {
                 <Link to="/priser" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Priser', 'Pricing')}</Link>
                 <Link to="/portfolio" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">Portfolio</Link>
                 <Link to="/faq" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</Link>
+                <Link to="/blogg" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">{t('Blogg', 'Blog')}</Link>
               </nav>
             </div>
 
