@@ -29,7 +29,7 @@ export default function PortfolioPage() {
     { id: 'food', label: t('Mat & Dryck', 'Food & Drink'), icon: <Utensils className="w-4 h-4" /> },
     { id: 'beauty', label: t('Skönhet', 'Beauty'), icon: <Sparkles className="w-4 h-4" /> },
     { id: 'automotive', label: t('Fordon', 'Automotive'), icon: <Car className="w-4 h-4" /> },
-    { id: 'health', label: t('Hälsa', 'Health'), icon: <Stethoscope className="w-4 h-4" /> },
+    
     { id: 'lifestyle', label: t('Livsstil', 'Lifestyle'), icon: <Heart className="w-4 h-4" /> },
   ];
 
