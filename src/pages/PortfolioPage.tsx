@@ -133,8 +133,6 @@ export default function PortfolioPage() {
         return renderBeautyLayout();
       case 'automotive':
         return renderAutomotiveLayout();
-      case 'health':
-        return renderHealthLayout();
       case 'lifestyle':
         return renderLifestyleLayout();
       default:
