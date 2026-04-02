@@ -441,69 +441,6 @@ export default function PortfolioPage() {
     );
   };
 
-  // HEALTH - Clean clinical style
-  const renderHealthLayout = () => {
-    const healthProjects = projects.filter(p => p.category === 'health');
-    
-    return (
-      <div className="space-y-8">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-500/10 rounded-full text-teal-500 mb-4">
-            <Stethoscope className="w-4 h-4" />
-            <span className="text-sm font-medium">{t('Hälsa', 'Health')}</span>
-          </div>
-          <p className="text-muted-foreground max-w-lg mx-auto">
-            {t('Professionella webbplatser för kliniker och vårdgivare som bygger förtroende.', 'Professional websites for clinics and healthcare providers that build trust.')}
-          </p>
-        </motion.div>
-
-        {healthProjects.map((project, index) => (
-          <motion.a
-            key={project.slug}
-            href={project.externalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="group block"
-          >
-            <div className="relative rounded-3xl overflow-hidden border border-border hover:border-teal-500/50 transition-all bg-gradient-to-br from-teal-500/5 to-emerald-500/5">
-              <div className="grid md:grid-cols-2 gap-0">
-                <div className="aspect-[4/3] md:aspect-auto overflow-hidden">
-                  <img src={project.image} alt={project.name} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" />
-                </div>
-                <div className="p-8 flex flex-col justify-center">
-                  {project.resultBadge && (
-                    <span className="inline-block w-fit bg-teal-500 text-white text-sm font-bold px-4 py-1.5 rounded-full mb-4">
-                      {project.resultBadge}
-                    </span>
-                  )}
-                  <h3 className="text-2xl font-bold mb-2 group-hover:text-teal-500 transition-colors">{project.name}</h3>
-                  <p className="text-muted-foreground mb-6">{project.description}</p>
-                  
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    {project.stats && Object.entries(project.stats).slice(0, 3).map(([key, value]) => (
-                      <div key={key} className="text-center p-3 rounded-xl bg-background/50">
-                        <p className="text-lg font-bold text-teal-500">{value}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{key}</p>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-teal-500 transition-colors">
-                    <span>{t('Se projektet', 'View project')}</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.a>
-        ))}
-      </div>
-    );
-  };
-
   // LIFESTYLE - Premium editorial style
   const renderLifestyleLayout = () => {
     const lifestyleProjects = projects.filter(p => p.category === 'lifestyle');
