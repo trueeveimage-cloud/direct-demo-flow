@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ExternalLink, Star, Users, TrendingUp, Calendar, Utensils, Sparkles, Car, Heart, Stethoscope } from 'lucide-react';
+import { ArrowRight, ExternalLink, Star, Users, TrendingUp, Calendar, Utensils, Sparkles, Car, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
