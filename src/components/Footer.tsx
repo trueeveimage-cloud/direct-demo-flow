@@ -105,7 +105,27 @@ export function Footer() {
           </div>
 
           <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Nomia. {t('Alla rättigheter förbehållna.', 'All rights reserved.')}</p>
+            <div className="text-center sm:text-left">
+              <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Nomia. {t('Alla rättigheter förbehållna.', 'All rights reserved.')}</p>
+              <p className="mt-2 text-xs text-muted-foreground/70">
+                {t(
+                  'Vill du ha hjälp med inkommande samtal och leads?',
+                  'Want help handling incoming calls and leads?',
+                  {
+                    no: 'Vil du ha hjelp med innkommende samtaler og leads?',
+                    dk: 'Vil du have hjælp til indgående opkald og leads?',
+                  }
+                )}{' '}
+                <a
+                  href="https://leadmap.se"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-foreground transition-colors"
+                >
+                  {t('Besök Leadmap.', 'Visit Leadmap.', { no: 'Besøk Leadmap.', dk: 'Besøg Leadmap.' })}
+                </a>
+              </p>
+            </div>
             <div className="flex items-center gap-4">
               <a 
                 href="https://www.instagram.com/nomia.se/" 
