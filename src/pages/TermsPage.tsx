@@ -95,6 +95,13 @@ export default function TermsPage() {
             </section>
           </AnimatedSection>
 
+          <AnimatedSection animation="fade-up" delay={475}>
+            <section>
+              <h2 className="text-xl font-heading font-semibold mb-3">{t('Domäner', 'Domains')}</h2>
+              <p className="text-muted-foreground">{t('Om vi köper och registrerar en domän åt dig hanteras domänen av oss. Alla ändringar av domänen – inklusive DNS-inställningar, e-postposter, omdirigeringar, förnyelser och överföringar – utförs uteslutande genom våra tjänster. Du kan när som helst begära ändringar eller en överföring av domänen till dig, och vi genomför den enligt gällande registrarregler.', 'If we purchase and register a domain on your behalf, the domain is managed by us. All changes to that domain — including DNS settings, email records, redirects, renewals and transfers — are carried out exclusively through our services. You may request changes or a transfer of the domain to you at any time, and we will process it in accordance with applicable registrar rules.')}</p>
+            </section>
+          </AnimatedSection>
+
           <AnimatedSection animation="fade-up" delay={500}>
             <section>
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Allmänna villkor', 'General Terms')}</h2>
