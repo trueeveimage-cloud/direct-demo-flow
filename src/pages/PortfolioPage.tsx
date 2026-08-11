@@ -17,6 +17,8 @@ import trueEveImg from '@/assets/portfolio-trueeve.png';
 import swedenCarImg from '@/assets/after-swedencar.png';
 
 import voltNordImg from '@/assets/portfolio-voltnord.png';
+import tuningCenterOrebroImg from '@/assets/portfolio-tuning-center-orebro.png';
+import kotoKnivesImg from '@/assets/portfolio-koto-knives.png';
 
 type Category = 'all' | 'food' | 'beauty' | 'automotive' | 'lifestyle' | 'health';
 
@@ -116,6 +118,26 @@ export default function PortfolioPage() {
       image: voltNordImg,
       resultBadge: t('+71% fler kunder', '+71% more customers'),
       stats: { customers: '+71%', rating: '4.6', reviews: '20+' },
+    },
+    {
+      slug: 'tuning-center-orebro',
+      name: 'Tuning Center Örebro',
+      category: 'automotive' as Category,
+      type: t('Motoroptimering & Bilverkstad', 'Engine Tuning & Auto Workshop'),
+      description: t('Motoroptimering i Kumla med programmering, service och effektkalkylator.', 'Engine tuning in Kumla with programming, service, and a performance calculator.'),
+      tags: [t('Motoroptimering', 'Engine tuning'), t('Effektkalkylator', 'Performance calculator'), t('Responsiv', 'Responsive')],
+      externalUrl: 'https://tuningcenterorebro.se/',
+      image: tuningCenterOrebroImg,
+    },
+    {
+      slug: 'koto-knives',
+      name: 'KOTO Knives',
+      category: 'lifestyle' as Category,
+      type: t('Köksknivar & E-handel', 'Kitchen Knives & E-commerce'),
+      description: t('Japanskinspirerade köksknivar med produktkollektion, varukorg och säker Stripe-betalning.', 'Japanese-inspired kitchen knives with a product collection, cart, and secure Stripe checkout.'),
+      tags: [t('E-handel', 'E-commerce'), t('Produktkatalog', 'Product catalog'), t('Flerspråkig', 'Multilingual')],
+      externalUrl: 'https://kotoknives.se/',
+      image: kotoKnivesImg,
     },
   ];
 
