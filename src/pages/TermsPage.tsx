@@ -99,6 +99,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-heading font-semibold mb-3">{t('Domäner', 'Domains')}</h2>
               <p className="text-muted-foreground">{t('Om vi köper och registrerar en domän åt dig hanteras domänen av oss. Alla ändringar av domänen – inklusive DNS-inställningar, e-postposter, omdirigeringar, förnyelser och överföringar – utförs uteslutande genom våra tjänster. Du kan när som helst begära ändringar eller en överföring av domänen till dig, och vi genomför den enligt gällande registrarregler.', 'If we purchase and register a domain on your behalf, the domain is managed by us. All changes to that domain — including DNS settings, email records, redirects, renewals and transfers — are carried out exclusively through our services. You may request changes or a transfer of the domain to you at any time, and we will process it in accordance with applicable registrar rules.')}</p>
+              <p className="text-muted-foreground mt-3">{t('Ändringar på webbplatsen utförs i enlighet med vad som ingår i din aktiva månatliga webbvårdsplan.', 'Changes to the website are carried out according to what is included in your active monthly care plan.')}</p>
             </section>
           </AnimatedSection>
 
