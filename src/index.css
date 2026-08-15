@@ -1,9 +1,10 @@
+/* Using Outfit font - slimmer, minimalist */
+@import '@fontsource-variable/outfit';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Using Outfit font - slimmer, minimalist */
-@import '@fontsource-variable/outfit';
 
 @layer base {
   :root {
