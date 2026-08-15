@@ -106,6 +106,13 @@ serve(async (req) => {
     const contactPerson = sanitizeString(requestData.contactPerson, 200);
     const phone = sanitizeString(requestData.phone, 50);
     const selectedStyle = sanitizeString(requestData.selectedStyle, 50);
+    const orderId = sanitizeString(requestData.orderId, 100);
+    const gclid = sanitizeString(requestData.gclid, 200);
+    const utmSource = sanitizeString(requestData.utm_source, 100);
+    const utmMedium = sanitizeString(requestData.utm_medium, 100);
+    const utmCampaign = sanitizeString(requestData.utm_campaign, 150);
+    const utmTerm = sanitizeString(requestData.utm_term, 150);
+    const utmContent = sanitizeString(requestData.utm_content, 150);
     
     // Currency - default to USD if not specified
     const currency: Currency = requestData.currency === "SEK" ? "SEK" : "USD";
@@ -137,7 +144,7 @@ serve(async (req) => {
       ],
       mode: "payment",
       allow_promotion_codes: true,
-      success_url: `${safeOrigin}/demo?success=true`,
+      success_url: `${safeOrigin}/demo?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${safeOrigin}/demo`,
       metadata: {
         type: "verification_fee",
@@ -146,6 +153,13 @@ serve(async (req) => {
         phone,
         selectedStyle,
         currency,
+        orderId,
+        gclid,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+        utm_term: utmTerm,
+        utm_content: utmContent,
       },
     });
 

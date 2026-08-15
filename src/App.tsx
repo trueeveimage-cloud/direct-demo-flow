@@ -14,6 +14,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { PageTransition } from "@/components/PageTransition";
 import { NavigationProgress } from "@/components/NavigationProgress";
 import { getAnalytics } from "@/lib/posthog";
+import { initializeGoogleConsent } from "@/lib/googleAds";
 import { useKonamiCode } from "@/hooks/useKonamiCode";
 import Index from "./pages/Index";
 import FreeDemoPage from "./pages/FreeDemoPage";
@@ -98,6 +99,7 @@ function AppContent() {
 
   // Initialize analytics on mount
   useEffect(() => {
+    initializeGoogleConsent();
     getAnalytics();
   }, []);
 

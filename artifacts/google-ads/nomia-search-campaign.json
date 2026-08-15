@@ -1,0 +1,136 @@
+{
+  "researchDate": "2026-08-15",
+  "campaign": {
+    "name": "SE | Search | Hemsida företag | 14D",
+    "status": "PAUSED",
+    "channel": "SEARCH",
+    "country": "Sweden",
+    "locationMode": "PRESENCE_ONLY",
+    "languages": ["sv", "en"],
+    "networks": "GOOGLE_SEARCH_ONLY",
+    "schedule": "06:00-23:00 Europe/Stockholm daily",
+    "budgetType": "CAMPAIGN_TOTAL",
+    "totalBudgetSek": 750,
+    "durationDays": 14,
+    "bidding": "MAXIMIZE_CLICKS",
+    "initialMaxCpcSek": 15,
+    "maxCpcCeilingSek": 20,
+    "finalUrl": "https://nomia.se/ad?utm_source=google&utm_medium=cpc&utm_campaign=se_search_hemsida_foretag",
+    "displayPath": ["hemsida", "foretag"]
+  },
+  "strategy": {
+    "positioning": "Done-for-you professional websites for Swedish small businesses; do not compete for DIY or AI website-builder traffic.",
+    "runMode": "Run sequentially after the Leadmap test, not at the same time, so the same small budget is not split across two learning campaigns.",
+    "bidRule": "Start at 15 SEK. Raise by at most 20% after 3 full days only if the campaign receives fewer than 5 impressions per day. Never exceed 20 SEK during the test.",
+    "budgetRule": "Use a campaign total budget so billed spend cannot exceed 750 SEK. Do not use an average daily budget for this test."
+  },
+  "keywords": [
+    "[hemsida till företag]",
+    "\"hemsida till företag\"",
+    "[beställa hemsida företag]",
+    "\"beställa hemsida\"",
+    "[ny hemsida företag]",
+    "\"ny hemsida företag\"",
+    "[webbyrå småföretag]",
+    "\"webbyrå småföretag\"",
+    "[hemsida fast pris]",
+    "\"professionell hemsida företag\"",
+    "\"webbdesign företag\"",
+    "\"webbdesigner göteborg\""
+  ],
+  "negativeKeywords": [
+    "jobb",
+    "lediga jobb",
+    "lön",
+    "utbildning",
+    "kurs",
+    "praktik",
+    "mall",
+    "template",
+    "wordpress tema",
+    "wix",
+    "squarespace",
+    "hostinger",
+    "ai website builder",
+    "bygga själv",
+    "gratis hemsideprogram",
+    "logga in",
+    "support"
+  ],
+  "responsiveSearchAd": {
+    "headlines": [
+      "Hemsida för svenska företag",
+      "Ny hemsida på 7–14 dagar",
+      "Professionell hemsida",
+      "Fast pris utan överraskning",
+      "Webbdesign för småföretag",
+      "Hemsida från 2 900 kr",
+      "Nomia webbyrå i Göteborg",
+      "Mobilanpassad och snabb",
+      "Få fler bokningar online",
+      "Svensk personlig service",
+      "Klar hemsida utan krångel",
+      "Design för ditt företag",
+      "Se tidigare kundprojekt",
+      "Beställ hemsida online",
+      "Se design inom 72 timmar"
+    ],
+    "descriptions": [
+      "Professionell företagssida från 2 900 kr. Fast pris, mobilanpassning och kontaktformulär.",
+      "Se ett designförslag inom 72 timmar. Verifieringen kostar 499 kr och är återbetalningsbar.",
+      "Välj ett tydligt paket och få en färdig hemsida inom 7–14 dagar med personlig service.",
+      "Se kundprojekt, paket och priser innan du bestämmer dig. Ingen dold löpande kostnad."
+    ]
+  },
+  "sitelinks": [
+    {
+      "text": "Paket och priser",
+      "url": "https://nomia.se/priser",
+      "description1": "Jämför tre tydliga paket",
+      "description2": "Priser visas före beställning"
+    },
+    {
+      "text": "Tidigare kundprojekt",
+      "url": "https://nomia.se/portfolio",
+      "description1": "Se design och leveranser",
+      "description2": "Bedöm kvaliteten själv"
+    },
+    {
+      "text": "Så fungerar det",
+      "url": "https://nomia.se/hur-det-fungerar",
+      "description1": "Från brief till publicering",
+      "description2": "Tydliga steg och tidsplan"
+    },
+    {
+      "text": "Begär designförslag",
+      "url": "https://nomia.se/demo",
+      "description1": "Se upplägget inom 72 timmar",
+      "description2": "499 kr återbetalningsbart"
+    }
+  ],
+  "conversionActions": {
+    "primary": ["WIZARD_COMPLETE", "PAYMENT_SUCCESS"],
+    "secondary": ["campaign_cta_click", "WIZARD_START", "CHECKOUT_START"],
+    "trackingRequirements": [
+      "Install the Google tag only after consent and verify it with Tag Assistant.",
+      "Fire WIZARD_COMPLETE only after a complete concept request has been stored successfully.",
+      "Fire PAYMENT_SUCCESS only from a verified payment-success event, not a button click.",
+      "Preserve gclid and UTM values through the form and Stripe flow."
+    ]
+  },
+  "launchGates": [
+    "The landing page conspicuously discloses the refundable 499 SEK verification payment next to every design-concept CTA.",
+    "Claims such as 50+ customers, booking increases, scarcity, testimonials, and turnaround times have retained evidence; otherwise remove them from the paid landing page.",
+    "Google Ads conversion tracking and EEA consent signals are tested in production.",
+    "All links, forms, mobile layouts, payment cancellation, and payment success paths work in production.",
+    "Advertiser verification is completed if Google requests it."
+  ],
+  "stopRules": [
+    "Pause immediately if tracking, the form, Stripe, or the landing page breaks.",
+    "Review search terms daily and add irrelevant queries as negatives before more spend.",
+    "Pause a keyword after 150 SEK with no wizard start.",
+    "Pause the campaign at 375 SEK with no completed concept request.",
+    "Stop at 750 SEK regardless of learning status.",
+    "Do not scale until at least one completed request is manually verified as a real Swedish business lead."
+  ]
+}

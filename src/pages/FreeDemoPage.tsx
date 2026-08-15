@@ -15,11 +15,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import type { TablesInsert } from '@/integrations/supabase/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrencyFromLang, getAddonPrice, formatPrice } from '@/config/currency';
 import { trackFunnelEvent, FunnelEvents, trackEvent, getUtmParams } from '@/lib/posthog';
+import { trackGoogleAdsConversion } from '@/lib/googleAds';
 import { useRemainingSpots } from '@/hooks/useRemainingSpots';
 import { useEmailCapture } from '@/hooks/useEmailCapture';
 import {
@@ -94,6 +96,7 @@ export default function FreeDemoPage() {
   const [step, setStep] = useState(1);
   const totalSteps = 6; // Added package selection step
   const hasTrackedStart = useRef(false);
+  const hasVerifiedPayment = useRef(false);
   const [showIntro, setShowIntro] = useState(false);
   const [introDone, setIntroDone] = useState(false);
 
@@ -158,6 +161,37 @@ export default function FreeDemoPage() {
   const currency = getCurrencyFromLang(lang);
   const verificationFee = getAddonPrice('verification', currency);
   const formattedVerificationFee = formatPrice(verificationFee, currency);
+
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id');
+    if (searchParams.get('success') !== 'true' || !sessionId || hasVerifiedPayment.current) return;
+    hasVerifiedPayment.current = true;
+
+    void supabase.functions.invoke('verify-checkout-session', {
+      body: { sessionId },
+    }).then(({ data, error }) => {
+      if (error || !data?.paid) throw error || new Error('Payment was not verified');
+      const value = typeof data.amountTotal === 'number' ? data.amountTotal / 100 : undefined;
+      const verifiedCurrency = typeof data.currency === 'string' ? data.currency : undefined;
+      const transactionId = typeof data.orderId === 'string' && data.orderId ? data.orderId : sessionId;
+
+      trackFunnelEvent('PAYMENT_SUCCESS', { session_id: sessionId, verified: true });
+      trackGoogleAdsConversion('payment_success', {
+        transactionId,
+        value,
+        currency: verifiedCurrency,
+      });
+      localStorage.removeItem(DEMO_STORAGE_KEY);
+      setSubmitted(true);
+    }).catch((error) => {
+      console.error('Payment verification failed:', error);
+      toast({
+        title: t('Betalningen kunde inte verifieras', 'Payment could not be verified'),
+        description: t('Kontakta oss om beloppet har dragits.', 'Contact us if you were charged.'),
+        variant: 'destructive',
+      });
+    });
+  }, [searchParams, toast]);
 
   // Booking services management
   const addBookingService = () => {
@@ -236,10 +270,6 @@ export default function FreeDemoPage() {
     setIsSubmitting(true);
 
     try {
-      // Track demo completion
-      trackFunnelEvent('DEMO_REQUEST', { step: 'submit' });
-      trackFunnelEvent('WIZARD_COMPLETE', { wizard_type: 'demo' });
-
       // First, save concept request to database
       const conceptData = {
         email,
@@ -252,10 +282,11 @@ export default function FreeDemoPage() {
 
       if (conceptError) {
         console.error('Error saving concept request:', conceptError);
+        throw conceptError;
       }
 
       // Now, save the full order submission for design purposes
-      const orderData = {
+      const orderData: TablesInsert<'order_submissions'> = {
         email,
         business_name: businessName,
         contact_person: contactPerson,
@@ -283,7 +314,7 @@ export default function FreeDemoPage() {
 
       const { data: orderResult, error: orderError } = await supabase
         .from('order_submissions')
-        .insert(orderData as any)
+        .insert(orderData)
         .select('id')
         .single();
 
@@ -300,12 +331,16 @@ export default function FreeDemoPage() {
           orderId: orderResult.id,
           currency,
           language: lang,
+          ...getUtmParams(),
         }
       });
 
       if (error) throw error;
 
       if (data?.url) {
+        trackFunnelEvent('DEMO_REQUEST', { step: 'submit', order_id: orderResult.id });
+        trackFunnelEvent('WIZARD_COMPLETE', { wizard_type: 'demo', order_id: orderResult.id });
+        trackGoogleAdsConversion('concept_request', { transactionId: orderResult.id });
         // Clear storage on successful submission
         localStorage.removeItem(DEMO_STORAGE_KEY);
         window.location.href = data.url;

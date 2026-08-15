@@ -4,6 +4,7 @@ import { Cookie, X, Check, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
+import { denyGoogleConsent, grantGoogleConsent } from '@/lib/googleAds';
 
 const COOKIE_CONSENT_KEY = 'nomia_cookie_consent';
 
@@ -30,36 +31,38 @@ export function CookieConsent() {
   const [showParticles, setShowParticles] = useState(false);
 
   useEffect(() => {
-    // Check consent after 20 seconds exactly
+    // Ask before optional Google measurement can load.
     try {
       const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
       if (!consent) {
-        const timer = setTimeout(() => setIsVisible(true), 20000);
+        const timer = setTimeout(() => setIsVisible(true), 500);
         return () => clearTimeout(timer);
       }
     } catch (e) {
       // localStorage not available, show banner anyway after 20 seconds
-      const timer = setTimeout(() => setIsVisible(true), 20000);
+      const timer = setTimeout(() => setIsVisible(true), 500);
       return () => clearTimeout(timer);
     }
   }, []);
 
   const handleAccept = () => {
+    localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
+    grantGoogleConsent();
     setIsAccepting(true);
     setShowParticles(true);
     
     // Wait for animation then hide
     setTimeout(() => {
-      localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
       setIsVisible(false);
     }, 800);
   };
 
   const handleDecline = () => {
+    localStorage.setItem(COOKIE_CONSENT_KEY, 'declined');
+    denyGoogleConsent();
     setIsDeclining(true);
     
     setTimeout(() => {
-      localStorage.setItem(COOKIE_CONSENT_KEY, 'declined');
       setIsVisible(false);
     }, 600);
   };
@@ -186,8 +189,8 @@ export function CookieConsent() {
                       ) : (
                         <>
                           {t(
-                            'Vi använder cookies för att förbättra din upplevelse. ',
-                            'We use cookies to improve your experience. '
+                            'Nödvändiga funktioner används alltid. Med ditt val kan vi även mäta vilka annonser som leder till riktiga förfrågningar. ',
+                            'Essential functions are always used. With your choice, we can also measure which ads lead to genuine enquiries. '
                           )}
                           <Link to="/integritet" className="text-accent hover:underline">
                             {t('Läs mer', 'Learn more')}

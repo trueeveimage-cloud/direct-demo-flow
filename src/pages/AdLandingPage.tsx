@@ -29,7 +29,7 @@ export default function AdLandingPage() {
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center relative overflow-hidden">
       <SEOHead 
         title={t('Webbsidor som konverterar | Nomia', 'Websites that convert | Nomia')}
-        description={t('Se din design först. Betala bara om du älskar den.', 'See your design first. Pay only if you love it.')}
+        description={t('Professionell företagssida från 2 900 kr med tydliga priser och leveranstider.', 'Professional business website from SEK 2,900 with clear pricing and delivery times.')}
       />
       <GrainOverlay />
       
@@ -75,7 +75,7 @@ export default function AdLandingPage() {
               <Star key={i} className="w-3 h-3 fill-accent text-accent" />
             ))}
           </div>
-          <span className="text-xs text-muted-foreground">{t('50+ nöjda kunder', '50+ happy clients')}</span>
+          <span className="text-xs text-muted-foreground">{t('Fast pris i SEK · Svensk service', 'Fixed SEK pricing · Swedish service')}</span>
         </motion.div>
 
         {/* Main headline */}
@@ -86,7 +86,7 @@ export default function AdLandingPage() {
           className="text-4xl sm:text-5xl font-extralight tracking-tight mb-4 leading-[1.1]"
         >
           {t('Din hemsida.', 'Your website.')}{' '}
-          <span className="text-accent">{t('Klar på 7 dagar.', 'Ready in 7 days.')}</span>
+          <span className="text-accent">{t('Klar på 7–14 dagar.', 'Ready in 7–14 days.')}</span>
         </motion.h1>
         
         {/* Subheadline */}
@@ -97,8 +97,8 @@ export default function AdLandingPage() {
           className="text-sm sm:text-base text-muted-foreground font-light mb-8 max-w-xs mx-auto leading-relaxed"
         >
           {t(
-            'Professionell design som faktiskt konverterar — med pengarna-tillbaka-garanti.',
-            'Professional design that actually converts — with a money-back guarantee.'
+            'Professionell design från 2 900 kr — mobilanpassad, tydligt prissatt och redo för kunder.',
+            'Professional design from SEK 2,900 — mobile-ready, clearly priced and ready for customers.'
           )}
         </motion.p>
         
@@ -117,7 +117,7 @@ export default function AdLandingPage() {
             {/* Shimmer */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
             <span className="flex flex-col items-center leading-tight relative z-10">
-              <span className="text-base font-semibold">{t('Beställ Standard', 'Order Standard')}</span>
+              <span className="text-base font-semibold">{t('Beställ Standard · 5 900 kr', 'Order Standard · SEK 5,900')}</span>
               <span className="text-[11px] font-normal opacity-80">{t('5 sidor · Mest populär', '5 pages · Most popular', { no: '5 sider · Mest populær', dk: '5 sider · Mest populær' })}</span>
             </span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform relative z-10" />
@@ -129,7 +129,7 @@ export default function AdLandingPage() {
             onClick={() => handleCTAClick('hero_concept')}
             className="group flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground px-6 py-2.5 text-sm font-medium transition-all duration-300"
           >
-            {t('Eller få gratis koncept först', 'Or get free concept first', { no: 'Eller få gratis konsept først', dk: 'Eller få gratis koncept først' })}
+            {t('Designförslag · 499 kr återbetalningsbart', 'Design concept · refundable SEK 499')}
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </motion.div>
@@ -143,17 +143,17 @@ export default function AdLandingPage() {
         >
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <Shield className="w-3 h-3 text-accent" />
-            {t('Pengarna tillbaka', 'Money-back')}
+            {t('Från 2 900 kr', 'From SEK 2,900')}
           </div>
           <span className="text-muted-foreground/30 text-xs">|</span>
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <Clock className="w-3 h-3 text-accent" />
-            {t('Klar på 7 dagar', 'Done in 7 days')}
+            {t('Klar på 7–14 dagar', 'Done in 7–14 days')}
           </div>
           <span className="text-muted-foreground/30 text-xs">|</span>
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <Star className="w-3 h-3 text-accent" />
-            {t('50+ kunder', '50+ clients')}
+            {t('Fast pris', 'Fixed price')}
           </div>
         </motion.div>
 
@@ -166,7 +166,7 @@ export default function AdLandingPage() {
         >
           <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            {t('Endast 3 platser kvar denna vecka', 'Only 3 spots left this week')}
+            {t('Verifieringsavgiften dras av vid köp eller återbetalas om du tackar nej', 'The verification fee is deducted from purchase or refunded if you decline')}
           </span>
         </motion.div>
       </div>

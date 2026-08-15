@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { playSound, triggerHaptic } from '@/lib/haptics';
 import confetti from 'canvas-confetti';
 import { trackFunnelEvent } from '@/lib/posthog';
+import { trackGoogleAdsConversion } from '@/lib/googleAds';
 
 export default function PaymentSuccessPage() {
   const { t } = useLanguage();
@@ -15,16 +16,35 @@ export default function PaymentSuccessPage() {
   const sessionId = searchParams.get('session_id');
   const [emailSent, setEmailSent] = useState(false);
   const [emailError, setEmailError] = useState(false);
+  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [paymentVerificationError, setPaymentVerificationError] = useState(false);
   const hasSentEmail = useRef(false);
   const hasPlayedSuccess = useRef(false);
   const hasTrackedSuccess = useRef(false);
 
-  // Track payment success on mount
+  // Verify the Stripe session server-side before recording a paid conversion.
   useEffect(() => {
-    if (!hasTrackedSuccess.current && sessionId) {
-      hasTrackedSuccess.current = true;
-      trackFunnelEvent('PAYMENT_SUCCESS', { session_id: sessionId });
-    }
+    if (hasTrackedSuccess.current || !sessionId) return;
+    hasTrackedSuccess.current = true;
+
+    void supabase.functions.invoke('verify-checkout-session', {
+      body: { sessionId },
+    }).then(({ data, error }) => {
+      if (error || !data?.paid) throw error || new Error('Payment was not verified');
+      const value = typeof data.amountTotal === 'number' ? data.amountTotal / 100 : undefined;
+      const currency = typeof data.currency === 'string' ? data.currency : undefined;
+
+      setPaymentVerified(true);
+      trackFunnelEvent('PAYMENT_SUCCESS', { session_id: sessionId, verified: true });
+      trackGoogleAdsConversion('payment_success', {
+        transactionId: sessionId,
+        value,
+        currency,
+      });
+    }).catch((error) => {
+      console.error('Payment verification failed:', error);
+      setPaymentVerificationError(true);
+    });
   }, [sessionId]);
 
   // Play success sounds and confetti on mount
@@ -70,7 +90,7 @@ export default function PaymentSuccessPage() {
   useEffect(() => {
     const sendConfirmationEmail = async () => {
       // Prevent duplicate sends
-      if (hasSentEmail.current || !sessionId) return;
+      if (hasSentEmail.current || !sessionId || !paymentVerified) return;
       hasSentEmail.current = true;
       
       // Get order details from URL params or localStorage
@@ -152,7 +172,32 @@ export default function PaymentSuccessPage() {
     };
 
     sendConfirmationEmail();
-  }, [sessionId, searchParams]);
+  }, [paymentVerified, sessionId, searchParams]);
+
+  if (sessionId && !paymentVerified && !paymentVerificationError) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center gap-3 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        {t('Verifierar betalningen…', 'Verifying payment…')}
+      </div>
+    );
+  }
+
+  if (!sessionId || paymentVerificationError) {
+    return (
+      <div className="section-padding py-20 min-h-[70vh] flex items-center">
+        <div className="container-narrow text-center">
+          <h1 className="text-3xl font-bold mb-4">
+            {t('Betalningen kunde inte verifieras', 'Payment could not be verified')}
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            {t('Kontakta oss om beloppet har dragits från ditt konto.', 'Contact us if your account was charged.')}
+          </p>
+          <Button asChild><Link to="/kontakt">{t('Kontakta oss', 'Contact us')}</Link></Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="section-padding py-20 min-h-[70vh] flex items-center">
