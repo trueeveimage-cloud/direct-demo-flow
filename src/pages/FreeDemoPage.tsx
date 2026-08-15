@@ -286,7 +286,9 @@ export default function FreeDemoPage() {
       }
 
       // Now, save the full order submission for design purposes
+      const orderId = crypto.randomUUID();
       const orderData: TablesInsert<'order_submissions'> = {
+        id: orderId,
         email,
         business_name: businessName,
         contact_person: contactPerson,
@@ -312,11 +314,9 @@ export default function FreeDemoPage() {
         payment_status: 'pending'
       };
 
-      const { data: orderResult, error: orderError } = await supabase
+      const { error: orderError } = await supabase
         .from('order_submissions')
-        .insert(orderData)
-        .select('id')
-        .single();
+        .insert(orderData);
 
       if (orderError) {
         console.error('Error saving order submission:', orderError);
@@ -328,7 +328,7 @@ export default function FreeDemoPage() {
         body: {
           email,
           businessName,
-          orderId: orderResult.id,
+          orderId,
           currency,
           language: lang,
           ...getUtmParams(),

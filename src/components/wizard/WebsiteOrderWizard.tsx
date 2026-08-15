@@ -314,7 +314,9 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
     
     try {
       // Prepare order data
+      const orderId = crypto.randomUUID();
       const orderData = {
+        id: orderId,
         email: formData.email,
         business_name: formData.businessName,
         contact_person: formData.contactPerson,
@@ -355,18 +357,16 @@ export function WebsiteOrderWizard({ isPostDemoFlow = false, conceptLink, onComp
       };
 
       // Save to database first
-      const { data: orderResult, error: orderError } = await supabase
+      const { error: orderError } = await supabase
         .from('order_submissions')
-        .insert(orderData)
-        .select('id')
-        .single();
+        .insert(orderData);
 
       if (orderError) throw orderError;
 
       // Create Stripe checkout session
       const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-package-checkout', {
         body: {
-          orderId: orderResult.id,
+          orderId,
           packageId: formData.selectedPackage,
           email: formData.email,
           businessName: formData.businessName,
