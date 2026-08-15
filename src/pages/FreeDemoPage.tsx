@@ -338,9 +338,9 @@ export default function FreeDemoPage() {
       if (error) throw error;
 
       if (data?.url) {
-        trackFunnelEvent('DEMO_REQUEST', { step: 'submit', order_id: orderResult.id });
-        trackFunnelEvent('WIZARD_COMPLETE', { wizard_type: 'demo', order_id: orderResult.id });
-        trackGoogleAdsConversion('concept_request', { transactionId: orderResult.id });
+        trackFunnelEvent('DEMO_REQUEST', { step: 'submit', order_id: orderId });
+        trackFunnelEvent('WIZARD_COMPLETE', { wizard_type: 'demo', order_id: orderId });
+        trackGoogleAdsConversion('concept_request', { transactionId: orderId });
         // Clear storage on successful submission
         localStorage.removeItem(DEMO_STORAGE_KEY);
         window.location.href = data.url;
